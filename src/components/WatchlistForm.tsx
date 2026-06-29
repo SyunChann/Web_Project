@@ -152,7 +152,7 @@ export function WatchlistForm({
             name="id"
             defaultValue={item?.id}
             placeholder="예: upcoming-movie"
-            className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#d9902f] focus:bg-white"
+            className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#38a39b] focus:bg-white"
           />
         </label>
       ) : null}
@@ -163,7 +163,7 @@ export function WatchlistForm({
           name="title"
           defaultValue={item?.title}
           required
-          className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#d9902f] focus:bg-white"
+          className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#38a39b] focus:bg-white"
         />
       </label>
 
@@ -174,7 +174,7 @@ export function WatchlistForm({
             name="type"
             defaultValue={item?.type ?? "movie"}
             required
-            className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#d9902f] focus:bg-white"
+            className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#38a39b] focus:bg-white"
           >
             <option value="movie">영화</option>
             <option value="anime">애니</option>
@@ -189,7 +189,7 @@ export function WatchlistForm({
             name="status"
             defaultValue={item?.status ?? "waiting"}
             required
-            className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#d9902f] focus:bg-white"
+            className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#38a39b] focus:bg-white"
           >
             <option value="waiting">기대중</option>
             <option value="watching">보는 중</option>
@@ -204,7 +204,7 @@ export function WatchlistForm({
             defaultValue={item?.releaseLabel}
             placeholder="예: 2026년 공개 예정"
             required
-            className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#d9902f] focus:bg-white"
+            className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#38a39b] focus:bg-white"
           />
         </label>
       </div>
@@ -215,7 +215,7 @@ export function WatchlistForm({
           name="genre"
           defaultValue={item?.genre.join(", ")}
           placeholder="예: 액션, 판타지"
-          className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#d9902f] focus:bg-white"
+          className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#38a39b] focus:bg-white"
         />
       </label>
 
@@ -226,7 +226,7 @@ export function WatchlistForm({
           type="url"
           defaultValue={item?.youtubeUrl}
           placeholder="예: https://www.youtube.com/watch?v=..."
-          className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#d9902f] focus:bg-white"
+          className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#38a39b] focus:bg-white"
         />
       </label>
 
@@ -247,7 +247,7 @@ export function WatchlistForm({
                 : "이미지는 업로드 전에 자동으로 1200px 이하 WebP로 압축됩니다.",
             );
           }}
-          className="rounded-md border border-[#d8cfc2] bg-white px-4 py-3 text-sm font-normal file:mr-4 file:rounded-md file:border-0 file:bg-[#b56f1d] file:px-3 file:py-2 file:text-sm file:font-bold file:text-white"
+          className="rounded-md border border-[#d8cfc2] bg-white px-4 py-3 text-sm font-normal file:mr-4 file:rounded-md file:border-0 file:bg-[#2f7f7a] file:px-3 file:py-2 file:text-sm file:font-bold file:text-white"
         />
         <span className="text-xs font-normal leading-5 text-[#7a6f63]">
           {thumbnailStatus}
@@ -261,7 +261,7 @@ export function WatchlistForm({
           defaultValue={item?.reason}
           required
           rows={7}
-          className="resize-y rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal leading-7 outline-none transition focus:border-[#d9902f] focus:bg-white"
+          className="resize-y rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal leading-7 outline-none transition focus:border-[#38a39b] focus:bg-white"
         />
       </label>
 
@@ -269,13 +269,13 @@ export function WatchlistForm({
         <button
           type="submit"
           disabled={isCompressing}
-          className="rounded-md bg-[#b56f1d] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#9a5a13]"
+          className="rounded-md bg-[#2f7f7a] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#276965]"
         >
           {isCompressing ? "이미지 압축 중..." : submitLabel}
         </button>
         <Link
           href={item ? `/watchlist/${item.id}` : "/watchlist"}
-          className="rounded-md border border-[#d8cfc2] bg-white px-5 py-3 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#d9902f] hover:text-[#9a5a13]"
+          className="rounded-md border border-[#d8cfc2] bg-white px-5 py-3 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#38a39b] hover:text-[#2f7f7a]"
         >
           취소
         </Link>

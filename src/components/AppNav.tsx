@@ -58,8 +58,8 @@ export async function AppNav({ active }: AppNavProps) {
               href="/watchlist"
               className={`mt-1 flex items-center gap-2 rounded-md px-3 py-2 text-sm font-bold transition ${
                 active === "watchlist"
-                  ? "bg-[#fffaf0] text-[#9a5a13]"
-                  : "text-[#52616b] hover:bg-[#fffaf0] hover:text-[#9a5a13]"
+                  ? "bg-[#eefaf8] text-[#2f7f7a]"
+                  : "text-[#52616b] hover:bg-[#eefaf8] hover:text-[#2f7f7a]"
               }`}
             >
               <Bookmark size={16} />

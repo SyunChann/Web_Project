@@ -38,14 +38,14 @@ export default async function EditWatchlistPage({
       <section className="mx-auto w-full max-w-3xl">
         <Link
           href={`/watchlist/${item.id}`}
-          className="inline-flex items-center gap-2 text-sm font-bold text-[#9a5a13]"
+          className="inline-flex items-center gap-2 text-sm font-bold text-[#2f7f7a]"
         >
           <ArrowLeft size={17} />
           기대작 상세
         </Link>
 
         <header className="py-8">
-          <p className="text-sm font-semibold text-[#9a5a13]">Watchlist</p>
+          <p className="text-sm font-semibold text-[#2f7f7a]">Watchlist</p>
           <h1 className="mt-3 text-3xl font-bold sm:text-4xl">기대작 수정</h1>
         </header>
 

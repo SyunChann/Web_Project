@@ -26,17 +26,17 @@ export default async function WatchlistPage() {
 
         <section className="grid gap-8 py-8 lg:grid-cols-[1fr_420px] lg:items-center">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-md border border-[#eadcc7] bg-white px-3 py-2 text-sm font-bold text-[#9a5a13] shadow-sm">
+            <div className="inline-flex items-center gap-2 rounded-md border border-[#cbe8e4] bg-white px-3 py-2 text-sm font-bold text-[#2f7f7a] shadow-sm">
               <Sparkles size={16} />
               감상 예정 아카이브
             </div>
 
-            <p className="mt-6 text-sm font-bold uppercase text-[#9a5a13]">
+            <p className="mt-6 text-sm font-bold uppercase text-[#2f7f7a]">
               Watchlist
             </p>
             <h1 className="mt-3 max-w-3xl text-4xl font-black leading-tight text-[#17202a] sm:text-5xl">
               아직 보지 않은 작품도
-              <span className="mt-2 block text-[#b56f1d]">
+              <span className="mt-2 block text-[#2f7f7a]">
                 미리 붙잡아두기
               </span>
             </h1>
@@ -48,14 +48,14 @@ export default async function WatchlistPage() {
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/watchlist/items"
-                className="inline-flex items-center gap-2 rounded-md bg-[#b56f1d] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#9a5a13]"
+                className="inline-flex items-center gap-2 rounded-md bg-[#2f7f7a] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#276965]"
               >
                 기대작 전체보기
                 <ArrowRight size={18} />
               </Link>
               <Link
                 href="#recent-watchlist"
-                className="inline-flex items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-5 py-3 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#d9902f] hover:text-[#9a5a13]"
+                className="inline-flex items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-5 py-3 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#38a39b] hover:text-[#2f7f7a]"
               >
                 최근 기대작 보기
                 <ArrowRight size={18} />
@@ -69,14 +69,14 @@ export default async function WatchlistPage() {
         <section id="recent-watchlist" className="scroll-mt-8 pb-12">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="text-sm font-bold text-[#9a5a13]">Upcoming</p>
+              <p className="text-sm font-bold text-[#2f7f7a]">Upcoming</p>
               <h2 className="mt-3 text-2xl font-bold text-[#17202a]">
                 최근 기대작
               </h2>
             </div>
             <Link
               href="/watchlist/items"
-              className="inline-flex items-center gap-2 text-sm font-bold text-[#9a5a13]"
+              className="inline-flex items-center gap-2 text-sm font-bold text-[#2f7f7a]"
             >
               기대작 전체보기
               <ArrowRight size={16} />
@@ -102,7 +102,7 @@ function EmptyFeaturedWatchItem() {
   return (
     <article className="flex min-h-[320px] items-center justify-center rounded-lg border border-dashed border-[#eadcc7] bg-[#fffdf8] p-8 text-center shadow-sm">
       <div>
-        <Bookmark className="mx-auto text-[#d9902f]" size={28} />
+        <Bookmark className="mx-auto text-[#38a39b]" size={28} />
         <h2 className="mt-5 text-2xl font-bold text-[#17202a]">
           아직 작성된 기대작이 없습니다
         </h2>
@@ -116,7 +116,7 @@ function EmptyFeaturedWatchItem() {
 
 function FeaturedWatchItem({ item }: { item: WatchItem }) {
   return (
-    <article className="overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] border-l-[#d9902f] bg-white shadow-sm">
+    <article className="overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] border-l-[#38a39b] bg-white shadow-sm">
       <Image
         src={item.thumbnail}
         alt={item.thumbnailAlt}
@@ -131,7 +131,7 @@ function FeaturedWatchItem({ item }: { item: WatchItem }) {
           <span className={`rounded-md px-3 py-1 text-sm font-bold ${watchStatusTheme(item.status)}`}>
             {watchStatusLabel(item.status)}
           </span>
-          <span className="flex items-center gap-1 text-sm font-bold text-[#9a5a13]">
+          <span className="flex items-center gap-1 text-sm font-bold text-[#2f7f7a]">
             <CalendarClock size={16} />
             {item.releaseLabel}
           </span>
@@ -149,7 +149,7 @@ function FeaturedWatchItem({ item }: { item: WatchItem }) {
 function EmptyWatchlist() {
   return (
     <div className="mt-5 rounded-lg border border-dashed border-[#eadcc7] bg-[#fffdf8] p-8 text-center shadow-sm">
-      <Bookmark className="mx-auto text-[#d9902f]" size={24} />
+      <Bookmark className="mx-auto text-[#38a39b]" size={24} />
       <h3 className="mt-4 text-lg font-bold text-[#17202a]">
         아직 작성된 기대작이 없습니다
       </h3>
@@ -164,7 +164,7 @@ function WatchItemCard({ item }: { item: WatchItem }) {
   return (
     <Link
       href={`/watchlist/${item.id}`}
-      className="block overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] border-l-[#d9902f] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+      className="block overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] border-l-[#38a39b] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
     >
       <Image
         src={item.thumbnail}
@@ -179,7 +179,7 @@ function WatchItemCard({ item }: { item: WatchItem }) {
           <span className={`rounded-md px-3 py-1 text-xs font-bold ${watchStatusTheme(item.status)}`}>
             {watchStatusLabel(item.status)}
           </span>
-          <Bookmark size={16} className="text-[#d9902f]" />
+          <Bookmark size={16} className="text-[#38a39b]" />
         </div>
         <h3 className="mt-5 text-lg font-bold text-[#17202a]">{item.title}</h3>
         <p className="mt-2 text-sm text-[#6b7280]">{item.releaseLabel}</p>

@@ -106,7 +106,7 @@ export default async function Home() {
         <section className="rounded-lg border border-[#eadcc7] bg-white p-6 shadow-sm sm:p-8">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="text-sm font-bold text-[#9a5a13]">Watchlist</p>
+              <p className="text-sm font-bold text-[#2f7f7a]">Watchlist</p>
               <h2 className="mt-3 text-2xl font-bold text-[#17202a]">
                 기대작 기록
               </h2>
@@ -117,7 +117,7 @@ export default async function Home() {
             </div>
             <Link
               href="/watchlist"
-              className="inline-flex items-center gap-2 text-sm font-bold text-[#9a5a13]"
+              className="inline-flex items-center gap-2 text-sm font-bold text-[#2f7f7a]"
             >
               기대작 홈
               <ArrowRight size={16} />
@@ -235,13 +235,13 @@ function WatchPreviewCard({ item }: { item: WatchItem }) {
   return (
     <Link
       href={`/watchlist/${item.id}`}
-      className="rounded-lg border border-l-4 border-[#ddd6cc] border-l-[#d9902f] bg-[#fffdf8] p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+      className="rounded-lg border border-l-4 border-[#ddd6cc] border-l-[#38a39b] bg-[#f7fffd] p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
     >
       <div className="flex items-center justify-between gap-3">
-        <span className="rounded-md bg-[#fff0d9] px-3 py-1 text-xs font-bold text-[#9a5a13]">
+        <span className="rounded-md bg-[#e4f4f2] px-3 py-1 text-xs font-bold text-[#2f7f7a]">
           {watchStatusLabel(item.status)}
         </span>
-        <Bookmark size={16} className="text-[#d9902f]" />
+        <Bookmark size={16} className="text-[#38a39b]" />
       </div>
       <h3 className="mt-5 text-lg font-bold text-[#17202a]">{item.title}</h3>
       <p className="mt-2 text-sm text-[#6b7280]">{item.releaseLabel}</p>

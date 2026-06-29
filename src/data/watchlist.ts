@@ -120,8 +120,8 @@ export function watchStatusLabel(status: WatchItem["status"]) {
 
 export function watchStatusTheme(status: WatchItem["status"]) {
   const themes = {
-    waiting: "bg-[#fff0d9] text-[#9a5a13]",
-    watching: "bg-[#e5f4ed] text-[#247053]",
+    waiting: "bg-[#e4f4f2] text-[#2f7f7a]",
+    watching: "bg-[#e9ecff] text-[#4657b8]",
     paused: "bg-[#eef0f3] text-[#52616b]",
   };
 

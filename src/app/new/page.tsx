@@ -95,9 +95,9 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
 
           <Link
             href="/new?type=watchlist"
-            className="group rounded-lg border border-[#ddd6cc] bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-[#d9902f] hover:shadow-md"
+            className="group rounded-lg border border-[#ddd6cc] bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-[#38a39b] hover:shadow-md"
           >
-            <span className="flex h-11 w-11 items-center justify-center rounded-md bg-[#fff0d9] text-[#9a5a13]">
+            <span className="flex h-11 w-11 items-center justify-center rounded-md bg-[#e4f4f2] text-[#2f7f7a]">
               <Bookmark size={20} />
             </span>
             <h2 className="mt-5 text-xl font-bold text-[#17202a]">기대작</h2>

@@ -62,7 +62,7 @@ export default async function WatchlistDetailPage({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Link
             href="/watchlist/items"
-            className="inline-flex items-center gap-2 text-sm font-bold text-[#9a5a13]"
+            className="inline-flex items-center gap-2 text-sm font-bold text-[#2f7f7a]"
           >
             <ArrowLeft size={17} />
             기대작 목록
@@ -72,7 +72,7 @@ export default async function WatchlistDetailPage({
             <div className="flex flex-wrap gap-2">
               <Link
                 href={`/watchlist/${item.id}/edit`}
-                className="inline-flex items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 py-2 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#d9902f] hover:text-[#9a5a13]"
+                className="inline-flex items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 py-2 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#38a39b] hover:text-[#2f7f7a]"
               >
                 <Pencil size={16} />
                 수정
@@ -142,7 +142,7 @@ export default async function WatchlistDetailPage({
         {embedUrl ? (
           <section className="mt-8 rounded-lg border border-[#ddd6cc] bg-white p-6 shadow-sm sm:p-8">
             <div className="mb-5 flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-md bg-[#fff0d9] text-[#9a5a13]">
+              <span className="flex h-10 w-10 items-center justify-center rounded-md bg-[#e4f4f2] text-[#2f7f7a]">
                 <Play size={18} fill="currentColor" />
               </span>
               <div>
