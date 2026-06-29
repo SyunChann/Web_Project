@@ -20,7 +20,7 @@ const reviewTypes: Review["type"][] = ["movie", "anime", "game", "drama"];
 
 export default async function Home() {
   const reviews = await getReviews();
-  const watchItems = getWatchItems();
+  const watchItems = await getWatchItems();
   const featuredReview = reviews[0];
   const recentReviews = reviews.slice(0, 3);
   const previewWatchItems = watchItems.slice(0, 3);
@@ -234,7 +234,7 @@ function StatItem({
 function WatchPreviewCard({ item }: { item: WatchItem }) {
   return (
     <Link
-      href="/watchlist"
+      href={`/watchlist/${item.id}`}
       className="rounded-lg border border-l-4 border-[#ddd6cc] border-l-[#d9902f] bg-[#fffdf8] p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
     >
       <div className="flex items-center justify-between gap-3">

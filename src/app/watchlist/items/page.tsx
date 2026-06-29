@@ -14,8 +14,8 @@ export const metadata = {
   description: "앞으로 보고 싶은 기대작 전체 목록",
 };
 
-export default function WatchlistItemsPage() {
-  const items = getWatchItems();
+export default async function WatchlistItemsPage() {
+  const items = await getWatchItems();
 
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
@@ -61,7 +61,10 @@ export default function WatchlistItemsPage() {
 
 function WatchItemCard({ item }: { item: WatchItem }) {
   return (
-    <article className="overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] border-l-[#d9902f] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+    <Link
+      href={`/watchlist/${item.id}`}
+      className="block overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] border-l-[#d9902f] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+    >
       <Image
         src={item.thumbnail}
         alt={item.thumbnailAlt}
@@ -83,6 +86,6 @@ function WatchItemCard({ item }: { item: WatchItem }) {
           {item.reason}
         </p>
       </div>
-    </article>
+    </Link>
   );
 }

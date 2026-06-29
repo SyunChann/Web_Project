@@ -71,10 +71,10 @@ export async function AppNav({ active }: AppNavProps) {
         {user ? (
           <>
             <Link
-              href="/reviews/new"
+              href="/new"
               className="inline-flex items-center gap-2 rounded-md bg-[#be4b49] px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-[#a83f3d]"
             >
-              <Plus size={16} />새 리뷰
+              <Plus size={16} />새 글
             </Link>
             <span className="rounded-md bg-[#edf2ef] px-3 py-2 text-sm font-bold text-[#2f6f5e]">
               관리자
