@@ -1,26 +1,17 @@
 import { ArrowRight, Star } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
-import { reviews, typeLabel, typeTheme } from "@/data/reviews";
+import { AppNav } from "@/components/AppNav";
+import { getReviews, typeLabel, typeTheme } from "@/data/reviews";
 
-export default function Home() {
+export default async function Home() {
+  const reviews = await getReviews();
   const featuredReview = reviews[0];
-  const featuredTheme = typeTheme(featuredReview.type);
 
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
       <section className="mx-auto flex w-full max-w-5xl flex-col gap-10">
-        <nav className="flex items-center justify-between">
-          <Link href="/" className="text-lg font-bold">
-            Review Collection
-          </Link>
-          <Link
-            href="/reviews"
-            className="inline-flex items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 py-2 text-sm font-bold text-[#be4b49] shadow-sm transition hover:border-[#be4b49] hover:bg-[#fff7f5]"
-          >
-            리뷰 보기
-            <ArrowRight size={16} />
-          </Link>
-        </nav>
+        <AppNav active="home" />
 
         <div className="grid gap-8 py-10 md:grid-cols-[1.1fr_0.9fr] md:items-center">
           <div>
@@ -43,38 +34,69 @@ export default function Home() {
             </Link>
           </div>
 
-          <article
-            className={`rounded-lg border border-l-4 border-[#ddd6cc] ${featuredTheme.border} bg-white p-6 shadow-sm`}
-          >
-            <div className="flex items-center justify-between gap-4">
-              <span
-                className={`rounded-md px-3 py-1 text-sm font-semibold ${featuredTheme.badge}`}
-              >
-                추천 {typeLabel(featuredReview.type)}
-              </span>
-              <span className="flex items-center gap-1 text-sm font-bold">
-                <Star size={16} fill="#f2b84b" color="#f2b84b" />
-                {featuredReview.rating}
-              </span>
+          {featuredReview ? (
+            <FeaturedReview review={featuredReview} />
+          ) : (
+            <div className="rounded-lg border border-dashed border-[#cfc5b8] bg-white p-6 shadow-sm">
+              <p className="text-sm font-semibold text-[#be4b49]">
+                리뷰 없음
+              </p>
+              <h2 className="mt-4 text-2xl font-bold">
+                Supabase에 첫 리뷰를 추가해 주세요.
+              </h2>
+              <p className="mt-3 leading-7 text-[#52616b]">
+                `reviews` 테이블에 데이터가 들어오면 이 영역에 추천 리뷰가
+                표시됩니다.
+              </p>
             </div>
-            <h2 className="mt-5 text-2xl font-bold">{featuredReview.title}</h2>
-            <p className="mt-2 text-sm text-[#6b7280]">
-              {typeLabel(featuredReview.type)} ·{" "}
-              {featuredReview.genre.join(", ")}
-            </p>
-            <p className="mt-5 leading-7 text-[#3f4a54]">
-              {featuredReview.summary}
-            </p>
-            <Link
-              href={`/reviews/${featuredReview.id}`}
-              className={`mt-6 inline-flex items-center gap-2 text-sm font-bold ${featuredTheme.text}`}
-            >
-              자세히 읽기
-              <ArrowRight size={16} />
-            </Link>
-          </article>
+          )}
         </div>
       </section>
     </main>
+  );
+}
+
+function FeaturedReview({ review }: { review: Awaited<ReturnType<typeof getReviews>>[number] }) {
+  const theme = typeTheme(review.type);
+
+  return (
+    <article
+      className={`overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] ${theme.border} bg-white shadow-sm`}
+    >
+      <Image
+        src={review.thumbnail}
+        alt={review.thumbnailAlt}
+        width={960}
+        height={540}
+        className="aspect-video w-full object-cover"
+        loading="eager"
+        fetchPriority="high"
+      />
+      <div className="p-6">
+        <div className="flex items-center justify-between gap-4">
+          <span
+            className={`rounded-md px-3 py-1 text-sm font-semibold ${theme.badge}`}
+          >
+            추천 {typeLabel(review.type)}
+          </span>
+          <span className="flex items-center gap-1 text-sm font-bold">
+            <Star size={16} fill="#f2b84b" color="#f2b84b" />
+            {review.rating}
+          </span>
+        </div>
+        <h2 className="mt-5 text-2xl font-bold">{review.title}</h2>
+        <p className="mt-2 text-sm text-[#6b7280]">
+          {typeLabel(review.type)} · {review.genre.join(", ")}
+        </p>
+        <p className="mt-5 leading-7 text-[#3f4a54]">{review.summary}</p>
+        <Link
+          href={`/reviews/${review.id}`}
+          className={`mt-6 inline-flex items-center gap-2 text-sm font-bold ${theme.text}`}
+        >
+          자세히 읽기
+          <ArrowRight size={16} />
+        </Link>
+      </div>
+    </article>
   );
 }

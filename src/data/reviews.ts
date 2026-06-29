@@ -1,3 +1,5 @@
+import { createSupabasePublicClient } from "@/lib/supabase/public";
+
 export type Review = {
   id: string;
   title: string;
@@ -5,48 +7,80 @@ export type Review = {
   genre: string[];
   rating: number;
   watchedAt: string;
+  thumbnail: string;
+  thumbnailAlt: string;
   summary: string;
   review: string;
 };
 
-export const reviews: Review[] = [
-  {
-    id: "your-name",
-    title: "너의 이름은.",
-    type: "movie",
-    genre: ["로맨스", "판타지"],
-    rating: 4.5,
-    watchedAt: "2026-06-20",
-    summary: "영상미와 감정선이 오래 남는 판타지 로맨스.",
-    review:
-      "처음에는 아름다운 작화가 눈에 들어오지만, 뒤로 갈수록 감정과 시간의 엇갈림이 더 크게 남는다. 다시 보고 싶은 장면이 많은 작품.",
-  },
-  {
-    id: "frieren",
-    title: "장송의 프리렌",
-    type: "anime",
-    genre: ["판타지", "모험"],
-    rating: 5,
-    watchedAt: "2026-06-10",
-    summary: "모험이 끝난 뒤의 시간을 천천히 바라보는 애니.",
-    review:
-      "전투보다 여운과 관계에 집중하는 점이 좋았다. 조용한 장면에서도 캐릭터가 깊어지고, 시간이 쌓인다는 감각이 편안하게 몰입된다.",
-  },
-  {
-    id: "zelda-tears",
-    title: "젤다의 전설: 티어스 오브 더 킹덤",
-    type: "game",
-    genre: ["어드벤처", "오픈월드"],
-    rating: 4.8,
-    watchedAt: "2026-05-28",
-    summary: "탐험과 실험의 재미가 강한 오픈월드 게임.",
-    review:
-      "정답을 강요하지 않고 플레이어가 직접 길을 만들게 하는 매력이 강하다. 사소한 아이디어가 플레이로 이어지는 순간들이 많아 오래 붙잡게 된다.",
-  },
-];
+type ReviewRow = {
+  id: string;
+  title: string;
+  type: Review["type"];
+  genre: string[] | null;
+  rating: number;
+  watched_at: string;
+  thumbnail: string | null;
+  thumbnail_alt: string | null;
+  summary: string;
+  review: string;
+};
 
-export function getReview(id: string) {
-  return reviews.find((review) => review.id === id);
+const reviewSelect =
+  "id,title,type,genre,rating,watched_at,thumbnail,thumbnail_alt,summary,review";
+
+function mapReviewRow(row: ReviewRow): Review {
+  return {
+    id: row.id,
+    title: row.title,
+    type: row.type,
+    genre: row.genre ?? [],
+    rating: row.rating,
+    watchedAt: row.watched_at,
+    thumbnail: row.thumbnail ?? "/thumbnails/your-name.svg",
+    thumbnailAlt: row.thumbnail_alt ?? `${row.title} 리뷰 썸네일`,
+    summary: row.summary,
+    review: row.review,
+  };
+}
+
+export async function getReviews() {
+  const supabase = createSupabasePublicClient();
+
+  if (!supabase) {
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from("reviews")
+    .select(reviewSelect)
+    .order("watched_at", { ascending: false });
+
+  if (error || !data) {
+    return [];
+  }
+
+  return (data as ReviewRow[]).map(mapReviewRow);
+}
+
+export async function getReview(id: string) {
+  const supabase = createSupabasePublicClient();
+
+  if (!supabase) {
+    return undefined;
+  }
+
+  const { data, error } = await supabase
+    .from("reviews")
+    .select(reviewSelect)
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error || !data) {
+    return undefined;
+  }
+
+  return mapReviewRow(data as ReviewRow);
 }
 
 export function typeLabel(type: Review["type"]) {
