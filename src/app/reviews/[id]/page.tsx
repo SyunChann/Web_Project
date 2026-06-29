@@ -1,4 +1,4 @@
-import { ArrowLeft, Calendar, Pencil, Star } from "lucide-react";
+import { ArrowLeft, Calendar, Pencil, Play, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -131,13 +131,25 @@ export default async function ReviewDetailPage({
         </header>
 
         {embedUrl ? (
-          <section className="mt-8 overflow-hidden rounded-lg border border-[#ddd6cc] bg-black shadow-sm">
-            <div className="relative aspect-video w-full">
+          <section className="mt-8 rounded-lg border border-[#ddd6cc] bg-white p-6 shadow-sm sm:p-8">
+            <div className="mb-5 flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-md bg-[#fde8e7] text-[#be4b49]">
+                <Play size={18} fill="currentColor" />
+              </span>
+              <div>
+                <h2 className="text-xl font-bold">관련 영상</h2>
+                <p className="mt-1 text-sm font-semibold text-[#6b7280]">
+                  작품을 다시 떠올릴 수 있는 영상입니다.
+                </p>
+              </div>
+            </div>
+            <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-black">
               <iframe
                 src={embedUrl}
-                title="YouTube video player"
+                title={`${review.title} 관련 영상`}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
+                loading="lazy"
                 className="absolute top-0 left-0 h-full w-full border-0"
               />
             </div>
