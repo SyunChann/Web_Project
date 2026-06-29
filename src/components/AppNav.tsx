@@ -1,10 +1,10 @@
-import { Library, LogIn, Plus } from "lucide-react";
+import { Bookmark, ChevronDown, Library, LogIn, Plus } from "lucide-react";
 import Link from "next/link";
 import { LogoutButton } from "@/components/LogoutButton";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type AppNavProps = {
-  active?: "home" | "reviews";
+  active?: "home" | "reviews" | "watchlist";
 };
 
 export async function AppNav({ active }: AppNavProps) {
@@ -12,6 +12,7 @@ export async function AppNav({ active }: AppNavProps) {
   const {
     data: { user },
   } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const activeCollectionLabel = active === "watchlist" ? "기대작 홈" : "리뷰 홈";
 
   return (
     <nav className="flex flex-wrap items-center justify-between gap-3">
@@ -32,21 +33,40 @@ export async function AppNav({ active }: AppNavProps) {
       </Link>
 
       <div className="flex flex-wrap items-center gap-2">
-        {active !== "reviews" ? (
-          <Link
-            href="/reviews"
-            className="inline-flex items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 py-2 text-sm font-bold text-[#be4b49] shadow-sm transition hover:border-[#be4b49] hover:bg-[#fff7f5]"
-          >
-            리뷰 보기
-          </Link>
-        ) : (
-          <Link
-            href="/"
-            className="rounded-md px-3 py-2 text-sm font-semibold text-[#be4b49] transition hover:bg-[#fff7f5]"
-          >
-            홈으로
-          </Link>
-        )}
+        <details className="group relative">
+          <summary className="flex cursor-pointer list-none items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 py-2 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#be4b49] hover:text-[#be4b49] [&::-webkit-details-marker]:hidden">
+            <Library size={16} />
+            {activeCollectionLabel}
+            <ChevronDown
+              size={15}
+              className="transition group-open:rotate-180"
+            />
+          </summary>
+          <div className="absolute right-0 z-30 mt-2 w-48 overflow-hidden rounded-lg border border-[#d8cfc2] bg-white p-2 shadow-lg">
+            <Link
+              href="/"
+              className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-bold transition ${
+                active === "home"
+                  ? "bg-[#fff7f5] text-[#be4b49]"
+                  : "text-[#52616b] hover:bg-[#fff7f5] hover:text-[#be4b49]"
+              }`}
+            >
+              <Library size={16} />
+              리뷰 홈
+            </Link>
+            <Link
+              href="/watchlist"
+              className={`mt-1 flex items-center gap-2 rounded-md px-3 py-2 text-sm font-bold transition ${
+                active === "watchlist"
+                  ? "bg-[#fffaf0] text-[#9a5a13]"
+                  : "text-[#52616b] hover:bg-[#fffaf0] hover:text-[#9a5a13]"
+              }`}
+            >
+              <Bookmark size={16} />
+              기대작 홈
+            </Link>
+          </div>
+        </details>
 
         {user ? (
           <>

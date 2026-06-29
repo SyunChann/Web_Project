@@ -1,15 +1,29 @@
-import { ArrowRight, CalendarDays, Library, Sparkles, Star } from "lucide-react";
+import {
+  ArrowRight,
+  Bookmark,
+  CalendarDays,
+  Library,
+  Sparkles,
+  Star,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { getReviews, typeLabel, typeTheme, type Review } from "@/data/reviews";
+import {
+  getWatchItems,
+  watchStatusLabel,
+  type WatchItem,
+} from "@/data/watchlist";
 
 const reviewTypes: Review["type"][] = ["movie", "anime", "game", "drama"];
 
 export default async function Home() {
   const reviews = await getReviews();
+  const watchItems = getWatchItems();
   const featuredReview = reviews[0];
   const recentReviews = reviews.slice(0, 3);
+  const previewWatchItems = watchItems.slice(0, 3);
   const averageRating =
     reviews.length > 0
       ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
@@ -87,6 +101,34 @@ export default async function Home() {
           ) : (
             <EmptyFeature />
           )}
+        </section>
+
+        <section className="rounded-lg border border-[#eadcc7] bg-white p-6 shadow-sm sm:p-8">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-sm font-bold text-[#9a5a13]">Watchlist</p>
+              <h2 className="mt-3 text-2xl font-bold text-[#17202a]">
+                기대작 기록
+              </h2>
+              <p className="mt-3 max-w-2xl leading-7 text-[#52616b]">
+                아직 보지 않은 작품도 따로 묶어두고, 나중에 리뷰로 이어갈 수
+                있게 관리합니다.
+              </p>
+            </div>
+            <Link
+              href="/watchlist"
+              className="inline-flex items-center gap-2 text-sm font-bold text-[#9a5a13]"
+            >
+              기대작 홈
+              <ArrowRight size={16} />
+            </Link>
+          </div>
+
+          <div className="mt-5 grid gap-4 md:grid-cols-3">
+            {previewWatchItems.map((item) => (
+              <WatchPreviewCard key={item.id} item={item} />
+            ))}
+          </div>
         </section>
 
         <section className="grid gap-8 pb-12 lg:grid-cols-[280px_1fr]">
@@ -175,6 +217,27 @@ function StatItem({
       <p className="mt-3 text-sm font-semibold text-[#6b7280]">{label}</p>
       <p className="mt-1 text-2xl font-bold text-[#17202a]">{value}</p>
     </div>
+  );
+}
+
+function WatchPreviewCard({ item }: { item: WatchItem }) {
+  return (
+    <Link
+      href="/watchlist"
+      className="rounded-lg border border-l-4 border-[#ddd6cc] border-l-[#d9902f] bg-[#fffdf8] p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+    >
+      <div className="flex items-center justify-between gap-3">
+        <span className="rounded-md bg-[#fff0d9] px-3 py-1 text-xs font-bold text-[#9a5a13]">
+          {watchStatusLabel(item.status)}
+        </span>
+        <Bookmark size={16} className="text-[#d9902f]" />
+      </div>
+      <h3 className="mt-5 text-lg font-bold text-[#17202a]">{item.title}</h3>
+      <p className="mt-2 text-sm text-[#6b7280]">{item.releaseLabel}</p>
+      <p className="mt-4 line-clamp-2 text-sm leading-6 text-[#3f4a54]">
+        {item.reason}
+      </p>
+    </Link>
   );
 }
 
