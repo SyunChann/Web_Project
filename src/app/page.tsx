@@ -136,8 +136,12 @@ export default async function Home() {
 
             {recentReviews.length > 0 ? (
               <div className="mt-5 grid gap-4 md:grid-cols-3">
-                {recentReviews.map((review) => (
-                  <ReviewCard key={review.id} review={review} />
+                {recentReviews.map((review, index) => (
+                  <ReviewCard
+                    key={review.id}
+                    review={review}
+                    eager={index === 0}
+                  />
                 ))}
               </div>
             ) : (
@@ -219,7 +223,7 @@ function FeaturedReview({ review }: { review: Review }) {
   );
 }
 
-function ReviewCard({ review }: { review: Review }) {
+function ReviewCard({ review, eager = false }: { review: Review; eager?: boolean }) {
   const theme = typeTheme(review.type);
 
   return (
@@ -233,6 +237,8 @@ function ReviewCard({ review }: { review: Review }) {
         width={960}
         height={540}
         className="aspect-video w-full object-cover"
+        loading={eager ? "eager" : "lazy"}
+        fetchPriority={eager ? "high" : "auto"}
       />
       <div className="p-5">
         <div className="flex items-center justify-between gap-3">
