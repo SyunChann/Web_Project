@@ -63,7 +63,7 @@ export default function WatchlistPage() {
             </div>
           </div>
 
-          {featuredItem ? <FeaturedWatchItem item={featuredItem} /> : null}
+          {featuredItem ? <FeaturedWatchItem item={featuredItem} /> : <EmptyFeaturedWatchItem />}
         </section>
 
         <section id="recent-watchlist" className="scroll-mt-8 pb-12">
@@ -83,14 +83,34 @@ export default function WatchlistPage() {
             </Link>
           </div>
 
-          <div className="mt-5 grid gap-4 md:grid-cols-3">
-            {previewItems.map((item) => (
-              <WatchItemCard key={item.id} item={item} />
-            ))}
-          </div>
+          {previewItems.length > 0 ? (
+            <div className="mt-5 grid gap-4 md:grid-cols-3">
+              {previewItems.map((item) => (
+                <WatchItemCard key={item.id} item={item} />
+              ))}
+            </div>
+          ) : (
+            <EmptyWatchlist />
+          )}
         </section>
       </section>
     </main>
+  );
+}
+
+function EmptyFeaturedWatchItem() {
+  return (
+    <article className="flex min-h-[320px] items-center justify-center rounded-lg border border-dashed border-[#eadcc7] bg-[#fffdf8] p-8 text-center shadow-sm">
+      <div>
+        <Bookmark className="mx-auto text-[#d9902f]" size={28} />
+        <h2 className="mt-5 text-2xl font-bold text-[#17202a]">
+          아직 작성된 기대작이 없습니다
+        </h2>
+        <p className="mt-3 leading-7 text-[#52616b]">
+          보고 싶은 작품을 추가하면 대표 기대작으로 표시됩니다.
+        </p>
+      </div>
+    </article>
   );
 }
 
@@ -123,6 +143,20 @@ function FeaturedWatchItem({ item }: { item: WatchItem }) {
         </p>
       </div>
     </article>
+  );
+}
+
+function EmptyWatchlist() {
+  return (
+    <div className="mt-5 rounded-lg border border-dashed border-[#eadcc7] bg-[#fffdf8] p-8 text-center shadow-sm">
+      <Bookmark className="mx-auto text-[#d9902f]" size={24} />
+      <h3 className="mt-4 text-lg font-bold text-[#17202a]">
+        아직 작성된 기대작이 없습니다
+      </h3>
+      <p className="mt-2 text-sm leading-6 text-[#52616b]">
+        기대작을 추가하면 최근 항목이 이곳에 정리됩니다.
+      </p>
+    </div>
   );
 }
 

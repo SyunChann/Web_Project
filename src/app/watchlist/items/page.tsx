@@ -37,11 +37,23 @@ export default function WatchlistItemsPage() {
           </p>
         </header>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          {items.map((item) => (
-            <WatchItemCard key={item.id} item={item} />
-          ))}
-        </div>
+        {items.length > 0 ? (
+          <div className="grid gap-4 md:grid-cols-3">
+            {items.map((item) => (
+              <WatchItemCard key={item.id} item={item} />
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-lg border border-dashed border-[#eadcc7] bg-[#fffdf8] p-8 text-center shadow-sm">
+            <Bookmark className="mx-auto text-[#d9902f]" size={24} />
+            <h2 className="mt-4 text-lg font-bold text-[#17202a]">
+              아직 작성된 기대작이 없습니다
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[#52616b]">
+              기대작을 추가하면 전체 목록에서 한 번에 확인할 수 있습니다.
+            </p>
+          </div>
+        )}
       </section>
     </main>
   );

@@ -3,6 +3,9 @@
 drop policy if exists "admin can insert reviews" on public.reviews;
 drop policy if exists "admin can update reviews" on public.reviews;
 drop policy if exists "admin can delete reviews" on public.reviews;
+drop policy if exists "admin can insert watchlist items" on public.watchlist_items;
+drop policy if exists "admin can update watchlist items" on public.watchlist_items;
+drop policy if exists "admin can delete watchlist items" on public.watchlist_items;
 drop policy if exists "admin can upload review thumbnails" on storage.objects;
 drop policy if exists "admin can update review thumbnails" on storage.objects;
 drop policy if exists "admin can delete review thumbnails" on storage.objects;
@@ -22,6 +25,25 @@ create policy "admin can update reviews"
 
 create policy "admin can delete reviews"
   on public.reviews
+  for delete
+  to authenticated
+  using ((auth.jwt() ->> 'email') = 'your-email@example.com');
+
+create policy "admin can insert watchlist items"
+  on public.watchlist_items
+  for insert
+  to authenticated
+  with check ((auth.jwt() ->> 'email') = 'your-email@example.com');
+
+create policy "admin can update watchlist items"
+  on public.watchlist_items
+  for update
+  to authenticated
+  using ((auth.jwt() ->> 'email') = 'your-email@example.com')
+  with check ((auth.jwt() ->> 'email') = 'your-email@example.com');
+
+create policy "admin can delete watchlist items"
+  on public.watchlist_items
   for delete
   to authenticated
   using ((auth.jwt() ->> 'email') = 'your-email@example.com');

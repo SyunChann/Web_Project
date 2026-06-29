@@ -124,11 +124,22 @@ export default async function Home() {
             </Link>
           </div>
 
-          <div className="mt-5 grid gap-4 md:grid-cols-3">
-            {previewWatchItems.map((item) => (
-              <WatchPreviewCard key={item.id} item={item} />
-            ))}
-          </div>
+          {previewWatchItems.length > 0 ? (
+            <div className="mt-5 grid gap-4 md:grid-cols-3">
+              {previewWatchItems.map((item) => (
+                <WatchPreviewCard key={item.id} item={item} />
+              ))}
+            </div>
+          ) : (
+            <div className="mt-5 rounded-lg border border-dashed border-[#eadcc7] bg-[#fffdf8] p-6 text-center shadow-sm">
+              <h3 className="text-lg font-bold text-[#17202a]">
+                아직 작성된 기대작이 없습니다
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-[#52616b]">
+                기대작을 추가하면 여기에 최근 항목이 표시됩니다.
+              </p>
+            </div>
+          )}
         </section>
 
         <section className="grid gap-8 pb-12 lg:grid-cols-[280px_1fr]">

@@ -22,6 +22,30 @@ create policy "reviews are publicly readable"
   for select
   using (true);
 
+create table if not exists public.watchlist_items (
+  id text primary key,
+  title text not null,
+  type text not null check (type in ('movie', 'anime', 'game', 'drama')),
+  genre text[] not null default '{}',
+  status text not null default 'waiting' check (status in ('waiting', 'watching', 'paused')),
+  release_label text not null,
+  thumbnail text,
+  thumbnail_alt text,
+  reason text not null,
+  youtube_url text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.watchlist_items enable row level security;
+
+drop policy if exists "watchlist items are publicly readable" on public.watchlist_items;
+
+create policy "watchlist items are publicly readable"
+  on public.watchlist_items
+  for select
+  using (true);
+
 insert into storage.buckets (
   id,
   name,
