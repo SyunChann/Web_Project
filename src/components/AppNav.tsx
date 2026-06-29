@@ -1,6 +1,6 @@
-import { Library, LogIn, LogOut, Plus } from "lucide-react";
+import { Library, LogIn, Plus } from "lucide-react";
 import Link from "next/link";
-import { signOut } from "@/app/actions/auth";
+import { LogoutButton } from "@/components/LogoutButton";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type AppNavProps = {
@@ -59,15 +59,7 @@ export async function AppNav({ active }: AppNavProps) {
             <span className="rounded-md bg-[#edf2ef] px-3 py-2 text-sm font-bold text-[#2f6f5e]">
               관리자
             </span>
-            <form action={signOut}>
-              <button
-                type="submit"
-                className="inline-flex items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 py-2 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#be4b49] hover:text-[#be4b49]"
-              >
-                <LogOut size={16} />
-                로그아웃
-              </button>
-            </form>
+            <LogoutButton />
           </>
         ) : (
           <Link
