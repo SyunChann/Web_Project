@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { createSupabasePublicClient } from "@/lib/supabase/public";
 
 export type Review = {
@@ -44,7 +45,7 @@ function mapReviewRow(row: ReviewRow): Review {
   };
 }
 
-export async function getReviews() {
+async function getReviewsFromSupabase() {
   const supabase = createSupabasePublicClient();
 
   if (!supabase) {
@@ -63,7 +64,7 @@ export async function getReviews() {
   return (data as ReviewRow[]).map(mapReviewRow);
 }
 
-export async function getReview(id: string) {
+async function getReviewFromSupabase(id: string) {
   const supabase = createSupabasePublicClient();
 
   if (!supabase) {
@@ -82,6 +83,24 @@ export async function getReview(id: string) {
 
   return mapReviewRow(data as ReviewRow);
 }
+
+export const getReviews = unstable_cache(
+  getReviewsFromSupabase,
+  ["reviews"],
+  {
+    tags: ["reviews"],
+    revalidate: 60,
+  },
+);
+
+export const getReview = unstable_cache(
+  getReviewFromSupabase,
+  ["review"],
+  {
+    tags: ["reviews"],
+    revalidate: 60,
+  },
+);
 
 export function typeLabel(type: Review["type"]) {
   const labels = {

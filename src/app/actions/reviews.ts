@@ -1,7 +1,7 @@
 "use server";
 
 import { randomUUID } from "crypto";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -164,6 +164,7 @@ export async function createReview(formData: FormData) {
     throw new Error(error.message);
   }
 
+  updateTag("reviews");
   revalidatePath("/");
   revalidatePath("/reviews");
   redirect(`/reviews/${id}`);
@@ -187,6 +188,7 @@ export async function updateReview(id: string, formData: FormData) {
     throw new Error(error.message);
   }
 
+  updateTag("reviews");
   revalidatePath("/");
   revalidatePath("/reviews");
   revalidatePath(`/reviews/${id}`);
@@ -202,6 +204,7 @@ export async function deleteReview(id: string) {
     throw new Error(error.message);
   }
 
+  updateTag("reviews");
   revalidatePath("/");
   revalidatePath("/reviews");
   redirect("/reviews");
