@@ -1,7 +1,7 @@
 import { ArrowLeft, Calendar, Star } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getReview, reviews, typeLabel } from "@/data/reviews";
+import { getReview, reviews, typeLabel, typeTheme } from "@/data/reviews";
 
 type ReviewDetailPageProps = {
   params: Promise<{
@@ -35,6 +35,8 @@ export default async function ReviewDetailPage({
     notFound();
   }
 
+  const theme = typeTheme(review.type);
+
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
       <article className="mx-auto w-full max-w-3xl">
@@ -46,9 +48,13 @@ export default async function ReviewDetailPage({
           리뷰 목록
         </Link>
 
-        <header className="mt-8 rounded-lg border border-[#ddd6cc] bg-white p-6 shadow-sm sm:p-8">
+        <header
+          className={`mt-8 rounded-lg border border-l-4 border-[#ddd6cc] ${theme.border} bg-white p-6 shadow-sm sm:p-8`}
+        >
           <div className="flex flex-wrap items-center gap-3">
-            <span className="rounded-md bg-[#edf2ef] px-3 py-1 text-sm font-bold text-[#2f6f5e]">
+            <span
+              className={`rounded-md px-3 py-1 text-sm font-bold ${theme.badge}`}
+            >
               {typeLabel(review.type)}
             </span>
             {review.genre.map((genre) => (

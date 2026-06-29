@@ -1,9 +1,10 @@
 import { ArrowRight, Star } from "lucide-react";
 import Link from "next/link";
-import { reviews, typeLabel } from "@/data/reviews";
+import { reviews, typeLabel, typeTheme } from "@/data/reviews";
 
 export default function Home() {
   const featuredReview = reviews[0];
+  const featuredTheme = typeTheme(featuredReview.type);
 
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
@@ -14,9 +15,10 @@ export default function Home() {
           </Link>
           <Link
             href="/reviews"
-            className="rounded-md bg-[#1f2933] px-4 py-2 text-sm font-semibold text-white"
+            className="inline-flex items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 py-2 text-sm font-bold text-[#be4b49] shadow-sm transition hover:border-[#be4b49] hover:bg-[#fff7f5]"
           >
             리뷰 보기
+            <ArrowRight size={16} />
           </Link>
         </nav>
 
@@ -34,17 +36,21 @@ export default function Home() {
             </p>
             <Link
               href="/reviews"
-              className="mt-8 inline-flex items-center gap-2 rounded-md bg-[#be4b49] px-5 py-3 text-sm font-bold text-white"
+              className="mt-8 inline-flex items-center gap-2 rounded-md bg-[#be4b49] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#a83f3d]"
             >
               전체 리뷰 보기
               <ArrowRight size={18} />
             </Link>
           </div>
 
-          <article className="rounded-lg border border-[#ddd6cc] bg-white p-6 shadow-sm">
+          <article
+            className={`rounded-lg border border-l-4 border-[#ddd6cc] ${featuredTheme.border} bg-white p-6 shadow-sm`}
+          >
             <div className="flex items-center justify-between gap-4">
-              <span className="rounded-md bg-[#f3e6d8] px-3 py-1 text-sm font-semibold text-[#8a3b2f]">
-                추천 리뷰
+              <span
+                className={`rounded-md px-3 py-1 text-sm font-semibold ${featuredTheme.badge}`}
+              >
+                추천 {typeLabel(featuredReview.type)}
               </span>
               <span className="flex items-center gap-1 text-sm font-bold">
                 <Star size={16} fill="#f2b84b" color="#f2b84b" />
@@ -61,7 +67,7 @@ export default function Home() {
             </p>
             <Link
               href={`/reviews/${featuredReview.id}`}
-              className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#be4b49]"
+              className={`mt-6 inline-flex items-center gap-2 text-sm font-bold ${featuredTheme.text}`}
             >
               자세히 읽기
               <ArrowRight size={16} />
