@@ -1,10 +1,10 @@
-# Review Collection
+# 취향보관소
 
-![Review Collection 메인 화면](src/assets/image/image.png)
+![취향보관소 메인 화면](src/assets/image/image.png)
 
-영화, 애니, 게임, 드라마처럼 오래 기억하고 싶은 콘텐츠를 한곳에 기록하는 개인 리뷰 컬렉션임.
+영화, 애니, 게임, 드라마처럼 오래 기억하고 싶은 콘텐츠의 감상과 기대작을 한곳에 모아두는 개인 취향 아카이브임.
 
-Supabase를 데이터베이스, 인증, 썸네일 저장소로 사용함. Vercel로 배포하고, 로그인한 관리자만 리뷰 작성, 수정, 삭제 가능함.
+Supabase를 데이터베이스, 인증, 썸네일 저장소로 사용함. Vercel로 배포하고, 로그인한 관리자만 리뷰와 기대작을 작성, 수정, 삭제 가능함.
 
 ## 배포 주소
 
@@ -14,10 +14,10 @@ https://web-project-omega-ruby-60.vercel.app
 
 ## 주요 기능
 
-- 리뷰 목록과 상세 페이지 제공
+- 리뷰와 기대작 목록/상세 페이지 제공
 - 영화, 애니, 게임, 드라마 카테고리 구분
 - 별점, 장르, 감상일, 요약, 감상평 관리
-- Supabase Database 기반 리뷰 조회
+- Supabase Database 기반 리뷰/기대작 조회
 - Supabase Storage 기반 썸네일 업로드
 - Supabase Auth 이메일/비밀번호 로그인
 - 로그인한 관리자 전용 리뷰 작성, 수정, 삭제

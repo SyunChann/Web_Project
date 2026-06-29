@@ -11,8 +11,8 @@ const mainFont = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Review Collection",
-  description: "개인 콘텐츠 리뷰 컬렉션",
+  title: "취향보관소",
+  description: "감상과 기대작을 모아두는 개인 콘텐츠 아카이브",
 };
 
 export default function RootLayout({

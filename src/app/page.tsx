@@ -43,7 +43,7 @@ export default async function Home() {
 
             <div className="mt-6">
               <p className="text-sm font-bold uppercase text-[#9a5a13]">
-                Review Collection
+                취향보관소
               </p>
               <h1 className="mt-3 max-w-3xl text-4xl font-black leading-tight text-[#17202a] sm:text-5xl">
                 감상은 짧게 지나가도
@@ -54,8 +54,8 @@ export default async function Home() {
             </div>
 
             <p className="mt-5 max-w-2xl text-base leading-7 text-[#52616b]">
-              영화, 애니, 게임, 드라마의 별점과 감상평을 한곳에 모아두는
-              개인 리뷰 컬렉션입니다.
+              영화, 애니, 게임, 드라마의 감상과 기대작을 한곳에 모아두는
+              개인 콘텐츠 보관소입니다.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">

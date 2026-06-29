@@ -10,7 +10,7 @@ import {
 } from "@/data/watchlist";
 
 export const metadata = {
-  title: "전체 기대작 | Review Collection",
+  title: "전체 기대작 | 취향보관소",
   description: "앞으로 보고 싶은 기대작 전체 목록",
 };
 

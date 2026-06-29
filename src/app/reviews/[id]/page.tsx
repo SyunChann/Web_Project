@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: ReviewDetailPageProps) {
   const review = await getReview(id);
 
   return {
-    title: review ? `${review.title} | Review Collection` : "리뷰 없음",
+    title: review ? `${review.title} | 취향보관소` : "리뷰 없음",
     description: review?.summary ?? "리뷰를 찾을 수 없습니다.",
   };
 }

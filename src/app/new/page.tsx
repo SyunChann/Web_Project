@@ -15,7 +15,7 @@ type NewPostPageProps = {
 };
 
 export const metadata = {
-  title: "새 글 작성 | Review Collection",
+  title: "새 글 작성 | 취향보관소",
   description: "리뷰나 기대작을 새로 작성합니다.",
 };
 

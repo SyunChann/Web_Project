@@ -12,22 +12,22 @@ export async function AppNav({ active }: AppNavProps) {
   const {
     data: { user },
   } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
-  const activeCollectionLabel = active === "watchlist" ? "기대작 홈" : "리뷰 홈";
+  const activeSectionLabel = active === "watchlist" ? "기대작 홈" : "리뷰 홈";
 
   return (
     <nav className="flex flex-wrap items-center justify-between gap-3">
       <Link
         href="/"
         className="group inline-flex items-center gap-3 rounded-md border border-[#d8cfc2] bg-white px-3 py-2 shadow-sm transition hover:border-[#be4b49] hover:shadow-md"
-        aria-label="Review Collection 홈"
+        aria-label="취향보관소 홈"
       >
         <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[#be4b49] text-white transition group-hover:bg-[#a83f3d]">
           <Library size={18} />
         </span>
         <span className="grid leading-tight">
-          <span className="text-sm font-black text-[#17202a]">Review</span>
+          <span className="text-sm font-black text-[#17202a]">취향</span>
           <span className="text-xs font-bold uppercase text-[#be4b49]">
-            Collection
+            보관소
           </span>
         </span>
       </Link>
@@ -36,7 +36,7 @@ export async function AppNav({ active }: AppNavProps) {
         <details className="group relative">
           <summary className="flex cursor-pointer list-none items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 py-2 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#be4b49] hover:text-[#be4b49] [&::-webkit-details-marker]:hidden">
             <Library size={16} />
-            {activeCollectionLabel}
+            {activeSectionLabel}
             <ChevronDown
               size={15}
               className="transition group-open:rotate-180"
