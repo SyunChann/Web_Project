@@ -16,8 +16,7 @@ export default async function ReviewsPage() {
           <p className="text-sm font-semibold text-[#be4b49]">Reviews</p>
           <h1 className="mt-3 text-3xl font-bold sm:text-4xl">전체 리뷰</h1>
           <p className="mt-4 max-w-2xl leading-7 text-[#52616b]">
-            Supabase에 저장된 리뷰를 불러옵니다. 이후 검색, 장르 필터, 리뷰
-            작성 기능을 붙여 확장할 수 있습니다.
+            Supabase에 저장된 리뷰를 불러옵니다. 이후 검색, 장르 필터, 리뷰작성 기능을 붙여 확장할 수 있습니다.
           </p>
         </header>
 

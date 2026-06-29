@@ -15,7 +15,7 @@ type ReviewPayload = {
   rating: number;
   watched_at: string;
   thumbnail: string | null;
-  thumbnail_alt: string | null;
+  thumbnail_alt: string;
   summary: string;
   review: string;
 };
@@ -47,7 +47,6 @@ function readReviewPayload(formData: FormData): ReviewPayload {
   const rating = Number(formData.get("rating") ?? 0);
   const watchedAt = String(formData.get("watched_at") ?? "").trim();
   const thumbnail = String(formData.get("thumbnail") ?? "").trim();
-  const thumbnailAlt = String(formData.get("thumbnail_alt") ?? "").trim();
   const summary = String(formData.get("summary") ?? "").trim();
   const review = String(formData.get("review") ?? "").trim();
 
@@ -70,7 +69,7 @@ function readReviewPayload(formData: FormData): ReviewPayload {
     rating,
     watched_at: watchedAt,
     thumbnail: thumbnail || null,
-    thumbnail_alt: thumbnailAlt || null,
+    thumbnail_alt: `${title} 리뷰 썸네일`,
     summary,
     review,
   };

@@ -89,37 +89,17 @@ export function ReviewForm({
         />
       </label>
 
-      <div className="grid gap-5 rounded-lg border border-[#ddd6cc] bg-[#fbfaf7] p-4">
-        <label className="grid gap-2 text-sm font-bold">
-          썸네일 업로드
-          <input
-            name="thumbnail_file"
-            type="file"
-            accept="image/*"
-            className="rounded-md border border-[#d8cfc2] bg-white px-4 py-3 text-sm font-normal file:mr-4 file:rounded-md file:border-0 file:bg-[#be4b49] file:px-3 file:py-2 file:text-sm file:font-bold file:text-white"
-          />
-        </label>
+      <input type="hidden" name="thumbnail" value={review?.thumbnail ?? ""} />
 
-        <label className="grid gap-2 text-sm font-bold">
-          썸네일 URL
-          <input
-            name="thumbnail"
-            defaultValue={review?.thumbnail}
-            placeholder="파일을 올리면 자동으로 저장됩니다"
-            className="rounded-md border border-[#d8cfc2] bg-white px-4 py-3 text-base font-normal outline-none transition focus:border-[#be4b49]"
-          />
-        </label>
-
-        <label className="grid gap-2 text-sm font-bold">
-          썸네일 설명
-          <input
-            name="thumbnail_alt"
-            defaultValue={review?.thumbnailAlt}
-            placeholder="예: 작품 분위기를 보여주는 썸네일"
-            className="rounded-md border border-[#d8cfc2] bg-white px-4 py-3 text-base font-normal outline-none transition focus:border-[#be4b49]"
-          />
-        </label>
-      </div>
+      <label className="grid gap-2 text-sm font-bold rounded-lg border border-[#ddd6cc] bg-[#fbfaf7] p-4">
+        썸네일 업로드
+        <input
+          name="thumbnail_file"
+          type="file"
+          accept="image/*"
+          className="rounded-md border border-[#d8cfc2] bg-white px-4 py-3 text-sm font-normal file:mr-4 file:rounded-md file:border-0 file:bg-[#be4b49] file:px-3 file:py-2 file:text-sm file:font-bold file:text-white"
+        />
+      </label>
 
       <label className="grid gap-2 text-sm font-bold">
         요약
