@@ -1,8 +1,9 @@
-import { ArrowLeft, Calendar, Pencil, Star, Trash2 } from "lucide-react";
+import { ArrowLeft, Calendar, Pencil, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { deleteReview } from "@/app/actions/reviews";
+import { DeleteReviewButton } from "@/components/reviews/DeleteReviewButton";
 import { getReview, getReviews, typeLabel, typeTheme } from "@/data/reviews";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -69,13 +70,7 @@ export default async function ReviewDetailPage({
                 수정
               </Link>
               <form action={deleteAction}>
-                <button
-                  type="submit"
-                  className="inline-flex items-center gap-2 rounded-md bg-[#be4b49] px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-[#a83f3d]"
-                >
-                  <Trash2 size={16} />
-                  삭제
-                </button>
+                <DeleteReviewButton title={review.title} />
               </form>
             </div>
           ) : null}

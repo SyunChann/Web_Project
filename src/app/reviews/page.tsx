@@ -16,14 +16,16 @@ export default async function ReviewsPage() {
           <p className="text-sm font-semibold text-[#be4b49]">Reviews</p>
           <h1 className="mt-3 text-3xl font-bold sm:text-4xl">전체 리뷰</h1>
           <p className="mt-4 max-w-2xl leading-7 text-[#52616b]">
-            Supabase에 저장된 리뷰를 불러옵니다. 이후 검색, 장르 필터, 리뷰작성 기능을 붙여 확장할 수 있습니다.
+            Supabase에 저장된 리뷰를 불러옵니다. 영화, 애니, 게임, 드라마
+            감상 기록을 한곳에서 확인할 수 있습니다.
           </p>
         </header>
 
         {reviews.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-3">
-            {reviews.map((review) => {
+            {reviews.map((review, index) => {
               const theme = typeTheme(review.type);
+              const isFirstImage = index === 0;
 
               return (
                 <Link
@@ -37,6 +39,8 @@ export default async function ReviewsPage() {
                     width={960}
                     height={540}
                     className="aspect-video w-full object-cover"
+                    loading={isFirstImage ? "eager" : "lazy"}
+                    fetchPriority={isFirstImage ? "high" : "auto"}
                   />
                   <div className="p-5">
                     <div className="flex items-start justify-between gap-3">
