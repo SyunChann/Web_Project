@@ -2,10 +2,37 @@ import { Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
-import { getReviews, typeLabel, typeTheme } from "@/data/reviews";
+import {
+  getReviews,
+  sortReviews,
+  typeLabel,
+  typeTheme,
+  type ReviewSort,
+} from "@/data/reviews";
 
-export default async function ReviewsPage() {
-  const reviews = await getReviews();
+type ReviewsPageProps = {
+  searchParams?: Promise<{ sort?: string | string[] }>;
+};
+
+const sortOptions: { value: ReviewSort; label: string }[] = [
+  {
+    value: "created-desc",
+    label: "작성일 최신순",
+  },
+  {
+    value: "watched-desc",
+    label: "감상일 최신순",
+  },
+  {
+    value: "rating-desc",
+    label: "별점 높은순",
+  },
+];
+
+export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
+  const params = await searchParams;
+  const activeSort = parseSort(params?.sort);
+  const reviews = sortReviews(await getReviews(), activeSort);
 
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
@@ -19,12 +46,32 @@ export default async function ReviewsPage() {
             Supabase에 저장된 리뷰를 불러옵니다. 영화, 애니, 게임, 드라마
             감상 기록을 한곳에서 확인할 수 있습니다.
           </p>
+          <div className="mt-6 flex flex-wrap gap-2">
+            {sortOptions.map((option) => {
+              const isActive = option.value === activeSort;
+
+              return (
+                <Link
+                  key={option.value}
+                  href={option.value === "created-desc" ? "/reviews" : `/reviews?sort=${option.value}`}
+                  className={`rounded-md border px-4 py-2 text-sm font-bold shadow-sm transition ${
+                    isActive
+                      ? "border-[#be4b49] bg-[#be4b49] text-white"
+                      : "border-[#d8cfc2] bg-white text-[#52616b] hover:border-[#be4b49] hover:text-[#be4b49]"
+                  }`}
+                >
+                  {option.label}
+                </Link>
+              );
+            })}
+          </div>
         </header>
 
         {reviews.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-3">
             {reviews.map((review, index) => {
               const theme = typeTheme(review.type);
+              const isAboveFoldImage = index < 3;
               const isFirstImage = index === 0;
 
               return (
@@ -39,7 +86,7 @@ export default async function ReviewsPage() {
                     width={960}
                     height={540}
                     className="aspect-video w-full object-cover"
-                    loading={isFirstImage ? "eager" : "lazy"}
+                    loading={isAboveFoldImage ? "eager" : "lazy"}
                     fetchPriority={isFirstImage ? "high" : "auto"}
                   />
                   <div className="p-5">
@@ -56,9 +103,12 @@ export default async function ReviewsPage() {
                     </div>
                     <h2 className="mt-5 text-xl font-bold">{review.title}</h2>
                     <p className="mt-2 text-sm text-[#6b7280]">
+                      작성 {formatDate(review.createdAt)} · 감상 {formatDate(review.watchedAt)}
+                    </p>
+                    <p className="mt-1 text-sm text-[#6b7280]">
                       {review.genre.join(", ")}
                     </p>
-                    <p className="mt-4 line-clamp-3 text-sm leading-6 text-[#3f4a54]">
+                    <p className="mt-4 line-clamp-3 whitespace-pre-wrap text-sm leading-6 text-[#3f4a54]">
                       {review.summary}
                     </p>
                   </div>
@@ -77,4 +127,21 @@ export default async function ReviewsPage() {
       </section>
     </main>
   );
+}
+
+function parseSort(value: string | string[] | undefined): ReviewSort {
+  const sortValue = Array.isArray(value) ? value[0] : value;
+
+  if (sortValue === "watched-desc" || sortValue === "rating-desc") {
+    return sortValue;
+  }
+
+  return "created-desc";
+}
+
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("ko-KR", {
+    month: "short",
+    day: "numeric",
+  }).format(new Date(value));
 }

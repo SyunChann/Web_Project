@@ -76,8 +76,8 @@ export default async function Home() {
               />
               <StatItem
                 icon={<CalendarDays size={18} />}
-                label="최근 감상"
-                value={featuredReview ? formatDate(featuredReview.watchedAt) : "-"}
+                label="최근 작성"
+                value={featuredReview ? formatDate(featuredReview.createdAt) : "-"}
               />
             </div>
           </div>
@@ -210,7 +210,9 @@ function FeaturedReview({ review }: { review: Review }) {
         <p className="mt-2 text-sm text-[#6b7280]">
           {typeLabel(review.type)} · {review.genre.join(", ")}
         </p>
-        <p className="mt-5 leading-7 text-[#3f4a54]">{review.summary}</p>
+        <p className="mt-5 line-clamp-3 leading-7 text-[#3f4a54]">
+          {review.summary}
+        </p>
         <Link
           href={`/reviews/${review.id}`}
           className={`mt-6 inline-flex items-center gap-2 text-sm font-bold ${theme.text}`}

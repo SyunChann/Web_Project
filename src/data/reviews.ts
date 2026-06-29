@@ -8,11 +8,15 @@ export type Review = {
   genre: string[];
   rating: number;
   watchedAt: string;
+  createdAt: string;
+  updatedAt: string;
   thumbnail: string;
   thumbnailAlt: string;
   summary: string;
   review: string;
 };
+
+export type ReviewSort = "created-desc" | "watched-desc" | "rating-desc";
 
 type ReviewRow = {
   id: string;
@@ -21,6 +25,8 @@ type ReviewRow = {
   genre: string[] | null;
   rating: number;
   watched_at: string;
+  created_at: string;
+  updated_at: string;
   thumbnail: string | null;
   thumbnail_alt: string | null;
   summary: string;
@@ -28,7 +34,7 @@ type ReviewRow = {
 };
 
 const reviewSelect =
-  "id,title,type,genre,rating,watched_at,thumbnail,thumbnail_alt,summary,review";
+  "id,title,type,genre,rating,watched_at,created_at,updated_at,thumbnail,thumbnail_alt,summary,review";
 
 function mapReviewRow(row: ReviewRow): Review {
   return {
@@ -38,11 +44,51 @@ function mapReviewRow(row: ReviewRow): Review {
     genre: row.genre ?? [],
     rating: row.rating,
     watchedAt: row.watched_at,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
     thumbnail: row.thumbnail ?? "/thumbnails/your-name.svg",
     thumbnailAlt: row.thumbnail_alt ?? `${row.title} 리뷰 썸네일`,
     summary: row.summary,
     review: row.review,
   };
+}
+
+function sortByCreatedAtDesc(a: Review, b: Review) {
+  return (
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime() ||
+    new Date(b.watchedAt).getTime() - new Date(a.watchedAt).getTime() ||
+    a.title.localeCompare(b.title)
+  );
+}
+
+function sortByWatchedAtDesc(a: Review, b: Review) {
+  return (
+    new Date(b.watchedAt).getTime() - new Date(a.watchedAt).getTime() ||
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime() ||
+    a.title.localeCompare(b.title)
+  );
+}
+
+function sortByRatingDesc(a: Review, b: Review) {
+  return (
+    b.rating - a.rating ||
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime() ||
+    a.title.localeCompare(b.title)
+  );
+}
+
+export function sortReviews(reviews: Review[], sort: ReviewSort) {
+  const sortedReviews = [...reviews];
+
+  if (sort === "watched-desc") {
+    return sortedReviews.sort(sortByWatchedAtDesc);
+  }
+
+  if (sort === "rating-desc") {
+    return sortedReviews.sort(sortByRatingDesc);
+  }
+
+  return sortedReviews.sort(sortByCreatedAtDesc);
 }
 
 async function getReviewsFromSupabase() {
@@ -55,13 +101,13 @@ async function getReviewsFromSupabase() {
   const { data, error } = await supabase
     .from("reviews")
     .select(reviewSelect)
-    .order("watched_at", { ascending: false });
+    .order("created_at", { ascending: false });
 
   if (error || !data) {
     return [];
   }
 
-  return (data as ReviewRow[]).map(mapReviewRow);
+  return sortReviews((data as ReviewRow[]).map(mapReviewRow), "created-desc");
 }
 
 async function getReviewFromSupabase(id: string) {

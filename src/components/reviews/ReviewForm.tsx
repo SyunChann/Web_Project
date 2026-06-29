@@ -89,6 +89,29 @@ async function compressThumbnail(file: File) {
   });
 }
 
+function FieldLabel({
+  children,
+  required = false,
+}: {
+  children: React.ReactNode;
+  required?: boolean;
+}) {
+  return (
+    <span className="inline-flex items-center gap-1">
+      {children}
+      {required ? (
+        <span className="text-[#be4b49]" aria-label="필수 입력">
+          *
+        </span>
+      ) : (
+        <span className="rounded bg-[#eee5dc] px-1.5 py-0.5 text-[11px] font-bold text-[#7a6f63]">
+          선택
+        </span>
+      )}
+    </span>
+  );
+}
+
 export function ReviewForm({
   action,
   submitLabel,
@@ -124,7 +147,7 @@ export function ReviewForm({
     <form action={submitCompressedForm} className="grid gap-5">
       {showSlugField ? (
         <label className="grid gap-2 text-sm font-bold">
-          URL ID
+          <FieldLabel>URL ID</FieldLabel>
           <input
             name="id"
             defaultValue={review?.id}
@@ -135,7 +158,7 @@ export function ReviewForm({
       ) : null}
 
       <label className="grid gap-2 text-sm font-bold">
-        제목
+        <FieldLabel required>제목</FieldLabel>
         <input
           name="title"
           defaultValue={review?.title}
@@ -146,10 +169,11 @@ export function ReviewForm({
 
       <div className="grid gap-5 sm:grid-cols-3">
         <label className="grid gap-2 text-sm font-bold">
-          카테고리
+          <FieldLabel required>카테고리</FieldLabel>
           <select
             name="type"
             defaultValue={review?.type ?? "movie"}
+            required
             className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#be4b49] focus:bg-white"
           >
             <option value="movie">영화</option>
@@ -160,7 +184,7 @@ export function ReviewForm({
         </label>
 
         <label className="grid gap-2 text-sm font-bold">
-          별점
+          <FieldLabel required>별점</FieldLabel>
           <input
             name="rating"
             type="number"
@@ -174,7 +198,7 @@ export function ReviewForm({
         </label>
 
         <label className="grid gap-2 text-sm font-bold">
-          감상일
+          <FieldLabel required>감상일</FieldLabel>
           <input
             name="watched_at"
             type="date"
@@ -186,7 +210,7 @@ export function ReviewForm({
       </div>
 
       <label className="grid gap-2 text-sm font-bold">
-        장르
+        <FieldLabel>장르</FieldLabel>
         <input
           name="genre"
           defaultValue={review?.genre.join(", ")}
@@ -198,7 +222,7 @@ export function ReviewForm({
       <input type="hidden" name="thumbnail" value={review?.thumbnail ?? ""} />
 
       <label className="grid gap-2 text-sm font-bold rounded-lg border border-[#ddd6cc] bg-[#fbfaf7] p-4">
-        썸네일 업로드
+        <FieldLabel>썸네일 업로드</FieldLabel>
         <input
           name="thumbnail_file"
           type="file"
@@ -220,7 +244,7 @@ export function ReviewForm({
       </label>
 
       <label className="grid gap-2 text-sm font-bold">
-        요약
+        <FieldLabel required>요약</FieldLabel>
         <textarea
           name="summary"
           defaultValue={review?.summary}
@@ -231,7 +255,7 @@ export function ReviewForm({
       </label>
 
       <label className="grid gap-2 text-sm font-bold">
-        감상평
+        <FieldLabel required>감상평</FieldLabel>
         <textarea
           name="review"
           defaultValue={review?.review}

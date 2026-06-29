@@ -120,7 +120,7 @@ export default async function ReviewDetailPage({
               </span>
             </div>
 
-            <p className="mt-6 text-lg leading-8 text-[#3f4a54]">
+            <p className="mt-6 whitespace-pre-wrap text-lg leading-8 text-[#3f4a54]">
               {review.summary}
             </p>
           </div>
@@ -128,7 +128,7 @@ export default async function ReviewDetailPage({
 
         <section className="mt-8 rounded-lg border border-[#ddd6cc] bg-white p-6 shadow-sm sm:p-8">
           <h2 className="text-xl font-bold">감상평</h2>
-          <p className="mt-4 whitespace-pre-line leading-8 text-[#3f4a54]">
+          <p className="mt-4 whitespace-pre-wrap leading-8 text-[#3f4a54]">
             {review.review}
           </p>
         </section>
