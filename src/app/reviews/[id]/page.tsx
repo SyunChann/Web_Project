@@ -6,6 +6,7 @@ import { deleteReview } from "@/app/actions/reviews";
 import { DeleteReviewButton } from "@/components/reviews/DeleteReviewButton";
 import { getReview, getReviews, typeLabel, typeTheme } from "@/data/reviews";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getYouTubeEmbedUrl } from "@/lib/supabase/utils";
 
 type ReviewDetailPageProps = {
   params: Promise<{
@@ -47,6 +48,9 @@ export default async function ReviewDetailPage({
   } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
   const theme = typeTheme(review.type);
   const deleteAction = deleteReview.bind(null, review.id);
+
+  // DB에 저장된 유튜브 주소를 임베드용 주소로 변환
+  const embedUrl = getYouTubeEmbedUrl(review.youtubeUrl);
 
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
@@ -125,6 +129,20 @@ export default async function ReviewDetailPage({
             </p>
           </div>
         </header>
+
+        {embedUrl ? (
+          <section className="mt-8 overflow-hidden rounded-lg border border-[#ddd6cc] bg-black shadow-sm">
+            <div className="relative aspect-video w-full">
+              <iframe
+                src={embedUrl}
+                title="YouTube video player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                className="absolute top-0 left-0 h-full w-full border-0"
+              />
+            </div>
+          </section>
+        ) : null}
 
         <section className="mt-8 rounded-lg border border-[#ddd6cc] bg-white p-6 shadow-sm sm:p-8">
           <h2 className="text-xl font-bold">감상평</h2>

@@ -12,6 +12,7 @@ type ReviewPayload = {
   title: string;
   type: "movie" | "anime" | "game" | "drama";
   genre: string[];
+  youtube_url: string;
   rating: number;
   watched_at: string;
   thumbnail: string | null;
@@ -44,6 +45,7 @@ function readReviewPayload(formData: FormData): ReviewPayload {
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
+  const youtubeUrl = String(formData.get("youtubeUrl") ?? "");
   const rating = Number(formData.get("rating") ?? 0);
   const watchedAt = String(formData.get("watched_at") ?? "").trim();
   const thumbnail = String(formData.get("thumbnail") ?? "").trim();
@@ -66,6 +68,7 @@ function readReviewPayload(formData: FormData): ReviewPayload {
     title,
     type,
     genre,
+    youtube_url: youtubeUrl,
     rating,
     watched_at: watchedAt,
     thumbnail: thumbnail || null,

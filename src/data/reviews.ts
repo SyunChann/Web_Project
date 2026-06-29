@@ -14,6 +14,7 @@ export type Review = {
   thumbnailAlt: string;
   summary: string;
   review: string;
+  youtubeUrl?: string;
 };
 
 export type ReviewSort = "created-desc" | "watched-desc" | "rating-desc";
@@ -23,6 +24,7 @@ type ReviewRow = {
   title: string;
   type: Review["type"];
   genre: string[] | null;
+  youtube_url: string;
   rating: number;
   watched_at: string;
   created_at: string;
@@ -34,7 +36,7 @@ type ReviewRow = {
 };
 
 const reviewSelect =
-  "id,title,type,genre,rating,watched_at,created_at,updated_at,thumbnail,thumbnail_alt,summary,review";
+  "id,title,type,genre,youtube_url,rating,watched_at,created_at,updated_at,thumbnail,thumbnail_alt,summary,review";
 
 function mapReviewRow(row: ReviewRow): Review {
   return {
@@ -42,6 +44,7 @@ function mapReviewRow(row: ReviewRow): Review {
     title: row.title,
     type: row.type,
     genre: row.genre ?? [],
+    youtubeUrl: row.youtube_url,
     rating: row.rating,
     watchedAt: row.watched_at,
     createdAt: row.created_at,

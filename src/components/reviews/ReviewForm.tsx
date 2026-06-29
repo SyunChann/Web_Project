@@ -219,6 +219,17 @@ export function ReviewForm({
         />
       </label>
 
+      <label className="grid gap-2 text-sm font-bold">
+        유튜브 영상 링크 (선택)
+        <input
+          name="youtubeUrl" // 백엔드/DB에서 받을 필드명
+          type="url"
+          defaultValue={review?.youtubeUrl}
+          placeholder="예: https://www.youtube.com/watch?v=..."
+          className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#be4b49] focus:bg-white"
+        />
+      </label>
+
       <input type="hidden" name="thumbnail" value={review?.thumbnail ?? ""} />
 
       <label className="grid gap-2 text-sm font-bold rounded-lg border border-[#ddd6cc] bg-[#fbfaf7] p-4">
