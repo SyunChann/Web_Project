@@ -5,7 +5,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 
 const mainFont = localFont({
-  src: "../assets/fonts/My_Font.ttf",
+  src: "../assets/fonts/My_Font.woff",
   variable: "--font-main",
   display: "swap",
 });

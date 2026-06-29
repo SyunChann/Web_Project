@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 import type { Review } from "@/data/reviews";
 
 type ReviewFormProps = {
@@ -8,14 +11,117 @@ type ReviewFormProps = {
   showSlugField?: boolean;
 };
 
+const maxThumbnailWidth = 1200;
+const maxThumbnailHeight = 1200;
+const thumbnailQuality = 0.82;
+const compressibleImageTypes = ["image/jpeg", "image/png", "image/webp"];
+
+function formatFileSize(bytes: number) {
+  if (bytes < 1024 * 1024) {
+    return `${Math.round(bytes / 1024)}KB`;
+  }
+
+  return `${(bytes / 1024 / 1024).toFixed(1)}MB`;
+}
+
+function getCompressedFileName(fileName: string) {
+  const baseName = fileName.replace(/\.[^.]+$/, "");
+
+  return `${baseName || "thumbnail"}.webp`;
+}
+
+function loadImage(file: File) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    const objectUrl = URL.createObjectURL(file);
+
+    image.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(image);
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("이미지를 불러오지 못했습니다."));
+    };
+    image.src = objectUrl;
+  });
+}
+
+function canvasToBlob(canvas: HTMLCanvasElement) {
+  return new Promise<Blob | null>((resolve) => {
+    canvas.toBlob(resolve, "image/webp", thumbnailQuality);
+  });
+}
+
+async function compressThumbnail(file: File) {
+  if (!compressibleImageTypes.includes(file.type)) {
+    return file;
+  }
+
+  const image = await loadImage(file);
+  const ratio = Math.min(
+    1,
+    maxThumbnailWidth / image.naturalWidth,
+    maxThumbnailHeight / image.naturalHeight,
+  );
+  const width = Math.max(1, Math.round(image.naturalWidth * ratio));
+  const height = Math.max(1, Math.round(image.naturalHeight * ratio));
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+
+  if (!context) {
+    return file;
+  }
+
+  canvas.width = width;
+  canvas.height = height;
+  context.drawImage(image, 0, 0, width, height);
+
+  const blob = await canvasToBlob(canvas);
+
+  if (!blob || blob.size >= file.size) {
+    return file;
+  }
+
+  return new File([blob], getCompressedFileName(file.name), {
+    type: "image/webp",
+    lastModified: Date.now(),
+  });
+}
+
 export function ReviewForm({
   action,
   submitLabel,
   review,
   showSlugField = false,
 }: ReviewFormProps) {
+  const [thumbnailStatus, setThumbnailStatus] = useState(
+    "이미지는 업로드 전에 자동으로 1200px 이하 WebP로 압축됩니다.",
+  );
+  const [isCompressing, setIsCompressing] = useState(false);
+
+  async function submitCompressedForm(formData: FormData) {
+    const thumbnail = formData.get("thumbnail_file");
+
+    if (thumbnail instanceof File && thumbnail.size > 0) {
+      setIsCompressing(true);
+      const compressedThumbnail = await compressThumbnail(thumbnail);
+      formData.set("thumbnail_file", compressedThumbnail);
+      setThumbnailStatus(
+        compressedThumbnail.size < thumbnail.size
+          ? `압축 완료: ${formatFileSize(thumbnail.size)} → ${formatFileSize(
+              compressedThumbnail.size,
+            )}`
+          : `원본 유지: ${formatFileSize(thumbnail.size)}`,
+      );
+    }
+
+    await action(formData);
+    setIsCompressing(false);
+  }
+
   return (
-    <form action={action} className="grid gap-5">
+    <form action={submitCompressedForm} className="grid gap-5">
       {showSlugField ? (
         <label className="grid gap-2 text-sm font-bold">
           URL ID
@@ -97,8 +203,20 @@ export function ReviewForm({
           name="thumbnail_file"
           type="file"
           accept="image/*"
+          onChange={(event) => {
+            const file = event.currentTarget.files?.[0];
+
+            setThumbnailStatus(
+              file
+                ? `선택됨: ${file.name} (${formatFileSize(file.size)})`
+                : "이미지는 업로드 전에 자동으로 1200px 이하 WebP로 압축됩니다.",
+            );
+          }}
           className="rounded-md border border-[#d8cfc2] bg-white px-4 py-3 text-sm font-normal file:mr-4 file:rounded-md file:border-0 file:bg-[#be4b49] file:px-3 file:py-2 file:text-sm file:font-bold file:text-white"
         />
+        <span className="text-xs font-normal leading-5 text-[#7a6f63]">
+          {thumbnailStatus}
+        </span>
       </label>
 
       <label className="grid gap-2 text-sm font-bold">
@@ -126,9 +244,10 @@ export function ReviewForm({
       <div className="flex flex-wrap gap-3">
         <button
           type="submit"
+          disabled={isCompressing}
           className="rounded-md bg-[#be4b49] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#a83f3d]"
         >
-          {submitLabel}
+          {isCompressing ? "이미지 압축 중..." : submitLabel}
         </button>
         <Link
           href={review ? `/reviews/${review.id}` : "/reviews"}

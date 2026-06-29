@@ -1,6 +1,6 @@
 # Review Collection
 
-![Review Collection 메인 화면](src/assets/fonts/image/image.png)
+![Review Collection 메인 화면](src/assets/image/image.png)
 
 영화, 애니, 게임, 드라마처럼 오래 기억하고 싶은 콘텐츠를 한곳에 기록하는 개인 리뷰 컬렉션임.
 
@@ -24,7 +24,7 @@ https://web-project-omega-ruby-60.vercel.app
 - 리뷰 삭제 전 확인창 표시
 - 카테고리별 기록 수, 평균 별점, 최근 감상일 표시
 - Vercel Analytics 기반 방문/페이지뷰 측정
-- 로컬 TTF 폰트 전체 적용
+- 로컬 WOFF 폰트 전체 적용
 - Supabase RLS 기반 공개 조회와 관리자 쓰기 권한 분리
 
 ## 기술 스택
