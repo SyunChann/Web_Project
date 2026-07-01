@@ -1,4 +1,11 @@
-import { ArrowLeft, Bookmark, CalendarClock, Pencil, Play } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Bookmark,
+  CalendarClock,
+  Pencil,
+  Play,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -10,6 +17,7 @@ import {
   getWatchItems,
   watchStatusLabel,
   watchStatusTheme,
+  type WatchItem,
 } from "@/data/watchlist";
 import { typeLabel, typeTheme } from "@/data/reviews";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -56,6 +64,12 @@ export default async function WatchlistDetailPage({
   const theme = typeTheme(item.type);
   const deleteAction = deleteWatchlistItem.bind(null, item.id);
   const embedUrl = getYouTubeEmbedUrl(item.youtubeUrl);
+  const orderedItems = await getWatchItems();
+  const currentIndex = orderedItems.findIndex((watchItem) => watchItem.id === item.id);
+  const previousItem =
+    currentIndex >= 0 ? orderedItems[currentIndex + 1] : undefined;
+  const nextItem =
+    currentIndex > 0 ? orderedItems[currentIndex - 1] : undefined;
 
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
@@ -167,8 +181,75 @@ export default async function WatchlistDetailPage({
             </div>
           </section>
         ) : null}
+        {previousItem || nextItem ? (
+          <nav
+            aria-label="기대작 이전 다음 글"
+            className="mt-8 grid gap-4 sm:grid-cols-2"
+          >
+            {previousItem ? (
+              <WatchAdjacentCard
+                item={previousItem}
+                label="이전 기대작"
+                direction="previous"
+              />
+            ) : (
+              <div className="hidden sm:block" />
+            )}
+            {nextItem ? (
+              <WatchAdjacentCard
+                item={nextItem}
+                label="다음 기대작"
+                direction="next"
+              />
+            ) : null}
+          </nav>
+        ) : null}
         </article>
       </section>
     </main>
+  );
+}
+
+function WatchAdjacentCard({
+  item,
+  label,
+  direction,
+}: {
+  item: WatchItem;
+  label: string;
+  direction: "previous" | "next";
+}) {
+  const Icon = direction === "previous" ? ArrowLeft : ArrowRight;
+
+  return (
+    <Link
+      href={`/watchlist/${item.id}`}
+      className="group grid grid-cols-[88px_1fr] overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] border-l-[#38a39b] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+    >
+      <Image
+        src={item.thumbnail}
+        alt={item.thumbnailAlt}
+        width={176}
+        height={112}
+        className="h-full min-h-28 w-full object-cover"
+        loading="lazy"
+      />
+      <div className="min-w-0 p-4">
+        <p className="flex items-center gap-2 text-xs font-bold text-[#2f7f7a]">
+          {direction === "previous" ? <Icon size={14} /> : null}
+          {label}
+          {direction === "next" ? <Icon size={14} /> : null}
+        </p>
+        <h2 className="mt-2 line-clamp-2 font-bold leading-6 transition group-hover:text-[#2f7f7a]">
+          {item.title}
+        </h2>
+        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-semibold text-[#6b7280]">
+          <span>{item.releaseLabel}</span>
+          <span className={`rounded px-2 py-1 ${watchStatusTheme(item.status)}`}>
+            {watchStatusLabel(item.status)}
+          </span>
+        </div>
+      </div>
+    </Link>
   );
 }

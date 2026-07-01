@@ -1,11 +1,18 @@
-import { ArrowLeft, Calendar, Pencil, Play, Star } from "lucide-react";
+import { ArrowLeft, ArrowRight, Calendar, Pencil, Play, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { deleteReview } from "@/app/actions/reviews";
 import { AppNav } from "@/components/AppNav";
 import { DeleteReviewButton } from "@/components/reviews/DeleteReviewButton";
-import { getReview, getReviews, typeLabel, typeTheme } from "@/data/reviews";
+import {
+  getReview,
+  getReviews,
+  sortReviews,
+  typeLabel,
+  typeTheme,
+  type Review,
+} from "@/data/reviews";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getYouTubeEmbedUrl } from "@/lib/supabase/utils";
 
@@ -52,6 +59,12 @@ export default async function ReviewDetailPage({
 
   // DB에 저장된 유튜브 주소를 임베드용 주소로 변환
   const embedUrl = getYouTubeEmbedUrl(review.youtubeUrl);
+  const orderedReviews = sortReviews(await getReviews(), "created-desc");
+  const currentIndex = orderedReviews.findIndex((item) => item.id === review.id);
+  const previousReview =
+    currentIndex >= 0 ? orderedReviews[currentIndex + 1] : undefined;
+  const nextReview =
+    currentIndex > 0 ? orderedReviews[currentIndex - 1] : undefined;
 
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
@@ -165,8 +178,84 @@ export default async function ReviewDetailPage({
             {review.review}
           </p>
         </section>
+        {previousReview || nextReview ? (
+          <nav
+            aria-label="리뷰 이전 다음 글"
+            className="mt-8 grid gap-4 sm:grid-cols-2"
+          >
+            {previousReview ? (
+              <ReviewAdjacentCard
+                review={previousReview}
+                label="이전 리뷰"
+                direction="previous"
+              />
+            ) : (
+              <div className="hidden sm:block" />
+            )}
+            {nextReview ? (
+              <ReviewAdjacentCard
+                review={nextReview}
+                label="다음 리뷰"
+                direction="next"
+              />
+            ) : null}
+          </nav>
+        ) : null}
         </article>
       </section>
     </main>
   );
+}
+
+function ReviewAdjacentCard({
+  review,
+  label,
+  direction,
+}: {
+  review: Review;
+  label: string;
+  direction: "previous" | "next";
+}) {
+  const theme = typeTheme(review.type);
+  const Icon = direction === "previous" ? ArrowLeft : ArrowRight;
+
+  return (
+    <Link
+      href={`/reviews/${review.id}`}
+      className={`group grid grid-cols-[88px_1fr] overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] ${theme.border} bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md`}
+    >
+      <Image
+        src={review.thumbnail}
+        alt={review.thumbnailAlt}
+        width={176}
+        height={112}
+        className="h-full min-h-28 w-full object-cover"
+        loading="lazy"
+      />
+      <div className="min-w-0 p-4">
+        <p className="flex items-center gap-2 text-xs font-bold text-[#be4b49]">
+          {direction === "previous" ? <Icon size={14} /> : null}
+          {label}
+          {direction === "next" ? <Icon size={14} /> : null}
+        </p>
+        <h2 className="mt-2 line-clamp-2 font-bold leading-6 transition group-hover:text-[#be4b49]">
+          {review.title}
+        </h2>
+        <div className="mt-2 flex flex-wrap items-center gap-3 text-xs font-semibold text-[#6b7280]">
+          <span>{formatDate(review.createdAt)}</span>
+          <span className="flex items-center gap-1">
+            <Star size={13} fill="#f2b84b" color="#f2b84b" />
+            {review.rating}
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("ko-KR", {
+    month: "short",
+    day: "numeric",
+  }).format(new Date(value));
 }

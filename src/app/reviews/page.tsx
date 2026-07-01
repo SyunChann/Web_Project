@@ -1,4 +1,4 @@
-import { Star } from "lucide-react";
+import { Search, Star, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
@@ -7,12 +7,20 @@ import {
   sortReviews,
   typeLabel,
   typeTheme,
+  type Review,
   type ReviewSort,
 } from "@/data/reviews";
 
 type ReviewsPageProps = {
-  searchParams?: Promise<{ sort?: string | string[] }>;
+  searchParams?: Promise<{
+    q?: string | string[];
+    sort?: string | string[];
+    type?: string | string[];
+  }>;
 };
+
+type ReviewType = Review["type"];
+type ReviewTypeFilter = ReviewType | "all";
 
 const sortOptions: { value: ReviewSort; label: string }[] = [
   {
@@ -29,10 +37,39 @@ const sortOptions: { value: ReviewSort; label: string }[] = [
   },
 ];
 
+const typeOptions: { value: ReviewTypeFilter; label: string }[] = [
+  {
+    value: "all",
+    label: "전체",
+  },
+  {
+    value: "movie",
+    label: "영화",
+  },
+  {
+    value: "anime",
+    label: "애니",
+  },
+  {
+    value: "game",
+    label: "게임",
+  },
+  {
+    value: "drama",
+    label: "드라마",
+  },
+];
+
 export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
   const params = await searchParams;
+  const activeQuery = parseSearchValue(params?.q);
   const activeSort = parseSort(params?.sort);
-  const reviews = sortReviews(await getReviews(), activeSort);
+  const activeType = parseType(params?.type);
+  const reviews = sortReviews(
+    filterReviews(await getReviews(), activeQuery, activeType),
+    activeSort,
+  );
+  const isFiltered = Boolean(activeQuery) || activeType !== "all";
 
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
@@ -46,14 +83,90 @@ export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
             Supabase에 저장된 리뷰를 불러옵니다. 영화, 애니, 게임, 드라마
             감상 기록을 한곳에서 확인할 수 있습니다.
           </p>
-          <div className="mt-6 flex flex-wrap gap-2">
+        </header>
+
+        <section className="mb-8 rounded-lg border border-[#ddd6cc] bg-white p-4 shadow-sm">
+          <form
+            action="/reviews"
+            className="grid gap-3 md:grid-cols-[1fr_auto_auto] md:items-center"
+          >
+            {activeType !== "all" ? (
+              <input type="hidden" name="type" value={activeType} />
+            ) : null}
+            {activeSort !== "created-desc" ? (
+              <input type="hidden" name="sort" value={activeSort} />
+            ) : null}
+            <label className="relative block">
+              <Search
+                size={18}
+                className="absolute top-1/2 left-3 -translate-y-1/2 text-[#8a95a1]"
+              />
+              <input
+                name="q"
+                type="search"
+                defaultValue={activeQuery}
+                placeholder="제목, 장르, 요약 검색"
+                className="h-11 w-full rounded-md border border-[#d8cfc2] bg-[#fbfaf7] pr-3 pl-10 text-sm font-semibold outline-none transition placeholder:text-[#8a95a1] focus:border-[#be4b49] focus:bg-white"
+              />
+            </label>
+            <button
+              type="submit"
+              className="inline-flex h-11 items-center justify-center rounded-md bg-[#be4b49] px-4 text-sm font-bold text-white shadow-sm transition hover:bg-[#a83f3d]"
+            >
+              검색
+            </button>
+            {isFiltered ? (
+              <Link
+                href={buildReviewsHref({
+                  query: "",
+                  type: "all",
+                  sort: activeSort,
+                })}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#be4b49] hover:text-[#be4b49]"
+              >
+                <X size={16} />
+                초기화
+              </Link>
+            ) : null}
+          </form>
+
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap gap-2">
+              {typeOptions.map((option) => {
+                const isActive = option.value === activeType;
+
+                return (
+                  <Link
+                    key={option.value}
+                    href={buildReviewsHref({
+                      query: activeQuery,
+                      type: option.value,
+                      sort: activeSort,
+                    })}
+                    className={`rounded-md border px-3 py-2 text-sm font-bold transition ${
+                      isActive
+                        ? "border-[#be4b49] bg-[#fff7f5] text-[#be4b49]"
+                        : "border-[#d8cfc2] bg-white text-[#52616b] hover:border-[#be4b49] hover:text-[#be4b49]"
+                    }`}
+                  >
+                    {option.label}
+                  </Link>
+                );
+              })}
+            </div>
+
+            <div className="flex flex-wrap gap-2">
             {sortOptions.map((option) => {
               const isActive = option.value === activeSort;
 
               return (
                 <Link
                   key={option.value}
-                  href={option.value === "created-desc" ? "/reviews" : `/reviews?sort=${option.value}`}
+                    href={buildReviewsHref({
+                      query: activeQuery,
+                      type: activeType,
+                      sort: option.value,
+                    })}
                   className={`rounded-md border px-4 py-2 text-sm font-bold shadow-sm transition ${
                     isActive
                       ? "border-[#be4b49] bg-[#be4b49] text-white"
@@ -64,8 +177,13 @@ export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
                 </Link>
               );
             })}
+            </div>
           </div>
-        </header>
+
+          <p className="mt-4 text-sm font-semibold text-[#6b7280]">
+            {isFiltered ? `검색 결과 ${reviews.length}개` : `전체 ${reviews.length}개`}
+          </p>
+        </section>
 
         {reviews.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-3">
@@ -137,6 +255,87 @@ function parseSort(value: string | string[] | undefined): ReviewSort {
   }
 
   return "created-desc";
+}
+
+function parseType(value: string | string[] | undefined): ReviewTypeFilter {
+  const typeValue = Array.isArray(value) ? value[0] : value;
+
+  if (
+    typeValue === "movie" ||
+    typeValue === "anime" ||
+    typeValue === "game" ||
+    typeValue === "drama"
+  ) {
+    return typeValue;
+  }
+
+  return "all";
+}
+
+function parseSearchValue(value: string | string[] | undefined) {
+  const searchValue = Array.isArray(value) ? value[0] : value;
+
+  return searchValue?.trim() ?? "";
+}
+
+function filterReviews(
+  reviews: Review[],
+  query: string,
+  type: ReviewTypeFilter,
+) {
+  const normalizedQuery = query.toLowerCase();
+
+  return reviews.filter((review) => {
+    const matchesType = type === "all" || review.type === type;
+
+    if (!matchesType) {
+      return false;
+    }
+
+    if (!normalizedQuery) {
+      return true;
+    }
+
+    return [
+      review.title,
+      typeLabel(review.type),
+      review.summary,
+      review.review,
+      ...review.genre,
+    ]
+      .join(" ")
+      .toLowerCase()
+      .includes(normalizedQuery);
+  });
+}
+
+function buildReviewsHref({
+  query,
+  type,
+  sort,
+}: {
+  query: string;
+  type: ReviewTypeFilter;
+  sort: ReviewSort;
+}) {
+  const params = new URLSearchParams();
+  const trimmedQuery = query.trim();
+
+  if (trimmedQuery) {
+    params.set("q", trimmedQuery);
+  }
+
+  if (type !== "all") {
+    params.set("type", type);
+  }
+
+  if (sort !== "created-desc") {
+    params.set("sort", sort);
+  }
+
+  const queryString = params.toString();
+
+  return queryString ? `/reviews?${queryString}` : "/reviews";
 }
 
 function formatDate(value: string) {

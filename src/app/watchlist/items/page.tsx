@@ -1,4 +1,4 @@
-import { ArrowLeft, Bookmark } from "lucide-react";
+import { ArrowLeft, Bookmark, Search, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
@@ -8,14 +8,50 @@ import {
   watchStatusTheme,
   type WatchItem,
 } from "@/data/watchlist";
+import { typeLabel } from "@/data/reviews";
 
 export const metadata = {
   title: "전체 기대작 | 취향보관소",
   description: "앞으로 보고 싶은 기대작 전체 목록",
 };
 
-export default async function WatchlistItemsPage() {
-  const items = await getWatchItems();
+type WatchlistItemsPageProps = {
+  searchParams?: Promise<{
+    q?: string | string[];
+    status?: string | string[];
+  }>;
+};
+
+type WatchStatus = WatchItem["status"];
+type WatchStatusFilter = WatchStatus | "all";
+
+const statusOptions: { value: WatchStatusFilter; label: string }[] = [
+  {
+    value: "all",
+    label: "전체",
+  },
+  {
+    value: "waiting",
+    label: "기대중",
+  },
+  {
+    value: "watching",
+    label: "보는 중",
+  },
+  {
+    value: "paused",
+    label: "보류",
+  },
+];
+
+export default async function WatchlistItemsPage({
+  searchParams,
+}: WatchlistItemsPageProps) {
+  const params = await searchParams;
+  const activeQuery = parseSearchValue(params?.q);
+  const activeStatus = parseStatus(params?.status);
+  const items = filterWatchItems(await getWatchItems(), activeQuery, activeStatus);
+  const isFiltered = Boolean(activeQuery) || activeStatus !== "all";
 
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
@@ -36,6 +72,72 @@ export default async function WatchlistItemsPage() {
             아직 감상하지 않았지만 기억해두고 싶은 작품을 모아둔 목록입니다.
           </p>
         </header>
+
+        <section className="mb-8 rounded-lg border border-[#d7e7e4] bg-white p-4 shadow-sm">
+          <form
+            action="/watchlist/items"
+            className="grid gap-3 md:grid-cols-[1fr_auto_auto] md:items-center"
+          >
+            {activeStatus !== "all" ? (
+              <input type="hidden" name="status" value={activeStatus} />
+            ) : null}
+            <label className="relative block">
+              <Search
+                size={18}
+                className="absolute top-1/2 left-3 -translate-y-1/2 text-[#8a95a1]"
+              />
+              <input
+                name="q"
+                type="search"
+                defaultValue={activeQuery}
+                placeholder="제목, 장르, 기대 이유 검색"
+                className="h-11 w-full rounded-md border border-[#c8dedb] bg-[#f7fcfb] pr-3 pl-10 text-sm font-semibold outline-none transition placeholder:text-[#8a95a1] focus:border-[#38a39b] focus:bg-white"
+              />
+            </label>
+            <button
+              type="submit"
+              className="inline-flex h-11 items-center justify-center rounded-md bg-[#2f7f7a] px-4 text-sm font-bold text-white shadow-sm transition hover:bg-[#276a66]"
+            >
+              검색
+            </button>
+            {isFiltered ? (
+              <Link
+                href="/watchlist/items"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-[#c8dedb] bg-white px-4 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#38a39b] hover:text-[#2f7f7a]"
+              >
+                <X size={16} />
+                초기화
+              </Link>
+            ) : null}
+          </form>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            {statusOptions.map((option) => {
+              const isActive = option.value === activeStatus;
+
+              return (
+                <Link
+                  key={option.value}
+                  href={buildWatchlistHref({
+                    query: activeQuery,
+                    status: option.value,
+                  })}
+                  className={`rounded-md border px-3 py-2 text-sm font-bold transition ${
+                    isActive
+                      ? "border-[#38a39b] bg-[#e4f4f2] text-[#2f7f7a]"
+                      : "border-[#c8dedb] bg-white text-[#52616b] hover:border-[#38a39b] hover:text-[#2f7f7a]"
+                  }`}
+                >
+                  {option.label}
+                </Link>
+              );
+            })}
+          </div>
+
+          <p className="mt-4 text-sm font-semibold text-[#6b7280]">
+            {isFiltered ? `검색 결과 ${items.length}개` : `전체 ${items.length}개`}
+          </p>
+        </section>
 
         {items.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-3">
@@ -88,4 +190,79 @@ function WatchItemCard({ item }: { item: WatchItem }) {
       </div>
     </Link>
   );
+}
+
+function parseStatus(value: string | string[] | undefined): WatchStatusFilter {
+  const statusValue = Array.isArray(value) ? value[0] : value;
+
+  if (
+    statusValue === "waiting" ||
+    statusValue === "watching" ||
+    statusValue === "paused"
+  ) {
+    return statusValue;
+  }
+
+  return "all";
+}
+
+function parseSearchValue(value: string | string[] | undefined) {
+  const searchValue = Array.isArray(value) ? value[0] : value;
+
+  return searchValue?.trim() ?? "";
+}
+
+function filterWatchItems(
+  items: WatchItem[],
+  query: string,
+  status: WatchStatusFilter,
+) {
+  const normalizedQuery = query.toLowerCase();
+
+  return items.filter((item) => {
+    const matchesStatus = status === "all" || item.status === status;
+
+    if (!matchesStatus) {
+      return false;
+    }
+
+    if (!normalizedQuery) {
+      return true;
+    }
+
+    return [
+      item.title,
+      typeLabel(item.type),
+      watchStatusLabel(item.status),
+      item.releaseLabel,
+      item.reason,
+      ...item.genre,
+    ]
+      .join(" ")
+      .toLowerCase()
+      .includes(normalizedQuery);
+  });
+}
+
+function buildWatchlistHref({
+  query,
+  status,
+}: {
+  query: string;
+  status: WatchStatusFilter;
+}) {
+  const params = new URLSearchParams();
+  const trimmedQuery = query.trim();
+
+  if (trimmedQuery) {
+    params.set("q", trimmedQuery);
+  }
+
+  if (status !== "all") {
+    params.set("status", status);
+  }
+
+  const queryString = params.toString();
+
+  return queryString ? `/watchlist/items?${queryString}` : "/watchlist/items";
 }
