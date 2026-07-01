@@ -3,6 +3,7 @@
 import NextImage from "next/image";
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
+import { YouTubePreviewField } from "@/components/YouTubePreviewField";
 import type { Review } from "@/data/reviews";
 
 type ReviewFormProps = {
@@ -238,16 +239,7 @@ export function ReviewForm({
         />
       </label>
 
-      <label className="grid gap-2 text-sm font-bold">
-        유튜브 영상 링크 (선택)
-        <input
-          name="youtubeUrl" // 백엔드/DB에서 받을 필드명
-          type="url"
-          defaultValue={review?.youtubeUrl}
-          placeholder="예: https://www.youtube.com/watch?v=..."
-          className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#be4b49] focus:bg-white"
-        />
-      </label>
+      <YouTubePreviewField defaultValue={review?.youtubeUrl} />
 
       <input type="hidden" name="thumbnail" value={review?.thumbnail ?? ""} />
 
@@ -283,11 +275,16 @@ export function ReviewForm({
                 : "이미지는 업로드 전에 자동으로 1200px 이하 WebP로 압축됩니다.",
             );
           }}
-          className="rounded-md border border-[#d8cfc2] bg-white px-4 py-3 text-sm font-normal file:mr-4 file:rounded-md file:border-0 file:bg-[#be4b49] file:px-3 file:py-2 file:text-sm file:font-bold file:text-white"
+          className="sr-only"
         />
-        <span className="text-xs font-normal leading-5 text-[#7a6f63]">
-          {thumbnailStatus}
-        </span>
+        <div className="flex min-w-0 flex-wrap items-start gap-3 rounded-md border border-[#d8cfc2] bg-white p-3">
+          <span className="shrink-0 rounded-md bg-[#be4b49] px-3 py-2 text-sm font-bold text-white">
+            파일 선택
+          </span>
+          <span className="min-w-0 flex-1 break-all text-xs font-normal leading-5 text-[#7a6f63]">
+            {thumbnailStatus}
+          </span>
+        </div>
       </label>
 
       <label className="grid gap-2 text-sm font-bold">
