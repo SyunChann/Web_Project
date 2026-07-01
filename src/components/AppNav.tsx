@@ -14,19 +14,40 @@ export async function AppNav({ active }: AppNavProps) {
   } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
   const activeSectionLabel = active === "watchlist" ? "기대작 홈" : "리뷰 홈";
 
+  const theme =
+    active === "watchlist"
+      ? {
+          brandHover: "hover:border-[#2f7f7a]",
+          icon: "bg-[#2f7f7a] group-hover:bg-[#276a66]",
+          text: "text-[#2f7f7a]",
+          controlHover: "hover:border-[#2f7f7a] hover:text-[#2f7f7a]",
+          primary: "bg-[#2f7f7a] hover:bg-[#276a66]",
+          admin: "bg-[#e4f4f2] text-[#2f7f7a]",
+        }
+      : {
+          brandHover: "hover:border-[#be4b49]",
+          icon: "bg-[#be4b49] group-hover:bg-[#a83f3d]",
+          text: "text-[#be4b49]",
+          controlHover: "hover:border-[#be4b49] hover:text-[#be4b49]",
+          primary: "bg-[#be4b49] hover:bg-[#a83f3d]",
+          admin: "bg-[#edf2ef] text-[#2f6f5e]",
+        };
+
   return (
     <nav className="flex flex-wrap items-center justify-between gap-3">
       <Link
         href="/"
-        className="group inline-flex items-center gap-3 rounded-md border border-[#d8cfc2] bg-white px-3 py-2 shadow-sm transition hover:border-[#be4b49] hover:shadow-md"
+        className={`group inline-flex items-center gap-3 rounded-md border border-[#d8cfc2] bg-white px-3 py-2 shadow-sm transition ${theme.brandHover} hover:shadow-md`}
         aria-label="취향보관소 홈"
       >
-        <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[#be4b49] text-white transition group-hover:bg-[#a83f3d]">
+        <span
+          className={`flex h-9 w-9 items-center justify-center rounded-md text-white transition ${theme.icon}`}
+        >
           <Library size={18} />
         </span>
         <span className="grid leading-tight">
           <span className="text-sm font-black text-[#17202a]">취향</span>
-          <span className="text-xs font-bold uppercase text-[#be4b49]">
+          <span className={`text-xs font-bold uppercase ${theme.text}`}>
             보관소
           </span>
         </span>
@@ -34,7 +55,9 @@ export async function AppNav({ active }: AppNavProps) {
 
       <div className="flex flex-wrap items-center gap-2">
         <details className="group relative">
-          <summary className="flex cursor-pointer list-none items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 py-2 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#be4b49] hover:text-[#be4b49] [&::-webkit-details-marker]:hidden">
+          <summary
+            className={`flex cursor-pointer list-none items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 py-2 text-sm font-bold text-[#52616b] shadow-sm transition ${theme.controlHover} [&::-webkit-details-marker]:hidden`}
+          >
             <Library size={16} />
             {activeSectionLabel}
             <ChevronDown
@@ -72,11 +95,13 @@ export async function AppNav({ active }: AppNavProps) {
           <>
             <Link
               href="/new"
-              className="inline-flex items-center gap-2 rounded-md bg-[#be4b49] px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-[#a83f3d]"
+              className={`inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-bold text-white shadow-sm transition ${theme.primary}`}
             >
               <Plus size={16} />새 글
             </Link>
-            <span className="rounded-md bg-[#edf2ef] px-3 py-2 text-sm font-bold text-[#2f6f5e]">
+            <span
+              className={`rounded-md px-3 py-2 text-sm font-bold ${theme.admin}`}
+            >
               관리자
             </span>
             <LogoutButton />
@@ -84,7 +109,7 @@ export async function AppNav({ active }: AppNavProps) {
         ) : (
           <Link
             href="/login"
-            className="inline-flex items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 py-2 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#be4b49] hover:text-[#be4b49]"
+            className={`inline-flex items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 py-2 text-sm font-bold text-[#52616b] shadow-sm transition ${theme.controlHover}`}
           >
             <LogIn size={16} />
             로그인

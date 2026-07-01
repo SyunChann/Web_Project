@@ -115,13 +115,15 @@ export default async function Home() {
                 있게 관리합니다.
               </p>
             </div>
-            <Link
-              href="/watchlist"
-              className="inline-flex items-center gap-2 text-sm font-bold text-[#2f7f7a]"
-            >
-              기대작 홈
-              <ArrowRight size={16} />
-            </Link>
+            {previewWatchItems[0] ? (
+              <Link
+                href={`/watchlist/${previewWatchItems[0].id}`}
+                className="inline-flex items-center gap-2 text-sm font-bold text-[#2f7f7a]"
+              >
+                최근 기대작 보기
+                <ArrowRight size={16} />
+              </Link>
+            ) : null}
           </div>
 
           {previewWatchItems.length > 0 ? (

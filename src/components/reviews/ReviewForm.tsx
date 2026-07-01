@@ -1,7 +1,8 @@
 "use client";
 
+import NextImage from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import type { Review } from "@/data/reviews";
 
 type ReviewFormProps = {
@@ -28,6 +29,21 @@ function getCompressedFileName(fileName: string) {
   const baseName = fileName.replace(/\.[^.]+$/, "");
 
   return `${baseName || "thumbnail"}.webp`;
+}
+
+function getFileNameFromPath(value?: string | null) {
+  if (!value) {
+    return "";
+  }
+
+  try {
+    return decodeURIComponent(new URL(value, "http://local").pathname)
+      .split("/")
+      .filter(Boolean)
+      .pop() ?? value;
+  } catch {
+    return value.split("/").filter(Boolean).pop() ?? value;
+  }
 }
 
 function loadImage(file: File) {
@@ -93,7 +109,7 @@ function FieldLabel({
   children,
   required = false,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   required?: boolean;
 }) {
   return (
@@ -118,8 +134,11 @@ export function ReviewForm({
   review,
   showSlugField = false,
 }: ReviewFormProps) {
+  const currentThumbnailName = getFileNameFromPath(review?.thumbnail);
   const [thumbnailStatus, setThumbnailStatus] = useState(
-    "이미지는 업로드 전에 자동으로 1200px 이하 WebP로 압축됩니다.",
+    currentThumbnailName
+      ? `현재 썸네일: ${currentThumbnailName}. 새 파일을 선택하면 교체됩니다.`
+      : "이미지는 업로드 전에 자동으로 1200px 이하 WebP로 압축됩니다.",
   );
   const [isCompressing, setIsCompressing] = useState(false);
 
@@ -234,6 +253,23 @@ export function ReviewForm({
 
       <label className="grid gap-2 text-sm font-bold rounded-lg border border-[#ddd6cc] bg-[#fbfaf7] p-4">
         <FieldLabel>썸네일 업로드</FieldLabel>
+        {review?.thumbnail ? (
+          <div className="flex flex-wrap items-center gap-3 rounded-md border border-[#d8cfc2] bg-white p-3">
+            <NextImage
+              src={review.thumbnail}
+              alt={review.thumbnailAlt}
+              width={96}
+              height={54}
+              className="aspect-video w-24 rounded object-cover"
+            />
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-[#52616b]">현재 썸네일</p>
+              <p className="break-all text-sm font-normal text-[#17202a]">
+                {currentThumbnailName}
+              </p>
+            </div>
+          </div>
+        ) : null}
         <input
           name="thumbnail_file"
           type="file"

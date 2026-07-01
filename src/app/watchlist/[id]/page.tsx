@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { deleteWatchlistItem } from "@/app/actions/watchlist";
+import { AppNav } from "@/components/AppNav";
 import { DeleteWatchlistButton } from "@/components/DeleteWatchlistButton";
 import {
   getWatchItem,
@@ -58,7 +59,9 @@ export default async function WatchlistDetailPage({
 
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
-      <article className="mx-auto w-full max-w-3xl">
+      <section className="mx-auto w-full max-w-6xl">
+        <AppNav active="watchlist" />
+        <article className="mx-auto mt-10 w-full max-w-3xl">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Link
             href="/watchlist/items"
@@ -164,7 +167,8 @@ export default async function WatchlistDetailPage({
             </div>
           </section>
         ) : null}
-      </article>
+        </article>
+      </section>
     </main>
   );
 }

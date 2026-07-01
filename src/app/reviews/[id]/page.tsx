@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { deleteReview } from "@/app/actions/reviews";
+import { AppNav } from "@/components/AppNav";
 import { DeleteReviewButton } from "@/components/reviews/DeleteReviewButton";
 import { getReview, getReviews, typeLabel, typeTheme } from "@/data/reviews";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -54,7 +55,9 @@ export default async function ReviewDetailPage({
 
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
-      <article className="mx-auto w-full max-w-3xl">
+      <section className="mx-auto w-full max-w-6xl">
+        <AppNav active="reviews" />
+        <article className="mx-auto mt-10 w-full max-w-3xl">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Link
             href="/reviews"
@@ -162,7 +165,8 @@ export default async function ReviewDetailPage({
             {review.review}
           </p>
         </section>
-      </article>
+        </article>
+      </section>
     </main>
   );
 }

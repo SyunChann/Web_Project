@@ -53,13 +53,15 @@ export default async function WatchlistPage() {
                 기대작 전체보기
                 <ArrowRight size={18} />
               </Link>
-              <Link
-                href="#recent-watchlist"
-                className="inline-flex items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-5 py-3 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#38a39b] hover:text-[#2f7f7a]"
-              >
-                최근 기대작 보기
-                <ArrowRight size={18} />
-              </Link>
+              {featuredItem ? (
+                <Link
+                  href={`/watchlist/${featuredItem.id}`}
+                  className="inline-flex items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-5 py-3 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#38a39b] hover:text-[#2f7f7a]"
+                >
+                  최근 기대작 보기
+                  <ArrowRight size={18} />
+                </Link>
+              ) : null}
             </div>
           </div>
 
