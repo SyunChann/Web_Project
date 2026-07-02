@@ -7,6 +7,7 @@ import {
   getPendingInviteCookieOptions,
   normalizeInviteCode,
   pendingInviteCookieName,
+  pendingInviteMetadataKey,
 } from "@/lib/pendingInvite";
 
 function signupRedirect(error: string, inviteCode?: string): never {
@@ -84,6 +85,7 @@ export async function signUpWithInvite(formData: FormData) {
     options: {
       data: {
         display_name: displayName,
+        [pendingInviteMetadataKey]: inviteCode,
       },
     },
   });
