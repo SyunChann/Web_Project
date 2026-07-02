@@ -183,24 +183,18 @@ function WatchItemCard({ item }: { item: WatchItem }) {
           <Bookmark size={16} className="text-[#38a39b]" />
         </div>
         <h2 className="mt-5 text-lg font-bold text-[#17202a]">{item.title}</h2>
-        <div className="mt-4 grid gap-1.5 rounded-md border border-[#d9ebe7] bg-[#f6fbfa] px-3 py-2 text-xs font-semibold text-[#66727f] sm:grid-cols-2">
-          <span>
-            <span className="mr-1 text-[#2f7f7a]">공개</span>
-            {item.releaseLabel}
-          </span>
-          <span>
-            <span className="mr-1 text-[#9b4a43]">등록</span>
-            {formatFullDate(item.createdAt)}
-          </span>
-          {item.authorName ? (
-            <span className="sm:col-span-2">
-              <span className="mr-1 text-[#6d470c]">작성자:</span>
-              {item.authorName}
-            </span>
-          ) : null}
-        </div>
+        <p className="mt-2 text-sm font-semibold text-[#2f7f7a]">
+          공개 {item.releaseLabel}
+        </p>
         <p className="mt-4 line-clamp-3 text-sm leading-6 text-[#3f4a54]">
           {item.reason}
+        </p>
+        <p className="mt-4 text-xs font-semibold text-[#7a8490]">
+          {item.authorName ? (
+            <>
+              <span className="text-[#6d470c]">작성자:</span> {item.authorName}
+            </>
+          ) : null}
         </p>
       </div>
     </Link>
@@ -280,16 +274,4 @@ function buildWatchlistHref({
   const queryString = params.toString();
 
   return queryString ? `/watchlist/items?${queryString}` : "/watchlist/items";
-}
-
-function formatFullDate(value: string) {
-  if (/^\d{4}-\d{2}-\d{2}/.test(value)) {
-    return value.slice(0, 10);
-  }
-
-  return new Intl.DateTimeFormat("en-CA", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date(value));
 }

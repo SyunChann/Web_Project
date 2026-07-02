@@ -25,6 +25,10 @@ export async function signUpWithInvite(formData: FormData) {
     signupRedirect("missing", inviteCode);
   }
 
+  if (displayName.length > 10) {
+    signupRedirect("name_too_long", inviteCode);
+  }
+
   if (password.length < 6) {
     signupRedirect("weak_password", inviteCode);
   }

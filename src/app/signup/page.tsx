@@ -13,6 +13,7 @@ type SignupPageProps = {
 
 const errorMessages = {
   missing: "이름, 이메일, 비밀번호, 초대 코드를 모두 입력해 주세요.",
+  name_too_long: "이름은 10자 이내로 입력해 주세요.",
   weak_password: "비밀번호는 6자 이상으로 입력해 주세요.",
   config: "Supabase 환경변수가 설정되지 않았습니다.",
   invalid_invite: "초대 코드가 없거나 만료되었습니다.",
@@ -61,12 +62,18 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
           ) : null}
 
           <form action={signUpWithInvite} className="mt-6 flex flex-col gap-4">
+            <p className="rounded-md bg-[#fbf8f3] px-4 py-3 text-xs font-bold text-[#6b7280]">
+              모든 항목은 필수입니다.
+            </p>
+
             <label className="flex flex-col gap-2 text-sm font-bold text-[#1f2933]">
               이름
               <input
                 name="display_name"
                 type="text"
                 autoComplete="name"
+                maxLength={10}
+                placeholder="이름은 10자 이내로 입력해 주세요."
                 required
                 className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#be4b49] focus:bg-white"
               />

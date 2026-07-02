@@ -203,8 +203,7 @@ export default async function Home() {
               <div className="mt-5 rounded-lg border border-dashed border-[#cfc5b8] bg-white p-8 text-center shadow-sm">
                 <h3 className="text-xl font-bold">아직 리뷰가 없습니다</h3>
                 <p className="mt-3 leading-7 text-[#52616b]">
-                  Supabase `reviews` 테이블에 데이터가 들어오면 최근 기록이
-                  표시됩니다.
+                  새 리뷰를 작성하면 최근 기록이 이곳에 표시됩니다.
                 </p>
               </div>
             )}
@@ -347,10 +346,10 @@ function EmptyFeature() {
     <div className="rounded-lg border border-dashed border-[#cfc5b8] bg-white p-6 shadow-sm">
       <p className="text-sm font-semibold text-[#be4b49]">리뷰 없음</p>
       <h2 className="mt-4 text-2xl font-bold">
-        Supabase에 첫 리뷰를 추가해 주세요
+        아직 추천할 리뷰가 없습니다
       </h2>
       <p className="mt-3 leading-7 text-[#52616b]">
-        `reviews` 테이블에 데이터가 들어오면 이 영역에 추천 리뷰가 표시됩니다.
+        새 리뷰를 작성하면 이 영역에 추천 리뷰가 표시됩니다.
       </p>
     </div>
   );

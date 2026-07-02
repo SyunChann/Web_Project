@@ -80,8 +80,8 @@ export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
           <p className="text-sm font-semibold text-[#be4b49]">Reviews</p>
           <h1 className="mt-3 text-3xl font-bold sm:text-4xl">전체 리뷰</h1>
           <p className="mt-4 max-w-2xl leading-7 text-[#52616b]">
-            Supabase에 저장된 리뷰를 불러옵니다. 영화, 애니, 게임, 드라마
-            감상 기록을 한곳에서 확인할 수 있습니다.
+            영화, 애니, 게임, 드라마 감상 기록을 한곳에서 확인할 수
+            있습니다.
           </p>
         </header>
 
@@ -220,26 +220,22 @@ export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
                       </span>
                     </div>
                     <h2 className="mt-5 text-xl font-bold">{review.title}</h2>
-                    <div className="mt-3 space-y-1 text-xs font-semibold leading-5 text-[#66727f]">
-                      <p>
-                        <span className="text-[#9b4a43]">작성</span>{" "}
-                        {formatFullDate(review.createdAt)}
-                        <span className="mx-2 text-[#d4c9bb]">/</span>
-                        <span className="text-[#4f5fb8]">감상</span>{" "}
-                        {formatFullDate(review.watchedAt)}
-                      </p>
-                      {review.authorName ? (
-                        <p>
-                          <span className="text-[#6d470c]">작성자:</span>{" "}
-                          {review.authorName}
-                        </p>
-                      ) : null}
-                    </div>
                     <p className="mt-2 line-clamp-1 text-sm text-[#6b7280]">
                       {review.genre.join(", ")}
                     </p>
                     <p className="mt-4 line-clamp-3 whitespace-pre-wrap text-sm leading-6 text-[#3f4a54]">
                       {review.summary}
+                    </p>
+                    <p className="mt-4 text-xs font-semibold text-[#7a8490]">
+                      {review.authorName ? (
+                        <>
+                          <span className="text-[#6d470c]">작성자:</span>{" "}
+                          {review.authorName}
+                          <span className="mx-2 text-[#d4c9bb]">·</span>
+                        </>
+                      ) : null}
+                      <span className="text-[#9b4a43]">작성</span>{" "}
+                      {formatFullDate(review.createdAt)}
                     </p>
                   </div>
                 </Link>
@@ -250,7 +246,7 @@ export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
           <div className="rounded-lg border border-dashed border-[#cfc5b8] bg-white p-8 text-center shadow-sm">
             <h2 className="text-xl font-bold">아직 리뷰가 없습니다</h2>
             <p className="mt-3 leading-7 text-[#52616b]">
-              Supabase `reviews` 테이블에 데이터를 추가하면 여기에 표시됩니다.
+              새 리뷰를 작성하면 이곳에 표시됩니다.
             </p>
           </div>
         )}
