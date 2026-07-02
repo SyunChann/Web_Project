@@ -19,6 +19,28 @@ function signupRedirect(error: string, inviteCode?: string): never {
   redirect(`/signup?${params.toString()}`);
 }
 
+function getSignupErrorCode(errorMessage: string) {
+  const message = errorMessage.toLowerCase();
+
+  if (
+    message.includes("already registered") ||
+    message.includes("already exists") ||
+    message.includes("user already")
+  ) {
+    return "email_exists";
+  }
+
+  if (
+    message.includes("rate limit") ||
+    message.includes("security purposes") ||
+    message.includes("after")
+  ) {
+    return "signup_limited";
+  }
+
+  return "signup_failed";
+}
+
 export async function signUpWithInvite(formData: FormData) {
   const displayName = String(formData.get("display_name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
@@ -67,7 +89,8 @@ export async function signUpWithInvite(formData: FormData) {
   });
 
   if (signUpError) {
-    signupRedirect("signup_failed", inviteCode);
+    console.error("[signup] failed", signUpError.message);
+    signupRedirect(getSignupErrorCode(signUpError.message), inviteCode);
   }
 
   const { error: signInError } = await supabase.auth.signInWithPassword({
