@@ -55,5 +55,5 @@ export async function signIn(formData: FormData) {
     }
   }
 
-  redirect("/reviews");
+  redirect("/");
 }
