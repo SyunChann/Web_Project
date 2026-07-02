@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { AppNav } from "@/components/AppNav";
+import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
 import { CopyButton } from "@/components/CopyButton";
 import { createInviteCode, revokeInviteCode } from "./actions";
 import { isAdminUser } from "@/lib/admin";
@@ -164,6 +165,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 name="code"
                 type="text"
                 placeholder="비워두면 자동 생성"
+                maxLength={32}
+                pattern="[A-Za-z0-9_-]{4,32}"
                 className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal uppercase outline-none transition focus:border-[#be4b49] focus:bg-white"
               />
             </label>
@@ -174,6 +177,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                 name="max_uses"
                 type="number"
                 min={1}
+                max={50}
                 defaultValue={1}
                 className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#be4b49] focus:bg-white"
               />
@@ -253,12 +257,13 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                         <CopyButton value={inviteUrl} label="URL 복사" />
                         {canRevoke ? (
                           <form action={revokeInviteCode.bind(null, invite.id)}>
-                            <button
-                              type="submit"
-                              className="rounded-md border border-[#d8cfc2] bg-white px-3 py-2 text-sm font-bold text-[#a73735] shadow-sm transition hover:border-[#be4b49]"
-                            >
-                              폐기
-                            </button>
+                            <ConfirmSubmitButton
+                              triggerLabel="폐기"
+                              title="초대 코드를 폐기할까요?"
+                              description={`"${invite.code}" 초대 코드를 폐기합니다. 이미 공유한 가입 링크는 더 이상 사용할 수 없습니다.`}
+                              confirmLabel="폐기"
+                              triggerClassName="rounded-md border border-[#d8cfc2] bg-white px-3 py-2 text-sm font-bold text-[#a73735] shadow-sm transition hover:border-[#be4b49]"
+                            />
                           </form>
                         ) : null}
                       </div>

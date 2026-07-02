@@ -1,6 +1,6 @@
 import type { User } from "@supabase/supabase-js";
 
-const fallbackAdminEmails = ["admin@example.com"];
+const developmentAdminEmails = ["admin@example.com"];
 
 function getAdminEmails() {
   const envValue = process.env.ADMIN_EMAILS ?? process.env.ADMIN_EMAIL ?? "";
@@ -9,7 +9,11 @@ function getAdminEmails() {
     .map((email) => email.trim().toLowerCase())
     .filter(Boolean);
 
-  return emails.length ? emails : fallbackAdminEmails;
+  if (emails.length) {
+    return emails;
+  }
+
+  return process.env.NODE_ENV === "development" ? developmentAdminEmails : [];
 }
 
 export function isAdminUser(user: User | null) {

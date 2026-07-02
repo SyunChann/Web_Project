@@ -6,10 +6,24 @@ import { redirect } from "next/navigation";
 import { isAdminUser } from "@/lib/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
+const maxInviteUses = 50;
+const maxInviteDays = 90;
+const inviteCodePattern = /^[A-Z0-9_-]{4,32}$/;
+
 function generateInviteCode() {
   const value = randomBytes(4).toString("hex").toUpperCase();
 
   return `INV-${value.slice(0, 4)}-${value.slice(4)}`;
+}
+
+function clampNumber(value: FormDataEntryValue | null, fallback: number, max: number) {
+  const numberValue = Number(value ?? fallback);
+
+  if (!Number.isFinite(numberValue)) {
+    return fallback;
+  }
+
+  return Math.min(max, Math.max(1, Math.floor(numberValue)));
 }
 
 async function requireUser() {
@@ -39,12 +53,18 @@ export async function createInviteCode(formData: FormData) {
   const requestedCode = String(formData.get("code") ?? "")
     .trim()
     .toUpperCase();
-  const maxUses = Math.max(1, Number(formData.get("max_uses") ?? 1) || 1);
-  const expiresInDays = Math.max(
-    1,
-    Number(formData.get("expires_in_days") ?? 7) || 7,
+  const maxUses = clampNumber(formData.get("max_uses"), 1, maxInviteUses);
+  const expiresInDays = clampNumber(
+    formData.get("expires_in_days"),
+    7,
+    maxInviteDays,
   );
   const code = requestedCode || generateInviteCode();
+
+  if (!inviteCodePattern.test(code)) {
+    throw new Error("초대 코드는 영문 대문자, 숫자, -, _ 조합으로 4~32자만 사용할 수 있습니다.");
+  }
+
   const expiresAt = new Date(
     Date.now() + expiresInDays * 24 * 60 * 60 * 1000,
   ).toISOString();

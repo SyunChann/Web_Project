@@ -139,6 +139,8 @@ declare
   invite_row public.invite_codes%rowtype;
   current_user_id uuid := auth.uid();
   normalized_code text := upper(btrim(invite_code));
+  existing_use_id uuid;
+  inserted_use_id uuid;
 begin
   if current_user_id is null then
     raise exception 'login required';
@@ -148,12 +150,23 @@ begin
     into invite_row
     from public.invite_codes
     where code = normalized_code
-      and revoked_at is null
-      and expires_at > now()
-      and used_count < max_uses
     for update;
 
-  if not found then
+  if not found or invite_row.revoked_at is not null then
+    raise exception 'invalid invite code';
+  end if;
+
+  select id
+    into existing_use_id
+    from public.invite_code_uses
+    where invite_code_id = invite_row.id
+      and user_id = current_user_id;
+
+  if existing_use_id is not null then
+    return invite_row.id;
+  end if;
+
+  if invite_row.expires_at <= now() or invite_row.used_count >= invite_row.max_uses then
     raise exception 'invalid invite code';
   end if;
 
@@ -164,9 +177,10 @@ begin
     invite_row.id,
     current_user_id
   )
-  on conflict do nothing;
+  on conflict do nothing
+  returning id into inserted_use_id;
 
-  if found then
+  if inserted_use_id is not null then
     update public.invite_codes
       set used_count = used_count + 1,
           updated_at = now()
