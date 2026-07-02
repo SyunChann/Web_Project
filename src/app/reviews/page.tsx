@@ -234,7 +234,7 @@ export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
                           <span className="mx-2 text-[#d4c9bb]">·</span>
                         </>
                       ) : null}
-                      <span className="text-[#9b4a43]">작성</span>{" "}
+                      <span className="text-[#9b4a43]">작성일: </span>{" "}
                       {formatFullDate(review.createdAt)}
                     </p>
                   </div>

@@ -31,7 +31,7 @@ function formatDate(value: string) {
   }).format(new Date(value));
 }
 
-function getInviteStatus(invite: InviteCodeRow) {
+function getInviteStatus(invite: InviteCodeRow, currentTime: number) {
   if (invite.revoked_at) {
     return {
       label: "폐기됨",
@@ -39,7 +39,7 @@ function getInviteStatus(invite: InviteCodeRow) {
     };
   }
 
-  if (new Date(invite.expires_at).getTime() <= Date.now()) {
+  if (new Date(invite.expires_at).getTime() <= currentTime) {
     return {
       label: "만료됨",
       className: "bg-[#fde8e7] text-[#a73735]",
@@ -88,6 +88,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
   const { created } = await searchParams;
   const origin = await getOrigin();
+  const currentTime = new Date().getTime();
   const { data, error } = await supabase
     .from("invite_codes")
     .select("id,code,role,max_uses,used_count,expires_at,revoked_at,created_at")
@@ -216,13 +217,11 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           ) : inviteCodes.length ? (
             <div className="grid gap-3">
               {inviteCodes.map((invite) => {
-                const status = getInviteStatus(invite);
+                const status = getInviteStatus(invite, currentTime);
                 const inviteUrl = `${origin}/signup?invite=${encodeURIComponent(
                   invite.code,
                 )}`;
-                const canRevoke =
-                  !invite.revoked_at &&
-                  new Date(invite.expires_at).getTime() > Date.now();
+                const canRevoke = !invite.revoked_at;
 
                 return (
                   <article

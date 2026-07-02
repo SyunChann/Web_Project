@@ -184,7 +184,7 @@ function WatchItemCard({ item }: { item: WatchItem }) {
         </div>
         <h2 className="mt-5 text-lg font-bold text-[#17202a]">{item.title}</h2>
         <p className="mt-2 text-sm font-semibold text-[#2f7f7a]">
-          공개 {item.releaseLabel}
+          공개: {item.releaseLabel}
         </p>
         <p className="mt-4 line-clamp-3 text-sm leading-6 text-[#3f4a54]">
           {item.reason}
