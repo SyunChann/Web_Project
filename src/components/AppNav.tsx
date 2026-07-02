@@ -1,6 +1,7 @@
 import { Bookmark, ChevronDown, Library, LogIn, Plus } from "lucide-react";
 import Link from "next/link";
 import { LogoutButton } from "@/components/LogoutButton";
+import { isAdminUser } from "@/lib/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type AppNavProps = {
@@ -12,11 +13,7 @@ export async function AppNav({ active }: AppNavProps) {
   const {
     data: { user },
   } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
-  const { error: adminCheckError } =
-    supabase && user
-      ? await supabase.from("invite_codes").select("id").limit(1)
-      : { error: null };
-  const isAdmin = Boolean(user && !adminCheckError);
+  const isAdmin = isAdminUser(user);
   const activeSectionLabel = active === "watchlist" ? "기대작 홈" : "리뷰 홈";
 
   const theme =

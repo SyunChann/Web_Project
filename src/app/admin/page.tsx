@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { AppNav } from "@/components/AppNav";
 import { CopyButton } from "@/components/CopyButton";
 import { createInviteCode, revokeInviteCode } from "./actions";
+import { isAdminUser } from "@/lib/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type AdminPageProps = {
@@ -75,6 +76,10 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
 
   if (!user) {
     redirect("/login");
+  }
+
+  if (!isAdminUser(user)) {
+    redirect("/");
   }
 
   if (!supabase) {

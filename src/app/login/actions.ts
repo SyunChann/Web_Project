@@ -1,7 +1,9 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { pendingInviteCookieName } from "@/lib/pendingInvite";
 
 export async function signIn(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
@@ -24,6 +26,19 @@ export async function signIn(formData: FormData) {
 
   if (error) {
     redirect("/login?error=invalid");
+  }
+
+  const cookieStore = await cookies();
+  const pendingInviteCode = cookieStore.get(pendingInviteCookieName)?.value;
+
+  if (pendingInviteCode) {
+    const { error: claimError } = await supabase.rpc("claim_invite_code", {
+      invite_code: pendingInviteCode,
+    });
+
+    if (!claimError) {
+      cookieStore.delete(pendingInviteCookieName);
+    }
   }
 
   redirect("/reviews");

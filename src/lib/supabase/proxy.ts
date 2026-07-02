@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
+import { pendingInviteCookieName } from "@/lib/pendingInvite";
 import { supabaseKey, supabaseUrl } from "./config";
 
 export async function updateSession(request: NextRequest) {
@@ -28,7 +29,21 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const pendingInviteCode = request.cookies.get(pendingInviteCookieName)?.value;
+
+  if (user && pendingInviteCode) {
+    const { error } = await supabase.rpc("claim_invite_code", {
+      invite_code: pendingInviteCode,
+    });
+
+    if (!error) {
+      response.cookies.delete(pendingInviteCookieName);
+    }
+  }
 
   return response;
 }

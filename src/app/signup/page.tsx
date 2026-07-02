@@ -1,4 +1,4 @@
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, MailCheck } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { signUpWithInvite } from "./actions";
@@ -8,6 +8,7 @@ type SignupPageProps = {
   searchParams: Promise<{
     error?: string;
     invite?: string;
+    status?: string;
   }>;
 };
 
@@ -17,8 +18,10 @@ const errorMessages = {
   weak_password: "비밀번호는 6자 이상으로 입력해 주세요.",
   config: "Supabase 환경변수가 설정되지 않았습니다.",
   invalid_invite: "초대 코드가 없거나 만료되었습니다.",
-  signup_failed: "회원가입 중 문제가 발생했습니다. 이미 가입된 이메일인지 확인해 주세요.",
-  claim_failed: "초대 코드 사용 처리에 실패했습니다. 관리자에게 문의해 주세요.",
+  signup_failed:
+    "회원가입 중 문제가 발생했습니다. 이미 가입된 이메일인지 확인해 주세요.",
+  claim_failed:
+    "초대 코드 사용 처리에 실패했습니다. 관리자에게 문의해 주세요.",
 };
 
 export default async function SignupPage({ searchParams }: SignupPageProps) {
@@ -31,11 +34,12 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
     redirect("/reviews");
   }
 
-  const { error, invite } = await searchParams;
+  const { error, invite, status } = await searchParams;
   const message = error
     ? errorMessages[error as keyof typeof errorMessages] ??
       "회원가입 중 문제가 발생했습니다."
     : null;
+  const shouldConfirmEmail = status === "confirm_email";
 
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
@@ -55,6 +59,23 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
             초대 코드를 받은 사용자만 가입하고 글을 작성할 수 있습니다.
           </p>
 
+          {shouldConfirmEmail ? (
+            <div className="mt-5 rounded-lg border border-[#b8ded8] bg-[#eefaf8] p-4 text-sm text-[#235f58]">
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 rounded-md bg-white p-2 text-[#2a9d90]">
+                  <MailCheck size={18} />
+                </span>
+                <div>
+                  <p className="font-black">인증 메일을 보냈습니다.</p>
+                  <p className="mt-2 leading-6">
+                    메일에서 인증을 완료한 뒤 로그인하면 초대 코드가 자동으로
+                    사용 처리됩니다.
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
           {message ? (
             <p className="mt-5 rounded-md bg-[#fde8e7] px-4 py-3 text-sm font-bold text-[#a73735]">
               {message}
@@ -67,7 +88,7 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
             </p>
 
             <label className="flex flex-col gap-2 text-sm font-bold text-[#1f2933]">
-              이름
+              이름 *
               <input
                 name="display_name"
                 type="text"
@@ -80,7 +101,7 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
             </label>
 
             <label className="flex flex-col gap-2 text-sm font-bold text-[#1f2933]">
-              이메일
+              이메일 *
               <input
                 name="email"
                 type="email"
@@ -91,7 +112,7 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
             </label>
 
             <label className="flex flex-col gap-2 text-sm font-bold text-[#1f2933]">
-              비밀번호
+              비밀번호 *
               <input
                 name="password"
                 type="password"
@@ -103,7 +124,7 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
             </label>
 
             <label className="flex flex-col gap-2 text-sm font-bold text-[#1f2933]">
-              초대 코드
+              초대 코드 *
               <input
                 name="invite_code"
                 type="text"

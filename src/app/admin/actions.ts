@@ -3,6 +3,7 @@
 import { randomBytes } from "crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { isAdminUser } from "@/lib/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 function generateInviteCode() {
@@ -24,6 +25,10 @@ async function requireUser() {
 
   if (!user) {
     redirect("/login");
+  }
+
+  if (!isAdminUser(user)) {
+    redirect("/");
   }
 
   return { supabase, user };

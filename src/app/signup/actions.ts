@@ -1,7 +1,13 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import {
+  getPendingInviteCookieOptions,
+  normalizeInviteCode,
+  pendingInviteCookieName,
+} from "@/lib/pendingInvite";
 
 function signupRedirect(error: string, inviteCode?: string): never {
   const params = new URLSearchParams({ error });
@@ -17,9 +23,9 @@ export async function signUpWithInvite(formData: FormData) {
   const displayName = String(formData.get("display_name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
-  const inviteCode = String(formData.get("invite_code") ?? "")
-    .trim()
-    .toUpperCase();
+  const inviteCode = normalizeInviteCode(
+    String(formData.get("invite_code") ?? ""),
+  );
 
   if (!displayName || !email || !password || !inviteCode) {
     signupRedirect("missing", inviteCode);
@@ -70,7 +76,15 @@ export async function signUpWithInvite(formData: FormData) {
   });
 
   if (signInError) {
-    redirect("/login?error=confirm_email");
+    const cookieStore = await cookies();
+
+    cookieStore.set(
+      pendingInviteCookieName,
+      inviteCode,
+      getPendingInviteCookieOptions(),
+    );
+
+    redirect(`/signup?status=confirm_email&invite=${inviteCode}`);
   }
 
   const { error: claimError } = await supabase.rpc("claim_invite_code", {

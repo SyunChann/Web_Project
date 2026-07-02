@@ -14,7 +14,8 @@ const errorMessages = {
   missing: "이메일과 비밀번호를 모두 입력해 주세요.",
   config: "Supabase 환경변수가 설정되지 않았습니다.",
   invalid: "이메일 또는 비밀번호가 올바르지 않습니다.",
-  confirm_email: "이메일 확인 후 다시 로그인해 주세요.",
+  confirm_email:
+    "이메일 인증 후 다시 로그인해 주세요. 로그인하면 초대 코드가 사용 처리됩니다.",
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
@@ -45,10 +46,10 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         </Link>
 
         <div className="rounded-lg border border-[#ddd6cc] bg-white p-6 shadow-sm sm:p-8">
-          <p className="text-sm font-semibold text-[#be4b49]">Admin</p>
+          <p className="text-sm font-semibold text-[#be4b49]">Login</p>
           <h1 className="mt-3 text-3xl font-bold">로그인</h1>
           <p className="mt-4 leading-7 text-[#52616b]">
-            리뷰 작성과 관리는 로그인한 관리자에게만 열어둘 예정입니다.
+            초대받은 사용자는 로그인 후 리뷰와 기대작을 작성할 수 있습니다.
           </p>
 
           {message ? (
