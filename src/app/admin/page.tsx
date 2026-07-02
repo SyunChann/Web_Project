@@ -2,16 +2,11 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { AppNav } from "@/components/AppNav";
 import { CopyButton } from "@/components/CopyButton";
-import {
-  claimExistingPosts,
-  createInviteCode,
-  revokeInviteCode,
-} from "./actions";
+import { createInviteCode, revokeInviteCode } from "./actions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type AdminPageProps = {
   searchParams: Promise<{
-    claimed?: string;
     created?: string;
   }>;
 };
@@ -86,34 +81,16 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     redirect("/login?error=config");
   }
 
-  const { claimed, created } = await searchParams;
+  const { created } = await searchParams;
   const origin = await getOrigin();
-  const [
-    { data, error },
-    { count: unclaimedReviewCount },
-    { count: unclaimedWatchlistCount },
-  ] = await Promise.all([
-    supabase
-      .from("invite_codes")
-      .select(
-        "id,code,role,max_uses,used_count,expires_at,revoked_at,created_at",
-      )
-      .order("created_at", { ascending: false }),
-    supabase
-      .from("reviews")
-      .select("id", { count: "exact", head: true })
-      .is("author_id", null),
-    supabase
-      .from("watchlist_items")
-      .select("id", { count: "exact", head: true })
-      .is("author_id", null),
-  ]);
+  const { data, error } = await supabase
+    .from("invite_codes")
+    .select("id,code,role,max_uses,used_count,expires_at,revoked_at,created_at")
+    .order("created_at", { ascending: false });
   const inviteCodes = (data ?? []) as InviteCodeRow[];
   const createdUrl = created
     ? `${origin}/signup?invite=${encodeURIComponent(created)}`
     : null;
-  const unclaimedCount =
-    (unclaimedReviewCount ?? 0) + (unclaimedWatchlistCount ?? 0);
 
   if (error) {
     return (
@@ -148,14 +125,6 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           </p>
         </section>
 
-        {claimed ? (
-          <section className="rounded-lg border border-[#d8cfc2] bg-white p-5 shadow-sm">
-            <p className="text-sm font-bold text-[#2f7f7a]">
-              기존 글 작성자 연결이 완료되었습니다.
-            </p>
-          </section>
-        ) : null}
-
         {createdUrl ? (
           <section className="rounded-lg border border-[#d8cfc2] bg-white p-5 shadow-sm">
             <p className="text-sm font-bold text-[#2f7f7a]">
@@ -171,33 +140,6 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             </div>
           </section>
         ) : null}
-
-        <section className="rounded-lg border border-[#d8cfc2] bg-white p-5 shadow-sm">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <p className="text-sm font-semibold text-[#be4b49]">Ownership</p>
-              <h2 className="mt-2 text-2xl font-black">기존 글 작성자 연결</h2>
-              <p className="mt-3 leading-7 text-[#52616b]">
-                작성자 정보가 없는 기존 리뷰와 기대작을 현재 로그인 계정에
-                연결합니다.
-              </p>
-              <p className="mt-2 text-sm font-bold text-[#17202a]">
-                리뷰 {unclaimedReviewCount ?? 0}개 · 기대작{" "}
-                {unclaimedWatchlistCount ?? 0}개
-              </p>
-            </div>
-
-            <form action={claimExistingPosts}>
-              <button
-                type="submit"
-                disabled={unclaimedCount === 0}
-                className="rounded-md bg-[#17202a] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#2b3640] disabled:cursor-not-allowed disabled:bg-[#d8cfc2] disabled:text-[#7d8790]"
-              >
-                현재 계정으로 연결
-              </button>
-            </form>
-          </div>
-        </section>
 
         <section className="rounded-lg border border-[#d8cfc2] bg-white p-5 shadow-sm">
           <h2 className="text-2xl font-black">초대 코드 생성</h2>
