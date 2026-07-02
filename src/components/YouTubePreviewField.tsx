@@ -4,7 +4,7 @@ import { AlertCircle, CheckCircle2, Play } from "lucide-react";
 import { useMemo, useState } from "react";
 
 type YouTubePreviewFieldProps = {
-  defaultValue?: string;
+  defaultValue?: string | null;
   variant?: "reviews" | "watchlist";
 };
 
@@ -27,7 +27,7 @@ export function YouTubePreviewField({
   defaultValue = "",
   variant = "reviews",
 }: YouTubePreviewFieldProps) {
-  const [value, setValue] = useState(defaultValue);
+  const [value, setValue] = useState(defaultValue ?? "");
   const videoId = useMemo(() => getYouTubeVideoId(value), [value]);
   const hasValue = value.trim().length > 0;
   const colors = theme[variant];
@@ -90,8 +90,8 @@ export function YouTubePreviewField({
   );
 }
 
-function getYouTubeVideoId(value: string) {
-  const trimmedValue = value.trim();
+function getYouTubeVideoId(value?: string | null) {
+  const trimmedValue = value?.trim() ?? "";
 
   if (!trimmedValue) {
     return "";

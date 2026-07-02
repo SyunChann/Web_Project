@@ -26,7 +26,7 @@ type ReviewRow = {
   title: string;
   type: Review["type"];
   genre: string[] | null;
-  youtube_url: string;
+  youtube_url: string | null;
   rating: number;
   watched_at: string;
   created_at: string;
@@ -60,7 +60,7 @@ function mapReviewRow(row: ReviewRow): Review {
     title: row.title,
     type: row.type,
     genre: row.genre ?? [],
-    youtubeUrl: row.youtube_url,
+    youtubeUrl: row.youtube_url ?? undefined,
     rating: row.rating,
     watchedAt: row.watched_at,
     createdAt: row.created_at,
