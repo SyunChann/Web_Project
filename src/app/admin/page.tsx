@@ -229,7 +229,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                     className="rounded-lg border border-[#d8cfc2] bg-white p-5 shadow-sm"
                   >
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
                           <h3 className="text-xl font-black">{invite.code}</h3>
                           <span
@@ -249,7 +249,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
                         />
                       </div>
 
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex w-full shrink-0 flex-wrap gap-2 sm:w-[164px] sm:justify-end">
                         <CopyButton value={inviteUrl} label="URL 복사" />
                         {canRevoke ? (
                           <form action={revokeInviteCode.bind(null, invite.id)}>
