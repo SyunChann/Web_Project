@@ -220,10 +220,22 @@ export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
                       </span>
                     </div>
                     <h2 className="mt-5 text-xl font-bold">{review.title}</h2>
-                    <p className="mt-2 text-sm text-[#6b7280]">
-                      작성 {formatDate(review.createdAt)} · 감상 {formatDate(review.watchedAt)}
-                    </p>
-                    <p className="mt-1 text-sm text-[#6b7280]">
+                    <div className="mt-3 space-y-1 text-xs font-semibold leading-5 text-[#66727f]">
+                      <p>
+                        <span className="text-[#9b4a43]">작성</span>{" "}
+                        {formatFullDate(review.createdAt)}
+                        <span className="mx-2 text-[#d4c9bb]">/</span>
+                        <span className="text-[#4f5fb8]">감상</span>{" "}
+                        {formatFullDate(review.watchedAt)}
+                      </p>
+                      {review.authorName ? (
+                        <p>
+                          <span className="text-[#6d470c]">작성자:</span>{" "}
+                          {review.authorName}
+                        </p>
+                      ) : null}
+                    </div>
+                    <p className="mt-2 line-clamp-1 text-sm text-[#6b7280]">
                       {review.genre.join(", ")}
                     </p>
                     <p className="mt-4 line-clamp-3 whitespace-pre-wrap text-sm leading-6 text-[#3f4a54]">
@@ -338,9 +350,14 @@ function buildReviewsHref({
   return queryString ? `/reviews?${queryString}` : "/reviews";
 }
 
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("ko-KR", {
-    month: "short",
-    day: "numeric",
+function formatFullDate(value: string) {
+  if (/^\d{4}-\d{2}-\d{2}/.test(value)) {
+    return value.slice(0, 10);
+  }
+
+  return new Intl.DateTimeFormat("en-CA", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
   }).format(new Date(value));
 }

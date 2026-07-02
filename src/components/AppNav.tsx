@@ -4,7 +4,7 @@ import { LogoutButton } from "@/components/LogoutButton";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type AppNavProps = {
-  active?: "home" | "reviews" | "watchlist";
+  active?: "home" | "reviews" | "watchlist" | "admin";
 };
 
 export async function AppNav({ active }: AppNavProps) {
@@ -12,6 +12,11 @@ export async function AppNav({ active }: AppNavProps) {
   const {
     data: { user },
   } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const { error: adminCheckError } =
+    supabase && user
+      ? await supabase.from("invite_codes").select("id").limit(1)
+      : { error: null };
+  const isAdmin = Boolean(user && !adminCheckError);
   const activeSectionLabel = active === "watchlist" ? "기대작 홈" : "리뷰 홈";
 
   const theme =
@@ -99,11 +104,22 @@ export async function AppNav({ active }: AppNavProps) {
             >
               <Plus size={16} />새 글
             </Link>
-            <span
-              className={`rounded-md px-3 py-2 text-sm font-bold ${theme.admin}`}
-            >
-              관리자
-            </span>
+            {isAdmin ? (
+              <Link
+                href="/admin"
+                className={`rounded-md border px-3 py-2 text-sm font-bold shadow-sm transition ${
+                  active === "admin"
+                    ? "border-[#d49a35] bg-[#f3d9a4] text-[#17202a]"
+                    : "border-[#e2c17f] bg-[#fff4da] text-[#5c3b09] hover:border-[#d49a35] hover:bg-[#f3d9a4]"
+                }`}
+              >
+                관리자
+              </Link>
+            ) : (
+              <span className="rounded-md border border-[#d8cfc2] bg-white px-3 py-2 text-sm font-bold text-[#52616b] shadow-sm">
+                작성자
+              </span>
+            )}
             <LogoutButton />
           </>
         ) : (

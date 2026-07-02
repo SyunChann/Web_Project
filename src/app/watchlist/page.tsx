@@ -139,7 +139,10 @@ function FeaturedWatchItem({ item }: { item: WatchItem }) {
           </span>
         </div>
         <h2 className="mt-5 text-2xl font-bold">{item.title}</h2>
-        <p className="mt-2 text-sm text-[#6b7280]">{item.genre.join(", ")}</p>
+        <p className="mt-2 text-sm text-[#6b7280]">
+          {item.genre.join(", ")}
+          {item.authorName ? ` · ${item.authorName}` : ""}
+        </p>
         <p className="mt-5 line-clamp-3 leading-7 text-[#3f4a54]">
           {item.reason}
         </p>
@@ -184,7 +187,10 @@ function WatchItemCard({ item }: { item: WatchItem }) {
           <Bookmark size={16} className="text-[#38a39b]" />
         </div>
         <h3 className="mt-5 text-lg font-bold text-[#17202a]">{item.title}</h3>
-        <p className="mt-2 text-sm text-[#6b7280]">{item.releaseLabel}</p>
+        <p className="mt-2 text-sm text-[#6b7280]">
+          {item.releaseLabel}
+          {item.authorName ? ` · ${item.authorName}` : ""}
+        </p>
         <p className="mt-4 line-clamp-2 text-sm leading-6 text-[#3f4a54]">
           {item.reason}
         </p>

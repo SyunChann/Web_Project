@@ -1,6 +1,7 @@
 "use server";
 
 import { randomUUID } from "crypto";
+import type { User } from "@supabase/supabase-js";
 import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -108,7 +109,18 @@ async function requireSupabaseUser() {
     redirect("/login");
   }
 
-  return supabase;
+  return { supabase, user };
+}
+
+function getAuthorName(user: User) {
+  const displayName =
+    user.user_metadata?.display_name ??
+    user.user_metadata?.name ??
+    user.user_metadata?.full_name;
+
+  return typeof displayName === "string" && displayName.trim()
+    ? displayName.trim()
+    : user.email?.split("@")[0] ?? "Unknown";
 }
 
 async function uploadThumbnail(
@@ -148,7 +160,7 @@ async function uploadThumbnail(
 }
 
 export async function createWatchlistItem(formData: FormData) {
-  const supabase = await requireSupabaseUser();
+  const { supabase, user } = await requireSupabaseUser();
   const payload = readWatchlistPayload(formData);
   const requestedId = String(formData.get("id") ?? "").trim();
   const id = normalizeSlug(requestedId || payload.title);
@@ -157,6 +169,8 @@ export async function createWatchlistItem(formData: FormData) {
   const { error } = await supabase.from("watchlist_items").insert({
     ...payload,
     thumbnail: uploadedThumbnail ?? payload.thumbnail,
+    author_id: user.id,
+    author_name: getAuthorName(user),
     id,
   });
 
@@ -172,7 +186,7 @@ export async function createWatchlistItem(formData: FormData) {
 }
 
 export async function updateWatchlistItem(id: string, formData: FormData) {
-  const supabase = await requireSupabaseUser();
+  const { supabase } = await requireSupabaseUser();
   const payload = readWatchlistPayload(formData);
   const uploadedThumbnail = await uploadThumbnail(supabase, id, formData);
 
@@ -198,7 +212,7 @@ export async function updateWatchlistItem(id: string, formData: FormData) {
 }
 
 export async function deleteWatchlistItem(id: string) {
-  const supabase = await requireSupabaseUser();
+  const { supabase } = await requireSupabaseUser();
 
   const { error } = await supabase.from("watchlist_items").delete().eq("id", id);
 

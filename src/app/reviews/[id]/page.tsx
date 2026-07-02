@@ -129,15 +129,28 @@ export default async function ReviewDetailPage({
               {review.title}
             </h1>
 
-            <div className="mt-5 flex flex-wrap gap-5 text-sm font-semibold text-[#52616b]">
+            <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-bold text-[#52616b]">
               <span className="flex items-center gap-2">
                 <Star size={17} fill="#f2b84b" color="#f2b84b" />
+                <span className="text-[#6d470c]">별점</span>
                 {review.rating} / 5
               </span>
               <span className="flex items-center gap-2">
                 <Calendar size={17} />
-                {review.watchedAt}
+                <span className="text-[#4f5fb8]">감상일</span>
+                {formatFullDate(review.watchedAt)}
               </span>
+              <span className="flex items-center gap-2">
+                <Calendar size={17} />
+                <span className="text-[#a33f3c]">작성일</span>
+                {formatFullDate(review.createdAt)}
+              </span>
+              {review.authorName ? (
+                <span>
+                  <span className="text-[#6d470c]">작성자:</span>{" "}
+                  {review.authorName}
+                </span>
+              ) : null}
             </div>
 
             <p className="mt-6 whitespace-pre-wrap text-lg leading-8 text-[#3f4a54]">
@@ -257,5 +270,17 @@ function formatDate(value: string) {
   return new Intl.DateTimeFormat("ko-KR", {
     month: "short",
     day: "numeric",
+  }).format(new Date(value));
+}
+
+function formatFullDate(value: string) {
+  if (/^\d{4}-\d{2}-\d{2}/.test(value)) {
+    return value.slice(0, 10);
+  }
+
+  return new Intl.DateTimeFormat("en-CA", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
   }).format(new Date(value));
 }

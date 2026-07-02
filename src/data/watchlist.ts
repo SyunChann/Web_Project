@@ -14,6 +14,8 @@ export type WatchItem = {
   thumbnailAlt: string;
   reason: string;
   youtubeUrl?: string;
+  authorId?: string | null;
+  authorName?: string | null;
 };
 
 type WatchItemRow = {
@@ -29,10 +31,24 @@ type WatchItemRow = {
   thumbnail_alt: string | null;
   reason: string;
   youtube_url: string | null;
+  author_id: string | null;
+  author_name: string | null;
 };
 
 const watchItemSelect =
-  "id,title,type,genre,status,release_label,created_at,updated_at,thumbnail,thumbnail_alt,reason,youtube_url";
+  "id,title,type,genre,status,release_label,created_at,updated_at,thumbnail,thumbnail_alt,reason,youtube_url,author_id,author_name";
+
+function formatAuthorName(value: string | null) {
+  const name = value?.trim();
+
+  if (!name) {
+    return null;
+  }
+
+  const displayName = name.includes("@") ? name.split("@")[0] : name;
+
+  return displayName.toLowerCase() === "admin" ? "관리자" : displayName;
+}
 
 function mapWatchItemRow(row: WatchItemRow): WatchItem {
   return {
@@ -48,6 +64,8 @@ function mapWatchItemRow(row: WatchItemRow): WatchItem {
     thumbnailAlt: row.thumbnail_alt ?? `${row.title} 기대작 썸네일`,
     reason: row.reason,
     youtubeUrl: row.youtube_url ?? undefined,
+    authorId: row.author_id,
+    authorName: formatAuthorName(row.author_name),
   };
 }
 

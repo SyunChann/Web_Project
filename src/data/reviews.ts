@@ -15,6 +15,8 @@ export type Review = {
   summary: string;
   review: string;
   youtubeUrl?: string;
+  authorId?: string | null;
+  authorName?: string | null;
 };
 
 export type ReviewSort = "created-desc" | "watched-desc" | "rating-desc";
@@ -33,10 +35,24 @@ type ReviewRow = {
   thumbnail_alt: string | null;
   summary: string;
   review: string;
+  author_id: string | null;
+  author_name: string | null;
 };
 
 const reviewSelect =
-  "id,title,type,genre,youtube_url,rating,watched_at,created_at,updated_at,thumbnail,thumbnail_alt,summary,review";
+  "id,title,type,genre,youtube_url,rating,watched_at,created_at,updated_at,thumbnail,thumbnail_alt,summary,review,author_id,author_name";
+
+function formatAuthorName(value: string | null) {
+  const name = value?.trim();
+
+  if (!name) {
+    return null;
+  }
+
+  const displayName = name.includes("@") ? name.split("@")[0] : name;
+
+  return displayName.toLowerCase() === "admin" ? "관리자" : displayName;
+}
 
 function mapReviewRow(row: ReviewRow): Review {
   return {
@@ -53,6 +69,8 @@ function mapReviewRow(row: ReviewRow): Review {
     thumbnailAlt: row.thumbnail_alt ?? `${row.title} 리뷰 썸네일`,
     summary: row.summary,
     review: row.review,
+    authorId: row.author_id,
+    authorName: formatAuthorName(row.author_name),
   };
 }
 

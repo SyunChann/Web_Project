@@ -246,7 +246,10 @@ function WatchPreviewCard({ item }: { item: WatchItem }) {
         <Bookmark size={16} className="text-[#38a39b]" />
       </div>
       <h3 className="mt-5 text-lg font-bold text-[#17202a]">{item.title}</h3>
-      <p className="mt-2 text-sm text-[#6b7280]">{item.releaseLabel}</p>
+      <p className="mt-2 text-sm text-[#6b7280]">
+        {item.releaseLabel}
+        {item.authorName ? ` · ${item.authorName}` : ""}
+      </p>
       <p className="mt-4 line-clamp-2 text-sm leading-6 text-[#3f4a54]">
         {item.reason}
       </p>
@@ -285,6 +288,7 @@ function FeaturedReview({ review }: { review: Review }) {
         <h2 className="mt-5 text-2xl font-bold">{review.title}</h2>
         <p className="mt-2 text-sm text-[#6b7280]">
           {typeLabel(review.type)} · {review.genre.join(", ")}
+          {review.authorName ? ` · ${review.authorName}` : ""}
         </p>
         <p className="mt-5 line-clamp-3 leading-7 text-[#3f4a54]">
           {review.summary}
@@ -329,7 +333,10 @@ function ReviewCard({ review, eager = false }: { review: Review; eager?: boolean
           </span>
         </div>
         <h3 className="mt-5 text-lg font-bold text-[#17202a]">{review.title}</h3>
-        <p className="mt-2 text-sm text-[#6b7280]">{formatDate(review.watchedAt)}</p>
+        <p className="mt-2 text-sm text-[#6b7280]">
+          {formatDate(review.watchedAt)}
+          {review.authorName ? ` · ${review.authorName}` : ""}
+        </p>
       </div>
     </Link>
   );
