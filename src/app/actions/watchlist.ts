@@ -4,6 +4,7 @@ import { randomUUID } from "crypto";
 import type { User } from "@supabase/supabase-js";
 import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
+import { canManageContent } from "@/lib/contentPermissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const thumbnailBucket = "review-thumbnails";
@@ -123,6 +124,30 @@ function getAuthorName(user: User) {
     : user.email?.split("@")[0] ?? "Unknown";
 }
 
+async function assertCanManageWatchlistItem(
+  supabase: NonNullable<Awaited<ReturnType<typeof createSupabaseServerClient>>>,
+  user: User,
+  id: string,
+) {
+  const { data, error } = await supabase
+    .from("watchlist_items")
+    .select("author_id")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data) {
+    throw new Error("기대작을 찾을 수 없습니다.");
+  }
+
+  if (!canManageContent(user, data.author_id)) {
+    throw new Error("이 기대작을 수정하거나 삭제할 권한이 없습니다.");
+  }
+}
+
 async function uploadThumbnail(
   supabase: NonNullable<Awaited<ReturnType<typeof createSupabaseServerClient>>>,
   itemId: string,
@@ -186,7 +211,8 @@ export async function createWatchlistItem(formData: FormData) {
 }
 
 export async function updateWatchlistItem(id: string, formData: FormData) {
-  const { supabase } = await requireSupabaseUser();
+  const { supabase, user } = await requireSupabaseUser();
+  await assertCanManageWatchlistItem(supabase, user, id);
   const payload = readWatchlistPayload(formData);
   const uploadedThumbnail = await uploadThumbnail(supabase, id, formData);
 
@@ -212,7 +238,8 @@ export async function updateWatchlistItem(id: string, formData: FormData) {
 }
 
 export async function deleteWatchlistItem(id: string) {
-  const { supabase } = await requireSupabaseUser();
+  const { supabase, user } = await requireSupabaseUser();
+  await assertCanManageWatchlistItem(supabase, user, id);
 
   const { error } = await supabase.from("watchlist_items").delete().eq("id", id);
 

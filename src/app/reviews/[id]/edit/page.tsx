@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { updateReview } from "@/app/actions/reviews";
 import { ReviewForm } from "@/components/reviews/ReviewForm";
 import { getReview } from "@/data/reviews";
+import { canManageContent } from "@/lib/contentPermissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type EditReviewPageProps = {
@@ -27,6 +28,10 @@ export default async function EditReviewPage({ params }: EditReviewPageProps) {
 
   if (!review) {
     notFound();
+  }
+
+  if (!canManageContent(user, review.authorId)) {
+    redirect(`/reviews/${review.id}`);
   }
 
   const updateAction = updateReview.bind(null, review.id);

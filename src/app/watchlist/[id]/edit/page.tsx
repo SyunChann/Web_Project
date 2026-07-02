@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { updateWatchlistItem } from "@/app/actions/watchlist";
 import { WatchlistForm } from "@/components/WatchlistForm";
 import { getWatchItem } from "@/data/watchlist";
+import { canManageContent } from "@/lib/contentPermissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type EditWatchlistPageProps = {
@@ -29,6 +30,10 @@ export default async function EditWatchlistPage({
 
   if (!item) {
     notFound();
+  }
+
+  if (!canManageContent(user, item.authorId)) {
+    redirect(`/watchlist/${item.id}`);
   }
 
   const updateAction = updateWatchlistItem.bind(null, item.id);

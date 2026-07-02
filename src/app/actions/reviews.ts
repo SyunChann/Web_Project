@@ -4,6 +4,7 @@ import { randomUUID } from "crypto";
 import type { User } from "@supabase/supabase-js";
 import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
+import { canManageContent } from "@/lib/contentPermissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const thumbnailBucket = "review-thumbnails";
@@ -126,6 +127,30 @@ function getAuthorName(user: User) {
     : user.email?.split("@")[0] ?? "Unknown";
 }
 
+async function assertCanManageReview(
+  supabase: NonNullable<Awaited<ReturnType<typeof createSupabaseServerClient>>>,
+  user: User,
+  id: string,
+) {
+  const { data, error } = await supabase
+    .from("reviews")
+    .select("author_id")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data) {
+    throw new Error("리뷰를 찾을 수 없습니다.");
+  }
+
+  if (!canManageContent(user, data.author_id)) {
+    throw new Error("이 리뷰를 수정하거나 삭제할 권한이 없습니다.");
+  }
+}
+
 async function uploadThumbnail(
   supabase: NonNullable<Awaited<ReturnType<typeof createSupabaseServerClient>>>,
   reviewId: string,
@@ -188,7 +213,8 @@ export async function createReview(formData: FormData) {
 }
 
 export async function updateReview(id: string, formData: FormData) {
-  const { supabase } = await requireSupabaseUser();
+  const { supabase, user } = await requireSupabaseUser();
+  await assertCanManageReview(supabase, user, id);
   const payload = readReviewPayload(formData);
   const uploadedThumbnail = await uploadThumbnail(supabase, id, formData);
 
@@ -213,7 +239,8 @@ export async function updateReview(id: string, formData: FormData) {
 }
 
 export async function deleteReview(id: string) {
-  const { supabase } = await requireSupabaseUser();
+  const { supabase, user } = await requireSupabaseUser();
+  await assertCanManageReview(supabase, user, id);
 
   const { error } = await supabase.from("reviews").delete().eq("id", id);
 

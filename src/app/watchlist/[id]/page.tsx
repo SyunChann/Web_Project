@@ -20,6 +20,7 @@ import {
   type WatchItem,
 } from "@/data/watchlist";
 import { typeLabel, typeTheme } from "@/data/reviews";
+import { canManageContent } from "@/lib/contentPermissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getYouTubeEmbedUrl } from "@/lib/supabase/utils";
 
@@ -63,6 +64,7 @@ export default async function WatchlistDetailPage({
   } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
   const theme = typeTheme(item.type);
   const deleteAction = deleteWatchlistItem.bind(null, item.id);
+  const canManageItem = canManageContent(user, item.authorId);
   const embedUrl = getYouTubeEmbedUrl(item.youtubeUrl);
   const orderedItems = await getWatchItems();
   const currentIndex = orderedItems.findIndex((watchItem) => watchItem.id === item.id);
@@ -85,7 +87,7 @@ export default async function WatchlistDetailPage({
             기대작 목록
           </Link>
 
-          {user ? (
+          {canManageItem ? (
             <div className="flex flex-wrap gap-2">
               <Link
                 href={`/watchlist/${item.id}/edit`}

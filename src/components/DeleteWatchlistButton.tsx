@@ -15,7 +15,7 @@ export function DeleteWatchlistButton({ title }: DeleteWatchlistButtonProps) {
       description={`"${title}" 기대작을 삭제합니다. 삭제한 항목은 되돌릴 수 없습니다.`}
       confirmLabel="삭제"
       icon={<Trash2 size={16} />}
-      triggerClassName="inline-flex items-center gap-2 rounded-md bg-[#be4b49] px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-[#a83f3d]"
+      triggerClassName="inline-flex items-center gap-2 rounded-md bg-[#2f7f7a] px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-[#276965]"
     />
   );
 }

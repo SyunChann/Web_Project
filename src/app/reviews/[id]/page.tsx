@@ -13,6 +13,7 @@ import {
   typeTheme,
   type Review,
 } from "@/data/reviews";
+import { canManageContent } from "@/lib/contentPermissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getYouTubeEmbedUrl } from "@/lib/supabase/utils";
 
@@ -56,6 +57,7 @@ export default async function ReviewDetailPage({
   } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
   const theme = typeTheme(review.type);
   const deleteAction = deleteReview.bind(null, review.id);
+  const canManageReview = canManageContent(user, review.authorId);
 
   // DB에 저장된 유튜브 주소를 임베드용 주소로 변환
   const embedUrl = getYouTubeEmbedUrl(review.youtubeUrl);
@@ -80,7 +82,7 @@ export default async function ReviewDetailPage({
             리뷰 목록
           </Link>
 
-          {user ? (
+          {canManageReview ? (
             <div className="flex flex-wrap gap-2">
               <Link
                 href={`/reviews/${review.id}/edit`}
