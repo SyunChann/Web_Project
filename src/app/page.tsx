@@ -9,6 +9,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
+import { StatusToast } from "@/components/StatusToast";
 import { getReviews, typeLabel, typeTheme, type Review } from "@/data/reviews";
 import {
   getWatchItems,
@@ -18,7 +19,27 @@ import {
 
 const reviewTypes: Review["type"][] = ["movie", "anime", "game", "drama"];
 
-export default async function Home() {
+type HomeProps = {
+  searchParams?: Promise<{
+    status?: string;
+  }>;
+};
+
+function getStatusMessage(status?: string) {
+  if (status === "login") {
+    return "로그인되었습니다.";
+  }
+
+  if (status === "logout") {
+    return "로그아웃되었습니다.";
+  }
+
+  return "";
+}
+
+export default async function Home({ searchParams }: HomeProps) {
+  const resolvedSearchParams = await searchParams;
+  const statusMessage = getStatusMessage(resolvedSearchParams?.status);
   const reviews = await getReviews();
   const watchItems = await getWatchItems();
   const featuredReview = reviews[0];
@@ -31,6 +52,7 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen overflow-hidden px-6 py-8 sm:px-10">
+      <StatusToast message={statusMessage} />
       <section className="mx-auto flex w-full max-w-6xl flex-col gap-10">
         <AppNav active="home" />
 
