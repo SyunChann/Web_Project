@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { notifyDiscord } from "@/lib/discord";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
   getPendingInviteCookieOptions,
@@ -92,7 +93,21 @@ export async function signUpWithInvite(formData: FormData) {
 
   if (signUpError) {
     console.error("[signup] failed", signUpError.message);
-    signupRedirect(getSignupErrorCode(signUpError.message), inviteCode);
+    const errorCode = getSignupErrorCode(signUpError.message);
+
+    if (errorCode === "signup_limited") {
+      const cookieStore = await cookies();
+
+      cookieStore.set(
+        pendingInviteCookieName,
+        inviteCode,
+        getPendingInviteCookieOptions(),
+      );
+
+      redirect(`/signup?status=confirm_email&invite=${inviteCode}`);
+    }
+
+    signupRedirect(errorCode, inviteCode);
   }
 
   const cookieStore = await cookies();
@@ -104,6 +119,12 @@ export async function signUpWithInvite(formData: FormData) {
   );
 
   if (!signUpData.session) {
+    await notifyDiscord({
+      title: "회원가입 요청",
+      description: "초대 회원가입 인증 메일이 요청되었습니다.",
+      color: 0x2a9d90,
+    });
+
     redirect(`/signup?status=confirm_email&invite=${inviteCode}`);
   }
 

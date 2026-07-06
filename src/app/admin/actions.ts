@@ -4,6 +4,7 @@ import { randomBytes } from "crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { isAdminUser } from "@/lib/admin";
+import { notifyDiscord } from "@/lib/discord";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const maxInviteUses = 50;
@@ -80,6 +81,11 @@ export async function createInviteCode(formData: FormData) {
     throw new Error(error.message);
   }
 
+  await notifyDiscord({
+    title: "초대 코드 생성",
+    description: "관리자 페이지에서 새 초대 코드가 생성되었습니다.",
+  });
+
   revalidatePath("/admin");
   redirect(`/admin?created=${encodeURIComponent(code)}`);
 }
@@ -98,6 +104,12 @@ export async function revokeInviteCode(id: string) {
   if (error) {
     throw new Error(error.message);
   }
+
+  await notifyDiscord({
+    title: "초대 코드 폐기",
+    description: "관리자 페이지에서 초대 코드가 폐기되었습니다.",
+    color: 0x52616b,
+  });
 
   revalidatePath("/admin");
 }

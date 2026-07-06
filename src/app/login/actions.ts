@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { notifyDiscord } from "@/lib/discord";
 import {
   getPendingInviteCodeFromMetadata,
   pendingInviteCookieName,
@@ -51,6 +52,11 @@ export async function signIn(formData: FormData) {
         data: {
           [pendingInviteMetadataKey]: null,
         },
+      });
+      await notifyDiscord({
+        title: "초대 코드 사용 완료",
+        description: "인증된 사용자가 초대 코드를 사용했습니다.",
+        color: 0x2a9d90,
       });
     }
   }

@@ -5,6 +5,7 @@ import type { User } from "@supabase/supabase-js";
 import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { canManageContent } from "@/lib/contentPermissions";
+import { notifyDiscord } from "@/lib/discord";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const thumbnailBucket = "review-thumbnails";
@@ -203,6 +204,12 @@ export async function createWatchlistItem(formData: FormData) {
     throw new Error(error.message);
   }
 
+  await notifyDiscord({
+    title: "기대작 작성",
+    description: "새 기대작이 작성되었습니다.",
+    color: 0x2a9d90,
+  });
+
   updateTag("watchlist");
   revalidatePath("/");
   revalidatePath("/watchlist");
@@ -229,6 +236,12 @@ export async function updateWatchlistItem(id: string, formData: FormData) {
     throw new Error(error.message);
   }
 
+  await notifyDiscord({
+    title: "기대작 수정",
+    description: "기대작이 수정되었습니다.",
+    color: 0x52616b,
+  });
+
   updateTag("watchlist");
   revalidatePath("/");
   revalidatePath("/watchlist");
@@ -246,6 +259,12 @@ export async function deleteWatchlistItem(id: string) {
   if (error) {
     throw new Error(error.message);
   }
+
+  await notifyDiscord({
+    title: "기대작 삭제",
+    description: "기대작이 삭제되었습니다.",
+    color: 0xa73735,
+  });
 
   updateTag("watchlist");
   revalidatePath("/");

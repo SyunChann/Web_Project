@@ -5,6 +5,7 @@ import type { User } from "@supabase/supabase-js";
 import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { canManageContent } from "@/lib/contentPermissions";
+import { notifyDiscord } from "@/lib/discord";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const thumbnailBucket = "review-thumbnails";
@@ -206,6 +207,11 @@ export async function createReview(formData: FormData) {
     throw new Error(error.message);
   }
 
+  await notifyDiscord({
+    title: "리뷰 작성",
+    description: "새 리뷰가 작성되었습니다.",
+  });
+
   updateTag("reviews");
   revalidatePath("/");
   revalidatePath("/reviews");
@@ -231,6 +237,12 @@ export async function updateReview(id: string, formData: FormData) {
     throw new Error(error.message);
   }
 
+  await notifyDiscord({
+    title: "리뷰 수정",
+    description: "리뷰가 수정되었습니다.",
+    color: 0x52616b,
+  });
+
   updateTag("reviews");
   revalidatePath("/");
   revalidatePath("/reviews");
@@ -247,6 +259,12 @@ export async function deleteReview(id: string) {
   if (error) {
     throw new Error(error.message);
   }
+
+  await notifyDiscord({
+    title: "리뷰 삭제",
+    description: "리뷰가 삭제되었습니다.",
+    color: 0xa73735,
+  });
 
   updateTag("reviews");
   revalidatePath("/");
