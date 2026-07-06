@@ -1,93 +1,134 @@
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 interface PaginationProps {
-    currentPage: number;
-    totalPages: number;
-    getHref: (page: number) => string;
-    //페이징 버튼 컬러테마 변경용 디폴트 레드
-    //색 추가 필요시 activeThemeClasses 와 inactiveThemeClasses 색 추가후 사용
-    theme?: "red" | "green" | "blue";
+  currentPage: number;
+  totalPages: number;
+  getHref: (page: number) => string;
+  theme?: "red" | "green" | "blue";
 }
 
-export default function Pagination({ currentPage, totalPages, getHref, theme = "red" }: PaginationProps) {
-    const maxVisiblePages = 10; //페이지수 노출 맥시멈 설정
+type PageItem = number | "ellipsis-start" | "ellipsis-end";
 
-    const getPageNumbers = () => {
-        if (totalPages <= maxVisiblePages) {
-            return Array.from({ length: totalPages }, (_, i) => i + 1);
-        }
+const themeClasses = {
+  red: {
+    active: "bg-[#be4b49] text-white shadow-sm",
+    hover: "hover:border-[#be4b49]/40 hover:bg-[#fbf5f2] hover:text-[#9b3d3b]",
+  },
+  green: {
+    active: "bg-[#2f7f7a] text-white shadow-sm",
+    hover: "hover:border-[#2f7f7a]/40 hover:bg-[#eef8f6] hover:text-[#216864]",
+  },
+  blue: {
+    active: "bg-[#2563eb] text-white shadow-sm",
+    hover: "hover:border-[#2563eb]/40 hover:bg-[#eff6ff] hover:text-[#1d4ed8]",
+  },
+};
 
-        // 6페이지부터 11페이지 보임
-        // 11페이지부터 7~16가 나오도록 설정
-        let start = Math.max(1, currentPage - 4);
-        let end = start + maxVisiblePages - 1;
+function getPageItems(currentPage: number, totalPages: number): PageItem[] {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, index) => index + 1);
+  }
 
-        if (end > totalPages) {
-            end = totalPages;
-            start = Math.max(1, end - maxVisiblePages + 1);
-        }
+  if (currentPage <= 4) {
+    return [1, 2, 3, 4, 5, "ellipsis-end", totalPages];
+  }
 
-        return Array.from({ length: end - start + 1 }, (_, i) => start + i);
-    };
+  if (currentPage >= totalPages - 3) {
+    return [
+      1,
+      "ellipsis-start",
+      totalPages - 4,
+      totalPages - 3,
+      totalPages - 2,
+      totalPages - 1,
+      totalPages,
+    ];
+  }
 
-    const pageNumbers = getPageNumbers();
+  return [
+    1,
+    "ellipsis-start",
+    currentPage - 1,
+    currentPage,
+    currentPage + 1,
+    "ellipsis-end",
+    totalPages,
+  ];
+}
 
-    if (totalPages <= 1) return null;
+export default function Pagination({
+  currentPage,
+  totalPages,
+  getHref,
+  theme = "red",
+}: PaginationProps) {
+  if (totalPages <= 1) return null;
 
-    // 공통 디자인
-    const baseClass = "flex h-9 w-9 items-center justify-center rounded-full transition-all text-xl font-black pt-1.5";
-    const disabledClass = "opacity-20 pointer-events-none";
+  const safeCurrentPage = Math.min(Math.max(currentPage, 1), totalPages);
+  const pageItems = getPageItems(safeCurrentPage, totalPages);
+  const colors = themeClasses[theme];
+  const baseButtonClass =
+    "inline-flex h-10 min-w-10 items-center justify-center gap-1 rounded-full border border-[#ded4c7] bg-white px-3 text-sm font-bold leading-none text-[#52616b] transition";
+  const inactiveClass = `${baseButtonClass} ${colors.hover}`;
+  const disabledClass = `${baseButtonClass} cursor-default opacity-40`;
+  const activeClass = `${baseButtonClass} ${colors.active} min-w-11 scale-105 border-transparent shadow-md ring-2 ring-[#f3e4d5] ring-offset-2 ring-offset-[#f8f3ed]`;
 
-    // 활성화(현재 페이지) 색상
-    const activeThemeClasses = {
-        red: "bg-[#be4b49] text-white shadow-md",
-        green: "bg-[#2f7f7a] text-white shadow-md",
-        blue: "bg-[#2563eb] text-white shadow-md",
-    };
+  return (
+    <nav aria-label="페이지 이동">
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        {safeCurrentPage > 1 ? (
+          <Link href={getHref(safeCurrentPage - 1)} className={inactiveClass}>
+            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+            이전
+          </Link>
+        ) : (
+          <span className={disabledClass} aria-disabled="true">
+            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+            이전
+          </span>
+        )}
 
-    // 비활성화(마우스 호버 등) 색상
-    const inactiveThemeClasses = {
-        red: "hover:bg-[#f3f0ec] hover:text-[#be4b49] text-[#52616b]",
-        green: "hover:bg-[#f3f0ec] hover:text-[#2f7f7a] text-[#52616b]",
-        blue: "hover:bg-[#f3f0ec] hover:text-[#2563eb] text-[#52616b]",
-    };
-
-    // 넘어온 theme 값에 맞는 스타일을 사전에서 꺼냅니다.
-    const activeClass = activeThemeClasses[theme];
-    const inactiveClass = inactiveThemeClasses[theme];
-
-    return (
-        <div className="flex items-center justify-center gap-2">
-
-            {/* 처음 */}
-            <Link href={getHref(1)} className={`${baseClass} ${currentPage === 1 ? disabledClass : inactiveClass}`}>
-                &lt;&lt;
-            </Link>
-            
-            {/* 이전 */}
-            <Link href={getHref(Math.max(1, currentPage - 1))} className={`${baseClass} ${currentPage === 1 ? disabledClass : inactiveClass}`}>
-                &lt;
-            </Link>
-
-            {/* 번호 */}
-            {pageNumbers.map((pageNum) => (
-                <Link
-                    key={pageNum}
-                    href={getHref(pageNum)}
-                    className={`${baseClass} ${currentPage === pageNum ? activeClass : inactiveClass}`}>
-                {pageNum}    
-                </Link>
-            ))}
-
-            {/* 다음 */}
-            <Link href={getHref(Math.min(totalPages, currentPage + 1))} className={`${baseClass} ${currentPage === totalPages ? disabledClass : inactiveClass}`}>
-                &gt;
-            </Link>
-            
-            {/* 끝 */}
-            <Link href={getHref(totalPages)} className={`${baseClass} ${currentPage === totalPages ? disabledClass : inactiveClass}`}>
-                &gt;&gt;
-            </Link>
+        <div className="flex items-center gap-1.5">
+          {pageItems.map((item) =>
+            typeof item === "number" ? (
+              <Link
+                key={item}
+                href={getHref(item)}
+                className={item === safeCurrentPage ? activeClass : inactiveClass}
+                aria-current={item === safeCurrentPage ? "page" : undefined}
+                aria-label={
+                  item === safeCurrentPage
+                    ? `${item}페이지, 현재 페이지`
+                    : `${item}페이지로 이동`
+                }
+              >
+                {item}
+              </Link>
+            ) : (
+              <span
+                key={item}
+                className="flex h-10 min-w-8 items-center justify-center text-sm font-bold text-[#9aa3aa]"
+                aria-hidden="true"
+              >
+                ...
+              </span>
+            )
+          )}
         </div>
-    );
+
+        {safeCurrentPage < totalPages ? (
+          <Link href={getHref(safeCurrentPage + 1)} className={inactiveClass}>
+            다음
+            <ChevronRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
+        ) : (
+          <span className={disabledClass} aria-disabled="true">
+            다음
+            <ChevronRight className="h-4 w-4" aria-hidden="true" />
+          </span>
+        )}
+      </div>
+    </nav>
+  );
 }
