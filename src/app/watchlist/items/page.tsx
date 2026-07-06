@@ -9,6 +9,7 @@ import {
   type WatchItem,
 } from "@/data/watchlist";
 import { typeLabel } from "@/data/reviews";
+import Pagination from "@/components/Pagination";
 
 export const metadata = {
   title: "전체 기대작 | 취향보관소",
@@ -19,6 +20,7 @@ type WatchlistItemsPageProps = {
   searchParams?: Promise<{
     q?: string | string[];
     status?: string | string[];
+    page?: string | string[];
   }>;
 };
 
@@ -53,6 +55,16 @@ export default async function WatchlistItemsPage({
   const items = filterWatchItems(await getWatchItems(), activeQuery, activeStatus);
   const isFiltered = Boolean(activeQuery) || activeStatus !== "all";
 
+  const currentPage = Number(params?.page) || 1;
+  const allFilteredItems = filterWatchItems(await getWatchItems(), activeQuery, activeStatus);
+
+  const itemsPerPage = 9;
+  const totalPages = Math.ceil(allFilteredItems.length / itemsPerPage);
+  const paginatedItems = allFilteredItems.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+  
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
       <section className="mx-auto w-full max-w-5xl">
@@ -139,12 +151,30 @@ export default async function WatchlistItemsPage({
           </p>
         </section>
 
-        {items.length > 0 ? (
-          <div className="grid gap-4 md:grid-cols-3">
-            {items.map((item) => (
-              <WatchItemCard key={item.id} item={item} />
-            ))}
-          </div>
+        {paginatedItems.length > 0 ? (
+          <>
+            <div className="grid gap-4 md:grid-cols-3">
+              {paginatedItems.map((item) => (
+                <WatchItemCard key={item.id} item={item} />
+              ))}
+            </div>
+            
+            {/* Pagination 컴포넌트 추가 */}
+            <div className="mt-12">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                getHref={(page) =>
+                  buildWatchlistHref({
+                    query: activeQuery,
+                    status: activeStatus,
+                    page,
+                  })
+                }
+                theme="green"
+              />
+            </div>
+          </>
         ) : (
           <div className="rounded-lg border border-dashed border-[#eadcc7] bg-[#fffdf8] p-8 text-center shadow-sm">
             <Bookmark className="mx-auto text-[#38a39b]" size={24} />
@@ -256,9 +286,11 @@ function filterWatchItems(
 function buildWatchlistHref({
   query,
   status,
+  page,
 }: {
   query: string;
   status: WatchStatusFilter;
+  page?: number;
 }) {
   const params = new URLSearchParams();
   const trimmedQuery = query.trim();
@@ -271,6 +303,9 @@ function buildWatchlistHref({
     params.set("status", status);
   }
 
+  if (page && page > 1) {
+    params.set("page", page.toString());
+  }
   const queryString = params.toString();
 
   return queryString ? `/watchlist/items?${queryString}` : "/watchlist/items";
