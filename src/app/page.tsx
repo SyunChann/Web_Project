@@ -52,7 +52,9 @@ export default async function Home({ searchParams }: HomeProps) {
 
   return (
     <main className="min-h-screen overflow-hidden px-6 py-8 sm:px-10">
-      <StatusToast message={statusMessage} />
+      {statusMessage ? (
+        <StatusToast key={statusMessage} message={statusMessage} />
+      ) : null}
       <section className="mx-auto flex w-full max-w-6xl flex-col gap-10">
         <AppNav active="home" />
 

@@ -1,0 +1,103 @@
+name: Build Check
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Lint and Build
+    runs-on: ubuntu-latest
+
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+      ADMIN_EMAILS: ${{ secrets.ADMIN_EMAILS }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Notify Discord
+        if: always()
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_BUILD_WEBHOOK_URL }}
+          BUILD_STATUS: ${{ job.status }}
+          REPOSITORY: ${{ github.repository }}
+          REF_NAME: ${{ github.ref_name }}
+          ACTOR: ${{ github.actor }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          COMMIT_URL: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
+        run: |
+          node <<'NODE'
+          const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+
+          if (!webhookUrl) {
+            console.log("DISCORD_BUILD_WEBHOOK_URL is not configured.");
+            process.exit(0);
+          }
+
+          const isSuccess = process.env.BUILD_STATUS === "success";
+          const payload = {
+            embeds: [
+              {
+                title: isSuccess ? "Build check passed" : "Build check failed",
+                description: `${process.env.REPOSITORY} / ${process.env.REF_NAME}`,
+                color: isSuccess ? 0x2a9d90 : 0xa73735,
+                fields: [
+                  {
+                    name: "Actor",
+                    value: process.env.ACTOR || "unknown",
+                    inline: true,
+                  },
+                  {
+                    name: "Status",
+                    value: process.env.BUILD_STATUS || "unknown",
+                    inline: true,
+                  },
+                  {
+                    name: "Actions",
+                    value: process.env.RUN_URL,
+                  },
+                  {
+                    name: "Commit",
+                    value: process.env.COMMIT_URL,
+                  },
+                ],
+                timestamp: new Date().toISOString(),
+              },
+            ],
+          };
+
+          const response = await fetch(webhookUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          });
+
+          if (!response.ok) {
+            throw new Error(`Discord notification failed: ${response.status}`);
+          }
+          NODE

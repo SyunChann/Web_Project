@@ -7,19 +7,10 @@ type StatusToastProps = {
 };
 
 export function StatusToast({ message }: StatusToastProps) {
-  const [isVisible, setIsVisible] = useState(Boolean(message));
+  const [isVisible, setIsVisible] = useState(true);
   const [isFading, setIsFading] = useState(false);
 
   useEffect(() => {
-    if (!message) {
-      setIsVisible(false);
-      setIsFading(false);
-      return;
-    }
-
-    setIsVisible(true);
-    setIsFading(false);
-
     const url = new URL(window.location.href);
     url.searchParams.delete("status");
     window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
@@ -37,7 +28,7 @@ export function StatusToast({ message }: StatusToastProps) {
     };
   }, [message]);
 
-  if (!message || !isVisible) {
+  if (!isVisible) {
     return null;
   }
 
