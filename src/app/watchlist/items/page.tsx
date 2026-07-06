@@ -202,7 +202,7 @@ function WatchItemCard({ item }: { item: WatchItem }) {
         alt={item.thumbnailAlt}
         width={960}
         height={540}
-        className="aspect-video w-full object-cover"
+        className="aspect-video h-auto w-full object-cover"
         loading="lazy"
       />
       <div className="p-5">

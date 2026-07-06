@@ -111,7 +111,7 @@ export default async function WatchlistDetailPage({
             alt={item.thumbnailAlt}
             width={960}
             height={540}
-            className="aspect-video w-full object-cover"
+            className="aspect-video h-auto w-full object-cover"
             loading="eager"
             fetchPriority="high"
           />

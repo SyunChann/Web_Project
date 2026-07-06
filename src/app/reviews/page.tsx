@@ -220,7 +220,7 @@ export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
                     alt={review.thumbnailAlt}
                     width={960}
                     height={540}
-                    className="aspect-video w-full object-cover"
+                    className="aspect-video h-auto w-full object-cover"
                     loading={isAboveFoldImage ? "eager" : "lazy"}
                     fetchPriority={isFirstImage ? "high" : "auto"}
                   />
