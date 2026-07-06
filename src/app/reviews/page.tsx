@@ -2,6 +2,7 @@ import { Search, Star, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
+import Pagination from "@/components/Pagination";
 import {
   getReviews,
   sortReviews,
@@ -16,8 +17,10 @@ type ReviewsPageProps = {
     q?: string | string[];
     sort?: string | string[];
     type?: string | string[];
+    page?: string;
   }>;
 };
+
 
 type ReviewType = Review["type"];
 type ReviewTypeFilter = ReviewType | "all";
@@ -70,6 +73,20 @@ export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
     activeSort,
   );
   const isFiltered = Boolean(activeQuery) || activeType !== "all";
+
+  const currentPage = Number(params?.page) || 1;
+  const ITEMS_PER_PAGE = 9;
+
+  const filteredReviews = sortReviews(
+    filterReviews(await getReviews(), activeQuery, activeType),
+    activeSort,
+  );
+
+  const totalPages = Math.ceil(filteredReviews.length / ITEMS_PER_PAGE);
+  const paginatedReviews = filteredReviews.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
@@ -185,9 +202,9 @@ export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
           </p>
         </section>
 
-        {reviews.length > 0 ? (
+        {paginatedReviews.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-3">
-            {reviews.map((review, index) => {
+            {paginatedReviews.map((review, index) => {
               const theme = typeTheme(review.type);
               const isAboveFoldImage = index < 3;
               const isFirstImage = index === 0;
@@ -249,6 +266,20 @@ export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
               새 리뷰를 작성하면 이곳에 표시됩니다.
             </p>
           </div>
+        )}
+        {totalPages > 1 && (
+        <div className="mt-10 flex justify-center">
+          <Pagination 
+            currentPage={currentPage} 
+            totalPages={totalPages} 
+            getHref={(page: number) => buildReviewsHref({ 
+            query: activeQuery, 
+            type: activeType, 
+            sort: activeSort, 
+            page 
+          })}
+          />
+        </div>
         )}
       </section>
     </main>
@@ -321,10 +352,12 @@ function buildReviewsHref({
   query,
   type,
   sort,
+  page,
 }: {
   query: string;
   type: ReviewTypeFilter;
   sort: ReviewSort;
+  page?: number;
 }) {
   const params = new URLSearchParams();
   const trimmedQuery = query.trim();
@@ -339,6 +372,10 @@ function buildReviewsHref({
 
   if (sort !== "created-desc") {
     params.set("sort", sort);
+  }
+
+  if (page && page > 1) {
+    params.set("page", page.toString());
   }
 
   const queryString = params.toString();
@@ -357,3 +394,5 @@ function formatFullDate(value: string) {
     day: "2-digit",
   }).format(new Date(value));
 }
+
+
