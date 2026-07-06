@@ -79,7 +79,7 @@ export async function signUpWithInvite(formData: FormData) {
     signupRedirect("invalid_invite", inviteCode);
   }
 
-  const { error: signUpError } = await supabase.auth.signUp({
+  const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -95,20 +95,15 @@ export async function signUpWithInvite(formData: FormData) {
     signupRedirect(getSignupErrorCode(signUpError.message), inviteCode);
   }
 
-  const { error: signInError } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+  const cookieStore = await cookies();
 
-  if (signInError) {
-    const cookieStore = await cookies();
+  cookieStore.set(
+    pendingInviteCookieName,
+    inviteCode,
+    getPendingInviteCookieOptions(),
+  );
 
-    cookieStore.set(
-      pendingInviteCookieName,
-      inviteCode,
-      getPendingInviteCookieOptions(),
-    );
-
+  if (!signUpData.session) {
     redirect(`/signup?status=confirm_email&invite=${inviteCode}`);
   }
 
@@ -120,5 +115,12 @@ export async function signUpWithInvite(formData: FormData) {
     signupRedirect("claim_failed", inviteCode);
   }
 
-  redirect("/reviews");
+  cookieStore.delete(pendingInviteCookieName);
+  await supabase.auth.updateUser({
+    data: {
+      [pendingInviteMetadataKey]: null,
+    },
+  });
+
+  redirect("/?status=login");
 }

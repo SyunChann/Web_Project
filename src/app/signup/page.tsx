@@ -2,6 +2,7 @@ import { ArrowLeft, MailCheck } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { signUpWithInvite } from "./actions";
+import { SignupSubmitButton } from "@/components/SignupSubmitButton";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type SignupPageProps = {
@@ -138,12 +139,7 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
               />
             </label>
 
-            <button
-              type="submit"
-              className="mt-2 rounded-md bg-[#be4b49] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#a83f3d]"
-            >
-              가입하기
-            </button>
+            <SignupSubmitButton />
           </form>
         </div>
       </section>
