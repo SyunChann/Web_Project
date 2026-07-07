@@ -85,7 +85,7 @@ export default async function RestaurantsReviewsPage({ searchParams }: Restauran
         <AppNav active="restaurants" />
 
         <header className="py-10">
-          <p className="text-sm font-semibold text-[#be4b49]">Restaurant</p>
+          <p className="text-sm font-semibold text-[#e57632]">Restaurant</p>
           <h1 className="mt-3 text-3xl font-bold sm:text-4xl">전체 리뷰</h1>
           <p className="mt-4 max-w-2xl leading-7 text-[#52616b]">
             맛집의 기록을 한곳에서 확인할 수 있습니다.
@@ -113,7 +113,7 @@ export default async function RestaurantsReviewsPage({ searchParams }: Restauran
                 type="search"
                 defaultValue={activeQuery}
                 placeholder="제목, 장르, 요약 검색"
-                className="h-11 w-full rounded-md border border-[#d8cfc2] bg-[#fbfaf7] pr-3 pl-10 text-sm font-semibold outline-none transition placeholder:text-[#8a95a1] focus:border-[#be4b49] focus:bg-white"
+                className="h-11 w-full rounded-md border border-[#d8cfc2] bg-[#fbfaf7] pr-3 pl-10 text-sm font-semibold outline-none transition placeholder:text-[#8a95a1] focus:border-[#e57632] focus:bg-white"
               />
             </label>
             <button
@@ -129,7 +129,7 @@ export default async function RestaurantsReviewsPage({ searchParams }: Restauran
                   category: "all",
                   sort: activeSort,
                 })}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#be4b49] hover:text-[#be4b49]"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#e57632] hover:text-[#e57632]"
               >
                 <X size={16} />
                 초기화
@@ -152,8 +152,8 @@ export default async function RestaurantsReviewsPage({ searchParams }: Restauran
                     })}
                     className={`rounded-md border px-3 py-2 text-sm font-bold transition ${
                       isActive
-                        ? "border-[#be4b49] bg-[#fff7f5] text-[#be4b49]"
-                        : "border-[#d8cfc2] bg-white text-[#52616b] hover:border-[#be4b49] hover:text-[#be4b49]"
+                        ? "border-[#e57632] bg-[#fff7f5] text-[#e57632]"
+                        : "border-[#d8cfc2] bg-white text-[#52616b] hover:border-[#e57632] hover:text-[#e57632]"
                     }`}
                   >
                     {option.label}
@@ -353,7 +353,7 @@ function buildReviewsHref({
 
   const queryString = params.toString();
 
-  return queryString ? `/restaurants?${queryString}` : "/restaurants";
+  return queryString ? `/restaurants/items?${queryString}` : "/restaurants";
 }
 
 function formatFullDate(value: string) {
