@@ -353,7 +353,7 @@ function buildReviewsHref({
 
   const queryString = params.toString();
 
-  return queryString ? `/restaurants/items?${queryString}` : "/restaurants";
+  return queryString ? `/restaurants/items?${queryString}` : "/restaurants/items";
 }
 
 function formatFullDate(value: string) {
