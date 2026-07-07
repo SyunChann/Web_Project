@@ -6,7 +6,7 @@ import { createReview } from "@/app/actions/reviews";
 import { createWatchlistItem } from "@/app/actions/watchlist";
 import { createRestaurantReview } from "@/app/actions/restaurants";
 import { ReviewForm } from "@/components/reviews/ReviewForm";
-import { WatchlistForm } from "@/components/WatchlistForm";
+import { WatchlistForm } from "@/components/watchlist/WatchlistForm";
 import { RestaurantsReviewForm } from "@/components/restaurants/RestaurantReviewForm";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 

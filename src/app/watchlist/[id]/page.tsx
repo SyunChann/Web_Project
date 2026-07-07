@@ -10,7 +10,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { deleteWatchlistItem } from "@/app/actions/watchlist";
 import { AppNav } from "@/components/AppNav";
-import { DeleteWatchlistButton } from "@/components/DeleteWatchlistButton";
+import { DeleteWatchlistButton } from "@/components/watchlist/DeleteWatchlistButton";
 import { ThumbnailImage } from "@/components/ThumbnailImage";
 import {
   getWatchItem,

@@ -2,7 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { updateWatchlistItem } from "@/app/actions/watchlist";
-import { WatchlistForm } from "@/components/WatchlistForm";
+import { WatchlistForm } from "@/components/watchlist/WatchlistForm";
 import { getWatchItem } from "@/data/watchlist";
 import { canManageContent } from "@/lib/contentPermissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
