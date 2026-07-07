@@ -1,7 +1,7 @@
 import { ArrowLeft, Bookmark, Search, X } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
+import { ThumbnailImage } from "@/components/ThumbnailImage";
 import {
   getWatchItems,
   watchStatusLabel,
@@ -197,12 +197,12 @@ function WatchItemCard({ item }: { item: WatchItem }) {
       href={`/watchlist/${item.id}`}
       className="block overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] border-l-[#38a39b] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
     >
-      <Image
+      <ThumbnailImage
         src={item.thumbnail}
         alt={item.thumbnailAlt}
-        width={960}
-        height={540}
-        className="aspect-video h-auto w-full object-cover"
+        title={item.title}
+        label="기대작"
+        tone={item.type}
         loading="lazy"
       />
       <div className="p-5">

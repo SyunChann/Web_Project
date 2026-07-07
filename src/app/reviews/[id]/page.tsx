@@ -1,10 +1,10 @@
 import { ArrowLeft, ArrowRight, Calendar, Pencil, Play, Star } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { deleteReview } from "@/app/actions/reviews";
 import { AppNav } from "@/components/AppNav";
 import { DeleteReviewButton } from "@/components/reviews/DeleteReviewButton";
+import { ThumbnailImage } from "@/components/ThumbnailImage";
 import {
   getReview,
   getReviews,
@@ -101,12 +101,12 @@ export default async function ReviewDetailPage({
         <header
           className={`mt-8 overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] ${theme.border} bg-white shadow-sm`}
         >
-          <Image
+          <ThumbnailImage
             src={review.thumbnail}
             alt={review.thumbnailAlt}
-            width={960}
-            height={540}
-            className="aspect-video h-auto w-full object-cover"
+            title={review.title}
+            label={typeLabel(review.type)}
+            tone={review.type}
             loading="eager"
             fetchPriority="high"
           />
@@ -239,12 +239,14 @@ function ReviewAdjacentCard({
       href={`/reviews/${review.id}`}
       className={`group grid grid-cols-[88px_1fr] overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] ${theme.border} bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md`}
     >
-      <Image
+      <ThumbnailImage
         src={review.thumbnail}
         alt={review.thumbnailAlt}
-        width={176}
-        height={112}
+        title={review.title}
+        label={typeLabel(review.type)}
+        tone={review.type}
         className="h-full min-h-28 w-full object-cover"
+        fallbackClassName="h-full min-h-28 w-full"
         loading="lazy"
       />
       <div className="min-w-0 p-4">

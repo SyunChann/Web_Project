@@ -6,10 +6,10 @@ import {
   Sparkles,
   Star,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { StatusToast } from "@/components/StatusToast";
+import { ThumbnailImage } from "@/components/ThumbnailImage";
 import { getReviews, typeLabel, typeTheme, type Review } from "@/data/reviews";
 import {
   getWatchItems,
@@ -287,12 +287,12 @@ function FeaturedReview({ review }: { review: Review }) {
     <article
       className={`overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] ${theme.border} bg-white shadow-sm`}
     >
-      <Image
+      <ThumbnailImage
         src={review.thumbnail}
         alt={review.thumbnailAlt}
-        width={960}
-        height={540}
-        className="aspect-video h-auto w-full object-cover"
+        title={review.title}
+        label={typeLabel(review.type)}
+        tone={review.type}
         loading="eager"
         fetchPriority="high"
       />
@@ -336,12 +336,12 @@ function ReviewCard({ review, eager = false }: { review: Review; eager?: boolean
       href={`/reviews/${review.id}`}
       className={`overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] ${theme.border} bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md`}
     >
-      <Image
+      <ThumbnailImage
         src={review.thumbnail}
         alt={review.thumbnailAlt}
-        width={960}
-        height={540}
-        className="aspect-video h-auto w-full object-cover"
+        title={review.title}
+        label={typeLabel(review.type)}
+        tone={review.type}
         loading={eager ? "eager" : "lazy"}
         fetchPriority={eager ? "high" : "auto"}
       />

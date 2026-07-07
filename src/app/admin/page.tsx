@@ -60,6 +60,41 @@ function getInviteStatus(invite: InviteCodeRow, currentTime: number) {
   };
 }
 
+function getInviteSummary(invites: InviteCodeRow[], currentTime: number) {
+  return invites.reduce(
+    (summary, invite) => {
+      const isRevoked = Boolean(invite.revoked_at);
+      const isExpired = new Date(invite.expires_at).getTime() <= currentTime;
+      const isUsedUp = invite.used_count >= invite.max_uses;
+
+      summary.total += 1;
+      summary.used += invite.used_count;
+      summary.capacity += invite.max_uses;
+
+      if (isRevoked) {
+        summary.revoked += 1;
+      } else if (isExpired) {
+        summary.expired += 1;
+      } else if (isUsedUp) {
+        summary.usedUp += 1;
+      } else {
+        summary.active += 1;
+      }
+
+      return summary;
+    },
+    {
+      total: 0,
+      active: 0,
+      expired: 0,
+      revoked: 0,
+      usedUp: 0,
+      used: 0,
+      capacity: 0,
+    },
+  );
+}
+
 async function getOrigin() {
   const headerList = await headers();
   const host =
@@ -95,6 +130,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     .select("id,code,role,max_uses,used_count,expires_at,revoked_at,created_at")
     .order("created_at", { ascending: false });
   const inviteCodes = (data ?? []) as InviteCodeRow[];
+  const inviteSummary = getInviteSummary(inviteCodes, currentTime);
   const createdUrl = created
     ? `${origin}/signup?invite=${encodeURIComponent(created)}`
     : null;
@@ -147,6 +183,66 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             </div>
           </section>
         ) : null}
+
+        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <SummaryCard
+            label="전체 초대코드"
+            value={inviteSummary.total}
+            tone="default"
+          />
+          <SummaryCard
+            label="사용 가능"
+            value={inviteSummary.active}
+            tone="green"
+          />
+          <SummaryCard
+            label="사용 완료"
+            value={inviteSummary.usedUp}
+            tone="amber"
+          />
+          <SummaryCard
+            label="만료"
+            value={inviteSummary.expired}
+            tone="red"
+          />
+          <SummaryCard
+            label="폐기"
+            value={inviteSummary.revoked}
+            tone="gray"
+          />
+          <div className="rounded-lg border border-[#d8cfc2] bg-white p-5 shadow-sm sm:col-span-2 lg:col-span-5">
+            <p className="text-sm font-bold text-[#52616b]">초대 사용 현황</p>
+            <div className="mt-3 flex items-end justify-between gap-4">
+              <p className="text-3xl font-black text-[#101820]">
+                {inviteSummary.used}
+                <span className="text-lg text-[#8b7460]">
+                  {" "}
+                  / {inviteSummary.capacity}
+                </span>
+              </p>
+              <p className="text-sm font-bold text-[#7b8790]">
+                누적 사용 / 총 사용 가능 횟수
+              </p>
+            </div>
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#f0e8de]">
+              <div
+                className="h-full rounded-full bg-[#be4b49]"
+                style={{
+                  width: `${
+                    inviteSummary.capacity
+                      ? Math.min(
+                          100,
+                          Math.round(
+                            (inviteSummary.used / inviteSummary.capacity) * 100,
+                          ),
+                        )
+                      : 0
+                  }%`,
+                }}
+              />
+            </div>
+          </div>
+        </section>
 
         <section className="rounded-lg border border-[#d8cfc2] bg-white p-5 shadow-sm">
           <h2 className="text-2xl font-black">초대 코드 생성</h2>
@@ -280,5 +376,30 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         </section>
       </div>
     </main>
+  );
+}
+
+function SummaryCard({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: number;
+  tone: "default" | "green" | "amber" | "red" | "gray";
+}) {
+  const toneClasses = {
+    default: "border-[#d8cfc2] bg-white text-[#101820]",
+    green: "border-[#cbe8e4] bg-[#f4fbfa] text-[#2f7f7a]",
+    amber: "border-[#f0ddbd] bg-[#fff8ec] text-[#9a5a13]",
+    red: "border-[#f0c9c6] bg-[#fff5f3] text-[#a73735]",
+    gray: "border-[#d9dee3] bg-[#f7f8f9] text-[#52616b]",
+  };
+
+  return (
+    <article className={`rounded-lg border p-5 shadow-sm ${toneClasses[tone]}`}>
+      <p className="text-sm font-bold opacity-80">{label}</p>
+      <p className="mt-3 text-3xl font-black">{value}</p>
+    </article>
   );
 }

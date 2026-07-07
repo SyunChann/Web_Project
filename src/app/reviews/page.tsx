@@ -1,8 +1,8 @@
 import { Search, Star, X } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import Pagination from "@/components/Pagination";
+import { ThumbnailImage } from "@/components/ThumbnailImage";
 import {
   getReviews,
   sortReviews,
@@ -215,12 +215,12 @@ export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
                   href={`/reviews/${review.id}`}
                   className={`overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] ${theme.border} bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md`}
                 >
-                  <Image
+                  <ThumbnailImage
                     src={review.thumbnail}
                     alt={review.thumbnailAlt}
-                    width={960}
-                    height={540}
-                    className="aspect-video h-auto w-full object-cover"
+                    title={review.title}
+                    label={typeLabel(review.type)}
+                    tone={review.type}
                     loading={isAboveFoldImage ? "eager" : "lazy"}
                     fetchPriority={isFirstImage ? "high" : "auto"}
                   />

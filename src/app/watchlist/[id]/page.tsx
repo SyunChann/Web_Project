@@ -6,12 +6,12 @@ import {
   Pencil,
   Play,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { deleteWatchlistItem } from "@/app/actions/watchlist";
 import { AppNav } from "@/components/AppNav";
 import { DeleteWatchlistButton } from "@/components/DeleteWatchlistButton";
+import { ThumbnailImage } from "@/components/ThumbnailImage";
 import {
   getWatchItem,
   getWatchItems,
@@ -106,12 +106,12 @@ export default async function WatchlistDetailPage({
         <header
           className={`mt-8 overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] ${theme.border} bg-white shadow-sm`}
         >
-          <Image
+          <ThumbnailImage
             src={item.thumbnail}
             alt={item.thumbnailAlt}
-            width={960}
-            height={540}
-            className="aspect-video h-auto w-full object-cover"
+            title={item.title}
+            label="기대작"
+            tone={item.type}
             loading="eager"
             fetchPriority="high"
           />
@@ -253,12 +253,14 @@ function WatchAdjacentCard({
       href={`/watchlist/${item.id}`}
       className="group grid grid-cols-[88px_1fr] overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] border-l-[#38a39b] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
     >
-      <Image
+      <ThumbnailImage
         src={item.thumbnail}
         alt={item.thumbnailAlt}
-        width={176}
-        height={112}
+        title={item.title}
+        label="기대작"
+        tone={item.type}
         className="h-full min-h-28 w-full object-cover"
+        fallbackClassName="h-full min-h-28 w-full"
         loading="lazy"
       />
       <div className="min-w-0 p-4">
