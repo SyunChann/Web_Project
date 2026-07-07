@@ -1,39 +1,64 @@
-import { Bookmark, ChevronDown, Library, LogIn, Plus } from "lucide-react";
+import { Bookmark, ChevronDown, Library, LogIn, Plus, Utensils } from "lucide-react";
 import Link from "next/link";
 import { LogoutButton } from "@/components/LogoutButton";
 import { isAdminUser } from "@/lib/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type AppNavProps = {
-  active?: "home" | "reviews" | "watchlist" | "admin";
+  active?: "home" | "reviews" | "watchlist" | "restaurants" | "admin";
 };
 
-export async function AppNav({ active }: AppNavProps) {
+export async function AppNav({ active = "home" }: AppNavProps) {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
   const isAdmin = isAdminUser(user);
-  const activeSectionLabel = active === "watchlist" ? "기대작 홈" : "리뷰 홈";
 
-  const theme =
-    active === "watchlist"
-      ? {
-          brandHover: "hover:border-[#2f7f7a]",
-          icon: "bg-[#2f7f7a] group-hover:bg-[#276a66]",
-          text: "text-[#2f7f7a]",
-          controlHover: "hover:border-[#2f7f7a] hover:text-[#2f7f7a]",
-          primary: "bg-[#2f7f7a] hover:bg-[#276a66]",
-          admin: "bg-[#e4f4f2] text-[#2f7f7a]",
-        }
-      : {
-          brandHover: "hover:border-[#be4b49]",
-          icon: "bg-[#be4b49] group-hover:bg-[#a83f3d]",
-          text: "text-[#be4b49]",
-          controlHover: "hover:border-[#be4b49] hover:text-[#be4b49]",
-          primary: "bg-[#be4b49] hover:bg-[#a83f3d]",
-          admin: "bg-[#edf2ef] text-[#2f6f5e]",
-        };
+  const sectionLabels: Record<string, string> = {
+    home: "리뷰 홈",
+    watchlist: "기대작 홈",
+    restaurants: "맛집리뷰 홈",
+    review: "리뷰 홈"
+  }
+  const activeSectionLabel = sectionLabels[active] || "리뷰 홈";
+
+  const themes: Record<string, {
+    brandHover: string;
+    icon: string;
+    text: string;
+    controlHover: string;
+    primary: string;
+    admin: string;
+  }> = {
+    watchlist: {
+      brandHover: "hover:border-[#2f7f7a]",
+      icon: "bg-[#2f7f7a] group-hover:bg-[#276a66]",
+      text: "text-[#2f7f7a]",
+      controlHover: "hover:border-[#2f7f7a] hover:text-[#2f7f7a]",
+      primary: "bg-[#2f7f7a] hover:bg-[#276a66]",
+      admin: "bg-[#e4f4f2] text-[#2f7f7a]",
+    },
+    restaurants: {
+      brandHover: "hover:border-[#e57632]",
+      icon: "bg-[#e57632] group-hover:bg-[#c85a17]",
+      text: "text-[#e57632]",
+      controlHover: "hover:border-[#e57632] hover:text-[#e57632]",
+      primary: "bg-[#e57632] hover:bg-[#c85a17]", 
+      admin: "bg-[#fdf2e9] text-[#e57632]",
+    },
+    default: {
+      brandHover: "hover:border-[#be4b49]",
+      icon: "bg-[#be4b49] group-hover:bg-[#a83f3d]",
+      text: "text-[#be4b49]",
+      controlHover: "hover:border-[#be4b49] hover:text-[#be4b49]",
+      primary: "bg-[#be4b49] hover:bg-[#a83f3d]",
+      admin: "bg-[#edf2ef] text-[#2f6f5e]",
+    },
+  };
+
+// active 값에 맞는 테마를 꺼내고, 없으면 default 테마 적용!
+const theme = themes[active] || themes.default;
 
   return (
     <nav className="flex flex-wrap items-center justify-between gap-3">
@@ -89,6 +114,17 @@ export async function AppNav({ active }: AppNavProps) {
             >
               <Bookmark size={16} />
               기대작 홈
+            </Link>
+            <Link
+              href="/restaurants"
+              className={`mt-1 flex items-center gap-2 rounded-md px-3 py-2 text-sm font-bold transition ${
+                active === "restaurants"
+                  ? "bg-[#f7e8cc] text-[#2f7f7a]"
+                  : "text-[#52616b] hover:bg-[#f7e8cc] hover:text-[#2f7f7a]"
+              }`}
+            >
+              <Utensils size={16} />
+              맛집리뷰 홈
             </Link>
           </div>
         </details>

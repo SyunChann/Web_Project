@@ -1,11 +1,13 @@
-import { ArrowLeft, Bookmark, Library } from "lucide-react";
+import { ArrowLeft, Bookmark, Library, Utensils } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { createReview } from "@/app/actions/reviews";
 import { createWatchlistItem } from "@/app/actions/watchlist";
+import { createRestaurantReview } from "@/app/actions/restaurants";
 import { ReviewForm } from "@/components/reviews/ReviewForm";
 import { WatchlistForm } from "@/components/WatchlistForm";
+import { RestaurantsReviewForm } from "@/components/restaurants/RestaurantReviewForm";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type NewPostPageProps = {
@@ -60,6 +62,23 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
       </PostFormShell>
     );
   }
+  
+  if (type === "restaurants") {
+    return (
+      <PostFormShell
+        backHref="/new"
+        backLabel="작성 유형 선택"
+        eyebrow="restaurants"
+        title="새 맛집 작성"
+      >
+        <RestaurantsReviewForm
+          action={createRestaurantReview}
+          submitLabel="맛집 저장"
+          showSlugField
+        />
+      </PostFormShell>
+    );
+  }
 
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
@@ -103,6 +122,19 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
             <h2 className="mt-5 text-xl font-bold text-[#17202a]">기대작</h2>
             <p className="mt-3 leading-7 text-[#52616b]">
               앞으로 보고 싶은 작품의 기대 이유와 공개 정보를 남깁니다.
+            </p>
+          </Link>
+          
+          <Link
+            href="/new?type=restaurants"
+            className="group rounded-lg border border-[#ddd6cc] bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-[#e57632] hover:shadow-md"
+          >
+            <span className="flex h-11 w-11 items-center justify-center rounded-md bg-[#f7e8cc] text-[#f1a10d]">
+              <Utensils size={20} />
+            </span>
+            <h2 className="mt-5 text-xl font-bold text-[#17202a]">맛집</h2>
+            <p className="mt-3 leading-7 text-[#52616b]">
+              다녀온 맛집의 별점, 요약, 방문평을 기록합니다.
             </p>
           </Link>
         </div>
