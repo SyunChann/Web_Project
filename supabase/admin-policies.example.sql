@@ -6,6 +6,12 @@ drop policy if exists "admin can delete reviews" on public.reviews;
 drop policy if exists "invited users can insert reviews" on public.reviews;
 drop policy if exists "authors can update own reviews" on public.reviews;
 drop policy if exists "authors can delete own reviews" on public.reviews;
+drop policy if exists "admin can insert restaurant reviews" on public.restaurant_reviews;
+drop policy if exists "admin can update restaurant reviews" on public.restaurant_reviews;
+drop policy if exists "admin can delete restaurant reviews" on public.restaurant_reviews;
+drop policy if exists "invited users can insert restaurant reviews" on public.restaurant_reviews;
+drop policy if exists "authors can update own restaurant reviews" on public.restaurant_reviews;
+drop policy if exists "authors can delete own restaurant reviews" on public.restaurant_reviews;
 drop policy if exists "admin can insert watchlist items" on public.watchlist_items;
 drop policy if exists "admin can update watchlist items" on public.watchlist_items;
 drop policy if exists "admin can delete watchlist items" on public.watchlist_items;
@@ -65,6 +71,56 @@ create policy "authors can update own reviews"
 
 create policy "authors can delete own reviews"
   on public.reviews
+  for delete
+  to authenticated
+  using (
+    public.is_invited_user()
+    and author_id = auth.uid()
+  );
+
+create policy "admin can insert restaurant reviews"
+  on public.restaurant_reviews
+  for insert
+  to authenticated
+  with check ((auth.jwt() ->> 'email') = 'your-email@example.com');
+
+create policy "admin can update restaurant reviews"
+  on public.restaurant_reviews
+  for update
+  to authenticated
+  using ((auth.jwt() ->> 'email') = 'your-email@example.com')
+  with check ((auth.jwt() ->> 'email') = 'your-email@example.com');
+
+create policy "admin can delete restaurant reviews"
+  on public.restaurant_reviews
+  for delete
+  to authenticated
+  using ((auth.jwt() ->> 'email') = 'your-email@example.com');
+
+create policy "invited users can insert restaurant reviews"
+  on public.restaurant_reviews
+  for insert
+  to authenticated
+  with check (
+    public.is_invited_user()
+    and author_id = auth.uid()
+  );
+
+create policy "authors can update own restaurant reviews"
+  on public.restaurant_reviews
+  for update
+  to authenticated
+  using (
+    public.is_invited_user()
+    and author_id = auth.uid()
+  )
+  with check (
+    public.is_invited_user()
+    and author_id = auth.uid()
+  );
+
+create policy "authors can delete own restaurant reviews"
+  on public.restaurant_reviews
   for delete
   to authenticated
   using (

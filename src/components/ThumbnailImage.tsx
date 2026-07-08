@@ -25,6 +25,20 @@ const fallbackToneClasses: Record<ThumbnailTone, string> = {
   watchlist: "from-[#e4f4f2] via-[#f4fbfa] to-[#d2ebe8] text-[#2f7f7a]",
 };
 
+function isGoogleImageSource(src: string) {
+  try {
+    const hostname = new URL(src).hostname;
+
+    return (
+      hostname === "maps.googleapis.com" ||
+      hostname === "places.googleapis.com" ||
+      hostname.endsWith(".googleusercontent.com")
+    );
+  } catch {
+    return false;
+  }
+}
+
 export function ThumbnailImage({
   src,
   alt,
@@ -67,6 +81,7 @@ export function ThumbnailImage({
       className={className}
       loading={loading}
       fetchPriority={fetchPriority}
+      unoptimized={isGoogleImageSource(imageSrc)}
       onError={() => setHasError(true)}
     />
   );

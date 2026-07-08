@@ -3,6 +3,7 @@ import { createSupabasePublicClient } from "@/lib/supabase/public";
 
 export type RestaurantsReview = {
   id: string;
+  scope: "domestic" | "overseas";
   title: string;
   storeName: string;
   category: "korean" | "japanese" | "chinese" | "western" | "asian" | "cafe" | "other";
@@ -30,6 +31,7 @@ export type ReviewSort = "created-desc" | "rating-desc";
 
 type RestaurantsReviewRow = {
   id: string;
+  scope: RestaurantsReview["scope"] | null;
   title: string;
   store_name: string;
   category: RestaurantsReview["category"];
@@ -54,6 +56,8 @@ type RestaurantsReviewRow = {
 };
 
 const restaurantsReviewSelect =
+  "id,scope,title,store_name,category,address,latitude,longitude,place_id,map_url,companion,will_revisit,has_parking,rating,visited_at,thumbnail,thumbnail_alt,summary,review,author_id,author_name,created_at,updated_at";
+const legacyRestaurantsReviewSelect =
   "id,title,store_name,category,address,latitude,longitude,place_id,map_url,companion,will_revisit,has_parking,rating,visited_at,thumbnail,thumbnail_alt,summary,review,author_id,author_name,created_at,updated_at";
 
 function formatAuthorName(value: string | null) {
@@ -71,6 +75,7 @@ function formatAuthorName(value: string | null) {
 function mapRestaurantsReviewRow(row: RestaurantsReviewRow): RestaurantsReview {
   return {
     id: row.id,
+    scope: row.scope ?? "domestic",
     title: row.title,
     storeName: row.store_name,
     category: row.category,
@@ -95,7 +100,11 @@ function mapRestaurantsReviewRow(row: RestaurantsReviewRow): RestaurantsReview {
   };
 }
 
-async function getRestaurantsReviewsFromSupabase() {
+export type RestaurantsReviewScope = RestaurantsReview["scope"];
+
+async function getRestaurantsReviewsFromSupabase(
+  scope: RestaurantsReviewScope = "domestic",
+) {
   const supabase = createSupabasePublicClient();
 
   if (!supabase) {
@@ -105,13 +114,27 @@ async function getRestaurantsReviewsFromSupabase() {
   const { data, error } = await supabase
     .from("restaurant_reviews")
     .select(restaurantsReviewSelect)
+    .eq("scope", scope)
     .order("created_at", { ascending: false });
 
-  if (error || !data) {
+  if (!error && data) {
+    return (data as RestaurantsReviewRow[]).map(mapRestaurantsReviewRow);
+  }
+
+  if (scope === "overseas") {
     return [];
   }
 
-  return (data as RestaurantsReviewRow[]).map(mapRestaurantsReviewRow);
+  const { data: legacyData, error: legacyError } = await supabase
+    .from("restaurant_reviews")
+    .select(legacyRestaurantsReviewSelect)
+    .order("created_at", { ascending: false });
+
+  if (legacyError || !legacyData) {
+    return [];
+  }
+
+  return (legacyData as RestaurantsReviewRow[]).map(mapRestaurantsReviewRow);
 }
 
 async function getRestaurantsReviewFromSupabase(id: string) {
@@ -127,11 +150,21 @@ async function getRestaurantsReviewFromSupabase(id: string) {
     .eq("id", id)
     .maybeSingle();
 
-  if (error || !data) {
+  if (!error && data) {
+    return mapRestaurantsReviewRow(data as RestaurantsReviewRow);
+  }
+
+  const { data: legacyData, error: legacyError } = await supabase
+    .from("restaurant_reviews")
+    .select(legacyRestaurantsReviewSelect)
+    .eq("id", id)
+    .maybeSingle();
+
+  if (legacyError || !legacyData) {
     return undefined;
   }
 
-  return mapRestaurantsReviewRow(data as RestaurantsReviewRow);
+  return mapRestaurantsReviewRow(legacyData as RestaurantsReviewRow);
 }
 
 export const getRestaurantsReviews = unstable_cache(

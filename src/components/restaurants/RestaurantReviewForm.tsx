@@ -10,6 +10,7 @@ type RestaurantsReviewFormProps = {
   action: (formData: FormData) => void | Promise<void>;
   submitLabel: string;
   restaurantsReview?: RestaurantsReview;
+  scope?: RestaurantsReview["scope"];
   showSlugField?: boolean;
 };
 
@@ -133,8 +134,20 @@ export function RestaurantsReviewForm({
   action,
   submitLabel,
   restaurantsReview,
+  scope,
   showSlugField = false,
 }: RestaurantsReviewFormProps) {
+  const reviewScope = scope ?? restaurantsReview?.scope ?? "domestic";
+  const isOverseas = reviewScope === "overseas";
+  const primaryButtonClass = isOverseas
+    ? "bg-[#0284c7] hover:bg-[#0369a1]"
+    : "bg-[#e57632] hover:bg-[#a83f3d]";
+  const secondaryButtonClass = isOverseas
+    ? "hover:border-[#0284c7] hover:text-[#0284c7]"
+    : "hover:border-[#e57632] hover:text-[#e57632]";
+  const focusInputClass = isOverseas
+    ? "focus:border-[#0284c7]"
+    : "focus:border-[#e57632]";
   const currentThumbnailName = getFileNameFromPath(restaurantsReview?.thumbnail);
   const [thumbnailStatus, setThumbnailStatus] = useState(
     currentThumbnailName
@@ -152,6 +165,7 @@ export function RestaurantsReviewForm({
           longitude: restaurantsReview.longitude ?? 0,
           placeId: restaurantsReview.placeId ?? "",
           mapUrl: restaurantsReview.mapUrl ?? "",
+          photoUrl: restaurantsReview.thumbnail,
       }
       : null,
   )
@@ -178,19 +192,38 @@ export function RestaurantsReviewForm({
 
   return (
     <form action={submitCompressedForm} className="grid gap-5">
+      <input type="hidden" name="scope" value={reviewScope} />
+
       {showSlugField ? (
         <label className="grid gap-2 text-sm font-bold">
           <FieldLabel>URL ID</FieldLabel>
           <input
             name="id"
             defaultValue={restaurantsReview?.id}
-            placeholder="예: my-favorite-restaurant"
-            className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#e57632] focus:bg-white"
+          placeholder="예: my-favorite-restaurant"
+          className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:bg-white ${focusInputClass}`}
           />
         </label>
       ) : null}
 
-      <PlaceSearch onSelectPlace={(data) => setPlaceData(data)}/>
+      <PlaceSearch
+        onSelectPlace={(data) => setPlaceData(data)}
+        label={isOverseas ? "일본 맛집 장소 검색" : "맛집 장소 검색"}
+        description={
+          isOverseas
+            ? "일본어 상호명으로 검색해도 됩니다. 장소를 선택하면 상호명, 주소, 위도/경도가 자동으로 입력됩니다."
+            : "Google Maps에서 장소를 선택하면 상호명, 주소, 위도/경도가 자동으로 입력됩니다."
+        }
+        placeholder={
+          isOverseas
+            ? "例: 天麩羅処ひらお, 一蘭 新宿, 鳥貴族 渋谷"
+            : "예: 강남 라멘, 성수 카페, 홍대 스시"
+        }
+        language={isOverseas ? "ja" : "ko"}
+        region={isOverseas ? "jp" : undefined}
+        includedRegionCodes={isOverseas ? ["jp"] : undefined}
+        tone={isOverseas ? "overseas" : "restaurant"}
+      />
 
       {placeData && (
         <>
@@ -199,18 +232,29 @@ export function RestaurantsReviewForm({
           <input type="hidden" name="longitude" value={placeData.longitude} />
           <input type="hidden" name="placeId" value={placeData.placeId} />
           <input type="hidden" name="mapUrl" value={placeData.mapUrl} />
+          {reviewScope === "overseas" && placeData.photoUrl ? (
+            <input type="hidden" name="thumbnail" value={placeData.photoUrl} />
+          ) : null}
         </>
       )}
 
+      {reviewScope === "overseas" ? (
+        <input
+          type="hidden"
+          name="title"
+          value={placeData?.storeName ?? restaurantsReview?.title ?? ""}
+        />
+      ) : (
       <label className="grid gap-2 text-sm font-bold">
         <FieldLabel required>제목</FieldLabel>
         <input
           name="title"
           defaultValue={restaurantsReview?.title}
           required
-          className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#e57632] focus:bg-white"
+          className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:bg-white ${focusInputClass}`}
         />
       </label>
+      )}
 
       <label className="grid gap-2 text-sm font-bold">
         <FieldLabel required>식당명</FieldLabel>
@@ -233,10 +277,33 @@ export function RestaurantsReviewForm({
           }
           required
           placeholder="위에 있는 구글 지도 검색을 이용하면 자동 입력됩니다."
-          className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#e57632] focus:bg-white"
+          className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:bg-white ${focusInputClass}`}
         />
       </label>
 
+      {reviewScope === "overseas" ? (
+        <>
+          <input type="hidden" name="category" value="other" />
+          <input type="hidden" name="companion" value="other" />
+          <input type="hidden" name="hasParking" value="false" />
+          <input type="hidden" name="willRevisit" value="false" />
+          <label className="grid gap-2 text-sm font-bold">
+            <FieldLabel required>별점</FieldLabel>
+            <input
+              name="rating"
+              type="number"
+              min="0"
+              max="5"
+              step="0.1"
+              defaultValue={restaurantsReview?.rating ?? 4}
+              required
+              className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:bg-white ${focusInputClass}`}
+            />
+          </label>
+        </>
+      ) : null}
+
+      {reviewScope === "domestic" ? (
       <div className="grid gap-5 sm:grid-cols-3">
         <label className="grid gap-2 text-sm font-bold">
           <FieldLabel required>카테고리</FieldLabel>
@@ -244,7 +311,7 @@ export function RestaurantsReviewForm({
               name="category"
               defaultValue={restaurantsReview?.category ?? "korean"}
               required
-              className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#e57632] focus:bg-white"
+          className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:bg-white ${focusInputClass}`}
             >
               <option value="korean">한식</option>
               <option value="japanese">일식</option>
@@ -262,7 +329,7 @@ export function RestaurantsReviewForm({
               name="companion"
               defaultValue={restaurantsReview?.companion ?? "solo"}
               required
-              className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#e57632] focus:bg-white"
+              className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:bg-white ${focusInputClass}`}
             >
               <option value="solo">혼밥</option>
               <option value="date">데이트</option>
@@ -324,7 +391,10 @@ export function RestaurantsReviewForm({
             </select>
         </label>
       </div>
+      ) : null}
 
+      {reviewScope === "domestic" ? (
+      <>
       <input type="hidden" name="thumbnail" value={restaurantsReview?.thumbnail ?? ""} />
 
       <label className="grid gap-2 text-sm font-bold rounded-lg border border-[#ddd6cc] bg-[#fbfaf7] p-4">
@@ -370,6 +440,8 @@ export function RestaurantsReviewForm({
           </span>
         </div>
       </label>
+      </>
+      ) : null}
 
       <label className="grid gap-2 text-sm font-bold">
         <FieldLabel required>요약</FieldLabel>
@@ -378,7 +450,7 @@ export function RestaurantsReviewForm({
           defaultValue={restaurantsReview?.summary}
           required
           rows={3}
-          className="resize-y rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal leading-7 outline-none transition focus:border-[#e57632] focus:bg-white"
+          className={`resize-y rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal leading-7 outline-none transition focus:bg-white ${focusInputClass}`}
         />
       </label>
 
@@ -389,7 +461,7 @@ export function RestaurantsReviewForm({
           defaultValue={restaurantsReview?.review}
           required
           rows={8}
-          className="resize-y rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal leading-7 outline-none transition focus:border-[#e57632] focus:bg-white"
+          className={`resize-y rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal leading-7 outline-none transition focus:bg-white ${focusInputClass}`}
         />
       </label>
 
@@ -397,13 +469,13 @@ export function RestaurantsReviewForm({
         <button
           type="submit"
           disabled={isCompressing}
-          className="rounded-md bg-[#e57632] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#a83f3d]"
+          className={`rounded-md px-5 py-3 text-sm font-bold text-white shadow-sm transition ${primaryButtonClass}`}
         >
           {isCompressing ? "이미지 압축 중..." : submitLabel}
         </button>
         <Link
           href={restaurantsReview ? `/restaurants/${restaurantsReview.id}` : "/reviews"}
-          className="rounded-md border border-[#d8cfc2] bg-white px-5 py-3 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#e57632] hover:text-[#e57632]"
+          className={`rounded-md border border-[#d8cfc2] bg-white px-5 py-3 text-sm font-bold text-[#52616b] shadow-sm transition ${secondaryButtonClass}`}
         >
           취소
         </Link>

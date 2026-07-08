@@ -60,6 +60,50 @@ create policy "watchlist items are publicly readable"
   for select
   using (true);
 
+create table if not exists public.restaurant_reviews (
+  id text primary key,
+  scope text not null default 'domestic' check (scope in ('domestic', 'overseas')),
+  title text not null,
+  store_name text not null,
+  category text not null check (category in ('korean', 'japanese', 'chinese', 'western', 'asian', 'cafe', 'other')),
+  address text,
+  latitude double precision,
+  longitude double precision,
+  place_id text,
+  map_url text,
+  companion text not null check (companion in ('solo', 'date', 'friends', 'family', 'business', 'other')),
+  will_revisit text not null,
+  has_parking text,
+  rating numeric(2, 1) not null check (rating >= 0 and rating <= 5),
+  visited_at date not null,
+  thumbnail text,
+  thumbnail_alt text,
+  summary text not null,
+  review text not null,
+  author_id uuid references auth.users(id) on delete set null,
+  author_name text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table if exists public.restaurant_reviews
+  add column if not exists scope text not null default 'domestic'
+    check (scope in ('domestic', 'overseas')),
+  add column if not exists author_id uuid references auth.users(id) on delete set null,
+  add column if not exists author_name text;
+
+alter table public.restaurant_reviews enable row level security;
+
+drop policy if exists "restaurant reviews are publicly readable" on public.restaurant_reviews;
+
+create policy "restaurant reviews are publicly readable"
+  on public.restaurant_reviews
+  for select
+  using (true);
+
+create index if not exists restaurant_reviews_scope_idx
+  on public.restaurant_reviews (scope);
+
 create table if not exists public.invite_codes (
   id uuid primary key default gen_random_uuid(),
   code text not null unique,

@@ -12,6 +12,7 @@ const thumbnailBucket = "review-thumbnails";
 const maxThumbnailSize = 5 * 1024 * 1024;
 
 type RestaurantReviewPayload = {
+  scope: "domestic" | "overseas";
   title: string;
   store_name: string;
   category: "korean" | "japanese" | "chinese" | "western" | "asian" | "cafe" | "other";
@@ -49,25 +50,41 @@ function normalizeFileName(value: string) {
 }
 
 function readRestaurantReviewPayload(formData: FormData): RestaurantReviewPayload {
+  const scope = String(formData.get("scope") ?? "domestic") as RestaurantReviewPayload["scope"];
+  const isOverseasScope = scope === "overseas";
   const title = String(formData.get("title") ?? "").trim();
   const storeName = String(formData.get("storeName") ?? "").trim();
-  const category = String(formData.get("category") ?? "") as RestaurantReviewPayload["category"];
-  const companion = String(formData.get("companion") ?? "") as RestaurantReviewPayload["companion"];
+  const category = String(
+    formData.get("category") ?? (isOverseasScope ? "other" : ""),
+  ) as RestaurantReviewPayload["category"];
+  const companion = String(
+    formData.get("companion") ?? (isOverseasScope ? "other" : ""),
+  ) as RestaurantReviewPayload["companion"];
   const address = String(formData.get("address") ?? "");
   const latitude = Number(formData.get("latitude") ?? 0);
   const longitude = Number(formData.get("longitude") ?? 0);
   const placeId = String(formData.get("placeId") ?? "");
   const mapUrl = String(formData.get("mapUrl") ?? "");
-  const willRevisit = String(formData.get("willRevisit") ?? "");
-  const hasParking = String(formData.get("hasParking") ?? "");
+  const willRevisit = String(
+    formData.get("willRevisit") ?? (isOverseasScope ? "false" : ""),
+  );
+  const hasParking = String(
+    formData.get("hasParking") ?? (isOverseasScope ? "false" : ""),
+  );
   const rating = Number(formData.get("rating") ?? 0);
-  const visitedAt = String(formData.get("visitedAt") ?? "").trim();
+  const visitedAt =
+    String(formData.get("visitedAt") ?? "").trim() ||
+    (isOverseasScope ? new Date().toISOString().slice(0, 10) : "");
   const thumbnail = String(formData.get("thumbnail") ?? "").trim();
   const summary = String(formData.get("summary") ?? "").trim();
   const review = String(formData.get("review") ?? "").trim();
 
   if (!title || !summary || !review) {
     throw new Error("필수 리뷰 정보를 입력해 주세요.");
+  }
+
+  if (!["domestic", "overseas"].includes(scope)) {
+    throw new Error("올바른 맛집리뷰 유형을 선택해 주세요.");
   }
 
   if (!["korean", "japanese", "chinese", "western", "asian", "cafe", "other"].includes(category)) {
@@ -79,6 +96,7 @@ function readRestaurantReviewPayload(formData: FormData): RestaurantReviewPayloa
   }
 
   return {
+    scope,
     title,
     store_name: storeName,
     category,
@@ -206,6 +224,28 @@ async function uploadThumbnail(
   return publicUrl;
 }
 
+function revalidateRestaurantReviewPaths() {
+  updateTag("restaurants");
+  revalidatePath("/");
+  revalidatePath("/restaurants");
+  revalidatePath("/restaurants/items");
+  revalidatePath("/restaurants/map");
+}
+
+function isMissingScopeColumnError(error: { message?: string } | null) {
+  return Boolean(
+    error?.message?.toLowerCase().includes("scope") &&
+      error.message.toLowerCase().includes("column"),
+  );
+}
+
+function withoutScope(payload: RestaurantReviewPayload) {
+  const legacyPayload = { ...payload };
+  delete (legacyPayload as Partial<RestaurantReviewPayload>).scope;
+
+  return legacyPayload as Omit<RestaurantReviewPayload, "scope">;
+}
+
 export async function createRestaurantReview(formData: FormData) {
   const { supabase, user } = await requireSupabaseUser();
   const payload = readRestaurantReviewPayload(formData);
@@ -213,27 +253,39 @@ export async function createRestaurantReview(formData: FormData) {
   const id = normalizeSlug(requestedId || payload.title);
   const uploadedThumbnail = await uploadThumbnail(supabase, id, formData);
 
-  const { error } = await supabase.from("restaurant_reviews").insert({
+  const insertPayload = {
     ...payload,
     thumbnail: uploadedThumbnail ?? payload.thumbnail,
     author_id: user.id,
     author_name: getAuthorName(user),
     id,
-  });
+  };
 
-  if (error) {
+  const { error } = await supabase.from("restaurant_reviews").insert(insertPayload);
+
+  if (error && payload.scope === "domestic" && isMissingScopeColumnError(error)) {
+    const { error: legacyError } = await supabase.from("restaurant_reviews").insert({
+      ...withoutScope(payload),
+      thumbnail: uploadedThumbnail ?? payload.thumbnail,
+      author_id: user.id,
+      author_name: getAuthorName(user),
+      id,
+    });
+
+    if (legacyError) {
+      throw new Error(legacyError.message);
+    }
+  } else if (error) {
     throw new Error(error.message);
   }
+
 
   await notifyDiscord({
     title: "맛집 리뷰 작성",
     description: "새 리뷰가 작성되었습니다.",
   });
 
-  updateTag("restaurants");
-  revalidatePath("/");
-  revalidatePath("/restaurants");
-  revalidatePath("/restaurants/items");
+  revalidateRestaurantReviewPaths();
   redirect(`/restaurants/${id}`);
 }
 
@@ -243,16 +295,31 @@ export async function updateRestaurantReview(id: string, formData: FormData) {
   const payload = readRestaurantReviewPayload(formData);
   const uploadedThumbnail = await uploadThumbnail(supabase, id, formData);
 
+  const updatePayload = {
+    ...payload,
+    thumbnail: uploadedThumbnail ?? payload.thumbnail,
+    updated_at: new Date().toISOString(),
+  };
+
   const { error } = await supabase
     .from("restaurant_reviews")
-    .update({
-      ...payload,
-      thumbnail: uploadedThumbnail ?? payload.thumbnail,
-      updated_at: new Date().toISOString(),
-    })
+    .update(updatePayload)
     .eq("id", id);
 
-  if (error) {
+  if (error && payload.scope === "domestic" && isMissingScopeColumnError(error)) {
+    const { error: legacyError } = await supabase
+      .from("restaurant_reviews")
+      .update({
+        ...withoutScope(payload),
+        thumbnail: uploadedThumbnail ?? payload.thumbnail,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", id);
+
+    if (legacyError) {
+      throw new Error(legacyError.message);
+    }
+  } else if (error) {
     throw new Error(error.message);
   }
 
@@ -262,10 +329,7 @@ export async function updateRestaurantReview(id: string, formData: FormData) {
     color: 0x52616b,
   });
 
-  updateTag("restaurants");
-  revalidatePath("/");
-  revalidatePath("/restaurants");
-  revalidatePath("/restaurants/items");
+  revalidateRestaurantReviewPaths();
   revalidatePath(`/restaurants/${id}`);
   redirect(`/restaurants/${id}`);
 }
@@ -286,9 +350,6 @@ export async function deleteRestaurantReview(id: string) {
     color: 0xa73735,
   });
 
-  updateTag("restaurants");
-  revalidatePath("/");
-  revalidatePath("/restaurants");
-  revalidatePath("/restaurants/items");
+  revalidateRestaurantReviewPaths();
   redirect("/restaurants");
 }

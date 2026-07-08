@@ -1,12 +1,12 @@
-import { Search, Star, X } from "lucide-react";
-import Image from "next/image";
+import { MapPinned, Search, Star, X } from "lucide-react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
+import { ThumbnailImage } from "@/components/ThumbnailImage";
 import {
-  getRestaurantsReviews,
-  sortRestaurantsReviews,
   categoryLabel,
   categoryTheme,
+  getRestaurantsReviews,
+  sortRestaurantsReviews,
   type RestaurantsReview,
   type ReviewSort,
 } from "@/data/restaurants";
@@ -16,6 +16,7 @@ type RestaurantsReviewsPageProps = {
     q?: string | string[];
     sort?: string | string[];
     category?: string | string[];
+    scope?: string | string[];
   }>;
 };
 
@@ -34,47 +35,46 @@ const sortOptions: { value: ReviewSort; label: string }[] = [
 ];
 
 const categoryOptions: { value: ReviewCategoryFilter; label: string }[] = [
-  {
-    value: "all",
-    label: "전체",
-  },
-  {
-    value: "korean",
-    label: "한식",
-  },
-  {
-    value: "japanese",
-    label: "일식",
-  },
-  {
-    value: "western",
-    label: "양식",
-  },
-  {
-    value: "chinese",
-    label: "중식",
-  },
-  {
-    value: "asian",
-    label: "아시아",
-  },
-  {
-    value: "cafe",
-    label: "카페",
-  },
-  {
-    value: "other",
-    label: "기타",
-  },
+  { value: "all", label: "전체" },
+  { value: "korean", label: "한식" },
+  { value: "japanese", label: "일식" },
+  { value: "western", label: "양식" },
+  { value: "chinese", label: "중식" },
+  { value: "asian", label: "아시안" },
+  { value: "cafe", label: "카페" },
+  { value: "other", label: "기타" },
 ];
 
-export default async function RestaurantsReviewsPage({ searchParams }: RestaurantsReviewsPageProps) {
+export default async function RestaurantsReviewsPage({
+  searchParams,
+}: RestaurantsReviewsPageProps) {
   const params = await searchParams;
   const activeQuery = parseSearchValue(params?.q);
   const activeSort = parseSort(params?.sort);
-  const activeCategory = parseCategory(params?.category);
+  const activeScope = parseScope(params?.scope);
+  const isOverseas = activeScope === "overseas";
+  const activeCategory = isOverseas ? "all" : parseCategory(params?.category);
+  const accentText = isOverseas ? "text-[#0284c7]" : "text-[#e57632]";
+  const accentBorder = isOverseas ? "border-[#0284c7]" : "border-[#e57632]";
+  const focusBorder = isOverseas ? "focus:border-[#0284c7]" : "focus:border-[#e57632]";
+  const accentBg = isOverseas ? "bg-[#0284c7]" : "bg-[#e57632]";
+  const accentHoverBg = isOverseas ? "hover:bg-[#0369a1]" : "hover:bg-[#c85a17]";
+  const softActive = isOverseas
+    ? "border-[#0284c7] bg-[#e0f2fe] text-[#075985]"
+    : "border-[#e57632] bg-[#fff7f5] text-[#e57632]";
+  const softHover = isOverseas
+    ? "hover:border-[#0284c7] hover:text-[#0284c7]"
+    : "hover:border-[#e57632] hover:text-[#e57632]";
+  const cardBorder = isOverseas ? "border-l-[#0284c7]" : "";
+  const badgeClass = isOverseas
+    ? "bg-[#e0f2fe] text-[#075985]"
+    : "";
   const restaurantsReviews = sortRestaurantsReviews(
-    filterReviews(await getRestaurantsReviews(), activeQuery, activeCategory),
+    filterReviews(
+      await getRestaurantsReviews(activeScope),
+      activeQuery,
+      activeCategory,
+    ),
     activeSort,
   );
   const isFiltered = Boolean(activeQuery) || activeCategory !== "all";
@@ -82,21 +82,39 @@ export default async function RestaurantsReviewsPage({ searchParams }: Restauran
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
       <section className="mx-auto w-full max-w-5xl">
-        <AppNav active="restaurants" />
+        <AppNav active={isOverseas ? "restaurant-map" : "restaurants"} />
 
         <header className="py-10">
-          <p className="text-sm font-semibold text-[#e57632]">Restaurant</p>
-          <h1 className="mt-3 text-3xl font-bold sm:text-4xl">전체 리뷰</h1>
-          <p className="mt-4 max-w-2xl leading-7 text-[#52616b]">
-            맛집의 기록을 한곳에서 확인할 수 있습니다.
+          <p className={`text-sm font-semibold ${accentText}`}>
+            {isOverseas ? "Overseas Restaurant" : "Restaurant"}
           </p>
+          <h1 className="mt-3 text-3xl font-bold sm:text-4xl">
+            {isOverseas ? "해외 맛집리뷰 목록" : "전체 맛집리뷰"}
+          </h1>
+          <p className="mt-4 max-w-2xl leading-7 text-[#52616b]">
+            {isOverseas
+              ? "지도에 등록된 해외 맛집리뷰를 목록으로 확인합니다."
+              : "맛집의 기록을 한곳에서 확인할 수 있습니다."}
+          </p>
+          {isOverseas ? (
+            <Link
+              href="/restaurants/map"
+              className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#0284c7] px-4 text-sm font-bold text-white shadow-sm transition hover:bg-[#0369a1]"
+            >
+              <MapPinned size={17} />
+              지도로 보기
+            </Link>
+          ) : null}
         </header>
 
         <section className="mb-8 rounded-lg border border-[#ddd6cc] bg-white p-4 shadow-sm">
           <form
-            action="/restaurants"
+            action="/restaurants/items"
             className="grid gap-3 md:grid-cols-[1fr_auto_auto] md:items-center"
           >
+            {isOverseas ? (
+              <input type="hidden" name="scope" value="overseas" />
+            ) : null}
             {activeCategory !== "all" ? (
               <input type="hidden" name="category" value={activeCategory} />
             ) : null}
@@ -112,13 +130,13 @@ export default async function RestaurantsReviewsPage({ searchParams }: Restauran
                 name="q"
                 type="search"
                 defaultValue={activeQuery}
-                placeholder="제목, 장르, 요약 검색"
-                className="h-11 w-full rounded-md border border-[#d8cfc2] bg-[#fbfaf7] pr-3 pl-10 text-sm font-semibold outline-none transition placeholder:text-[#8a95a1] focus:border-[#e57632] focus:bg-white"
+                placeholder="제목, 상호명, 요약 검색"
+                className={`h-11 w-full rounded-md border border-[#d8cfc2] bg-[#fbfaf7] pr-3 pl-10 text-sm font-semibold outline-none transition placeholder:text-[#8a95a1] ${focusBorder} focus:bg-white`}
               />
             </label>
             <button
               type="submit"
-              className="inline-flex h-11 items-center justify-center rounded-md bg-[#e57632] px-4 text-sm font-bold text-white shadow-sm transition hover:bg-[#c85a17]"
+              className={`inline-flex h-11 items-center justify-center rounded-md px-4 text-sm font-bold text-white shadow-sm transition ${accentBg} ${accentHoverBg}`}
             >
               검색
             </button>
@@ -128,8 +146,9 @@ export default async function RestaurantsReviewsPage({ searchParams }: Restauran
                   query: "",
                   category: "all",
                   sort: activeSort,
+                  scope: activeScope,
                 })}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#e57632] hover:text-[#e57632]"
+                className={`inline-flex h-11 items-center justify-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 text-sm font-bold text-[#52616b] shadow-sm transition ${softHover}`}
               >
                 <X size={16} />
                 초기화
@@ -138,22 +157,54 @@ export default async function RestaurantsReviewsPage({ searchParams }: Restauran
           </form>
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+            {!isOverseas ? (
+              <div className="flex flex-wrap gap-2">
+                {categoryOptions.map((option) => {
+                  const isActive = option.value === activeCategory;
+
+                  return (
+                    <Link
+                      key={option.value}
+                      href={buildReviewsHref({
+                        query: activeQuery,
+                        category: option.value,
+                        sort: activeSort,
+                        scope: activeScope,
+                      })}
+                      className={`rounded-md border px-3 py-2 text-sm font-bold transition ${
+                        isActive
+                          ? softActive
+                          : `border-[#d8cfc2] bg-white text-[#52616b] ${softHover}`
+                      }`}
+                    >
+                      {option.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-sm font-semibold text-[#6b7280]">
+                해외 맛집은 Google Maps 장소 기준으로 정리됩니다.
+              </div>
+            )}
+
             <div className="flex flex-wrap gap-2">
-              {categoryOptions.map((option) => {
-                const isActive = option.value === activeCategory;
+              {sortOptions.map((option) => {
+                const isActive = option.value === activeSort;
 
                 return (
                   <Link
                     key={option.value}
                     href={buildReviewsHref({
                       query: activeQuery,
-                      category: option.value,
-                      sort: activeSort,
+                      category: activeCategory,
+                      sort: option.value,
+                      scope: activeScope,
                     })}
-                    className={`rounded-md border px-3 py-2 text-sm font-bold transition ${
+                    className={`rounded-md border px-4 py-2 text-sm font-bold shadow-sm transition ${
                       isActive
-                        ? "border-[#e57632] bg-[#fff7f5] text-[#e57632]"
-                        : "border-[#d8cfc2] bg-white text-[#52616b] hover:border-[#e57632] hover:text-[#e57632]"
+                        ? `${accentBorder} ${accentBg} text-white`
+                        : `border-[#d8cfc2] bg-white text-[#52616b] ${softHover}`
                     }`}
                   >
                     {option.label}
@@ -161,34 +212,12 @@ export default async function RestaurantsReviewsPage({ searchParams }: Restauran
                 );
               })}
             </div>
-
-            <div className="flex flex-wrap gap-2">
-            {sortOptions.map((option) => {
-              const isActive = option.value === activeSort;
-
-              return (
-                <Link
-                  key={option.value}
-                    href={buildReviewsHref({
-                      query: activeQuery,
-                      category: activeCategory,
-                      sort: option.value,
-                    })}
-                  className={`rounded-md border px-4 py-2 text-sm font-bold shadow-sm transition ${
-                    isActive
-                      ? "border-[#e57632] bg-[#e57632] text-white"
-                      : "border-[#d8cfc2] bg-white text-[#52616b] hover:border-[#e57632] hover:text-[#c85a17]"
-                  }`}
-                >
-                  {option.label}
-                </Link>
-              );
-            })}
-            </div>
           </div>
 
           <p className="mt-4 text-sm font-semibold text-[#6b7280]">
-            {isFiltered ? `검색 결과 ${restaurantsReviews.length}개` : `전체 ${restaurantsReviews.length}개`}
+            {isFiltered
+              ? `검색 결과 ${restaurantsReviews.length}개`
+              : `전체 ${restaurantsReviews.length}개`}
           </p>
         </section>
 
@@ -198,38 +227,40 @@ export default async function RestaurantsReviewsPage({ searchParams }: Restauran
               const theme = categoryTheme(review.category);
               const isAboveFoldImage = index < 3;
               const isFirstImage = index === 0;
+              const title = isOverseas ? review.storeName : review.title;
 
               return (
                 <Link
                   key={review.id}
                   href={`/restaurants/${review.id}`}
-                  className={`overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] ${theme.border} bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md`}
+                  className={`overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] ${isOverseas ? cardBorder : theme.border} bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md`}
                 >
-                  <Image
+                  <ThumbnailImage
                     src={review.thumbnail}
                     alt={review.thumbnailAlt}
-                    width={960}
-                    height={540}
-                    className="aspect-video w-full object-cover"
+                    title={title}
+                    label={isOverseas ? "해외 맛집" : categoryLabel(review.category)}
                     loading={isAboveFoldImage ? "eager" : "lazy"}
                     fetchPriority={isFirstImage ? "high" : "auto"}
                   />
                   <div className="p-5">
                     <div className="flex items-start justify-between gap-3">
                       <span
-                        className={`rounded-md px-3 py-1 text-xs font-bold ${theme.badge}`}
+                        className={`rounded-md px-3 py-1 text-xs font-bold ${isOverseas ? badgeClass : theme.badge}`}
                       >
-                        {categoryLabel(review.category)}
+                        {isOverseas ? "해외 맛집" : categoryLabel(review.category)}
                       </span>
                       <span className="flex items-center gap-1 text-sm font-bold">
                         <Star size={15} fill="#f2b84b" color="#f2b84b" />
                         {review.rating}
                       </span>
                     </div>
-                    <h2 className="mt-5 text-xl font-bold">{review.title}</h2>
-                    <p className="mt-2 line-clamp-1 text-sm text-[#6b7280]">
-                      {review.companion}
-                    </p>
+                    <h2 className="mt-5 text-xl font-bold">{title}</h2>
+                    {review.address ? (
+                      <p className="mt-2 line-clamp-1 text-sm text-[#6b7280]">
+                        {review.address}
+                      </p>
+                    ) : null}
                     <p className="mt-4 line-clamp-3 whitespace-pre-wrap text-sm leading-6 text-[#3f4a54]">
                       {review.summary}
                     </p>
@@ -241,7 +272,7 @@ export default async function RestaurantsReviewsPage({ searchParams }: Restauran
                           <span className="mx-2 text-[#d4c9bb]">·</span>
                         </>
                       ) : null}
-                      <span className="text-[#9b4a43]">작성일: </span>{" "}
+                      <span className="text-[#9b4a43]">작성일:</span>{" "}
                       {formatFullDate(review.createdAt)}
                     </p>
                   </div>
@@ -282,12 +313,18 @@ function parseCategory(value: string | string[] | undefined): ReviewCategoryFilt
     categoryValue === "chinese" ||
     categoryValue === "asian" ||
     categoryValue === "cafe" ||
-    categoryValue === "other" 
+    categoryValue === "other"
   ) {
     return categoryValue;
   }
 
   return "all";
+}
+
+function parseScope(value: string | string[] | undefined): RestaurantsReview["scope"] {
+  const scopeValue = Array.isArray(value) ? value[0] : value;
+
+  return scopeValue === "overseas" ? "overseas" : "domestic";
 }
 
 function parseSearchValue(value: string | string[] | undefined) {
@@ -316,11 +353,14 @@ function filterReviews(
 
     return [
       review.title,
+      review.storeName,
       categoryLabel(review.category),
+      review.address,
       review.summary,
       review.review,
-      ...review.companion,
+      review.companion,
     ]
+      .filter(Boolean)
       .join(" ")
       .toLowerCase()
       .includes(normalizedQuery);
@@ -331,10 +371,12 @@ function buildReviewsHref({
   query,
   category,
   sort,
+  scope,
 }: {
   query: string;
   category: ReviewCategoryFilter;
   sort: ReviewSort;
+  scope: RestaurantsReview["scope"];
 }) {
   const params = new URLSearchParams();
   const trimmedQuery = query.trim();
@@ -349,6 +391,10 @@ function buildReviewsHref({
 
   if (sort !== "created-desc") {
     params.set("sort", sort);
+  }
+
+  if (scope === "overseas") {
+    params.set("scope", "overseas");
   }
 
   const queryString = params.toString();
