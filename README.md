@@ -1,10 +1,7 @@
-# 취향보관소
+# 취향 보관소
 
-![취향보관소 메인 화면](src/assets/image/image.png)
-
-영화, 애니, 게임, 드라마의 감상 기록과 기대작을 한곳에 모아두는 개인 콘텐츠 아카이브임.
-
-리뷰는 본 작품을 기록하는 공간이고, 기대작은 아직 보지 않은 작품을 따로 묶어두는 공간임. Supabase로 인증, 데이터베이스, 썸네일 저장소를 관리하고 Vercel로 배포함.
+영화, 애니, 게임, 드라마, 맛집과 기대작을 기록하는 개인 취향 아카이브입니다.  
+Supabase 기반 인증/데이터/스토리지와 Next.js App Router를 사용하며, 초대 코드로 가입한 사용자만 글을 작성할 수 있습니다.
 
 ## 배포 주소
 
@@ -14,23 +11,20 @@ https://web-project-omega-ruby-60.vercel.app
 
 ## 주요 기능
 
-- 리뷰 홈, 리뷰 목록, 리뷰 상세 페이지 제공
-- 기대작 홈, 기대작 목록, 기대작 상세 페이지 제공
-- 영화, 애니, 게임, 드라마 카테고리 분류
-- 제목, 장르, 별점, 감상일, 요약, 감상평 기록
-- 기대 상태, 공개/출시 라벨, 기대 이유 기록
-- Supabase Database 기반 콘텐츠 조회
-- Supabase Storage 기반 썸네일 업로드
-- 업로드 이미지 압축 후 저장
-- YouTube URL 입력 시 영상 인식 미리보기 제공
-- 리뷰/기대작 상세에서 관련 영상 임베드
-- 검색, 정렬, 이전/다음 글 이동 지원
-- 초대 코드 기반 회원가입
-- 관리자 전용 초대 코드 생성/폐기
-- 작성자 본인 또는 관리자만 수정/삭제 가능
-- 삭제/로그아웃 확인 모달 제공
+- 리뷰: 영화, 애니, 게임, 드라마 감상 기록
+- 기대작: 공개 예정 작품과 기대 이유 기록
+- 맛집리뷰: 국내 맛집 리뷰 목록, 상세, 작성/수정
+- 해외 맛집리뷰 지도: Google Maps 장소 검색 기반 해외 맛집 리뷰와 지도 보기
+- 초대 코드 회원가입: 관리자 발급 링크로만 가입 가능
+- 권한 관리: 작성자는 본인 글만 수정/삭제, 관리자는 전체 관리
+- 관리자 페이지: 초대 코드 생성, 복사, 폐기, 사용 현황 요약
+- 이미지 업로드: Supabase Storage에 WebP 변환 후 저장
+- YouTube 미리보기: 리뷰/기대작 작성 시 URL 인식 및 상세 페이지 임베드
+- 검색, 정렬, 페이지네이션
+- 로그인/로그아웃 상태 토스트
+- Discord Webhook 기반 앱 내부 이벤트 알림
+- GitHub Actions 빌드 체크 및 Discord 빌드 알림
 - Vercel Analytics, Speed Insights 적용
-- 로컬 WOFF 폰트 전체 적용
 
 ## 기술 스택
 
@@ -38,129 +32,142 @@ https://web-project-omega-ruby-60.vercel.app
 - React 19
 - TypeScript
 - Tailwind CSS 4
-- Supabase Auth
-- Supabase Database
-- Supabase Storage
+- Supabase Auth, Database, Storage
+- Google Maps JavaScript API, Places API
+- Discord Webhook
+- GitHub Actions
 - Vercel
-- Vercel Analytics
-- Vercel Speed Insights
 - lucide-react
 
 ## 시작하기
 
-의존성 설치.
+의존성 설치:
 
 ```bash
 npm install
 ```
 
-개발 서버 실행.
+개발 서버 실행:
 
 ```bash
 npm run dev
 ```
 
-브라우저 접속.
+로컬 접속:
 
 ```txt
-http://localhost:3000
+http://localhost:4281
 ```
 
-프로덕션 빌드 확인.
+빌드 확인:
 
 ```bash
 npm run build
 ```
 
-린트 확인.
+린트 확인:
 
 ```bash
 npm run lint
 ```
 
-## 환경 변수
+## 환경변수
 
-`.env.example`을 참고해서 `.env.local` 생성 필요.
+`.env.example`을 참고해 `.env.local`을 생성합니다.
 
 ```txt
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+NEXT_PUBLIC_SITE_URL=
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=
+NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID=
 ADMIN_EMAILS=
+DISCORD_MONITORING_WEBHOOK_URL=
 ```
 
-`ADMIN_EMAILS`에는 관리자 이메일을 쉼표로 구분해서 넣으면 됨.
+`ADMIN_EMAILS`는 관리자 이메일을 쉼표로 구분해 입력합니다.
 
 ```txt
 ADMIN_EMAILS=admin@example.com,another-admin@example.com
 ```
 
-Vercel 배포 시에도 같은 값을 Project Settings의 Environment Variables에 추가해야 함.
+주의:
+
+- `.env.local`은 Git에 커밋하지 않습니다.
+- Google Maps API Key와 Discord Webhook URL은 실제 비밀값입니다.
+- Vercel 배포 시 Project Settings > Environment Variables에 같은 값을 등록합니다.
+
+## Google Maps 설정
+
+해외 맛집리뷰 지도와 장소 검색을 사용하려면 Google Cloud에서 아래 항목이 필요합니다.
+
+- Maps JavaScript API 활성화
+- Places API 활성화
+- API Key 생성
+- Map ID 생성
+- API Key 애플리케이션 제한에 도메인 추가
+
+로컬 개발용 HTTP 리퍼러 예시:
 
 ```txt
-Vercel > Project Settings > Environment Variables
+http://localhost:4281/*
 ```
+
+배포 환경용 HTTP 리퍼러 예시:
+
+```txt
+https://your-domain.vercel.app/*
+```
+
+비용 안전장치로 Google Cloud Billing에서 월 예산과 알림을 설정하고, API별 일일/분당 할당량을 낮게 잡아두는 것을 권장합니다.
 
 ## Supabase 설정
 
-Supabase 프로젝트 생성 후 SQL Editor에서 아래 순서로 실행하면 됨.
+Supabase 프로젝트 생성 후 SQL Editor에서 아래 순서로 실행합니다.
 
 1. `supabase/schema.sql`
 2. `supabase/admin-policies.example.sql`
-3. `supabase/seed.sql`, 샘플 데이터가 필요할 때만 실행
 
-`admin-policies.example.sql`의 아래 값은 실제 관리자 이메일로 바꿔서 실행해야 함.
+`admin-policies.example.sql` 실행 전 아래 값을 실제 관리자 이메일로 바꿉니다.
 
 ```sql
 'your-email@example.com'
 ```
 
-예시.
+예시:
 
 ```sql
 'admin@example.com'
 ```
 
-## SQL 쿼리 관리
+`schema.sql`에는 다음 항목이 포함됩니다.
 
-Supabase SQL Editor에서는 이렇게 나눠두면 관리하기 편함.
+- `reviews`
+- `watchlist_items`
+- `restaurant_reviews`
+- `invite_codes`
+- `invite_code_uses`
+- 초대 코드 검증/사용 RPC
+- 공개 조회 RLS 정책
+- `review-thumbnails` Storage bucket
 
-```txt
-Shared
-- Setup Review App Schema
-```
+`admin-policies.example.sql`에는 다음 권한 정책이 포함됩니다.
 
-`supabase/schema.sql` 내용. 테이블, 컬럼, Storage bucket, 공개 조회 정책, 초대 코드 함수가 들어있음.
+- 관리자: 전체 글 작성/수정/삭제, 초대 코드 관리
+- 초대 가입 사용자: 글 작성 가능
+- 작성자: 본인 글 수정/삭제 가능
+- Storage: 초대 가입 사용자와 관리자만 이미지 업로드 가능
 
-```txt
-Private
-- Admin Review Policies
-```
+## 초대 회원가입 흐름
 
-`supabase/admin-policies.example.sql` 내용. 관리자 이메일을 실제 값으로 바꾼 뒤 저장하는 용도임.
+1. 관리자가 `/admin`에서 초대 코드를 생성합니다.
+2. 생성된 `/signup?invite=...` 링크를 사용자에게 공유합니다.
+3. 사용자는 이름, 이메일, 비밀번호를 입력하고 가입합니다.
+4. 이메일 인증이 필요한 경우 인증 메일 확인 후 로그인합니다.
+5. 로그인 시 초대 코드 사용 내역이 `invite_code_uses`에 기록됩니다.
+6. 초대 사용 내역이 있는 사용자만 글 작성 권한을 얻습니다.
 
-```txt
-Private, optional
-- Seed Sample Data
-```
-
-`supabase/seed.sql` 내용. 샘플 리뷰가 필요할 때만 실행하면 됨.
-
-## 인증과 권한
-
-기본 구조는 초대 기반 회원가입임.
-
-관리자는 `/admin`에서 초대 코드를 만들 수 있음. 초대받은 사용자는 `/signup?invite=초대코드` 형태의 링크로 가입함.
-
-회원가입 후 이메일 인증을 완료하면 로그인 가능함. 초대 코드 사용 기록은 `invite_code_uses` 테이블에 저장됨.
-
-권한 기준은 다음과 같음.
-
-- 비로그인 사용자: 리뷰/기대작 조회 가능
-- 초대 가입 사용자: 리뷰/기대작 작성 가능
-- 작성자 본인: 본인 글 수정/삭제 가능
-- 관리자: 모든 글 수정/삭제 가능, 초대 코드 관리 가능
-
-작성 권한이 이상하면 먼저 아래 테이블 확인하면 됨.
+초대 코드 사용 기록 확인 예시:
 
 ```sql
 select *
@@ -172,16 +179,23 @@ where user_id = (
 );
 ```
 
-row가 없으면 초대 사용자로 연결되지 않은 상태임.
+## 콘텐츠 권한
+
+- 비로그인 사용자: 목록/상세 조회 가능
+- 초대 가입 사용자: 리뷰, 기대작, 맛집리뷰 작성 가능
+- 작성자 본인: 본인 글 수정/삭제 가능
+- 관리자: 모든 글 수정/삭제 및 초대 코드 관리 가능
+
+관리자 여부는 `ADMIN_EMAILS` 기준으로 판단합니다.
 
 ## 주요 페이지
 
 ```txt
 /
-리뷰 홈
+홈
 
 /reviews
-전체 리뷰 목록
+리뷰 목록
 
 /reviews/[id]
 리뷰 상세
@@ -190,13 +204,34 @@ row가 없으면 초대 사용자로 연결되지 않은 상태임.
 기대작 홈
 
 /watchlist/items
-전체 기대작 목록
+기대작 목록
 
 /watchlist/[id]
 기대작 상세
 
+/restaurants
+국내 맛집리뷰 홈
+
+/restaurants/items
+국내 맛집리뷰 목록
+
+/restaurants/items?scope=overseas
+해외 맛집리뷰 목록
+
+/restaurants/map
+해외 맛집리뷰 지도
+
+/restaurants/[id]
+맛집리뷰 상세
+
 /new
-리뷰/기대작 작성 유형 선택
+글 작성 유형 선택
+
+/new?type=restaurants
+국내 맛집리뷰 작성
+
+/new?type=overseas-restaurants
+해외 맛집리뷰 작성
 
 /login
 로그인
@@ -205,35 +240,56 @@ row가 없으면 초대 사용자로 연결되지 않은 상태임.
 초대 회원가입
 
 /admin
-초대 코드 관리
+관리자 페이지
 ```
 
-## 썸네일 업로드
+## 맛집리뷰 구분
 
-리뷰와 기대작 작성/수정 화면에서 이미지 파일 업로드 가능함.
+맛집리뷰는 `restaurant_reviews.scope`로 구분합니다.
 
-업로드한 파일은 브라우저에서 WebP로 압축 후 Supabase Storage의 `review-thumbnails` bucket에 저장됨.
+- `domestic`: 기존 국내 맛집리뷰
+- `overseas`: Google Maps 장소 검색 기반 해외 맛집리뷰
 
-저장 경로 형식.
+국내 맛집리뷰는 기존처럼 카테고리, 방문 유형, 주차 여부, 재방문 의사, 방문일 등을 기록합니다.  
+해외 맛집리뷰는 지도 표시를 중심으로 식당명, 주소, 좌표, Google Maps URL, 별점, 요약, 리뷰를 기록합니다.
+
+## 이미지와 썸네일
+
+일반 리뷰/기대작/국내 맛집리뷰는 이미지 파일 업로드를 지원합니다.
+
+- 브라우저에서 WebP로 변환
+- Supabase Storage `review-thumbnails` bucket에 저장
+- 저장 경로: `review-thumbnails/{contentId}/{fileName}`
+
+해외 맛집리뷰는 Google Places 장소 사진이 있으면 해당 URL을 썸네일로 사용합니다.
+
+## Discord 알림
+
+앱 내부 이벤트는 `DISCORD_MONITORING_WEBHOOK_URL`로 전송할 수 있습니다.
+
+현재 용도:
+
+- 초대 코드 생성
+- 리뷰 작성
+- 기대작 작성
+- 맛집리뷰 작성
+
+GitHub Actions 빌드 알림은 GitHub Repository Secret의 `DISCORD_BUILD_WEBHOOK_URL`을 사용합니다.
+
+## GitHub Actions
+
+`.github/workflows/build-check.yml`에서 빌드 체크를 수행합니다.
+
+필요한 Repository Secrets:
 
 ```txt
-review-thumbnails/{contentId}/{fileName}
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+ADMIN_EMAILS
+DISCORD_BUILD_WEBHOOK_URL
 ```
 
-업로드 후 public URL이 각 콘텐츠의 `thumbnail` 컬럼에 저장됨. `thumbnail_alt`는 제목 기반으로 자동 생성됨.
-
-## YouTube 영상
-
-리뷰와 기대작 모두 YouTube URL 입력 가능함.
-
-지원 형태.
-
-```txt
-https://www.youtube.com/watch?v=VIDEO_ID
-https://youtu.be/VIDEO_ID
-```
-
-입력 시 영상 ID를 인식하면 미리보기 썸네일과 안내 문구가 표시됨. 상세 페이지에서는 iframe으로 영상이 표시됨.
+빌드 성공/실패 결과는 Discord로 알림을 보낼 수 있습니다.
 
 ## 프로젝트 구조
 
@@ -242,49 +298,55 @@ src/app
 Next.js App Router 페이지와 서버 액션
 
 src/app/actions
-리뷰, 기대작, 인증 관련 서버 액션
+리뷰, 기대작, 맛집, 인증 관련 서버 액션
 
 src/app/admin
-초대 코드 관리 페이지와 관리자 액션
+초대 코드 관리자 페이지
 
 src/components
-공통 UI, 내비게이션, 폼, 확인 모달
+공통 UI와 기능 컴포넌트
+
+src/components/common
+공통으로 재사용하는 UI 컴포넌트
 
 src/components/reviews
-리뷰 전용 폼과 삭제 버튼
+리뷰 전용 컴포넌트
+
+src/components/restaurants
+맛집리뷰 전용 컴포넌트와 지도
+
+src/components/watchlist
+기대작 전용 컴포넌트
 
 src/data
-Supabase 조회 로직과 타입 변환
+Supabase 조회 로직과 데이터 변환
 
 src/lib
-관리자 판별, 콘텐츠 권한, 초대 코드 보조 로직
+권한, 초대 코드, Discord, Google Maps 등 보조 로직
 
 src/lib/supabase
-Supabase 클라이언트, 세션 갱신, URL 유틸
-
-src/assets/fonts
-로컬 폰트 파일
-
-src/assets/image
-README와 메인 미리보기 이미지
+Supabase 클라이언트와 세션 갱신 로직
 
 supabase
-스키마, 정책, 샘플 데이터 SQL
+스키마, RLS 정책 SQL
+
+.github/workflows
+GitHub Actions 워크플로
 ```
 
-## 배포 메모
+## 배포 체크리스트
 
-GitHub 저장소와 Vercel 프로젝트가 연결되어 있으면 `main` 브랜치 push 시 자동 배포됨.
+- `.env.local`이 커밋되지 않았는지 확인
+- Vercel 환경변수 등록
+- Supabase SQL 실행
+- 관리자 정책 SQL의 이메일 치환 확인
+- Google Maps API Key 리퍼러 제한 확인
+- Google Maps Map ID 등록
+- Discord Webhook URL 등록
+- `npm run lint` 통과 확인
+- `npm run build` 통과 확인
 
-배포 전 확인할 것.
+## 개발 방향
 
-- `.env.local`은 Git에 올리지 않음
-- Vercel 환경 변수에 Supabase URL, publishable key, 관리자 이메일 추가 필요
-- Supabase SQL Editor에서 `schema.sql` 실행 필요
-- 관리자 정책 SQL은 실제 관리자 이메일로 바꿔 실행 필요
-- `review-thumbnails` bucket 생성 여부 확인 필요
-- `npm run build` 통과 확인 필요
-
-## 현재 방향
-
-1인 블로그 느낌에서 출발했지만, 초대받은 사람도 글을 작성할 수 있는 작은 콘텐츠 보관소 형태로 확장 중임. 리뷰와 기대작 외에도 나중에 다른 취향 기록 주제를 붙일 수 있도록 홈, 내비게이션, 권한 구조를 분리해둔 상태임.
+개인 취향 기록 프로젝트에서 출발했지만, 초대 기반 소규모 커뮤니티 기록 도구로 확장 중입니다.  
+리뷰, 기대작, 국내 맛집, 해외 맛집 지도를 분리해 각 콘텐츠의 성격에 맞는 작성 경험과 조회 화면을 제공하는 것이 현재 방향입니다.
