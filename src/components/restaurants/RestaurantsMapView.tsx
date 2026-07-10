@@ -23,6 +23,8 @@ type RestaurantsMapViewProps = {
   items: RestaurantMapItem[];
 };
 
+type RestaurantMapMarker = google.maps.marker.AdvancedMarkerElement;
+
 const defaultCenter = {
   lat: 35.681236,
   lng: 139.767125,
@@ -31,7 +33,7 @@ const defaultCenter = {
 export function RestaurantsMapView({ items }: RestaurantsMapViewProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
-  const markerRefs = useRef<google.maps.Marker[]>([]);
+  const markerRefs = useRef<RestaurantMapMarker[]>([]);
   const [selectedId, setSelectedId] = useState(items[0]?.id ?? "");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -43,14 +45,19 @@ export function RestaurantsMapView({ items }: RestaurantsMapViewProps) {
   useEffect(() => {
     let isMounted = true;
 
-    loadGoogleMapsLibrary("maps")
-      .then(() => {
+    Promise.all([
+      loadGoogleMapsLibrary("maps"),
+      loadGoogleMapsLibrary("marker"),
+    ])
+      .then(([mapsLibrary, markerLibrary]) => {
         if (!isMounted || !mapContainerRef.current) return;
 
-        markerRefs.current.forEach((marker) => marker.setMap(null));
+        markerRefs.current.forEach((marker) => {
+          marker.map = null;
+        });
         markerRefs.current = [];
 
-        const map = new google.maps.Map(mapContainerRef.current, {
+        const map = new mapsLibrary.Map(mapContainerRef.current, {
           center: items[0]
             ? { lat: items[0].latitude, lng: items[0].longitude }
             : defaultCenter,
@@ -59,6 +66,7 @@ export function RestaurantsMapView({ items }: RestaurantsMapViewProps) {
           fullscreenControl: false,
           mapTypeControl: false,
           streetViewControl: false,
+          mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID,
         });
 
         mapRef.current = map;
@@ -77,21 +85,21 @@ export function RestaurantsMapView({ items }: RestaurantsMapViewProps) {
 
           bounds.extend(position);
 
-          const marker = new google.maps.Marker({
+          const pin = new markerLibrary.PinElement({
+            background: "#0284c7",
+            borderColor: "#ffffff",
+            glyphColor: "#ffffff",
+            scale: 1.1,
+          });
+
+          const marker = new markerLibrary.AdvancedMarkerElement({
             map,
             position,
             title: item.storeName,
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              scale: 10,
-              fillColor: "#0284c7",
-              fillOpacity: 1,
-              strokeColor: "#ffffff",
-              strokeWeight: 3,
-            },
+            content: pin,
           });
 
-          marker.addListener("click", () => {
+          marker.addEventListener("gmp-click", () => {
             setSelectedId(item.id);
             map.panTo(position);
             map.setZoom(Math.max(map.getZoom() ?? 14, 14));
@@ -113,7 +121,9 @@ export function RestaurantsMapView({ items }: RestaurantsMapViewProps) {
 
     return () => {
       isMounted = false;
-      markerRefs.current.forEach((marker) => marker.setMap(null));
+      markerRefs.current.forEach((marker) => {
+        marker.map = null;
+      });
       markerRefs.current = [];
     };
   }, [items]);

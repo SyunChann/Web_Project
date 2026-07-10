@@ -1,9 +1,11 @@
 import { importLibrary, setOptions } from "@googlemaps/js-api-loader";
 
-let isGoogleMapsConfigured = false;
+declare global {
+  var googleMapsLoaderConfigured: boolean | undefined;
+}
 
 function configureGoogleMaps() {
-  if (isGoogleMapsConfigured) {
+  if (globalThis.googleMapsLoaderConfigured) {
     return;
   }
 
@@ -18,7 +20,7 @@ function configureGoogleMaps() {
     v: "weekly",
   });
 
-  isGoogleMapsConfigured = true;
+  globalThis.googleMapsLoaderConfigured = true;
 }
 
 export function loadGoogleMapsLibrary(
