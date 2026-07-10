@@ -242,6 +242,12 @@ export default async function RestaurantsReviewsPage({
                     label={isOverseas ? "해외 맛집" : categoryLabel(review.category)}
                     loading={isAboveFoldImage ? "eager" : "lazy"}
                     fetchPriority={isFirstImage ? "high" : "auto"}
+                    googlePlaceId={isOverseas ? review.placeId : undefined}
+                    googlePlaceQuery={
+                      isOverseas
+                        ? [review.storeName, review.address].filter(Boolean).join(" ")
+                        : undefined
+                    }
                   />
                   <div className="p-5">
                     <div className="flex items-start justify-between gap-3">

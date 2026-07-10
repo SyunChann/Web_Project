@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { loadGoogleMapsLibrary } from "@/lib/googleMaps";
 
 type ThumbnailTone = "movie" | "anime" | "game" | "drama" | "watchlist";
 
@@ -15,6 +16,8 @@ interface ThumbnailImageProps {
   fetchPriority?: "high" | "low" | "auto";
   className?: string;
   fallbackClassName?: string;
+  googlePlaceId?: string | null;
+  googlePlaceQuery?: string | null;
 }
 
 const fallbackToneClasses: Record<ThumbnailTone, string> = {
@@ -49,11 +52,79 @@ export function ThumbnailImage({
   fetchPriority = "auto",
   className = "aspect-video h-auto w-full object-cover",
   fallbackClassName = "aspect-video w-full",
+  googlePlaceId,
+  googlePlaceQuery,
 }: ThumbnailImageProps) {
-  const [hasError, setHasError] = useState(false);
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const [placePhoto, setPlacePhoto] = useState<{
+    key: string;
+    src: string;
+  } | null>(null);
   const imageSrc = src?.trim();
+  const placePhotoKey = [
+    googlePlaceId ?? "",
+    googlePlaceQuery ?? "",
+    imageSrc ?? "",
+  ].join("|");
+  const placePhotoSrc = placePhoto?.key === placePhotoKey ? placePhoto.src : null;
+  const isStoredGoogleImage = Boolean(imageSrc && isGoogleImageSource(imageSrc));
+  const shouldLoadPlacePhoto = Boolean(
+    (googlePlaceId || googlePlaceQuery) &&
+      (!imageSrc ||
+        imageSrc === "/thumbnails/default-food.svg" ||
+        isStoredGoogleImage ||
+        failedSrc === imageSrc),
+  );
+  const effectiveSrc = placePhotoSrc ?? (isStoredGoogleImage ? undefined : imageSrc);
+  const hasError = Boolean(effectiveSrc && failedSrc === effectiveSrc);
 
-  if (!imageSrc || hasError) {
+  useEffect(() => {
+    if ((!googlePlaceId && !googlePlaceQuery) || !shouldLoadPlacePhoto) {
+      return;
+    }
+
+    let isCancelled = false;
+
+    loadGoogleMapsLibrary("places")
+      .then(async (placesLibrary) => {
+        const place = googlePlaceId
+          ? new placesLibrary.Place({ id: googlePlaceId })
+          : (
+              await placesLibrary.Place.searchByText({
+                textQuery: googlePlaceQuery ?? title,
+                fields: ["photos"],
+                maxResultCount: 1,
+              })
+            ).places[0];
+
+        if (!place) {
+          return;
+        }
+
+        await place.fetchFields({ fields: ["photos"] });
+
+        const photoUrl = place.photos?.[0]?.getURI({
+          maxWidth: 1200,
+          maxHeight: 800,
+        });
+
+        if (!photoUrl) {
+          return;
+        }
+
+        if (!isCancelled) {
+          setFailedSrc(null);
+          setPlacePhoto({ key: placePhotoKey, src: photoUrl });
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [googlePlaceId, googlePlaceQuery, placePhotoKey, shouldLoadPlacePhoto, title]);
+
+  if (!effectiveSrc || hasError) {
     return (
       <div
         className={`flex items-center justify-center overflow-hidden bg-gradient-to-br ${fallbackClassName} ${fallbackToneClasses[tone]}`}
@@ -74,15 +145,15 @@ export function ThumbnailImage({
 
   return (
     <Image
-      src={imageSrc}
+      src={effectiveSrc}
       alt={alt}
       width={960}
       height={540}
       className={className}
       loading={loading}
       fetchPriority={fetchPriority}
-      unoptimized={isGoogleImageSource(imageSrc)}
-      onError={() => setHasError(true)}
+      unoptimized={isGoogleImageSource(effectiveSrc)}
+      onError={() => setFailedSrc(effectiveSrc)}
     />
   );
 }

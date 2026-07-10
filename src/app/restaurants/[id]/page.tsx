@@ -161,6 +161,10 @@ export default async function RestaurantsDetailPage({
               label={badgeLabel}
               loading="eager"
               fetchPriority="high"
+              googlePlaceId={isOverseas ? item.placeId : undefined}
+              googlePlaceQuery={
+                isOverseas ? [item.storeName, item.address].filter(Boolean).join(" ") : undefined
+              }
             />
             <div className="p-6 sm:p-8">
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -359,6 +363,10 @@ function RestaurantAdjacentCard({
         className="h-full min-h-28 w-full object-cover"
         fallbackClassName="h-full min-h-28 w-full"
         loading="lazy"
+        googlePlaceId={isOverseas ? item.placeId : undefined}
+        googlePlaceQuery={
+          isOverseas ? [item.storeName, item.address].filter(Boolean).join(" ") : undefined
+        }
       />
       <div className="min-w-0 p-4">
         <p className={`flex items-center gap-1.5 text-xs font-bold ${accentText}`}>
