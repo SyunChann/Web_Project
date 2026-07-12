@@ -145,7 +145,7 @@ export default async function RestaurantsDetailPage({
                   수정
                 </Link>
                 <form action={deleteAction}>
-                  <DeleteRestaurantsReviewButton title={title} />
+                  <DeleteRestaurantsReviewButton title={title} isOverseas={isOverseas}/>
                 </form>
               </div>
             ) : null}

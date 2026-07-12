@@ -9,6 +9,7 @@ type DeleteContentButtonProps = {
   title: string;
   contentLabel: string;
   variant: DeleteContentVariant;
+  isOverseas?: boolean;
 };
 
 const variantClasses: Record<DeleteContentVariant, string> = {
@@ -20,19 +21,31 @@ const variantClasses: Record<DeleteContentVariant, string> = {
     "inline-flex items-center gap-2 rounded-md bg-[#e57632] px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-[#c86124]",
 };
 
+const OVERSEAS_RESTAURANT_CLASS =
+  "inline-flex items-center gap-2 rounded-md bg-[#0284c7] px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-[#0369a1]";
+
 export function DeleteContentButton({
   title,
   contentLabel,
   variant,
+  isOverseas = false,
 }: DeleteContentButtonProps) {
+
+  const triggerClassName =
+    variant === "restaurants" && isOverseas
+      ? OVERSEAS_RESTAURANT_CLASS
+      : variantClasses[variant];
+
+    const displayLabel =
+    variant === "restaurants" && isOverseas ? "해외 맛집 리뷰" : contentLabel;
   return (
     <ConfirmSubmitButton
       triggerLabel="삭제"
       title={`${contentLabel}을 삭제할까요?`}
-      description={`"${title}" ${contentLabel}을 삭제합니다. 삭제한 항목은 되돌릴 수 없습니다.`}
+      description={`"${title}" ${displayLabel}을 삭제합니다. 삭제한 항목은 되돌릴 수 없습니다.`}
       confirmLabel="삭제"
       icon={<Trash2 size={16} />}
-      triggerClassName={variantClasses[variant]}
+      triggerClassName={triggerClassName}
     />
   );
 }
