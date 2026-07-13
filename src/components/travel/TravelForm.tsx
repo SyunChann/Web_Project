@@ -118,7 +118,7 @@ function FieldLabel({
     <span className="inline-flex items-center gap-1">
       {children}
       {required ? (
-        <span className="text-[#e57632]" aria-label="필수 입력">
+        <span className="text-[#5ca1e6]" aria-label="필수 입력">
           *
         </span>
       ) : (
@@ -217,7 +217,7 @@ export function TravelForm({
         placeholder={
           isOverseas
             ? "例: 天麩羅処ひらお, 一蘭 新宿, 鳥貴族 渋谷"
-            : "예: 강남 라멘, 성수 카페, 홍대 스시"
+            : "예: 도톤보리(추가 설명)"
         }
         language={isOverseas ? "ja" : "ko"}
         region={isOverseas ? "jp" : undefined}
@@ -399,7 +399,7 @@ export function TravelForm({
           className="sr-only"
         />
         <div className="flex min-w-0 flex-wrap items-start gap-3 rounded-md border border-[#d8cfc2] bg-white p-3">
-          <span className="shrink-0 rounded-md bg-[#e57632] px-3 py-2 text-sm font-bold text-white">
+          <span className="shrink-0 rounded-md bg-[#5ca1e6] px-3 py-2 text-sm font-bold text-white">
             파일 선택
           </span>
           <span className="min-w-0 flex-1 break-all text-xs font-normal leading-5 text-[#7a6f63]">
@@ -441,7 +441,7 @@ export function TravelForm({
           {isCompressing ? "이미지 압축 중..." : submitLabel}
         </button>
         <Link
-          href={travel ? `/restaurants/${travel.id}` : "/reviews"}
+          href={travel ? `/travel/${travel.id}` : "/reviews"}
           className={`rounded-md border border-[#d8cfc2] bg-white px-5 py-3 text-sm font-bold text-[#52616b] shadow-sm transition ${secondaryButtonClass}`}
         >
           취소

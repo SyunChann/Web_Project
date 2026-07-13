@@ -1,4 +1,4 @@
-import { ArrowLeft, Bookmark, Library, MapPinned, Utensils } from "lucide-react";
+import { ArrowLeft, Bookmark, Library, MapPinned, Utensils, Plane } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
@@ -7,8 +7,10 @@ import { createReview } from "@/app/actions/reviews";
 import { createWatchlistItem } from "@/app/actions/watchlist";
 import { RestaurantsReviewForm } from "@/components/restaurants/RestaurantReviewForm";
 import { ReviewForm } from "@/components/reviews/ReviewForm";
+import { TravelForm } from "@/components/travel/TravelForm"
 import { WatchlistForm } from "@/components/watchlist/WatchlistForm";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createTravel } from "../actions/travel";
 
 type NewPostPageProps = {
   searchParams: Promise<{
@@ -99,6 +101,24 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
     );
   }
 
+    if (type === "travel") {
+    return (
+      <PostFormShell
+        backHref="/new"
+        backLabel="작성 유형 선택"
+        eyebrow="Travel"
+        title="새 여행리뷰 작성"
+      >
+        <TravelForm
+          action={createTravel}
+          submitLabel="리뷰 저장"
+          scope="domestic"
+          showSlugField
+        />
+      </PostFormShell>
+    );
+  }
+
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
       <section className="mx-auto w-full max-w-4xl">
@@ -147,6 +167,13 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
             description="해외에서 다녀온 맛집을 따로 저장하고 지도에 표시합니다."
             tone="overseas"
           />
+                    <PostTypeCard
+            href="/new?type=travel"
+            icon={<MapPinned size={20} />}
+            title="여행"
+            description="여행지를 기록합니다."
+            tone="overseas"
+          />
         </div>
       </section>
     </main>
@@ -180,6 +207,10 @@ function PostTypeCard({
       icon: "bg-[#fdf2e9] text-[#e57632]",
     },
     overseas: {
+      border: "hover:border-[#0284c7]",
+      icon: "bg-[#e0f2fe] text-[#0284c7]",
+    },
+    travel: {
       border: "hover:border-[#0284c7]",
       icon: "bg-[#e0f2fe] text-[#0284c7]",
     },
