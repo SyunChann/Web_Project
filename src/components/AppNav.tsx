@@ -7,6 +7,7 @@ import {
   MapPinned,
   Plus,
   Utensils,
+  Plane,
 } from "lucide-react";
 import Link from "next/link";
 import { LogoutButton } from "@/components/LogoutButton";
@@ -20,6 +21,7 @@ type AppNavProps = {
     | "watchlist"
     | "restaurants"
     | "restaurant-map"
+    | "travel"
     | "admin";
 };
 
@@ -36,6 +38,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
     watchlist: "기대작",
     restaurants: "맛집리뷰",
     "restaurant-map": "해외 맛집리뷰 지도",
+    travel: "여행리뷰",
     admin: "관리자",
   };
   const activeSectionLabel = sectionLabels[active] || "리뷰 홈";
@@ -82,6 +85,14 @@ export async function AppNav({ active = "home" }: AppNavProps) {
       controlHover: "hover:border-[#be4b49] hover:text-[#be4b49]",
       primary: "bg-[#be4b49] hover:bg-[#a83f3d]",
       admin: "bg-[#edf2ef] text-[#2f6f5e]",
+    },
+    travel: {
+      brandHover: "hover:border-[#5ca1e6]",
+      icon: "bg-[#5ca1e6] group-hover:bg-[#4584c4]",
+      text: "text-[#5ca1e6]",
+      controlHover: "hover:border-[#5ca1e6] hover:text-[#5ca1e6]",
+      primary: "bg-[#5ca1e6] hover:bg-[#4584c4]", 
+      admin: "bg-[#fdf2e9] text-[#5ca1e6]",
     },
   };
 
@@ -151,6 +162,14 @@ export async function AppNav({ active = "home" }: AppNavProps) {
               label="해외 맛집리뷰 지도"
               activeClass="bg-[#e0f2fe] text-[#075985]"
               hoverClass="hover:bg-[#e0f2fe] hover:text-[#0284c7]"
+            />
+                        <NavMenuLink
+              href="/travel"
+              active={active === "travel"}
+              icon={<Plane size={16} />}
+              label="여행리뷰"
+              activeClass="bg-[#e0f2fe] text-[#4584c4]"
+              hoverClass="hover:bg-[#e0f2fe] hover:text-[#5ca1e6]"
             />
           </div>
         </details>
