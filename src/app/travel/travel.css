@@ -1,0 +1,5 @@
+[data-travel-theme] [class~="text-[#5ca1e6]"], [data-travel-theme] [class~="text-[#4584c4]"], [data-travel-theme] [class~="text-[#0284c7]"] { color: #4d7c0f !important; }
+[data-travel-theme] [class~="bg-[#5ca1e6]"], [data-travel-theme] [class~="bg-[#0284c7]"] { background-color: #65a30d !important; }
+[data-travel-theme] [class~="bg-[#e0f2fe]"], [data-travel-theme] [class~="bg-[#e8f1fa]"], [data-travel-theme] [class~="bg-[#f0f9ff]"] { background-color: #f7fee7 !important; }
+[data-travel-theme] [class~="border-[#5ca1e6]"], [data-travel-theme] [class~="border-[#4584c4]"], [data-travel-theme] [class~="border-[#0284c7]"], [data-travel-theme] [class~="border-[#bae6fd]"], [data-travel-theme] [class~="border-l-[#5ca1e6]"], [data-travel-theme] [class~="border-l-[#4584c4]"] { border-color: #d9f99d !important; }
+[data-travel-theme] [class*="hover:bg-[#0369a1]"]:hover, [data-travel-theme] [class*="hover:bg-[#276965]"]:hover, [data-travel-theme] [class*="hover:bg-[#c85a17]"]:hover { background-color: #4d7c0f !important; }

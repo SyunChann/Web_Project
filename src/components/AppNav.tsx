@@ -19,6 +19,7 @@ type AppNavProps = {
     | "reviews"
     | "watchlist"
     | "restaurants"
+    | "travel"
     | "restaurant-map"
     | "admin";
 };
@@ -35,6 +36,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
     reviews: "리뷰 목록",
     watchlist: "기대작",
     restaurants: "맛집리뷰",
+    travel: "해외여행",
     "restaurant-map": "해외 맛집리뷰 지도",
     admin: "관리자",
   };
@@ -75,6 +77,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
       primary: "bg-[#0284c7] hover:bg-[#0369a1]",
       admin: "bg-[#e0f2fe] text-[#075985]",
     },
+    travel: { brandHover: "hover:border-[#65a30d]", icon: "bg-[#65a30d] group-hover:bg-[#4d7c0f]", text: "text-[#4d7c0f]", controlHover: "hover:border-[#65a30d] hover:text-[#4d7c0f]", primary: "bg-[#65a30d] hover:bg-[#4d7c0f]", admin: "bg-[#f7fee7] text-[#3f6212]" },
     default: {
       brandHover: "hover:border-[#be4b49]",
       icon: "bg-[#be4b49] group-hover:bg-[#a83f3d]",
@@ -152,6 +155,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
               activeClass="bg-[#e0f2fe] text-[#075985]"
               hoverClass="hover:bg-[#e0f2fe] hover:text-[#0284c7]"
             />
+            <NavMenuLink href="/travel" active={active === "travel"} icon={<MapPinned size={16} />} label="해외여행" activeClass="bg-[#f7fee7] text-[#3f6212]" hoverClass="hover:bg-[#f7fee7] hover:text-[#4d7c0f]" />
           </div>
         </details>
 

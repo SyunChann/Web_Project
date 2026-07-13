@@ -3,7 +3,7 @@
 import { Trash2 } from "lucide-react";
 import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
 
-type DeleteContentVariant = "reviews" | "watchlist" | "restaurants";
+type DeleteContentVariant = "reviews" | "watchlist" | "restaurants" | "travel";
 
 type DeleteContentButtonProps = {
   title: string;
@@ -19,6 +19,8 @@ const variantClasses: Record<DeleteContentVariant, string> = {
     "inline-flex items-center gap-2 rounded-md bg-[#2f7f7a] px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-[#276965]",
   restaurants:
     "inline-flex items-center gap-2 rounded-md bg-[#e57632] px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-[#c86124]",
+  travel:
+    "inline-flex items-center gap-2 rounded-md bg-[#65a30d] px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-[#4d7c0f]",
 };
 
 const OVERSEAS_RESTAURANT_CLASS =
