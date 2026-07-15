@@ -206,6 +206,7 @@ export function RestaurantsReviewForm({
         </label>
       ) : null}
 
+      {reviewScope === "overseas" ? (
       <PlaceSearch
         onSelectPlace={(data) => setPlaceData(data)}
         label={isOverseas ? "일본 맛집 장소 검색" : "맛집 장소 검색"}
@@ -222,8 +223,9 @@ export function RestaurantsReviewForm({
         language={isOverseas ? "ja" : "ko"}
         region={isOverseas ? "jp" : undefined}
         includedRegionCodes={isOverseas ? ["jp"] : undefined}
-        tone={isOverseas ? "overseas" : "restaurant"}
+        tone={ "overseas" }
       />
+      ) : null}
 
       {placeData && (
         <>

@@ -5,7 +5,8 @@ import type { ReactNode } from "react";
 import { createRestaurantReview } from "@/app/actions/restaurants";
 import { createReview } from "@/app/actions/reviews";
 import { createWatchlistItem } from "@/app/actions/watchlist";
-import { RestaurantsReviewForm } from "@/components/restaurants/RestaurantReviewForm";
+import { DomesticRestaurantsReviewForm } from "@/components/restaurants/domestic/DomesticRestaurantsReviewForm";
+import { OverseasRestaurantsReviewForm } from "@/components/restaurants/overseas/OverseasRestaurantsReviewForm";
 import { ReviewForm } from "@/components/reviews/ReviewForm";
 import { TravelForm } from "@/components/travel/TravelForm"
 import { WatchlistForm } from "@/components/watchlist/WatchlistForm";
@@ -73,7 +74,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
         eyebrow="Restaurants"
         title="새 맛집 작성"
       >
-        <RestaurantsReviewForm
+        <DomesticRestaurantsReviewForm
           action={createRestaurantReview}
           submitLabel="맛집 저장"
           scope="domestic"
@@ -91,7 +92,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
         eyebrow="Overseas Restaurants"
         title="새 해외 맛집 작성"
       >
-        <RestaurantsReviewForm
+        <OverseasRestaurantsReviewForm
           action={createRestaurantReview}
           submitLabel="해외 맛집 저장"
           scope="overseas"
@@ -168,7 +169,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
             description="해외에서 다녀온 맛집을 따로 저장하고 지도에 표시합니다."
             tone="overseas"
           />
-                    <PostTypeCard
+          <PostTypeCard
             href="/new?type=travel"
             icon={<MapPinned size={20} />}
             title="해외여행"

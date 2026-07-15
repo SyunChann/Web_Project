@@ -18,9 +18,9 @@ type AppNavProps = {
     | "home"
     | "reviews"
     | "watchlist"
-    | "restaurants"
+    | "domestic-restaurants-map"
     | "travel"
-    | "restaurant-map"
+    | "overseas-restaurants-map"
     | "admin";
 };
 
@@ -35,9 +35,9 @@ export async function AppNav({ active = "home" }: AppNavProps) {
     home: "리뷰",
     reviews: "리뷰 목록",
     watchlist: "기대작",
-    restaurants: "맛집리뷰",
+    "domestic-restaurants-map": "국내 맛집리뷰 지도",
     travel: "해외여행",
-    "restaurant-map": "해외 맛집리뷰 지도",
+    "overseas-restaurants-map": "해외 맛집리뷰 지도",
     admin: "관리자",
   };
   const activeSectionLabel = sectionLabels[active] || "리뷰 홈";
@@ -61,7 +61,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
       primary: "bg-[#2f7f7a] hover:bg-[#276a66]",
       admin: "bg-[#e4f4f2] text-[#2f7f7a]",
     },
-    restaurants: {
+    "domestic-restaurants-map": {
       brandHover: "hover:border-[#e57632]",
       icon: "bg-[#e57632] group-hover:bg-[#c85a17]",
       text: "text-[#e57632]",
@@ -69,7 +69,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
       primary: "bg-[#e57632] hover:bg-[#c85a17]",
       admin: "bg-[#fdf2e9] text-[#e57632]",
     },
-    "restaurant-map": {
+    "overseas-restaurants-map": {
       brandHover: "hover:border-[#0284c7]",
       icon: "bg-[#0284c7] group-hover:bg-[#0369a1]",
       text: "text-[#0284c7]",
@@ -140,16 +140,16 @@ export async function AppNav({ active = "home" }: AppNavProps) {
               hoverClass="hover:bg-[#eefaf8] hover:text-[#2f7f7a]"
             />
             <NavMenuLink
-              href="/restaurants"
-              active={active === "restaurants"}
+              href="/restaurants/map/domestic"
+              active={active === "domestic-restaurants-map"}
               icon={<Utensils size={16} />}
               label="맛집리뷰 홈"
               activeClass="bg-[#fdf2e9] text-[#e57632]"
               hoverClass="hover:bg-[#fdf2e9] hover:text-[#e57632]"
             />
             <NavMenuLink
-              href="/restaurants/map"
-              active={active === "restaurant-map"}
+              href="/restaurants/map/overseas"
+              active={active === "overseas-restaurants-map"}
               icon={<MapPinned size={16} />}
               label="해외 맛집리뷰 지도"
               activeClass="bg-[#e0f2fe] text-[#075985]"

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { loadGoogleMapsLibrary } from "@/lib/googleMaps";
 
-type RestaurantMapItem = {
+type OverseasRestaurantMapItem = {
   id: string;
   title: string;
   storeName: string;
@@ -20,10 +20,10 @@ type RestaurantMapItem = {
 };
 
 type OverseasRestaurantsMapViewProps = {
-  items: RestaurantMapItem[];
+  items: OverseasRestaurantMapItem[];
 };
 
-type OverseasRestaurantMapMarker = google.maps.marker.AdvancedMarkerElement;
+type RestaurantMapMarker = google.maps.marker.AdvancedMarkerElement;
 
 const defaultCenter = {
   lat: 35.681236,
@@ -33,7 +33,7 @@ const defaultCenter = {
 export function OverseasRestaurantsMapView({ items }: OverseasRestaurantsMapViewProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
-  const markerRefs = useRef<OverseasRestaurantMapMarker[]>([]);
+  const markerRefs = useRef<RestaurantMapMarker[]>([]);
   const [selectedId, setSelectedId] = useState(items[0]?.id ?? "");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -128,7 +128,7 @@ export function OverseasRestaurantsMapView({ items }: OverseasRestaurantsMapView
     };
   }, [items]);
 
-  function handleSelectItem(item: RestaurantMapItem) {
+  function handleSelectItem(item: OverseasRestaurantMapItem) {
     const position = {
       lat: item.latitude,
       lng: item.longitude,

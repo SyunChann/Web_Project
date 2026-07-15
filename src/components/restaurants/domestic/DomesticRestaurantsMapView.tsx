@@ -1,12 +1,11 @@
-/// <reference types="google.maps" />
 "use client";
 
 import { ExternalLink, List, MapPin, Star } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { loadGoogleMapsLibrary } from "@/lib/googleMaps";
+import { loadNaverMapsScript } from "@/lib/naverMaps";
 
-type RestaurantMapItem = {
+type DomesticRestaurantMapItem = {
   id: string;
   title: string;
   storeName: string;
@@ -19,21 +18,32 @@ type RestaurantMapItem = {
   mapUrl?: string;
 };
 
-type OverseasRestaurantsMapViewProps = {
-  items: RestaurantMapItem[];
+type DomesticRestaurantsMapViewProps = {
+  items: DomesticRestaurantMapItem[];
 };
-
-type OverseasRestaurantMapMarker = google.maps.marker.AdvancedMarkerElement;
 
 const defaultCenter = {
   lat: 35.681236,
   lng: 139.767125,
 };
 
-export function OverseasRestaurantsMapView({ items }: OverseasRestaurantsMapViewProps) {
+// Google Maps의 PinElement(파란 물방울 핀)를 대체하는 커스텀 마커 아이콘
+const PIN_ICON_CONTENT = `
+  <div style="
+    width: 26px;
+    height: 26px;
+    border-radius: 50% 50% 50% 0;
+    background: #e57632;
+    border: 2px solid #ffffff;
+    transform: rotate(-45deg);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.35);
+  "></div>
+`;
+
+export function DomesticRestaurantsMapView({ items }: DomesticRestaurantsMapViewProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<google.maps.Map | null>(null);
-  const markerRefs = useRef<OverseasRestaurantMapMarker[]>([]);
+  const mapRef = useRef<naver.maps.Map | null>(null);
+  const markerRefs = useRef<naver.maps.Marker[]>([]);
   const [selectedId, setSelectedId] = useState(items[0]?.id ?? "");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -45,28 +55,24 @@ export function OverseasRestaurantsMapView({ items }: OverseasRestaurantsMapView
   useEffect(() => {
     let isMounted = true;
 
-    Promise.all([
-      loadGoogleMapsLibrary("maps"),
-      loadGoogleMapsLibrary("marker"),
-    ])
-      .then(([mapsLibrary, markerLibrary]) => {
-        if (!isMounted || !mapContainerRef.current) return;
+    loadNaverMapsScript()
+      .then(() => {
+        if (!isMounted || !mapContainerRef.current || !window.naver) return;
 
-        markerRefs.current.forEach((marker) => {
-          marker.map = null;
-        });
+        // 이전 마커 정리
+        markerRefs.current.forEach((marker) => marker.setMap(null));
         markerRefs.current = [];
 
-        const map = new mapsLibrary.Map(mapContainerRef.current, {
-          center: items[0]
-            ? { lat: items[0].latitude, lng: items[0].longitude }
-            : defaultCenter,
-          zoom: items.length > 1 ? 6 : 14,
-          clickableIcons: false,
-          fullscreenControl: false,
+        const initialCenter = items[0]
+          ? new window.naver.maps.LatLng(items[0].latitude, items[0].longitude)
+          : new window.naver.maps.LatLng(defaultCenter.lat, defaultCenter.lng);
+
+        const map = new window.naver.maps.Map(mapContainerRef.current, {
+          center: initialCenter,
+          zoom: items.length > 1 ? 10 : 15,
+          zoomControl: false,
           mapTypeControl: false,
-          streetViewControl: false,
-          mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID,
+          scaleControl: false,
         });
 
         mapRef.current = map;
@@ -75,34 +81,33 @@ export function OverseasRestaurantsMapView({ items }: OverseasRestaurantsMapView
           return;
         }
 
-        const bounds = new google.maps.LatLngBounds();
+        const bounds = new window.naver.maps.LatLngBounds(
+          initialCenter,
+          initialCenter,
+        );
 
         items.forEach((item) => {
-          const position = {
-            lat: item.latitude,
-            lng: item.longitude,
-          };
+          const position = new window.naver.maps.LatLng(
+            item.latitude,
+            item.longitude,
+          );
 
           bounds.extend(position);
 
-          const pin = new markerLibrary.PinElement({
-            background: "#0284c7",
-            borderColor: "#ffffff",
-            glyphColor: "#ffffff",
-            scale: 1.1,
-          });
-
-          const marker = new markerLibrary.AdvancedMarkerElement({
+          const marker = new window.naver.maps.Marker({
             map,
             position,
             title: item.storeName,
-            content: pin,
+            icon: {
+              content: PIN_ICON_CONTENT,
+              anchor: new window.naver.maps.Point(13, 26),
+            },
           });
 
-          marker.addEventListener("gmp-click", () => {
+          window.naver.maps.Event.addListener(marker, "click", () => {
             setSelectedId(item.id);
             map.panTo(position);
-            map.setZoom(Math.max(map.getZoom() ?? 14, 14));
+            map.setZoom(Math.max(map.getZoom(), 15));
           });
 
           markerRefs.current.push(marker);
@@ -113,41 +118,36 @@ export function OverseasRestaurantsMapView({ items }: OverseasRestaurantsMapView
         }
       })
       .catch((error: unknown) => {
-        console.error("Google Maps 지도를 불러오지 못했습니다:", error);
+        console.error("네이버 지도를 불러오지 못했습니다:", error);
         setErrorMessage(
-          "Google Maps 지도를 불러오지 못했습니다. API 키 설정을 확인해 주세요.",
+          "네이버 지도를 불러오지 못했습니다. API 키 설정을 확인해 주세요.",
         );
       });
 
     return () => {
       isMounted = false;
-      markerRefs.current.forEach((marker) => {
-        marker.map = null;
-      });
+      markerRefs.current.forEach((marker) => marker.setMap(null));
       markerRefs.current = [];
     };
   }, [items]);
 
-  function handleSelectItem(item: RestaurantMapItem) {
-    const position = {
-      lat: item.latitude,
-      lng: item.longitude,
-    };
+  function handleSelectItem(item: DomesticRestaurantMapItem) {
+    const position = new window.naver.maps.LatLng(item.latitude, item.longitude);
 
     setSelectedId(item.id);
     mapRef.current?.panTo(position);
-    mapRef.current?.setZoom(14);
+    mapRef.current?.setZoom(15);
   }
 
   if (items.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-[#bae6fd] bg-[#f0f9ff] p-8 text-center shadow-sm">
-        <MapPin className="mx-auto text-[#0284c7]" size={28} />
+      <div className="rounded-lg border border-dashed border-[#fdddba] bg-[#fff8f0] p-8 text-center shadow-sm">
+        <MapPin className="mx-auto text-[#e57632]" size={28} />
         <h2 className="mt-4 text-xl font-black text-[#17202a]">
-          지도에 표시할 해외 맛집이 없습니다
+          지도에 표시할 국내 맛집이 없습니다
         </h2>
         <p className="mt-3 text-sm leading-6 text-[#52616b]">
-          Google Maps 장소 검색으로 좌표가 저장된 해외 맛집 리뷰를 작성하면 지도에 표시됩니다.
+          네이버 지도 장소 검색으로 좌표가 저장된 국내 맛집 리뷰를 작성하면 지도에 표시됩니다.
         </p>
       </div>
     );
@@ -155,16 +155,16 @@ export function OverseasRestaurantsMapView({ items }: OverseasRestaurantsMapView
 
   return (
     <section className="grid overflow-hidden rounded-lg border border-[#ddd6cc] bg-white shadow-sm lg:h-[760px] lg:grid-cols-[380px_1fr]">
-      <aside className="order-2 flex min-h-0 flex-col border-t border-[#bae6fd] bg-[#f0f9ff] lg:order-1 lg:h-full lg:border-t-0 lg:border-r">
-        <div className="border-b border-[#bae6fd] p-5">
-          <p className="text-xs font-black uppercase text-[#0284c7]">
-            Overseas Restaurant Map
+      <aside className="order-2 flex min-h-0 flex-col border-t border-[#fdddba] bg-[#fff8f0] lg:order-1 lg:h-full lg:border-t-0 lg:border-r">
+        <div className="border-b border-[#fdddba] p-5">
+          <p className="text-xs font-black uppercase text-[#e57632]">
+            Domestic Restaurant Map
           </p>
           <h2 className="mt-2 text-2xl font-black text-[#17202a]">
-            지도에 저장된 해외 맛집
+            지도에 저장된 국내 맛집
           </h2>
           <p className="mt-2 text-sm leading-6 text-[#52616b]">
-            마커나 목록을 선택하면 해당 해외 맛집 정보를 확인할 수 있습니다.
+            마커나 목록을 선택하면 해당 국내 맛집 정보를 확인할 수 있습니다.
           </p>
         </div>
 
@@ -179,13 +179,13 @@ export function OverseasRestaurantsMapView({ items }: OverseasRestaurantsMapView
                 onClick={() => handleSelectItem(item)}
                 className={`mb-3 block w-full rounded-lg border p-4 text-left transition ${
                   isSelected
-                    ? "border-[#0284c7] bg-white shadow-md"
-                    : "border-[#bae6fd] bg-white/70 hover:border-[#0284c7]/60 hover:bg-white"
+                    ? "border-[#e57632] bg-white shadow-md"
+                    : "border-[#fdddba] bg-white/70 hover:border-[#e57632]/60 hover:bg-white"
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-xs font-bold text-[#0284c7]">
+                    <p className="text-xs font-bold text-[#e57632]">
                       {item.categoryLabel}
                     </p>
                     <h3 className="mt-1 line-clamp-1 text-lg font-black text-[#17202a]">
@@ -219,10 +219,10 @@ export function OverseasRestaurantsMapView({ items }: OverseasRestaurantsMapView
         </div>
 
         {selectedItem ? (
-          <div className="border-t border-[#bae6fd] bg-white p-5">
+          <div className="border-t border-[#fdddba] bg-white p-5">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0">
-                <p className="text-xs font-black uppercase text-[#0284c7]">
+                <p className="text-xs font-black uppercase text-[#e57632]">
                   {selectedItem.categoryLabel}
                 </p>
                 <h2 className="mt-2 text-2xl font-black text-[#17202a]">
@@ -232,7 +232,7 @@ export function OverseasRestaurantsMapView({ items }: OverseasRestaurantsMapView
                   {selectedItem.title}
                 </p>
               </div>
-              <span className="inline-flex items-center gap-1 rounded-full border border-[#bae6fd] bg-[#f0f9ff] px-3 py-1 text-sm font-black text-[#17202a]">
+              <span className="inline-flex items-center gap-1 rounded-full border border-[#fdddba] bg-[#fff8f0] px-3 py-1 text-sm font-black text-[#17202a]">
                 <Star size={15} fill="#f2b84b" color="#f2b84b" />
                 {selectedItem.rating}
               </span>
@@ -240,7 +240,7 @@ export function OverseasRestaurantsMapView({ items }: OverseasRestaurantsMapView
 
             {selectedItem.address ? (
               <p className="mt-4 flex gap-2 text-sm font-semibold leading-6 text-[#52616b]">
-                <MapPin className="mt-0.5 shrink-0 text-[#0284c7]" size={16} />
+                <MapPin className="mt-0.5 shrink-0 text-[#e57632]" size={16} />
                 {selectedItem.address}
               </p>
             ) : null}
@@ -252,7 +252,7 @@ export function OverseasRestaurantsMapView({ items }: OverseasRestaurantsMapView
             <div className="mt-5 flex flex-wrap gap-2">
               <Link
                 href={`/restaurants/${selectedItem.id}`}
-                className="inline-flex items-center gap-2 rounded-md bg-[#0284c7] px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-[#0369a1]"
+                className="inline-flex items-center gap-2 rounded-md bg-[#e57632] px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-[#c85a17]"
               >
                 <List size={16} />
                 리뷰 보기
@@ -262,9 +262,9 @@ export function OverseasRestaurantsMapView({ items }: OverseasRestaurantsMapView
                   href={selectedItem.mapUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-md border border-[#bae6fd] bg-white px-4 py-2 text-sm font-bold text-[#075985] shadow-sm transition hover:border-[#0284c7] hover:text-[#0284c7]"
+                  className="inline-flex items-center gap-2 rounded-md border border-[#fdddba] bg-white px-4 py-2 text-sm font-bold text-[#075985] shadow-sm transition hover:border-[#e57632] hover:text-[#e57632]"
                 >
-                  Google Maps
+                  네이버 지도에서 보기
                   <ExternalLink size={15} />
                 </a>
               ) : null}

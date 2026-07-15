@@ -22,7 +22,7 @@ export default async function RestaurantsReviewPage() {
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
       <section className="mx-auto flex w-full max-w-6xl flex-col gap-10">
-        <AppNav active="restaurants" />
+        <AppNav active="domestic-restaurants-map" />
 
         <section className="grid gap-8 py-8 lg:grid-cols-[1fr_420px] lg:items-center">
           <div className="max-w-3xl">
