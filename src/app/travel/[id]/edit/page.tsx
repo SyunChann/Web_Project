@@ -39,7 +39,7 @@ export default async function EditWatchlistPage({
   const updateAction = updateWatchlistItem.bind(null, item.id);
 
   return (
-    <main className="min-h-screen px-6 py-8 sm:px-10">
+    <main className="min-h-screen px-4 py-5 sm:px-10 sm:py-8">
       <section className="mx-auto w-full max-w-3xl">
         <Link
           href={`/watchlist/${item.id}`}

@@ -91,10 +91,10 @@ export async function AppNav({ active = "home" }: AppNavProps) {
   const theme = themes[active] || themes.default;
 
   return (
-    <nav className="flex flex-wrap items-center justify-between gap-3">
+    <nav className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
       <Link
         href="/"
-        className={`group inline-flex items-center gap-3 rounded-md border border-[#d8cfc2] bg-white px-3 py-2 shadow-sm transition ${theme.brandHover} hover:shadow-md`}
+        className={`group inline-flex self-start items-center gap-3 rounded-md border border-[#d8cfc2] bg-white px-3 py-2 shadow-sm transition ${theme.brandHover} hover:shadow-md`}
         aria-label="취향보관소"
       >
         <span
@@ -110,7 +110,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
         </span>
       </Link>
 
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
         <details className="group relative">
           <summary
             className={`flex cursor-pointer list-none items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 py-2 text-sm font-bold text-[#52616b] shadow-sm transition ${theme.controlHover} [&::-webkit-details-marker]:hidden`}

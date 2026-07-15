@@ -74,10 +74,10 @@ export default async function WatchlistDetailPage({
     currentIndex > 0 ? orderedItems[currentIndex - 1] : undefined;
 
   return (
-    <main className="min-h-screen px-6 py-8 sm:px-10">
+    <main className="min-h-screen px-4 py-5 sm:px-10 sm:py-8">
       <section className="mx-auto w-full max-w-6xl">
         <AppNav active="watchlist" />
-        <article className="mx-auto mt-10 w-full max-w-3xl">
+        <article className="mx-auto mt-7 w-full max-w-3xl sm:mt-10">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Link
             href="/watchlist/items"

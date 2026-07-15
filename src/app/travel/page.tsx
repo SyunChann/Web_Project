@@ -20,11 +20,11 @@ export default async function TravelPage() {
   const previewItems = items.slice(0, 3);
 
   return (
-    <main className="min-h-screen px-6 py-8 sm:px-10">
-      <section className="mx-auto flex w-full max-w-6xl flex-col gap-10">
+    <main className="min-h-screen px-4 py-5 sm:px-10 sm:py-8">
+      <section className="mx-auto flex w-full max-w-6xl flex-col gap-7 sm:gap-10">
         <AppNav active="travel" />
 
-        <section className="grid gap-8 py-8 lg:grid-cols-[1fr_420px] lg:items-center">
+        <section className="grid gap-6 py-5 sm:py-8 lg:grid-cols-[1fr_420px] lg:items-center">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-md border border-[#e8f1fa] bg-white px-3 py-2 text-sm font-bold text-[#2f7f7a] shadow-sm">
               <Sparkles size={16} />
@@ -34,7 +34,7 @@ export default async function TravelPage() {
             <p className="mt-6 text-sm font-bold uppercase text-[#5ca1e6]">
               Travel
             </p>
-            <h1 className="mt-3 max-w-3xl text-4xl font-black leading-tight text-[#17202a] sm:text-5xl">
+            <h1 className="mt-3 max-w-3xl text-3xl font-black leading-tight text-[#17202a] sm:text-5xl">
               아직 보지 않은 작품도
               <span className="mt-2 block text-[#5ca1e6]">
                 미리 붙잡아두기

@@ -22,3 +22,9 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+@media (max-width: 639px) {
+  main.min-h-screen {
+    padding: 1.25rem 1rem !important;
+  }
+}

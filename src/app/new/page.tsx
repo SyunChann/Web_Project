@@ -121,7 +121,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
   }
 
   return (
-    <main className="min-h-screen px-6 py-8 sm:px-10">
+    <main className="min-h-screen px-4 py-5 sm:px-10 sm:py-8">
       <section className="mx-auto w-full max-w-4xl">
         <Link
           href="/"
@@ -250,7 +250,7 @@ function PostFormShell({
 }) {
   const accentClass = tone === "travel" ? "text-[#4d7c0f]" : "text-[#be4b49]";
   return (
-    <main className="min-h-screen px-6 py-8 sm:px-10">
+    <main className="min-h-screen px-4 py-5 sm:px-10 sm:py-8">
       <section className="mx-auto w-full max-w-3xl">
         <Link
           href={backHref}
