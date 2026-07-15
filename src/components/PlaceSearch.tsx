@@ -23,7 +23,8 @@ type PlaceSearchProps = {
   language?: string;
   region?: string;
   includedRegionCodes?: string[];
-  tone?: "restaurant" | "overseas";
+  allowAllPlaceTypes?: boolean;
+  tone?: "restaurant" | "overseas" | "travel";
 };
 
 type AutocompleteSuggestionItem = {
@@ -37,7 +38,7 @@ type AutocompleteSuggestionItem = {
 
 type AutocompleteSuggestionRequest = {
   input: string;
-  includedPrimaryTypes: string[];
+  includedPrimaryTypes?: string[];
   language: string;
   includedRegionCodes?: string[];
   region?: string;
@@ -61,13 +62,13 @@ export function PlaceSearch({
   language = "ko",
   region,
   includedRegionCodes,
+  allowAllPlaceTypes = false,
   tone = "restaurant",
 }: PlaceSearchProps) {
   const inputId = useId();
   const latestRequestRef = useRef(0);
   const regionCodesKey = includedRegionCodes?.join(",") ?? "";
-  const focusBorderClass =
-    tone === "overseas" ? "focus:border-[#0284c7]" : "focus:border-[#be4b49]";
+  const focusBorderClass = tone === "travel" ? "focus:border-[#65a30d]" : tone === "overseas" ? "focus:border-[#0284c7]" : "focus:border-[#be4b49]";
   const [placesLibrary, setPlacesLibrary] =
     useState<google.maps.PlacesLibrary | null>(null);
   const [query, setQuery] = useState("");
@@ -124,15 +125,12 @@ export function PlaceSearch({
 
       const request: AutocompleteSuggestionRequest = {
         input: trimmedQuery,
-        includedPrimaryTypes: [
-          "restaurant",
-          "cafe",
-          "bar",
-          "bakery",
-          "meal_takeaway",
-        ],
         language,
       };
+
+      if (!allowAllPlaceTypes) {
+        request.includedPrimaryTypes = ["restaurant", "cafe", "bar", "bakery", "meal_takeaway"];
+      }
 
       if (region) {
         request.region = region;

@@ -1,4 +1,4 @@
-import { ArrowLeft, Bookmark, Library, MapPinned, Utensils } from "lucide-react";
+import { ArrowLeft, Bookmark, Library, MapPinned, Utensils, Plane } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
@@ -7,8 +7,10 @@ import { createReview } from "@/app/actions/reviews";
 import { createWatchlistItem } from "@/app/actions/watchlist";
 import { RestaurantsReviewForm } from "@/components/restaurants/RestaurantReviewForm";
 import { ReviewForm } from "@/components/reviews/ReviewForm";
+import { TravelForm } from "@/components/travel/TravelForm"
 import { WatchlistForm } from "@/components/watchlist/WatchlistForm";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createTravel } from "../actions/travel";
 
 type NewPostPageProps = {
   searchParams: Promise<{
@@ -99,8 +101,27 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
     );
   }
 
+    if (type === "travel") {
+    return (
+      <PostFormShell
+        backHref="/new"
+        backLabel="작성 유형 선택"
+        eyebrow="Travel"
+        title="새 해외여행 리뷰 작성"
+        tone="travel"
+      >
+        <TravelForm
+          action={createTravel}
+          submitLabel="해외여행 리뷰 저장"
+          scope="overseas"
+          showSlugField
+        />
+      </PostFormShell>
+    );
+  }
+
   return (
-    <main className="min-h-screen px-6 py-8 sm:px-10">
+    <main className="min-h-screen px-4 py-5 sm:px-10 sm:py-8">
       <section className="mx-auto w-full max-w-4xl">
         <Link
           href="/"
@@ -147,6 +168,13 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
             description="해외에서 다녀온 맛집을 따로 저장하고 지도에 표시합니다."
             tone="overseas"
           />
+                    <PostTypeCard
+            href="/new?type=travel"
+            icon={<MapPinned size={20} />}
+            title="해외여행"
+            description="해외여행에서 방문한 장소를 기록합니다."
+            tone="travel"
+          />
         </div>
       </section>
     </main>
@@ -164,7 +192,7 @@ function PostTypeCard({
   icon: ReactNode;
   title: string;
   description: string;
-  tone: "review" | "watchlist" | "restaurants" | "overseas";
+  tone: "review" | "watchlist" | "restaurants" | "overseas" | "travel";
 }) {
   const theme = {
     review: {
@@ -182,6 +210,10 @@ function PostTypeCard({
     overseas: {
       border: "hover:border-[#0284c7]",
       icon: "bg-[#e0f2fe] text-[#0284c7]",
+    },
+    travel: {
+      border: "hover:border-[#65a30d]",
+      icon: "bg-[#f7fee7] text-[#4d7c0f]",
     },
   }[tone];
 
@@ -207,26 +239,29 @@ function PostFormShell({
   eyebrow,
   title,
   children,
+  tone = "default",
 }: {
   backHref: string;
   backLabel: string;
   eyebrow: string;
   title: string;
   children: ReactNode;
+  tone?: "default" | "travel";
 }) {
+  const accentClass = tone === "travel" ? "text-[#4d7c0f]" : "text-[#be4b49]";
   return (
-    <main className="min-h-screen px-6 py-8 sm:px-10">
+    <main className="min-h-screen px-4 py-5 sm:px-10 sm:py-8">
       <section className="mx-auto w-full max-w-3xl">
         <Link
           href={backHref}
-          className="inline-flex items-center gap-2 text-sm font-bold text-[#be4b49]"
+          className={`inline-flex items-center gap-2 text-sm font-bold ${accentClass}`}
         >
           <ArrowLeft size={17} />
           {backLabel}
         </Link>
 
         <header className="py-8">
-          <p className="text-sm font-semibold text-[#be4b49]">{eyebrow}</p>
+          <p className={`text-sm font-semibold ${accentClass}`}>{eyebrow}</p>
           <h1 className="mt-3 text-3xl font-bold sm:text-4xl">{title}</h1>
         </header>
 
