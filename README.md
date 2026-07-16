@@ -210,7 +210,7 @@ where user_id = (
 기대작 상세
 
 /restaurants
-국내 맛집리뷰 홈
+국내 맛집리뷰
 
 /restaurants/items
 국내 맛집리뷰 목록

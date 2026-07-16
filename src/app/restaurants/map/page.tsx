@@ -1,6 +1,7 @@
 import { ArrowRight, MapPinned, Plus } from "lucide-react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
+import { RestaurantScopeTabs } from "@/components/RestaurantScopeTabs";
 import { RestaurantsMapView } from "@/components/restaurants/RestaurantsMapView";
 import { getRestaurantsReviews } from "@/data/restaurants";
 
@@ -31,15 +32,16 @@ export default async function RestaurantsMapPage() {
 
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
-      <section className="mx-auto w-full max-w-7xl">
+      <section className="mx-auto w-full max-w-6xl">
         <AppNav active="restaurant-map" />
 
         <header className="py-10">
-          <div className="inline-flex items-center gap-2 rounded-md border border-[#0284c7] bg-white px-3 py-2 text-sm font-bold text-[#0284c7] shadow-sm">
+          <RestaurantScopeTabs active="overseas" view="map" />
+          <div className="hidden">
             <MapPinned size={16} />
             해외 맛집리뷰 지도
           </div>
-          <div className="mt-5 flex flex-wrap items-end justify-between gap-4">
+          <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="text-sm font-black uppercase text-[#0284c7]">
                 Restaurant Map

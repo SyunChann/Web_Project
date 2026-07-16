@@ -84,7 +84,7 @@ const currentPage = Number(params?.page) || 1;
 
   return (
     <main className="min-h-screen px-4 py-5 sm:px-10 sm:py-8">
-      <section className="mx-auto w-full max-w-5xl">
+      <section className="mx-auto w-full max-w-6xl">
         <AppNav active="travel" />
 
         <header className="py-10">

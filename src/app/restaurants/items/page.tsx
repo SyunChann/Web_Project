@@ -1,6 +1,7 @@
 import { MapPinned, Search, Star, X } from "lucide-react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
+import { RestaurantScopeTabs } from "@/components/RestaurantScopeTabs";
 import { ThumbnailImage } from "@/components/ThumbnailImage";
 import {
   categoryLabel,
@@ -81,10 +82,11 @@ export default async function RestaurantsReviewsPage({
 
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
-      <section className="mx-auto w-full max-w-5xl">
+      <section className="mx-auto w-full max-w-6xl">
         <AppNav active={isOverseas ? "restaurant-map" : "restaurants"} />
 
         <header className="py-10">
+          <RestaurantScopeTabs active={activeScope} />
           <p className={`text-sm font-semibold ${accentText}`}>
             {isOverseas ? "Overseas Restaurant" : "Restaurant"}
           </p>
@@ -99,7 +101,7 @@ export default async function RestaurantsReviewsPage({
           {isOverseas ? (
             <Link
               href="/restaurants/map"
-              className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#0284c7] px-4 text-sm font-bold text-white shadow-sm transition hover:bg-[#0369a1]"
+               className="hidden"
             >
               <MapPinned size={17} />
               지도로 보기
