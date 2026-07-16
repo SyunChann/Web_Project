@@ -24,6 +24,10 @@ a {
 }
 
 @media (max-width: 639px) {
+  html {
+    font-size: 15px;
+  }
+
   main.min-h-screen {
     padding: 1.25rem 1rem !important;
   }

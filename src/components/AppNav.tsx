@@ -94,11 +94,11 @@ export async function AppNav({ active = "home" }: AppNavProps) {
     <nav className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
       <Link
         href="/"
-        className={`group inline-flex self-start items-center gap-3 rounded-md border border-[#d8cfc2] bg-white px-3 py-2 shadow-sm transition ${theme.brandHover} hover:shadow-md`}
+        className={`group inline-flex self-start items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-2.5 py-2 shadow-sm transition sm:gap-3 sm:px-3 ${theme.brandHover} hover:shadow-md`}
         aria-label="취향보관소"
       >
         <span
-          className={`flex h-9 w-9 items-center justify-center rounded-md text-white transition ${theme.icon}`}
+          className={`flex h-8 w-8 items-center justify-center rounded-md text-white transition sm:h-9 sm:w-9 ${theme.icon}`}
         >
           <Library size={18} />
         </span>
@@ -113,7 +113,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
       <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
         <details className="group relative">
           <summary
-            className={`flex cursor-pointer list-none items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 py-2 text-sm font-bold text-[#52616b] shadow-sm transition ${theme.controlHover} [&::-webkit-details-marker]:hidden`}
+            className={`flex cursor-pointer list-none items-center gap-1.5 rounded-md border border-[#d8cfc2] bg-white px-3 py-2 text-sm font-bold text-[#52616b] shadow-sm transition sm:gap-2 sm:px-4 ${theme.controlHover} [&::-webkit-details-marker]:hidden`}
           >
             <Library size={16} />
             {activeSectionLabel}
@@ -122,7 +122,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
               className="transition group-open:rotate-180"
             />
           </summary>
-          <div className="absolute right-0 z-30 mt-2 w-52 overflow-hidden rounded-lg border border-[#d8cfc2] bg-white p-2 shadow-lg">
+          <div className="absolute left-0 z-30 mt-2 w-52 overflow-hidden rounded-lg border border-[#d8cfc2] bg-white p-2 shadow-lg sm:right-0 sm:left-auto">
             <NavMenuLink
               href="/"
               active={active === "home"}
@@ -163,7 +163,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
           <>
             <Link
               href="/new"
-              className={`inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-bold text-white shadow-sm transition ${theme.primary}`}
+              className={`inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-bold text-white shadow-sm transition sm:gap-2 sm:px-4 ${theme.primary}`}
             >
               <Plus size={16} />
               새 글
@@ -171,7 +171,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
             {isAdmin ? (
               <Link
                 href="/admin"
-                className={`rounded-md border px-3 py-2 text-sm font-bold shadow-sm transition ${
+                className={`rounded-md border px-2.5 py-2 text-sm font-bold shadow-sm transition sm:px-3 ${
                   active === "admin"
                     ? "border-[#d49a35] bg-[#f3d9a4] text-[#17202a]"
                     : "border-[#e2c17f] bg-[#fff4da] text-[#5c3b09] hover:border-[#d49a35] hover:bg-[#f3d9a4]"
@@ -180,7 +180,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
                 관리자
               </Link>
             ) : (
-              <span className="rounded-md border border-[#d8cfc2] bg-white px-3 py-2 text-sm font-bold text-[#52616b] shadow-sm">
+              <span className="rounded-md border border-[#d8cfc2] bg-white px-2.5 py-2 text-sm font-bold text-[#52616b] shadow-sm sm:px-3">
                 작성자
               </span>
             )}
@@ -189,7 +189,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
         ) : (
           <Link
             href="/login"
-            className={`inline-flex items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 py-2 text-sm font-bold text-[#52616b] shadow-sm transition ${theme.controlHover}`}
+            className={`inline-flex items-center gap-1.5 rounded-md border border-[#d8cfc2] bg-white px-3 py-2 text-sm font-bold text-[#52616b] shadow-sm transition sm:gap-2 sm:px-4 ${theme.controlHover}`}
           >
             <LogIn size={16} />
             로그인
