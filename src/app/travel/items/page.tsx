@@ -1,4 +1,4 @@
-import { MapPinned, Search, Star, X } from "lucide-react";
+import { Search, Star, X } from "lucide-react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { ThumbnailImage } from "@/components/ThumbnailImage";
@@ -6,6 +6,7 @@ import {
   categoryLabel,
   categoryTheme,
   getTravels,
+  groupTravelPosts,
   sortTravels,
   type Travel,
   type ReviewSort,
@@ -71,13 +72,14 @@ export default async function TravelsPage({
     activeSort,
   );
   const isFiltered = Boolean(activeQuery) || activeCategory !== "all";
+  const travelPosts = groupTravelPosts(travels);
 
 const currentPage = Number(params?.page) || 1;
   const itemsPerPage = 9;
-  const totalPages = Math.ceil(travels.length / itemsPerPage);
+  const totalPages = Math.ceil(travelPosts.length / itemsPerPage);
   
   // 전체 travels 배열에서 현재 페이지에 보여줄 9개만 잘라냅니다.
-  const paginatedTravels = travels.slice(
+  const paginatedTravelPosts = travelPosts.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -99,15 +101,6 @@ const currentPage = Number(params?.page) || 1;
               ? "지도에 등록된 여행리뷰를 목록으로 확인합니다."
               : "여행의 기록을 한곳에서 확인할 수 있습니다."}
           </p>
-          {isOverseas ? (
-            <Link
-              href="/travel/map"
-              className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#65a30d] px-4 text-sm font-bold text-white shadow-sm transition hover:bg-[#4d7c0f]"
-            >
-              <MapPinned size={17} />
-              지도로 보기
-            </Link>
-          ) : null}
         </header>
 
         <section className="mb-8 rounded-lg border border-[#ddd6cc] bg-white p-4 shadow-sm">
@@ -219,18 +212,18 @@ const currentPage = Number(params?.page) || 1;
 
           <p className="mt-4 text-sm font-semibold text-[#6b7280]">
             {isFiltered
-              ? `검색 결과 ${travels.length}개`
-              : `전체 ${travels.length}개`}
+              ? `검색 결과 ${travelPosts.length}개`
+              : `전체 ${travelPosts.length}개`}
           </p>
         </section>
 
-        {travels.length > 0 ? (
+        {travelPosts.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-3">
-            {travels.map((review, index) => {
+            {paginatedTravelPosts.map(({ travel: review, placeCount }, index) => {
               const theme = categoryTheme(review.category);
               const isAboveFoldImage = index < 3;
               const isFirstImage = index === 0;
-              const title = isOverseas ? review.storeName : review.title;
+              const title = isOverseas ? review.tripTitle ?? review.storeName : review.title;
 
               return (
                 <Link
@@ -245,13 +238,15 @@ const currentPage = Number(params?.page) || 1;
                     label={isOverseas ? "해외 맛집" : categoryLabel(review.category)}
                     loading={isAboveFoldImage ? "eager" : "lazy"}
                     fetchPriority={isFirstImage ? "high" : "auto"}
+                    googlePlaceId={review.placeId}
+                    googlePlaceQuery={[review.storeName, review.address].filter(Boolean).join(" ")}
                   />
                   <div className="p-5">
                     <div className="flex items-start justify-between gap-3">
                       <span
                         className={`rounded-md px-3 py-1 text-xs font-bold ${isOverseas ? badgeClass : theme.badge}`}
                       >
-                        {isOverseas ? "해외 맛집" : categoryLabel(review.category)}
+                        {isOverseas ? `여행 장소 ${placeCount}곳` : categoryLabel(review.category)}
                       </span>
                       <span className="flex items-center gap-1 text-sm font-bold">
                         <Star size={15} fill="#f2b84b" color="#f2b84b" />
@@ -325,7 +320,7 @@ function parseCategory(value: string | string[] | undefined): ReviewCategoryFilt
 function parseScope(value: string | string[] | undefined): Travel["scope"] {
   const scopeValue = Array.isArray(value) ? value[0] : value;
 
-  return scopeValue === "overseas" ? "overseas" : "domestic";
+  return scopeValue === "domestic" ? "domestic" : "overseas";
 }
 
 function parseSearchValue(value: string | string[] | undefined) {
@@ -355,6 +350,7 @@ function filterReviews(
     return [
       review.title,
       review.storeName,
+      review.tripTitle,
       categoryLabel(review.category),
       review.address,
       review.summary,

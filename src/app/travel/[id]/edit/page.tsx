@@ -1,64 +1,53 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { updateWatchlistItem } from "@/app/actions/watchlist";
-import { WatchlistForm } from "@/components/watchlist/WatchlistForm";
-import { getWatchItem } from "@/data/watchlist";
+import { updateTravel } from "@/app/actions/travel";
+import { AppNav } from "@/components/AppNav";
+import { TravelForm } from "@/components/travel/TravelForm";
+import { getTravel, getTravels, sortTravelStops, travelToStop } from "@/data/travel";
 import { canManageContent } from "@/lib/contentPermissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-type EditWatchlistPageProps = {
-  params: Promise<{
-    id: string;
-  }>;
-};
+type TravelEditPageProps = { params: Promise<{ id: string }> };
 
-export default async function EditWatchlistPage({
-  params,
-}: EditWatchlistPageProps) {
+export default async function TravelEditPage({ params }: TravelEditPageProps) {
+  const { id } = await params;
+  const item = await getTravel(id);
+
+  if (!item) notFound();
+
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
 
-  if (!user) {
-    redirect("/login");
-  }
+  if (!canManageContent(user, item.authorId)) redirect(`/travel/${item.id}`);
 
-  const { id } = await params;
-  const item = await getWatchItem(id);
-
-  if (!item) {
-    notFound();
-  }
-
-  if (!canManageContent(user, item.authorId)) {
-    redirect(`/watchlist/${item.id}`);
-  }
-
-  const updateAction = updateWatchlistItem.bind(null, item.id);
+  const legacyTravelItems = item.itinerary.length || !item.tripTitle
+    ? []
+    : (await getTravels()).filter(
+        (travel) =>
+          travel.tripTitle === item.tripTitle &&
+          travel.authorId === item.authorId &&
+          travel.createdAt.slice(0, 10) === item.createdAt.slice(0, 10),
+      );
+  const editableTravel = legacyTravelItems.length
+    ? { ...item, itinerary: sortTravelStops(legacyTravelItems.map(travelToStop)) }
+    : item;
 
   return (
     <main className="min-h-screen px-4 py-5 sm:px-10 sm:py-8">
       <section className="mx-auto w-full max-w-3xl">
-        <Link
-          href={`/watchlist/${item.id}`}
-          className="inline-flex items-center gap-2 text-sm font-bold text-[#5ca1e6]"
-        >
-          <ArrowLeft size={17} />
-          여행리뷰 상세
-        </Link>
-
-        <header className="py-8">
-          <p className="text-sm font-semibold text-[#5ca1e6]">Watchlist</p>
-          <h1 className="mt-3 text-3xl font-bold sm:text-4xl">여행리뷰 수정</h1>
-        </header>
-
+        <AppNav active="travel" />
+        <Link href={`/travel/${item.id}`} className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-[#4d7c0f]"><ArrowLeft size={17} />여행리뷰 상세</Link>
+        <header className="py-8"><p className="text-sm font-bold uppercase text-[#4d7c0f]">edit travel</p><h1 className="mt-2 text-3xl font-black text-[#17202a]">여행 기록 수정</h1></header>
         <section className="rounded-lg border border-[#ddd6cc] bg-white p-6 shadow-sm sm:p-8">
-          <WatchlistForm
-            action={updateAction}
-            submitLabel="수정 저장"
-            item={item}
+          <TravelForm
+            action={updateTravel.bind(null, item.id)}
+            submitLabel="수정 완료"
+            travel={editableTravel}
+            scope="overseas"
+            legacyTravelIds={legacyTravelItems.map((travel) => travel.id)}
           />
         </section>
       </section>

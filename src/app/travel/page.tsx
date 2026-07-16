@@ -1,9 +1,11 @@
 import { ArrowRight, Bookmark, Star, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
+import { TravelItinerary } from "@/components/travel/TravelItinerary";
 import Image from "next/image";
 import {
   getTravels,
+  groupTravelPosts,
   categoryLabel,
   categoryTheme,
   type Travel,
@@ -16,8 +18,9 @@ export const metadata = {
 
 export default async function TravelPage() {
   const items = await getTravels();
-  const featuredItem = items[0];
-  const previewItems = items.slice(0, 3);
+  const travelPosts = groupTravelPosts(items);
+  const featuredItem = travelPosts[0]?.travel;
+  const previewItems = travelPosts.slice(0, 3);
 
   return (
     <main className="min-h-screen px-4 py-5 sm:px-10 sm:py-8">
@@ -68,6 +71,8 @@ export default async function TravelPage() {
           {featuredItem ? <FeaturedTravelItem item={featuredItem} /> : <EmptyFeaturedTravelItem />}
         </section>
 
+        <TravelItinerary items={items} />
+
         <section id="recent-travel" className="scroll-mt-8 pb-12">
           <div className="flex items-end justify-between gap-4">
             <div>
@@ -87,8 +92,8 @@ export default async function TravelPage() {
 
           {previewItems.length > 0 ? (
             <div className="mt-5 grid gap-4 md:grid-cols-3">
-              {previewItems.map((item) => (
-                <TravelItemCard key={item.id} item={item} />
+              {previewItems.map(({ travel, placeCount }) => (
+                <TravelItemCard key={travel.id} item={travel} placeCount={placeCount} />
               ))}
             </div>
           ) : (
@@ -137,7 +142,7 @@ function FeaturedTravelItem({ item }: { item:  Travel}) {
             {item.rating}
           </span>
         </div>
-        <h2 className="mt-5 text-2xl font-bold">{item.title}</h2>
+        <h2 className="mt-5 text-2xl font-bold">{item.tripTitle ?? item.title}</h2>
         <p className="mt-2 text-sm text-[#6b7280]">
           {item.authorName ? ` · ${item.authorName}` : ""}
         </p>
@@ -163,7 +168,7 @@ function EmptyTravel() {
   );
 }
 
-function TravelItemCard({ item }: { item: Travel }) {
+function TravelItemCard({ item, placeCount }: { item: Travel; placeCount: number }) {
   return (
     <Link
       href={`/travel/${item.id}`}
@@ -184,7 +189,8 @@ function TravelItemCard({ item }: { item: Travel }) {
           </span>
           <Bookmark size={16} className="text-[#5ca1e6]" />
         </div>
-        <h3 className="mt-5 text-lg font-bold text-[#17202a]">{item.title}</h3>
+        <h3 className="mt-5 text-lg font-bold text-[#17202a]">{item.tripTitle ?? item.title}</h3>
+        <p className="mt-2 text-xs font-bold text-[#4d7c0f]">여행 장소 {placeCount}곳</p>
         <p className="mt-2 text-sm text-[#6b7280]">
           {item.visitedAt}
           {item.authorName ? ` · ${item.authorName}` : ""}

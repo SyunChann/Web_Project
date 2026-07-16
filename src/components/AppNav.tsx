@@ -221,7 +221,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
               activeClass="bg-[#e0f2fe] text-[#075985]"
               hoverClass="hover:bg-[#e0f2fe] hover:text-[#0284c7]"
             />
-            <NavMenuLink href="/travel" active={active === "travel"} icon={<MapPinned size={16} />} label="해외여행" activeClass="bg-[#f7fee7] text-[#3f6212]" hoverClass="hover:bg-[#f7fee7] hover:text-[#4d7c0f]" />
+            <NavMenuLink href="/travel/items" active={active === "travel"} icon={<MapPinned size={16} />} label="해외여행" activeClass="bg-[#f7fee7] text-[#3f6212]" hoverClass="hover:bg-[#f7fee7] hover:text-[#4d7c0f]" />
           </div>
         </details>
 
@@ -270,18 +270,6 @@ export async function AppNav({ active = "home" }: AppNavProps) {
 
 function MobileBottomNav({ active }: { active: NonNullable<AppNavProps["active"]> }) {
   const isContentSection = active === "reviews" || active === "watchlist";
-  const items = [
-    { href: "/", label: "홈", icon: <Home size={19} />, active: active === "home" },
-    { href: "/reviews", label: "리뷰", icon: <Library size={19} />, active: active === "reviews" },
-    { href: "/new", label: "새글", icon: <Plus size={20} />, active: false, primary: true },
-    {
-      href: "/restaurants",
-      label: "해외맛집",
-      icon: <Utensils size={19} />,
-      active: active === "restaurants" || active === "restaurant-map",
-    },
-    { href: "/travel", label: "해외여행", icon: <MapPinned size={19} />, active: active === "travel" },
-  ];
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-[#d8cfc2] bg-white/95 px-1 pb-[max(0.35rem,env(safe-area-inset-bottom))] pt-1 shadow-[0_-4px_16px_rgba(23,32,42,0.08)] backdrop-blur sm:hidden">
@@ -289,7 +277,7 @@ function MobileBottomNav({ active }: { active: NonNullable<AppNavProps["active"]
         { href: "/", label: "\uD648", icon: <Home size={19} />, active: active === "home" },
         { href: "/reviews", label: "\uCF58\uD150\uCE20", icon: <Library size={19} />, active: isContentSection },
         { href: "/restaurants/items", label: "\uB9DB\uC9D1\uB9AC\uBDF0", icon: <Utensils size={19} />, active: active === "restaurants" || active === "restaurant-map" },
-        { href: "/travel", label: "\uD574\uC678\uC5EC\uD589", icon: <MapPinned size={19} />, active: active === "travel" },
+        { href: "/travel/items", label: "\uD574\uC678\uC5EC\uD589", icon: <MapPinned size={19} />, active: active === "travel" },
         { href: "/new", label: "\uC0C8\uAE00", icon: <Plus size={20} />, active: false, primary: true },
       ].map((item) => (
         <Link
