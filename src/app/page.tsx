@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import { ArrowRight, Bookmark, Library, MapPinned, Utensils } from "lucide-react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
@@ -14,29 +14,18 @@ type HomeProps = {
 
 export default async function Home({ searchParams }: HomeProps) {
   const params = await searchParams;
-  const [reviews, watchItems, restaurants, overseasRestaurants, travels] = await Promise.all([
-    getReviews(),
-    getWatchItems(),
-    getRestaurantsReviews(),
-    getRestaurantsReviews("overseas"),
-    getTravels(),
-  ]);
-
   const statusMessage = params?.status === "login"
     ? "\uB85C\uADF8\uC778\uB418\uC5C8\uC2B5\uB2C8\uB2E4."
     : params?.status === "logout"
       ? "\uB85C\uADF8\uC544\uC6C3\uB418\uC5C8\uC2B5\uB2C8\uB2E4."
       : "";
-  const restaurantReviews = [...restaurants, ...overseasRestaurants].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
-  const travelPosts = groupTravelPosts(travels);
-
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
       {statusMessage ? <StatusToast key={statusMessage} message={statusMessage} /> : null}
       <section className="mx-auto flex w-full max-w-6xl flex-col gap-8 sm:gap-10">
-        <AppNav active="home" />
+        <Suspense fallback={<HomeNavFallback />}>
+          <AppNav active="home" />
+        </Suspense>
 
         <header className="max-w-3xl pt-2 sm:pt-6">
           <p className="text-sm font-bold text-[#be4b49]">ARCHIVE HOME</p>
@@ -48,47 +37,46 @@ export default async function Home({ searchParams }: HomeProps) {
           </p>
         </header>
 
-        <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
-          <DashboardSection
-            href="/reviews"
-            icon={<Library size={20} />}
-            label={"\uB9AC\uBDF0"}
-            count={reviews.length}
-            latest={reviews[0]?.title}
-            latestDate={reviews[0]?.createdAt}
-            tone="red"
-          />
-          <DashboardSection
-            href="/watchlist/items"
-            icon={<Bookmark size={20} />}
-            label={"\uAE30\uB300\uC791"}
-            count={watchItems.length}
-            latest={watchItems[0]?.title}
-            latestDate={watchItems[0]?.createdAt}
-            tone="teal"
-          />
-          <DashboardSection
-            href="/restaurants/items"
-            icon={<Utensils size={20} />}
-            label={"\uB9DB\uC9D1\uB9AC\uBDF0"}
-            count={restaurantReviews.length}
-            latest={restaurantReviews[0]?.title}
-            latestDate={restaurantReviews[0]?.createdAt}
-            meta={`\uAD6D\uB0B4 ${restaurants.length}\uAC1C \u00B7 \uD574\uC678 ${overseasRestaurants.length}\uAC1C`}
-            tone="orange"
-          />
-          <DashboardSection
-            href="/travel/items"
-            icon={<MapPinned size={20} />}
-            label={"\uD574\uC678\uC5EC\uD589"}
-            count={travelPosts.length}
-            latest={travelPosts[0]?.travel.tripTitle ?? travelPosts[0]?.travel.title}
-            latestDate={travelPosts[0]?.travel.createdAt}
-            tone="green"
-          />
-        </section>
+        <Suspense fallback={<DashboardSkeleton />}>
+          <HomeDashboard />
+        </Suspense>
       </section>
     </main>
+  );
+}
+
+async function HomeDashboard() {
+  const [reviews, watchItems, restaurants, overseasRestaurants, travels] = await Promise.all([
+    getReviews(),
+    getWatchItems(),
+    getRestaurantsReviews(),
+    getRestaurantsReviews("overseas"),
+    getTravels(),
+  ]);
+  const restaurantReviews = [...restaurants, ...overseasRestaurants].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  );
+  const travelPosts = groupTravelPosts(travels);
+
+  return (
+    <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
+      <DashboardSection href="/reviews" icon={<Library size={20} />} label={"\uB9AC\uBDF0"} count={reviews.length} latest={reviews[0]?.title} latestDate={reviews[0]?.createdAt} tone="red" />
+      <DashboardSection href="/watchlist/items" icon={<Bookmark size={20} />} label={"\uAE30\uB300\uC791"} count={watchItems.length} latest={watchItems[0]?.title} latestDate={watchItems[0]?.createdAt} tone="teal" />
+      <DashboardSection href="/restaurants/items" icon={<Utensils size={20} />} label={"\uB9DB\uC9D1\uB9AC\uBDF0"} count={restaurantReviews.length} latest={restaurantReviews[0]?.title} latestDate={restaurantReviews[0]?.createdAt} meta={`\uAD6D\uB0B4 ${restaurants.length}\uAC1C \u00B7 \uD574\uC678 ${overseasRestaurants.length}\uAC1C`} tone="orange" />
+      <DashboardSection href="/travel/items" icon={<MapPinned size={20} />} label={"\uD574\uC678\uC5EC\uD589"} count={travelPosts.length} latest={travelPosts[0]?.travel.tripTitle ?? travelPosts[0]?.travel.title} latestDate={travelPosts[0]?.travel.createdAt} tone="green" />
+    </section>
+  );
+}
+
+function HomeNavFallback() {
+  return <div className="h-12 w-28 animate-pulse rounded-md bg-white shadow-sm" aria-hidden="true" />;
+}
+
+function DashboardSkeleton() {
+  return (
+    <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3" aria-busy="true">
+      {Array.from({ length: 4 }, (_, index) => <div key={index} className="min-h-40 animate-pulse rounded-lg border border-[#eee8df] bg-white sm:min-h-44" />)}
+    </section>
   );
 }
 
