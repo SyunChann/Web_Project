@@ -1,5 +1,9 @@
 # 취향 보관소
 
+<p align="center">
+  <img src="public/thumbnails/Screenshot%202026-07-17%20at%2005.25.51.png" alt="취향 보관소 화면" width="960" />
+</p>
+
 영화, 애니, 게임, 드라마, 기대작, 국내·해외 맛집과 해외여행을 기록하는 개인 취향 아카이브입니다.
 Supabase 기반 인증/데이터/스토리지와 Next.js App Router를 사용하며, 초대 코드로 가입한 사용자만 글을 작성할 수 있습니다.
 
