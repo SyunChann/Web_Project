@@ -1,6 +1,7 @@
 import { Search, Star, X } from "lucide-react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
+import { ContentSectionTabs } from "@/components/ContentSectionTabs";
 import Pagination from "@/components/Pagination";
 import { ThumbnailImage } from "@/components/ThumbnailImage";
 import {
@@ -90,10 +91,11 @@ export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
 
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
-      <section className="mx-auto w-full max-w-5xl">
+      <section className="mx-auto w-full max-w-6xl">
         <AppNav active="reviews" />
 
         <header className="py-10">
+          <ContentSectionTabs active="reviews" />
           <p className="text-sm font-semibold text-[#be4b49]">Reviews</p>
           <h1 className="mt-3 text-3xl font-bold sm:text-4xl">전체 리뷰</h1>
           <p className="mt-4 max-w-2xl leading-7 text-[#52616b]">

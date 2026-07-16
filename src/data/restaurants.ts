@@ -111,11 +111,16 @@ async function getRestaurantsReviewsFromSupabase(
     return [];
   }
 
-  const { data, error } = await supabase
+  const query = supabase
     .from("restaurant_reviews")
-    .select(restaurantsReviewSelect)
-    .eq("scope", scope)
-    .order("created_at", { ascending: false });
+    .select(restaurantsReviewSelect);
+  const scopedQuery =
+    scope === "domestic"
+      ? query.or("scope.eq.domestic,scope.is.null")
+      : query.eq("scope", scope);
+  const { data, error } = await scopedQuery.order("created_at", {
+    ascending: false,
+  });
 
   if (!error && data) {
     return (data as RestaurantsReviewRow[]).map(mapRestaurantsReviewRow);
@@ -167,14 +172,11 @@ async function getRestaurantsReviewFromSupabase(id: string) {
   return mapRestaurantsReviewRow(legacyData as RestaurantsReviewRow);
 }
 
-export const getRestaurantsReviews = unstable_cache(
-  getRestaurantsReviewsFromSupabase,
-  ["restaurant-reviews"],
-  {
-    tags: ["restaurant-reviews"],
-    revalidate: 60,
-  },
-);
+export async function getRestaurantsReviews(
+  scope: RestaurantsReviewScope = "domestic",
+) {
+  return getRestaurantsReviewsFromSupabase(scope);
+}
 
 export const getRestaurantsReview = unstable_cache(
   getRestaurantsReviewFromSupabase,

@@ -34,7 +34,7 @@ export function StatusToast({ message }: StatusToastProps) {
 
   return (
     <div
-      className={`fixed left-1/2 top-5 z-50 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 rounded-md border border-[#d8cfc2] bg-white px-4 py-3 text-sm font-bold text-[#17202a] shadow-lg transition-opacity duration-300 ${
+      className={`fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom))] left-1/2 z-50 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 rounded-md border border-[#d8cfc2] bg-white px-4 py-3 text-sm font-bold text-[#17202a] shadow-lg transition-opacity duration-300 sm:top-5 sm:bottom-auto ${
         isFading ? "opacity-0" : "opacity-100"
       }`}
     >

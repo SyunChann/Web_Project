@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import {
   Bookmark,
   ChevronDown,
+  Ellipsis,
+  Home,
   Library,
   LogIn,
   MapPinned,
@@ -41,6 +43,9 @@ export async function AppNav({ active = "home" }: AppNavProps) {
     admin: "관리자",
   };
   const activeSectionLabel = sectionLabels[active] || "리뷰 홈";
+
+  const isContentSection = active === "reviews" || active === "watchlist";
+  const isRestaurantSection = active === "domestic-restaurants-map" || active === "overseas-restaurants-map";
 
   const themes: Record<
     string,
@@ -92,13 +97,57 @@ export async function AppNav({ active = "home" }: AppNavProps) {
 
   return (
     <nav className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+      <div className="flex items-center justify-between sm:hidden">
+        <Link
+          href="/"
+          className={`group inline-flex items-center rounded-md border border-[#d8cfc2] bg-white p-2 shadow-sm transition ${theme.brandHover} hover:shadow-md`}
+          aria-label="홈"
+        >
+          <span
+            className={`flex h-8 w-8 items-center justify-center rounded-md text-white transition ${theme.icon}`}
+          >
+            <Library size={18} />
+          </span>
+        </Link>
+
+        {user ? (
+          <details className="group relative">
+            <summary
+              className={`flex cursor-pointer list-none items-center justify-center rounded-md border border-[#d8cfc2] bg-white p-2 text-[#52616b] shadow-sm transition ${theme.controlHover} [&::-webkit-details-marker]:hidden`}
+              aria-label="계정 메뉴"
+            >
+              <Ellipsis size={20} />
+            </summary>
+            <div className="absolute right-0 z-30 mt-2 flex w-36 flex-col gap-1 rounded-lg border border-[#d8cfc2] bg-white p-2 shadow-lg">
+              {isAdmin ? (
+                <Link
+                  href="/admin"
+                  className="rounded-md px-3 py-2 text-sm font-bold text-[#5c3b09] hover:bg-[#fff4da]"
+                >
+                  관리자
+                </Link>
+              ) : null}
+              <LogoutButton />
+            </div>
+          </details>
+        ) : (
+          <Link
+            href="/login"
+            className={`flex items-center justify-center rounded-md border border-[#d8cfc2] bg-white p-2 text-[#52616b] shadow-sm transition ${theme.controlHover}`}
+            aria-label="로그인"
+          >
+            <LogIn size={19} />
+          </Link>
+        )}
+      </div>
+
       <Link
         href="/"
-        className={`group inline-flex self-start items-center gap-3 rounded-md border border-[#d8cfc2] bg-white px-3 py-2 shadow-sm transition ${theme.brandHover} hover:shadow-md`}
+        className={`group hidden self-start items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-2.5 py-2 shadow-sm transition sm:inline-flex sm:gap-3 sm:px-3 ${theme.brandHover} hover:shadow-md`}
         aria-label="취향보관소"
       >
         <span
-          className={`flex h-9 w-9 items-center justify-center rounded-md text-white transition ${theme.icon}`}
+          className={`flex h-8 w-8 items-center justify-center rounded-md text-white transition sm:h-9 sm:w-9 ${theme.icon}`}
         >
           <Library size={18} />
         </span>
@@ -110,21 +159,36 @@ export async function AppNav({ active = "home" }: AppNavProps) {
         </span>
       </Link>
 
-      <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
+      <div className="hidden w-full flex-wrap items-center gap-2 sm:flex sm:w-auto sm:justify-end">
         <details className="group relative">
           <summary
-            className={`flex cursor-pointer list-none items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 py-2 text-sm font-bold text-[#52616b] shadow-sm transition ${theme.controlHover} [&::-webkit-details-marker]:hidden`}
+            className={`flex cursor-pointer list-none items-center gap-1.5 rounded-md border border-[#d8cfc2] bg-white px-3 py-2 text-sm font-bold text-[#52616b] shadow-sm transition sm:gap-2 sm:px-4 ${theme.controlHover} [&::-webkit-details-marker]:hidden`}
           >
             <Library size={16} />
-            {activeSectionLabel}
+            {active === "home"
+              ? "\uD648"
+              : isContentSection
+                ? "\uCF58\uD150\uCE20"
+                : isRestaurantSection
+                  ? "\uB9DB\uC9D1\uB9AC\uBDF0"
+                  : activeSectionLabel}
             <ChevronDown
               size={15}
               className="transition group-open:rotate-180"
             />
           </summary>
-          <div className="absolute right-0 z-30 mt-2 w-52 overflow-hidden rounded-lg border border-[#d8cfc2] bg-white p-2 shadow-lg">
+          <div className="absolute left-0 z-30 mt-2 w-52 overflow-hidden rounded-lg border border-[#d8cfc2] bg-white p-2 shadow-lg sm:right-0 sm:left-auto">
+            <NavMenuLink
+              href="/reviews"
+              active={isContentSection}
+              icon={<Library size={16} />}
+              label={"\uCF58\uD150\uCE20"}
+              activeClass="bg-[#fff7f5] text-[#be4b49]"
+              hoverClass="hover:bg-[#fff7f5] hover:text-[#be4b49]"
+            />
             <NavMenuLink
               href="/"
+              hidden
               active={active === "home"}
               icon={<Library size={16} />}
               label="리뷰 홈"
@@ -133,6 +197,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
             />
             <NavMenuLink
               href="/watchlist"
+              hidden
               active={active === "watchlist"}
               icon={<Bookmark size={16} />}
               label="기대작"
@@ -140,15 +205,16 @@ export async function AppNav({ active = "home" }: AppNavProps) {
               hoverClass="hover:bg-[#eefaf8] hover:text-[#2f7f7a]"
             />
             <NavMenuLink
-              href="/restaurants/map/domestic"
-              active={active === "domestic-restaurants-map"}
+              href="/restaurants/items"
+              active={isRestaurantSection}
               icon={<Utensils size={16} />}
-              label="맛집리뷰 홈"
+              label={"\uB9DB\uC9D1\uB9AC\uBDF0"}
               activeClass="bg-[#fdf2e9] text-[#e57632]"
               hoverClass="hover:bg-[#fdf2e9] hover:text-[#e57632]"
             />
             <NavMenuLink
-              href="/restaurants/map/overseas"
+              href="/restaurants/map"
+              hidden
               active={active === "overseas-restaurants-map"}
               icon={<MapPinned size={16} />}
               label="해외 맛집리뷰 지도"
@@ -163,7 +229,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
           <>
             <Link
               href="/new"
-              className={`inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-bold text-white shadow-sm transition ${theme.primary}`}
+              className={`inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-bold text-white shadow-sm transition sm:gap-2 sm:px-4 ${theme.primary}`}
             >
               <Plus size={16} />
               새 글
@@ -171,7 +237,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
             {isAdmin ? (
               <Link
                 href="/admin"
-                className={`rounded-md border px-3 py-2 text-sm font-bold shadow-sm transition ${
+                className={`rounded-md border px-2.5 py-2 text-sm font-bold shadow-sm transition sm:px-3 ${
                   active === "admin"
                     ? "border-[#d49a35] bg-[#f3d9a4] text-[#17202a]"
                     : "border-[#e2c17f] bg-[#fff4da] text-[#5c3b09] hover:border-[#d49a35] hover:bg-[#f3d9a4]"
@@ -180,7 +246,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
                 관리자
               </Link>
             ) : (
-              <span className="rounded-md border border-[#d8cfc2] bg-white px-3 py-2 text-sm font-bold text-[#52616b] shadow-sm">
+              <span className="rounded-md border border-[#d8cfc2] bg-white px-2.5 py-2 text-sm font-bold text-[#52616b] shadow-sm sm:px-3">
                 작성자
               </span>
             )}
@@ -189,14 +255,60 @@ export async function AppNav({ active = "home" }: AppNavProps) {
         ) : (
           <Link
             href="/login"
-            className={`inline-flex items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 py-2 text-sm font-bold text-[#52616b] shadow-sm transition ${theme.controlHover}`}
+            className={`inline-flex items-center gap-1.5 rounded-md border border-[#d8cfc2] bg-white px-3 py-2 text-sm font-bold text-[#52616b] shadow-sm transition sm:gap-2 sm:px-4 ${theme.controlHover}`}
           >
             <LogIn size={16} />
             로그인
           </Link>
         )}
       </div>
+
+      <MobileBottomNav active={active} />
     </nav>
+  );
+}
+
+function MobileBottomNav({ active }: { active: NonNullable<AppNavProps["active"]> }) {
+  const isContentSection = active === "reviews" || active === "watchlist";
+  const items = [
+    { href: "/", label: "홈", icon: <Home size={19} />, active: active === "home" },
+    { href: "/reviews", label: "리뷰", icon: <Library size={19} />, active: active === "reviews" },
+    { href: "/new", label: "새글", icon: <Plus size={20} />, active: false, primary: true },
+    {
+      href: "/restaurants",
+      label: "해외맛집",
+      icon: <Utensils size={19} />,
+      active: active === "domestic-restaurants-map" || active === "overseas-restaurants-map",
+    },
+    { href: "/travel", label: "해외여행", icon: <MapPinned size={19} />, active: active === "travel" },
+  ];
+
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-[#d8cfc2] bg-white/95 px-1 pb-[max(0.35rem,env(safe-area-inset-bottom))] pt-1 shadow-[0_-4px_16px_rgba(23,32,42,0.08)] backdrop-blur sm:hidden">
+      {[
+        { href: "/", label: "\uD648", icon: <Home size={19} />, active: active === "home" },
+        { href: "/reviews", label: "\uCF58\uD150\uCE20", icon: <Library size={19} />, active: isContentSection },
+        { href: "/restaurants/items", label: "\uB9DB\uC9D1\uB9AC\uBDF0", icon: <Utensils size={19} />, active: active === "domestic-restaurants-map" || active === "overseas-restaurants-map" },
+        { href: "/travel", label: "\uD574\uC678\uC5EC\uD589", icon: <MapPinned size={19} />, active: active === "travel" },
+        { href: "/new", label: "\uC0C8\uAE00", icon: <Plus size={20} />, active: false, primary: true },
+      ].map((item) => (
+        <Link
+          key={item.href}
+          href={item.href}
+          aria-current={item.active ? "page" : undefined}
+          className={`flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-md text-[11px] font-bold transition ${
+            item.primary
+              ? "bg-[#be4b49] text-white"
+              : item.active
+                ? "bg-[#fff1ef] text-[#be4b49]"
+                : "text-[#52616b] hover:bg-[#f7f3ed]"
+          }`}
+        >
+          {item.icon}
+          <span>{item.label}</span>
+        </Link>
+      ))}
+    </div>
   );
 }
 
@@ -207,6 +319,7 @@ function NavMenuLink({
   label,
   activeClass,
   hoverClass,
+  hidden,
 }: {
   href: string;
   active: boolean;
@@ -214,7 +327,12 @@ function NavMenuLink({
   label: string;
   activeClass: string;
   hoverClass: string;
+  hidden?: boolean;
 }) {
+  if (hidden) {
+    return null;
+  }
+
   return (
     <Link
       href={href}

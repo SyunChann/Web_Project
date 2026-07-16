@@ -51,7 +51,7 @@ export default async function RestaurantEditPage({
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
       <section className="mx-auto w-full max-w-3xl">
-        <AppNav active="restaurants" />
+        <AppNav active="domestic-restaurants-map" />
 
         <div className="mt-10 border-b border-[#eadcc7] pb-5">
           <p className="text-sm font-bold uppercase text-[#e57632]">edit archive</p>

@@ -351,5 +351,5 @@ export async function deleteRestaurantReview(id: string) {
   });
 
   revalidateRestaurantReviewPaths();
-  redirect("/restaurants");
+  redirect("/restaurants/items");
 }

@@ -1,6 +1,7 @@
 import { ArrowLeft, Bookmark, Search, X } from "lucide-react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
+import { ContentSectionTabs } from "@/components/ContentSectionTabs";
 import { ThumbnailImage } from "@/components/ThumbnailImage";
 import {
   getWatchItems,
@@ -67,18 +68,19 @@ export default async function WatchlistItemsPage({
   
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
-      <section className="mx-auto w-full max-w-5xl">
+      <section className="mx-auto w-full max-w-6xl">
         <AppNav active="watchlist" />
 
         <header className="py-10">
+          <ContentSectionTabs active="watchlist" />
           <Link
             href="/watchlist"
-            className="inline-flex items-center gap-2 text-sm font-bold text-[#2f7f7a]"
+            className="hidden"
           >
             <ArrowLeft size={17} />
             기대작 홈
           </Link>
-          <p className="mt-8 text-sm font-semibold text-[#2f7f7a]">Watchlist</p>
+          <p className="mt-0 text-sm font-semibold text-[#2f7f7a]">Watchlist</p>
           <h1 className="mt-3 text-3xl font-bold sm:text-4xl">전체 기대작</h1>
           <p className="mt-4 max-w-2xl leading-7 text-[#52616b]">
             아직 감상하지 않았지만 기억해두고 싶은 작품을 모아둔 목록입니다.

@@ -1,6 +1,6 @@
 # 취향 보관소
 
-영화, 애니, 게임, 드라마, 맛집과 기대작을 기록하는 개인 취향 아카이브입니다.  
+영화, 애니, 게임, 드라마, 기대작, 국내·해외 맛집과 해외여행을 기록하는 개인 취향 아카이브입니다.
 Supabase 기반 인증/데이터/스토리지와 Next.js App Router를 사용하며, 초대 코드로 가입한 사용자만 글을 작성할 수 있습니다.
 
 ## 배포 주소
@@ -11,10 +11,10 @@ https://web-project-omega-ruby-60.vercel.app
 
 ## 주요 기능
 
-- 리뷰: 영화, 애니, 게임, 드라마 감상 기록
-- 기대작: 공개 예정 작품과 기대 이유 기록
-- 맛집리뷰: 국내 맛집 리뷰 목록, 상세, 작성/수정
-- 해외 맛집리뷰 지도: Google Maps 장소 검색 기반 해외 맛집 리뷰와 지도 보기
+- 통합 홈: 리뷰, 기대작, 맛집리뷰, 해외여행의 최신 기록과 수를 한눈에 확인
+- 콘텐츠: 영화, 애니, 게임, 드라마 리뷰와 기대작을 탭으로 전환
+- 맛집리뷰: 국내·해외 목록과 지도를 하나의 탭 흐름으로 제공
+- 해외여행: Google Maps 장소 검색 기반 여행 기록, 목록, 상세, 지도 보기
 - 초대 코드 회원가입: 관리자 발급 링크로만 가입 가능
 - 권한 관리: 작성자는 본인 글만 수정/삭제, 관리자는 전체 관리
 - 관리자 페이지: 초대 코드 생성, 복사, 폐기, 사용 현황 요약
@@ -33,7 +33,7 @@ https://web-project-omega-ruby-60.vercel.app
 - TypeScript
 - Tailwind CSS 4
 - Supabase Auth, Database, Storage
-- Google Maps JavaScript API, Places API
+- Google Maps JavaScript API, Places API (New)
 - Discord Webhook
 - GitHub Actions
 - Vercel
@@ -99,10 +99,10 @@ ADMIN_EMAILS=admin@example.com,another-admin@example.com
 
 ## Google Maps 설정
 
-해외 맛집리뷰 지도와 장소 검색을 사용하려면 Google Cloud에서 아래 항목이 필요합니다.
+해외 맛집리뷰·해외여행 지도와 장소 검색을 사용하려면 Google Cloud에서 아래 항목이 필요합니다.
 
 - Maps JavaScript API 활성화
-- Places API 활성화
+- Places API (New) 활성화
 - API Key 생성
 - Map ID 생성
 - API Key 애플리케이션 제한에 도메인 추가
@@ -192,37 +192,49 @@ where user_id = (
 
 ```txt
 /
-홈
+통합 홈 대시보드
 
 /reviews
-리뷰 목록
+콘텐츠 > 리뷰 목록
 
 /reviews/[id]
 리뷰 상세
 
 /watchlist
-기대작 홈
+기대작 목록으로 이동
 
 /watchlist/items
-기대작 목록
+콘텐츠 > 기대작 목록
 
 /watchlist/[id]
 기대작 상세
 
 /restaurants
-국내 맛집리뷰 홈
+국내 맛집리뷰 목록으로 이동
 
 /restaurants/items
-국내 맛집리뷰 목록
+맛집리뷰 > 국내 목록
 
 /restaurants/items?scope=overseas
-해외 맛집리뷰 목록
+맛집리뷰 > 해외 목록
 
 /restaurants/map
-해외 맛집리뷰 지도
+맛집리뷰 > 해외 지도
 
 /restaurants/[id]
 맛집리뷰 상세
+
+/travel
+해외여행 목록으로 이동
+
+/travel/items
+해외여행 목록
+
+/travel/map
+해외여행 지도
+
+/travel/[id]
+해외여행 상세
 
 /new
 글 작성 유형 선택
@@ -245,13 +257,13 @@ where user_id = (
 
 ## 맛집리뷰 구분
 
-맛집리뷰는 `restaurant_reviews.scope`로 구분합니다.
+맛집리뷰는 하나의 섹션에서 `국내 · 해외 · 지도` 탭으로 이동하며, 데이터는 `restaurant_reviews.scope`로 구분합니다.
 
 - `domestic`: 기존 국내 맛집리뷰
 - `overseas`: Google Maps 장소 검색 기반 해외 맛집리뷰
 
 국내 맛집리뷰는 기존처럼 카테고리, 방문 유형, 주차 여부, 재방문 의사, 방문일 등을 기록합니다.  
-해외 맛집리뷰는 지도 표시를 중심으로 식당명, 주소, 좌표, Google Maps URL, 별점, 요약, 리뷰를 기록합니다.
+해외 맛집리뷰는 지도 표시를 중심으로 식당명, 주소, 좌표, Google Maps URL, 별점, 요약, 리뷰를 기록합니다. 모바일에서는 이 탭이 고정되어 목록과 지도를 바로 전환할 수 있습니다.
 
 ## 이미지와 썸네일
 
@@ -315,6 +327,9 @@ src/components/reviews
 src/components/restaurants
 맛집리뷰 전용 컴포넌트와 지도
 
+src/components/travel
+해외여행 전용 컴포넌트와 지도
+
 src/components/watchlist
 기대작 전용 컴포넌트
 
@@ -349,4 +364,4 @@ GitHub Actions 워크플로
 ## 개발 방향
 
 개인 취향 기록 프로젝트에서 출발했지만, 초대 기반 소규모 커뮤니티 기록 도구로 확장 중입니다.  
-리뷰, 기대작, 국내 맛집, 해외 맛집 지도를 분리해 각 콘텐츠의 성격에 맞는 작성 경험과 조회 화면을 제공하는 것이 현재 방향입니다.
+통합 홈을 중심으로 콘텐츠, 맛집리뷰, 해외여행을 빠르게 오가면서도 각 영역의 작성 경험과 조회 화면은 독립적으로 유지하는 것이 현재 방향입니다.
