@@ -165,7 +165,13 @@ export async function AppNav({ active = "home" }: AppNavProps) {
             className={`flex cursor-pointer list-none items-center gap-1.5 rounded-md border border-[#d8cfc2] bg-white px-3 py-2 text-sm font-bold text-[#52616b] shadow-sm transition sm:gap-2 sm:px-4 ${theme.controlHover} [&::-webkit-details-marker]:hidden`}
           >
             <Library size={16} />
-            {isContentSection ? "\uCF58\uD150\uCE20" : isRestaurantSection ? "\uB9DB\uC9D1\uB9AC\uBDF0" : activeSectionLabel}
+            {active === "home"
+              ? "\uD648"
+              : isContentSection
+                ? "\uCF58\uD150\uCE20"
+                : isRestaurantSection
+                  ? "\uB9DB\uC9D1\uB9AC\uBDF0"
+                  : activeSectionLabel}
             <ChevronDown
               size={15}
               className="transition group-open:rotate-180"
@@ -199,7 +205,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
               hoverClass="hover:bg-[#eefaf8] hover:text-[#2f7f7a]"
             />
             <NavMenuLink
-              href="/restaurants/items?scope=overseas"
+              href="/restaurants/items"
               active={isRestaurantSection}
               icon={<Utensils size={16} />}
               label={"\uB9DB\uC9D1\uB9AC\uBDF0"}
@@ -282,7 +288,7 @@ function MobileBottomNav({ active }: { active: NonNullable<AppNavProps["active"]
       {[
         { href: "/", label: "\uD648", icon: <Home size={19} />, active: active === "home" },
         { href: "/reviews", label: "\uCF58\uD150\uCE20", icon: <Library size={19} />, active: isContentSection },
-        { href: "/restaurants/items?scope=overseas", label: "\uB9DB\uC9D1\uB9AC\uBDF0", icon: <Utensils size={19} />, active: active === "restaurants" || active === "restaurant-map" },
+        { href: "/restaurants/items", label: "\uB9DB\uC9D1\uB9AC\uBDF0", icon: <Utensils size={19} />, active: active === "restaurants" || active === "restaurant-map" },
         { href: "/travel", label: "\uD574\uC678\uC5EC\uD589", icon: <MapPinned size={19} />, active: active === "travel" },
         { href: "/new", label: "\uC0C8\uAE00", icon: <Plus size={20} />, active: false, primary: true },
       ].map((item) => (

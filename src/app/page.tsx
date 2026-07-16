@@ -67,7 +67,7 @@ export default async function Home({ searchParams }: HomeProps) {
             tone="teal"
           />
           <DashboardSection
-            href="/restaurants/items?scope=overseas"
+            href="/restaurants/items"
             icon={<Utensils size={20} />}
             label={"\uB9DB\uC9D1\uB9AC\uBDF0"}
             count={restaurantReviews.length}
