@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { loadGoogleMapsLibrary } from "@/lib/googleMaps";
 
 type ThumbnailTone = "movie" | "anime" | "game" | "drama" | "watchlist";
@@ -55,7 +55,9 @@ export function ThumbnailImage({
   googlePlaceId,
   googlePlaceQuery,
 }: ThumbnailImageProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const [isVisible, setIsVisible] = useState(loading === "eager");
   const [placePhoto, setPlacePhoto] = useState<{
     key: string;
     src: string;
@@ -70,6 +72,7 @@ export function ThumbnailImage({
   const isStoredGoogleImage = Boolean(imageSrc && isGoogleImageSource(imageSrc));
   const shouldLoadPlacePhoto = Boolean(
     (googlePlaceId || googlePlaceQuery) &&
+      isVisible &&
       (!imageSrc ||
         imageSrc === "/thumbnails/default-food.svg" ||
         isStoredGoogleImage ||
@@ -77,6 +80,33 @@ export function ThumbnailImage({
   );
   const effectiveSrc = placePhotoSrc ?? (isStoredGoogleImage ? undefined : imageSrc);
   const hasError = Boolean(effectiveSrc && failedSrc === effectiveSrc);
+
+  useEffect(() => {
+    if (loading !== "lazy" || isVisible) {
+      return;
+    }
+
+    const target = containerRef.current;
+
+    if (!target || typeof IntersectionObserver === "undefined") {
+      setIsVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "320px 0px" },
+    );
+
+    observer.observe(target);
+
+    return () => observer.disconnect();
+  }, [isVisible, loading]);
 
   useEffect(() => {
     if ((!googlePlaceId && !googlePlaceQuery) || !shouldLoadPlacePhoto) {
@@ -126,7 +156,8 @@ export function ThumbnailImage({
 
   if (!effectiveSrc || hasError) {
     return (
-      <div
+      <div ref={containerRef}>
+        <div
         className={`flex items-center justify-center overflow-hidden bg-gradient-to-br ${fallbackClassName} ${fallbackToneClasses[tone]}`}
         role="img"
         aria-label={alt}
@@ -139,21 +170,24 @@ export function ThumbnailImage({
             {title}
           </p>
         </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <Image
-      src={effectiveSrc}
-      alt={alt}
-      width={960}
-      height={540}
-      className={className}
-      loading={loading}
-      fetchPriority={fetchPriority}
-      unoptimized={isGoogleImageSource(effectiveSrc)}
-      onError={() => setFailedSrc(effectiveSrc)}
-    />
+    <div ref={containerRef}>
+      <Image
+        src={effectiveSrc}
+        alt={alt}
+        width={960}
+        height={540}
+        className={className}
+        loading={loading}
+        fetchPriority={fetchPriority}
+        unoptimized={isGoogleImageSource(effectiveSrc)}
+        onError={() => setFailedSrc(effectiveSrc)}
+      />
+    </div>
   );
 }

@@ -1,7 +1,7 @@
 /// <reference types="google.maps" />
 "use client";
 
-import { ExternalLink, MapPin } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { loadGoogleMapsLibrary } from "@/lib/googleMaps";
 
@@ -23,6 +23,7 @@ type TravelMapMarker = google.maps.marker.AdvancedMarkerElement;
 
 export function TravelMapView({ stops }: TravelMapViewProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<google.maps.Map | null>(null);
   const markerRefs = useRef<TravelMapMarker[]>([]);
   const lineRef = useRef<google.maps.Polyline | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -49,6 +50,7 @@ export function TravelMapView({ stops }: TravelMapViewProps) {
           streetViewControl: false,
           mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID,
         });
+        mapRef.current = map;
         const bounds = new google.maps.LatLngBounds();
         const path = stops.map((stop) => ({ lat: stop.latitude, lng: stop.longitude }));
 
@@ -99,8 +101,16 @@ export function TravelMapView({ stops }: TravelMapViewProps) {
       markerRefs.current = [];
       lineRef.current?.setMap(null);
       lineRef.current = null;
+      mapRef.current = null;
     };
-  }, [stops, selectedIndex]);
+  }, [stops]);
+
+  function selectStop(index: number) {
+    const stop = stops[index];
+
+    setSelectedIndex(index);
+    mapRef.current?.panTo({ lat: stop.latitude, lng: stop.longitude });
+  }
 
   return (
     <section className="overflow-hidden rounded-lg border border-[#d9efb9] bg-white shadow-sm">
@@ -111,7 +121,7 @@ export function TravelMapView({ stops }: TravelMapViewProps) {
       <ol className="grid divide-y divide-[#e8f5d5]">
         {stops.map((stop, index) => (
           <li key={`${stop.storeName}-${index}`}>
-            <button type="button" onClick={() => setSelectedIndex(index)} className={`flex w-full items-start gap-3 px-5 py-4 text-left transition ${selectedIndex === index ? "bg-[#f7fee7]" : "hover:bg-[#fbfff5]"}`}>
+            <button type="button" onClick={() => selectStop(index)} className={`flex w-full items-start gap-3 px-5 py-4 text-left transition ${selectedIndex === index ? "bg-[#f7fee7]" : "hover:bg-[#fbfff5]"}`}>
               <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#65a30d] text-sm font-black text-white">{index + 1}</span>
               <span className="min-w-0 flex-1">
                 <strong className="block text-sm text-[#17202a]">{stop.storeName}</strong>
