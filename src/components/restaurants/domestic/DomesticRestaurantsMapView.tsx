@@ -34,7 +34,7 @@ function createPinElement(): HTMLDivElement {
   pin.style.width = "26px";
   pin.style.height = "26px";
   pin.style.borderRadius = "50% 50% 50% 0";
-  pin.style.background = "#0284c7";
+  pin.style.background = "#e57632";
   pin.style.border = "2px solid #ffffff";
   pin.style.transform = "rotate(-45deg)";
   pin.style.boxShadow = "0 2px 4px rgba(0,0,0,0.35)";
@@ -140,8 +140,8 @@ export function DomesticRestaurantsMapView({ items }: DomesticRestaurantsMapView
 
   if (items.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-[#bae6fd] bg-[#f0f9ff] p-8 text-center shadow-sm">
-        <MapPin className="mx-auto text-[#0284c7]" size={28} />
+      <div className="rounded-lg border border-dashed border-[#fdddba] bg-[#fffbf0] p-8 text-center shadow-sm">
+        <MapPin className="mx-auto text-[#e57632]" size={28} />
         <h2 className="mt-4 text-xl font-black text-[#17202a]">
           지도에 표시할 국내 맛집이 없습니다
         </h2>
@@ -154,9 +154,9 @@ export function DomesticRestaurantsMapView({ items }: DomesticRestaurantsMapView
 
   return (
     <section className="grid overflow-hidden rounded-lg border border-[#ddd6cc] bg-white shadow-sm lg:h-[760px] lg:grid-cols-[380px_1fr]">
-      <aside className="order-2 flex min-h-0 flex-col border-t border-[#bae6fd] bg-[#f0f9ff] lg:order-1 lg:h-full lg:border-t-0 lg:border-r">
-        <div className="border-b border-[#bae6fd] p-5">
-          <p className="text-xs font-black uppercase text-[#0284c7]">
+      <aside className="order-2 flex min-h-0 flex-col border-t border-[#fdddba] bg-[#fffbf0] lg:order-1 lg:h-full lg:border-t-0 lg:border-r">
+        <div className="border-b border-[#fdddba] p-5">
+          <p className="text-xs font-black uppercase text-[#e57632]">
             Domestic Restaurant Map
           </p>
           <h2 className="mt-2 text-2xl font-black text-[#17202a]">
@@ -178,13 +178,13 @@ export function DomesticRestaurantsMapView({ items }: DomesticRestaurantsMapView
                 onClick={() => handleSelectItem(item)}
                 className={`mb-3 block w-full rounded-lg border p-4 text-left transition ${
                   isSelected
-                    ? "border-[#0284c7] bg-white shadow-md"
-                    : "border-[#bae6fd] bg-white/70 hover:border-[#0284c7]/60 hover:bg-white"
+                    ? "border-[#e57632] bg-white shadow-md"
+                    : "border-[#fdddba] bg-white/70 hover:border-[#e57632]/60 hover:bg-white"
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-xs font-bold text-[#0284c7]">
+                    <p className="text-xs font-bold text-[#028e576324c7]">
                       {item.categoryLabel}
                     </p>
                     <h3 className="mt-1 line-clamp-1 text-lg font-black text-[#17202a]">
@@ -218,10 +218,10 @@ export function DomesticRestaurantsMapView({ items }: DomesticRestaurantsMapView
         </div>
 
         {selectedItem ? (
-          <div className="border-t border-[#bae6fd] bg-white p-5">
+          <div className="border-t border-[#fdddba] bg-white p-5">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0">
-                <p className="text-xs font-black uppercase text-[#0284c7]">
+                <p className="text-xs font-black uppercase text-[#e57632]">
                   {selectedItem.categoryLabel}
                 </p>
                 <h2 className="mt-2 text-2xl font-black text-[#17202a]">
@@ -231,7 +231,7 @@ export function DomesticRestaurantsMapView({ items }: DomesticRestaurantsMapView
                   {selectedItem.title}
                 </p>
               </div>
-              <span className="inline-flex items-center gap-1 rounded-full border border-[#bae6fd] bg-[#f0f9ff] px-3 py-1 text-sm font-black text-[#17202a]">
+              <span className="inline-flex items-center gap-1 rounded-full border border-[#fdddba] bg-[#fffbf0] px-3 py-1 text-sm font-black text-[#17202a]">
                 <Star size={15} fill="#f2b84b" color="#f2b84b" />
                 {selectedItem.rating}
               </span>
@@ -239,7 +239,7 @@ export function DomesticRestaurantsMapView({ items }: DomesticRestaurantsMapView
 
             {selectedItem.address ? (
               <p className="mt-4 flex gap-2 text-sm font-semibold leading-6 text-[#52616b]">
-                <MapPin className="mt-0.5 shrink-0 text-[#0284c7]" size={16} />
+                <MapPin className="mt-0.5 shrink-0 text-[#e57632]" size={16} />
                 {selectedItem.address}
               </p>
             ) : null}
@@ -251,7 +251,7 @@ export function DomesticRestaurantsMapView({ items }: DomesticRestaurantsMapView
             <div className="mt-5 flex flex-wrap gap-2">
               <Link
                 href={`/restaurants/${selectedItem.id}`}
-                className="inline-flex items-center gap-2 rounded-md bg-[#0284c7] px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-[#0369a1]"
+                className="inline-flex items-center gap-2 rounded-md bg-[#e57632] px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-[#c85a17]"
               >
                 <List size={16} />
                 리뷰 보기
@@ -261,7 +261,7 @@ export function DomesticRestaurantsMapView({ items }: DomesticRestaurantsMapView
                   href={selectedItem.mapUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-md border border-[#bae6fd] bg-white px-4 py-2 text-sm font-bold text-[#075985] shadow-sm transition hover:border-[#0284c7] hover:text-[#0284c7]"
+                  className="inline-flex items-center gap-2 rounded-md border border-[#fdddba] bg-white px-4 py-2 text-sm font-bold text-[#075985] shadow-sm transition hover:border-[#e57632] hover:text-[#e57632]"
                 >
                   카카오맵에서 보기
                   <ExternalLink size={15} />
