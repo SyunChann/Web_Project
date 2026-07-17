@@ -9,6 +9,7 @@ type ConfirmSubmitButtonProps = {
   confirmLabel: string;
   cancelLabel?: string;
   icon?: ReactNode;
+  ariaLabel?: string;
   triggerClassName: string;
   confirmClassName?: string;
 };
@@ -20,6 +21,7 @@ export function ConfirmSubmitButton({
   confirmLabel,
   cancelLabel = "취소",
   icon,
+  ariaLabel,
   triggerClassName,
   confirmClassName = "bg-[#be4b49] text-white hover:bg-[#a83f3d]",
 }: ConfirmSubmitButtonProps) {
@@ -31,6 +33,8 @@ export function ConfirmSubmitButton({
         type="button"
         onClick={() => setIsOpen(true)}
         className={triggerClassName}
+        aria-label={ariaLabel ?? (triggerLabel || title)}
+        title={ariaLabel ?? (triggerLabel || title)}
       >
         {icon}
         {triggerLabel}

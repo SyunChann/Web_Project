@@ -73,3 +73,20 @@ export async function updatePriceWatchlist(id: string, formData: FormData) {
   updateTag("price-watchlists");
   revalidatePath("/prices");
 }
+
+export async function deletePriceWatchlist(id: string) {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) redirect("/login?error=config");
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { error } = await supabase
+    .from("price_watchlists")
+    .delete()
+    .eq("id", id)
+    .eq("author_id", user.id);
+
+  if (error) throw new Error(error.message);
+  updateTag("price-watchlists");
+  revalidatePath("/prices");
+}
