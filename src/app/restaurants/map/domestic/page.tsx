@@ -1,9 +1,9 @@
-import { ArrowRight, MapPinned, Plus } from "lucide-react";
+import { ArrowRight,MapPinned, Plus } from "lucide-react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { DomesticRestaurantsMapView } from "@/components/restaurants/domestic/DomesticRestaurantsMapView";
 import { getRestaurantsReviews } from "@/data/restaurants";
-
+import { RestaurantScopeTabs } from "@/components/RestaurantScopeTabs";
 
 export const metadata = {
   title: "국내 맛집리뷰 지도 | 취향보관소",
@@ -32,11 +32,12 @@ export default async function RestaurantsMapPage() {
 
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
-      <section className="mx-auto w-full max-w-7xl">
+      <section className="mx-auto w-full max-w-6xl">
         <AppNav active="domestic-restaurants-map" />
 
         <header className="py-10">
-          <div className="inline-flex items-center gap-2 rounded-md border border-[#e57632] bg-white px-3 py-2 text-sm font-bold text-[#e57632] shadow-sm">
+          <RestaurantScopeTabs active="domestic" view="map" />
+          <div className="hidden">
             <MapPinned size={16} />
             국내 맛집리뷰 지도
           </div>
@@ -49,7 +50,7 @@ export default async function RestaurantsMapPage() {
                 국내 맛집 리뷰를 지도에서 봅니다
               </h1>
               <p className="mt-4 max-w-2xl leading-7 text-[#52616b]">
-                Naver Maps 장소 검색으로 저장된 국내 맛집 좌표를 지도에 표시합니다.
+                KaKao Maps 장소 검색으로 저장된 국내 맛집 좌표를 지도에 표시합니다.
               </p>
             </div>
 

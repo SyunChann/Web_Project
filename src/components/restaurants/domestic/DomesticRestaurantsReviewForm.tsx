@@ -1,5 +1,6 @@
 "use client";
 
+import NextImage from "next/image";
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import type { RestaurantsReview } from "@/data/restaurants";
@@ -201,13 +202,145 @@ export function DomesticRestaurantsReviewForm({
       <DomesticPlaceSearch
         onSelectPlace={(data) => setPlaceData(data)}
         label={"맛집 장소 검색"}
-        description={"Naver Maps에서 장소를 선택하면 상호명, 주소, 위도/경도가 자동으로 입력됩니다."}
+        description={"Kakao Maps에서 장소를 선택하면 상호명, 주소, 위도/경도가 자동으로 입력됩니다."}
         placeholder={"예: 강남 라멘, 성수 카페, 홍대 스시"}
-        // language={"ko"}
-        // region={"ko"}
-        // includedRegionCodes={["ko"]}
-        // tone={ "restaurant" }
       />
+
+      <>
+      <input type="hidden" name="thumbnail" value={restaurantsReview?.thumbnail ?? ""} />
+
+      <label className="grid gap-2 text-sm font-bold rounded-lg border border-[#ddd6cc] bg-[#fbfaf7] p-4">
+        <FieldLabel>썸네일 업로드</FieldLabel>
+        {restaurantsReview?.thumbnail ? (
+          <div className="flex flex-wrap items-center gap-3 rounded-md border border-[#d8cfc2] bg-white p-3">
+            <NextImage
+              src={restaurantsReview.thumbnail}
+              alt={restaurantsReview.thumbnailAlt}
+              width={96}
+              height={54}
+              className="aspect-video w-24 rounded object-cover"
+            />
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-[#52616b]">현재 썸네일</p>
+              <p className="break-all text-sm font-normal text-[#17202a]">
+                {currentThumbnailName}
+              </p>
+            </div>
+          </div>
+        ) : null}
+        <input
+          name="thumbnail_file"
+          type="file"
+          accept="image/*"
+          onChange={(event) => {
+            const file = event.currentTarget.files?.[0];
+
+            setThumbnailStatus(
+              file
+                ? `선택됨: ${file.name} (${formatFileSize(file.size)})`
+                : "이미지는 업로드 전에 자동으로 1200px 이하 WebP로 압축됩니다.",
+            );
+          }}
+          className="sr-only"
+        />
+        <div className="flex min-w-0 flex-wrap items-start gap-3 rounded-md border border-[#d8cfc2] bg-white p-3">
+          <span className="shrink-0 rounded-md bg-[#e57632] px-3 py-2 text-sm font-bold text-white">
+            파일 선택
+          </span>
+          <span className="min-w-0 flex-1 break-all text-xs font-normal leading-5 text-[#7a6f63]">
+            {thumbnailStatus}
+          </span>
+        </div>
+      </label>
+      </>
+
+      <div className="grid gap-5 sm:grid-cols-3">
+        <label className="grid gap-2 text-sm font-bold">
+          <FieldLabel required>카테고리</FieldLabel>
+            <select
+              name="category"
+              defaultValue={restaurantsReview?.category ?? "korean"}
+              required
+          className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:bg-white ${focusInputClass}`}
+            >
+              <option value="korean">한식</option>
+              <option value="japanese">일식</option>
+              <option value="chinese">중식</option>
+              <option value="western">양식</option>
+              <option value="asian">아시아</option>
+              <option value="cafe">카페</option>
+              <option value="other">기타</option>
+            </select>
+        </label>
+
+        <label className="grid gap-2 text-sm font-bold">
+          <FieldLabel required>방문유형</FieldLabel>
+            <select
+              name="companion"
+              defaultValue={restaurantsReview?.companion ?? "solo"}
+              required
+              className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:bg-white ${focusInputClass}`}
+            >
+              <option value="solo">혼밥</option>
+              <option value="date">데이트</option>
+              <option value="friends">친목모임</option>
+              <option value="family">가족모임</option>
+              <option value="business">비즈니스</option>
+              <option value="other">기타</option>
+            </select>
+        </label>
+
+        <label className="grid gap-2 text-sm font-bold">
+          <FieldLabel required>별점</FieldLabel>
+          <input
+            name="rating"
+            type="number"
+            min="0"
+            max="5"
+            step="0.1"
+            defaultValue={restaurantsReview?.rating ?? 4}
+            required
+            className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#e57632] focus:bg-white"
+          />
+        </label>
+
+        <label className="grid gap-2 text-sm font-bold">
+          <FieldLabel required>방문일</FieldLabel>
+          <input
+            name="visitedAt"
+            type="date"
+            defaultValue={restaurantsReview?.visitedAt}
+            required
+            className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#e57632] focus:bg-white"
+          />
+        </label>
+        
+        <label className="grid gap-2 text-sm font-bold">
+          <FieldLabel required>주차여부</FieldLabel>
+            <select
+              name="hasParking"
+              defaultValue={restaurantsReview?.hasParking}
+              required
+              className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#e57632] focus:bg-white"
+            >
+              <option value="true">가능</option>
+              <option value="false">불가능</option>
+            </select>
+        </label>
+        
+        <label className="grid gap-2 text-sm font-bold">
+          <FieldLabel required>재방문여부</FieldLabel>
+            <select
+              name="willRevisit"
+              defaultValue={restaurantsReview?.willRevisit}
+              required
+              className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#e57632] focus:bg-white"
+            >
+              <option value="true">있음</option>
+              <option value="false">없음</option>
+            </select>
+        </label>
+      </div>
 
       {placeData && (
         <>
@@ -220,15 +353,11 @@ export function DomesticRestaurantsReviewForm({
         </>
       )}
 
-      <label className="grid gap-2 text-sm font-bold">
-        <FieldLabel required>제목</FieldLabel>
-        <input
+      <input
+          type="hidden"
           name="title"
-          defaultValue={restaurantsReview?.title}
-          required
-          className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:bg-white ${focusInputClass}`}
+          value={placeData?.storeName ?? restaurantsReview?.title ?? ""}
         />
-      </label>
 
       <label className="grid gap-2 text-sm font-bold">
         <FieldLabel required>식당명</FieldLabel>
@@ -251,24 +380,6 @@ export function DomesticRestaurantsReviewForm({
           }
           required
           placeholder="위에 있는 구글 지도 검색을 이용하면 자동 입력됩니다."
-          className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:bg-white ${focusInputClass}`}
-        />
-      </label>
-
-      <input type="hidden" name="category" value="other" />
-      <input type="hidden" name="companion" value="other" />
-      <input type="hidden" name="hasParking" value="false" />
-      <input type="hidden" name="willRevisit" value="false" />
-      <label className="grid gap-2 text-sm font-bold">
-        <FieldLabel required>별점</FieldLabel>
-        <input
-          name="rating"
-          type="number"
-          min="0"
-          max="5"
-          step="0.1"
-          defaultValue={restaurantsReview?.rating ?? 4}
-          required
           className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:bg-white ${focusInputClass}`}
         />
       </label>

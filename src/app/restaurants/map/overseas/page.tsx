@@ -3,6 +3,7 @@ import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { OverseasRestaurantsMapView } from "@/components/restaurants/overseas/OverseasRestaurantsMapView";
 import { getRestaurantsReviews } from "@/data/restaurants";
+ import { RestaurantScopeTabs } from "@/components/RestaurantScopeTabs";
 
 export const metadata = {
   title: "해외 맛집리뷰 지도 | 취향보관소",
@@ -31,11 +32,12 @@ export default async function RestaurantsMapPage() {
 
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
-      <section className="mx-auto w-full max-w-7xl">
+      <section className="mx-auto w-full max-w-6xl">
         <AppNav active="overseas-restaurants-map" />
 
         <header className="py-10">
-          <div className="inline-flex items-center gap-2 rounded-md border border-[#0284c7] bg-white px-3 py-2 text-sm font-bold text-[#0284c7] shadow-sm">
+          <RestaurantScopeTabs active="overseas" view="map" />
+          <div className="hidden">
             <MapPinned size={16} />
             해외 맛집리뷰 지도
           </div>
