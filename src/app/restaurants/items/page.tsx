@@ -83,7 +83,7 @@ export default async function RestaurantsReviewsPage({
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
       <section className="mx-auto w-full max-w-6xl">
-        <AppNav active={isOverseas ? "restaurant-map" : "restaurants"} />
+        <AppNav active={isOverseas ? "overseas-restaurants-map" : "domestic-restaurants-map"} />
 
         <header className="py-10">
           <RestaurantScopeTabs active={activeScope} />

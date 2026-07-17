@@ -4,9 +4,9 @@ import NextImage from "next/image";
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import type { RestaurantsReview } from "@/data/restaurants";
-import { PlaceSearch, type SelectedPlaceData } from "@/components/PlaceSearch";
+import { DomesticPlaceSearch, type SelectedPlaceData } from "@/components/DomesticPlaceSearch";
 
-type RestaurantsReviewFormProps = {
+type DomesticRestaurantsReviewFormProps = {
   action: (formData: FormData) => void | Promise<void>;
   submitLabel: string;
   restaurantsReview?: RestaurantsReview;
@@ -130,24 +130,17 @@ function FieldLabel({
   );
 }
 
-export function RestaurantsReviewForm({
+export function DomesticRestaurantsReviewForm({
   action,
   submitLabel,
   restaurantsReview,
   scope,
   showSlugField = false,
-}: RestaurantsReviewFormProps) {
+}: DomesticRestaurantsReviewFormProps) {
   const reviewScope = scope ?? restaurantsReview?.scope ?? "domestic";
-  const isOverseas = reviewScope === "overseas";
-  const primaryButtonClass = isOverseas
-    ? "bg-[#0284c7] hover:bg-[#0369a1]"
-    : "bg-[#e57632] hover:bg-[#a83f3d]";
-  const secondaryButtonClass = isOverseas
-    ? "hover:border-[#0284c7] hover:text-[#0284c7]"
-    : "hover:border-[#e57632] hover:text-[#e57632]";
-  const focusInputClass = isOverseas
-    ? "focus:border-[#0284c7]"
-    : "focus:border-[#e57632]";
+  const primaryButtonClass = "bg-[#e57632] hover:bg-[#a83f3d]";
+  const secondaryButtonClass = "hover:border-[#e57632] hover:text-[#e57632]";
+  const focusInputClass = "focus:border-[#e57632]";
   const currentThumbnailName = getFileNameFromPath(restaurantsReview?.thumbnail);
   const [thumbnailStatus, setThumbnailStatus] = useState(
     currentThumbnailName
@@ -163,9 +156,9 @@ export function RestaurantsReviewForm({
           address: restaurantsReview.address ?? "",
           latitude: restaurantsReview.latitude ?? 0,
           longitude: restaurantsReview.longitude ?? 0,
-          placeId: restaurantsReview.placeId ?? "",
+          // placeId: restaurantsReview.placeId ?? "",
           mapUrl: restaurantsReview.mapUrl ?? "",
-          photoUrl: restaurantsReview.thumbnail,
+          // photoUrl: restaurantsReview.thumbnail,
       }
       : null,
   )
@@ -206,106 +199,61 @@ export function RestaurantsReviewForm({
         </label>
       ) : null}
 
-      {reviewScope === "overseas" ? (
-      <PlaceSearch
+      <DomesticPlaceSearch
         onSelectPlace={(data) => setPlaceData(data)}
-        label={isOverseas ? "일본 맛집 장소 검색" : "맛집 장소 검색"}
-        description={
-          isOverseas
-            ? "일본어 상호명으로 검색해도 됩니다. 장소를 선택하면 상호명, 주소, 위도/경도가 자동으로 입력됩니다."
-            : "Google Maps에서 장소를 선택하면 상호명, 주소, 위도/경도가 자동으로 입력됩니다."
-        }
-        placeholder={
-          isOverseas
-            ? "例: 天麩羅処ひらお, 一蘭 新宿, 鳥貴族 渋谷"
-            : "예: 강남 라멘, 성수 카페, 홍대 스시"
-        }
-        language={isOverseas ? "ja" : "ko"}
-        region={isOverseas ? "jp" : undefined}
-        includedRegionCodes={isOverseas ? ["jp"] : undefined}
-        tone={ "overseas" }
+        label={"맛집 장소 검색"}
+        description={"Kakao Maps에서 장소를 선택하면 상호명, 주소, 위도/경도가 자동으로 입력됩니다."}
+        placeholder={"예: 강남 라멘, 성수 카페, 홍대 스시"}
       />
-      ) : null}
 
-      {placeData && (
-        <>
-          <input type="hidden" name="address" value={placeData.address} />
-          <input type="hidden" name="latitude" value={placeData.latitude} />
-          <input type="hidden" name="longitude" value={placeData.longitude} />
-          <input type="hidden" name="placeId" value={placeData.placeId} />
-          <input type="hidden" name="mapUrl" value={placeData.mapUrl} />
-          {reviewScope === "overseas" && placeData.photoUrl ? (
-            <input type="hidden" name="thumbnail" value={placeData.photoUrl} />
-          ) : null}
-        </>
-      )}
+      <>
+      <input type="hidden" name="thumbnail" value={restaurantsReview?.thumbnail ?? ""} />
 
-      {reviewScope === "overseas" ? (
-        <input
-          type="hidden"
-          name="title"
-          value={placeData?.storeName ?? restaurantsReview?.title ?? ""}
-        />
-      ) : (
-      <label className="grid gap-2 text-sm font-bold">
-        <FieldLabel required>제목</FieldLabel>
-        <input
-          name="title"
-          defaultValue={restaurantsReview?.title}
-          required
-          className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:bg-white ${focusInputClass}`}
-        />
-      </label>
-      )}
-
-      <label className="grid gap-2 text-sm font-bold">
-        <FieldLabel required>식당명</FieldLabel>
-        <input
-          name="storeName"
-          value={placeData?.storeName ?? ""}
-          onChange={(e) =>
-            setPlaceData((prev) =>
-              prev
-                ? { ...prev, storeName: e.target.value }
-                : {
-                    storeName: e.target.value,
-                    address: "",
-                    latitude: 0,
-                    longitude: 0,
-                    placeId: "",
-                    mapUrl: "",
-                  },
-            )
-          }
-          required
-          placeholder="위에 있는 구글 지도 검색을 이용하면 자동 입력됩니다."
-          className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:bg-white ${focusInputClass}`}
-        />
-      </label>
-
-      {reviewScope === "overseas" ? (
-        <>
-          <input type="hidden" name="category" value="other" />
-          <input type="hidden" name="companion" value="other" />
-          <input type="hidden" name="hasParking" value="false" />
-          <input type="hidden" name="willRevisit" value="false" />
-          <label className="grid gap-2 text-sm font-bold">
-            <FieldLabel required>별점</FieldLabel>
-            <input
-              name="rating"
-              type="number"
-              min="0"
-              max="5"
-              step="0.1"
-              defaultValue={restaurantsReview?.rating ?? 4}
-              required
-              className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:bg-white ${focusInputClass}`}
+      <label className="grid gap-2 text-sm font-bold rounded-lg border border-[#ddd6cc] bg-[#fbfaf7] p-4">
+        <FieldLabel>썸네일 업로드</FieldLabel>
+        {restaurantsReview?.thumbnail ? (
+          <div className="flex flex-wrap items-center gap-3 rounded-md border border-[#d8cfc2] bg-white p-3">
+            <NextImage
+              src={restaurantsReview.thumbnail}
+              alt={restaurantsReview.thumbnailAlt}
+              width={96}
+              height={54}
+              className="aspect-video w-24 rounded object-cover"
             />
-          </label>
-        </>
-      ) : null}
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-[#52616b]">현재 썸네일</p>
+              <p className="break-all text-sm font-normal text-[#17202a]">
+                {currentThumbnailName}
+              </p>
+            </div>
+          </div>
+        ) : null}
+        <input
+          name="thumbnail_file"
+          type="file"
+          accept="image/*"
+          onChange={(event) => {
+            const file = event.currentTarget.files?.[0];
 
-      {reviewScope === "domestic" ? (
+            setThumbnailStatus(
+              file
+                ? `선택됨: ${file.name} (${formatFileSize(file.size)})`
+                : "이미지는 업로드 전에 자동으로 1200px 이하 WebP로 압축됩니다.",
+            );
+          }}
+          className="sr-only"
+        />
+        <div className="flex min-w-0 flex-wrap items-start gap-3 rounded-md border border-[#d8cfc2] bg-white p-3">
+          <span className="shrink-0 rounded-md bg-[#e57632] px-3 py-2 text-sm font-bold text-white">
+            파일 선택
+          </span>
+          <span className="min-w-0 flex-1 break-all text-xs font-normal leading-5 text-[#7a6f63]">
+            {thumbnailStatus}
+          </span>
+        </div>
+      </label>
+      </>
+
       <div className="grid gap-5 sm:grid-cols-3">
         <label className="grid gap-2 text-sm font-bold">
           <FieldLabel required>카테고리</FieldLabel>
@@ -393,57 +341,48 @@ export function RestaurantsReviewForm({
             </select>
         </label>
       </div>
-      ) : null}
 
-      {reviewScope === "domestic" ? (
-      <>
-      <input type="hidden" name="thumbnail" value={restaurantsReview?.thumbnail ?? ""} />
+      {placeData && (
+        <>
+          <input type="hidden" name="address" value={placeData.address} />
+          <input type="hidden" name="latitude" value={placeData.latitude} />
+          <input type="hidden" name="longitude" value={placeData.longitude} />
+          {/* <input type="hidden" name="placeId" value={placeData.placeId} /> */}
+          <input type="hidden" name="mapUrl" value={placeData.mapUrl} />
+          {/* <input type="hidden" name="thumbnail" value={placeData.photoUrl} /> */}
+        </>
+      )}
 
-      <label className="grid gap-2 text-sm font-bold rounded-lg border border-[#ddd6cc] bg-[#fbfaf7] p-4">
-        <FieldLabel>썸네일 업로드</FieldLabel>
-        {restaurantsReview?.thumbnail ? (
-          <div className="flex flex-wrap items-center gap-3 rounded-md border border-[#d8cfc2] bg-white p-3">
-            <NextImage
-              src={restaurantsReview.thumbnail}
-              alt={restaurantsReview.thumbnailAlt}
-              width={96}
-              height={54}
-              className="aspect-video w-24 rounded object-cover"
-            />
-            <div className="min-w-0">
-              <p className="text-xs font-bold text-[#52616b]">현재 썸네일</p>
-              <p className="break-all text-sm font-normal text-[#17202a]">
-                {currentThumbnailName}
-              </p>
-            </div>
-          </div>
-        ) : null}
-        <input
-          name="thumbnail_file"
-          type="file"
-          accept="image/*"
-          onChange={(event) => {
-            const file = event.currentTarget.files?.[0];
-
-            setThumbnailStatus(
-              file
-                ? `선택됨: ${file.name} (${formatFileSize(file.size)})`
-                : "이미지는 업로드 전에 자동으로 1200px 이하 WebP로 압축됩니다.",
-            );
-          }}
-          className="sr-only"
+      <input
+          type="hidden"
+          name="title"
+          value={placeData?.storeName ?? restaurantsReview?.title ?? ""}
         />
-        <div className="flex min-w-0 flex-wrap items-start gap-3 rounded-md border border-[#d8cfc2] bg-white p-3">
-          <span className="shrink-0 rounded-md bg-[#e57632] px-3 py-2 text-sm font-bold text-white">
-            파일 선택
-          </span>
-          <span className="min-w-0 flex-1 break-all text-xs font-normal leading-5 text-[#7a6f63]">
-            {thumbnailStatus}
-          </span>
-        </div>
+
+      <label className="grid gap-2 text-sm font-bold">
+        <FieldLabel required>식당명</FieldLabel>
+        <input
+          name="storeName"
+          value={placeData?.storeName ?? ""}
+          onChange={(e) =>
+            setPlaceData((prev) =>
+              prev
+                ? { ...prev, storeName: e.target.value }
+                : {
+                    storeName: e.target.value,
+                    address: "",
+                    latitude: 0,
+                    longitude: 0,
+                    placeId: "",
+                    mapUrl: "",
+                  },
+            )
+          }
+          required
+          placeholder="위에 있는 구글 지도 검색을 이용하면 자동 입력됩니다."
+          className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:bg-white ${focusInputClass}`}
+        />
       </label>
-      </>
-      ) : null}
 
       <label className="grid gap-2 text-sm font-bold">
         <FieldLabel required>요약</FieldLabel>

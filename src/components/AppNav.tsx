@@ -21,10 +21,11 @@ type AppNavProps = {
     | "home"
     | "reviews"
     | "watchlist"
-    | "restaurants"
+    | "domestic-restaurants-map"
+    | "overseas-restaurants-map"
     | "travel"
-    | "prices"
     | "restaurant-map"
+    | "prices"
     | "admin";
 };
 
@@ -39,16 +40,20 @@ export async function AppNav({ active = "home" }: AppNavProps) {
     home: "리뷰",
     reviews: "리뷰 목록",
     watchlist: "기대작",
-    restaurants: "맛집리뷰",
+    "domestic-restaurants-map": "국내 맛집리뷰 지도",
+    "overseas-restaurants-map": "해외 맛집리뷰 지도",
     travel: "해외여행",
-    prices: "가격추적",
     "restaurant-map": "해외 맛집리뷰 지도",
+    prices: "가격추적",
     admin: "관리자",
   };
   const activeSectionLabel = sectionLabels[active] || "리뷰 홈";
 
   const isContentSection = active === "reviews" || active === "watchlist";
-  const isRestaurantSection = active === "restaurants" || active === "restaurant-map";
+  const isRestaurantSection =
+    active === "domestic-restaurants-map" ||
+    active === "overseas-restaurants-map" ||
+    active === "restaurant-map";
 
   const themes: Record<
     string,
@@ -69,7 +74,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
       primary: "bg-[#2f7f7a] hover:bg-[#276a66]",
       admin: "bg-[#e4f4f2] text-[#2f7f7a]",
     },
-    restaurants: {
+    "domestic-restaurants-map": {
       brandHover: "hover:border-[#e57632]",
       icon: "bg-[#e57632] group-hover:bg-[#c85a17]",
       text: "text-[#e57632]",
@@ -77,7 +82,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
       primary: "bg-[#e57632] hover:bg-[#c85a17]",
       admin: "bg-[#fdf2e9] text-[#e57632]",
     },
-    "restaurant-map": {
+    "overseas-restaurants-map": {
       brandHover: "hover:border-[#0284c7]",
       icon: "bg-[#0284c7] group-hover:bg-[#0369a1]",
       text: "text-[#0284c7]",
@@ -219,7 +224,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
             <NavMenuLink
               href="/restaurants/map"
               hidden
-              active={active === "restaurant-map"}
+              active={active === "overseas-restaurants-map"}
               icon={<MapPinned size={16} />}
               label="해외 맛집리뷰 지도"
               activeClass="bg-[#e0f2fe] text-[#075985]"
@@ -275,13 +280,13 @@ export async function AppNav({ active = "home" }: AppNavProps) {
 
 function MobileBottomNav({ active }: { active: NonNullable<AppNavProps["active"]> }) {
   const isContentSection = active === "reviews" || active === "watchlist";
-
+  
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-[#d8cfc2] bg-white/95 px-1 pb-[max(0.35rem,env(safe-area-inset-bottom))] pt-1 shadow-[0_-4px_16px_rgba(23,32,42,0.08)] backdrop-blur sm:hidden">
       {[
         { href: "/", label: "\uD648", icon: <Home size={19} />, active: active === "home" },
         { href: "/reviews", label: "\uCF58\uD150\uCE20", icon: <Library size={19} />, active: isContentSection },
-        { href: "/restaurants/items", label: "\uB9DB\uC9D1\uB9AC\uBDF0", icon: <Utensils size={19} />, active: active === "restaurants" || active === "restaurant-map" },
+        { href: "/restaurants/items", label: "\uB9DB\uC9D1\uB9AC\uBDF0", icon: <Utensils size={19} />, active: active === "domestic-restaurants-map" || active === "overseas-restaurants-map" },
         { href: "/travel/items", label: "\uD574\uC678\uC5EC\uD589", icon: <MapPinned size={19} />, active: active === "travel" },
         { href: "/new", label: "\uC0C8\uAE00", icon: <Plus size={20} />, active: false, primary: true },
       ].map((item) => (

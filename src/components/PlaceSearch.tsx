@@ -24,7 +24,7 @@ type PlaceSearchProps = {
   region?: string;
   includedRegionCodes?: string[];
   allowAllPlaceTypes?: boolean;
-  tone?: "restaurant" | "overseas" | "travel";
+  tone?: "overseas" | "travel";
 };
 
 type AutocompleteSuggestionItem = {
@@ -63,7 +63,7 @@ export function PlaceSearch({
   region,
   includedRegionCodes,
   allowAllPlaceTypes = false,
-  tone = "restaurant",
+  tone = "overseas",
 }: PlaceSearchProps) {
   const inputId = useId();
   const latestRequestRef = useRef(0);

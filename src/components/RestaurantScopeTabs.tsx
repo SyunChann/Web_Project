@@ -11,19 +11,20 @@ export function RestaurantScopeTabs({
 }) {
   const tabs = [
     { href: "/restaurants/items", label: "\uAD6D\uB0B4", icon: <Utensils size={16} />, key: "domestic" },
+    { href: "/restaurants/map/domestic", label: "\uAD6D\uB0B4\uC9C0\uB3C4", icon: <MapPinned size={16} />, key: "domesticMap" },
     { href: "/restaurants/items?scope=overseas", label: "\uD574\uC678", icon: <Utensils size={16} />, key: "overseas" },
-    { href: "/restaurants/map", label: "\uC9C0\uB3C4", icon: <MapPinned size={16} />, key: "map" },
+    { href: "/restaurants/map/overseas", label: "\uD574\uC678\uC9C0\uB3C4", icon: <MapPinned size={16} />, key: "overseasMap" },
   ] as const;
 
   return (
     <nav aria-label="\uB9DB\uC9D1\uB9AC\uBDF0 \uBC94\uC704" className="sticky top-2 z-20 mb-5 flex w-fit rounded-md border border-[#d8cfc2] bg-white p-1 shadow-sm sm:static">
       {tabs.map((tab) => {
-        const isActive = tab.key === "map" ? view === "map" : view === "list" && tab.key === active;
-        const activeClass = tab.key === "overseas"
-          ? "bg-[#0284c7] text-white"
-          : tab.key === "map"
-            ? "bg-[#0284c7] text-white"
-          : "bg-[#e57632] text-white";
+        const isActive = view === "map" 
+              ? tab.key === `${active}Map` 
+              : tab.key === active;
+        const activeClass = tab.key.includes("overseas")
+              ? "bg-[#0284c7] text-white" 
+              : "bg-[#e57632] text-white";
 
         return (
           <Link
