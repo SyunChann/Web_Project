@@ -5,7 +5,7 @@ import { AppNav } from "@/components/AppNav";
 import { StatusToast } from "@/components/StatusToast";
 import { getRestaurantsReviews } from "@/data/restaurants";
 import { getReviews } from "@/data/reviews";
-import { getTravels } from "@/data/travel";
+import { getTravels, groupTravelPosts } from "@/data/travel";
 import { getWatchItems } from "@/data/watchlist";
 
 type HomeProps = {
@@ -30,6 +30,7 @@ export default async function Home({ searchParams }: HomeProps) {
   const restaurantReviews = [...restaurants, ...overseasRestaurants].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
+  const travelPosts = groupTravelPosts(travels);
 
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
@@ -80,9 +81,9 @@ export default async function Home({ searchParams }: HomeProps) {
             href="/travel/items"
             icon={<MapPinned size={20} />}
             label={"\uD574\uC678\uC5EC\uD589"}
-            count={travels.length}
-            latest={travels[0]?.title}
-            latestDate={travels[0]?.createdAt}
+            count={travelPosts.length}
+            latest={travelPosts[0]?.travel.tripTitle ?? travelPosts[0]?.travel.title}
+            latestDate={travelPosts[0]?.travel.createdAt}
             tone="green"
           />
         </section>

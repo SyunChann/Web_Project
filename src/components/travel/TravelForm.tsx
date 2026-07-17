@@ -3,6 +3,7 @@
 import NextImage from "next/image";
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
+import { CalendarDays, MapPin, Trash2 } from "lucide-react";
 import type { Travel } from "@/data/travel";
 import { PlaceSearch, type SelectedPlaceData } from "@/components/PlaceSearch";
 
@@ -12,6 +13,12 @@ type TravelFormProps = {
   travel?: Travel;
   scope?: Travel["scope"];
   showSlugField?: boolean;
+  legacyTravelIds?: string[];
+};
+
+type ItineraryPlace = SelectedPlaceData & {
+  visitedAt: string;
+  visitedTime: string;
 };
 
 const maxThumbnailWidth = 1200;
@@ -136,6 +143,7 @@ export function TravelForm({
   travel,
   scope,
   showSlugField = false,
+  legacyTravelIds = [],
 }: TravelFormProps) {
   const reviewScope = scope ?? travel?.scope ?? "overseas";
   const isOverseas = reviewScope === "overseas";
@@ -149,6 +157,7 @@ export function TravelForm({
       : "이미지는 업로드 전에 자동으로 1200px 이하 WebP로 압축됩니다.",
   );
   const [isCompressing, setIsCompressing] = useState(false);
+  const isItineraryMode = isOverseas && (!travel || travel.itinerary.length > 0);
 
   const [placeData, setPlaceData] = useState< SelectedPlaceData | null >(
     travel
@@ -163,6 +172,52 @@ export function TravelForm({
       }
       : null,
   )
+  const [itineraryPlaces, setItineraryPlaces] = useState<ItineraryPlace[]>(
+    travel?.itinerary.map((place) => ({
+      storeName: place.storeName,
+      address: place.address ?? "",
+      latitude: place.latitude ?? 0,
+      longitude: place.longitude ?? 0,
+      placeId: place.placeId ?? `existing-${place.storeName}-${place.visitedAt}-${place.visitedTime ?? ""}`,
+      mapUrl: place.mapUrl ?? "",
+      photoUrl: place.photoUrl,
+      visitedAt: place.visitedAt,
+      visitedTime: place.visitedTime?.slice(0, 5) ?? "",
+    })) ?? [],
+  );
+  const orderedItineraryPlaces = [...itineraryPlaces].sort((left, right) => {
+    const leftKey = `${left.visitedAt || "9999-12-31"}T${left.visitedTime || "23:59"}`;
+    const rightKey = `${right.visitedAt || "9999-12-31"}T${right.visitedTime || "23:59"}`;
+
+    return leftKey.localeCompare(rightKey, "en");
+  });
+
+  function addItineraryPlace(data: SelectedPlaceData) {
+    const today = new Date().toISOString().slice(0, 10);
+
+    setPlaceData(data);
+    setItineraryPlaces((places) => {
+      const existingIndex = places.findIndex((place) => place.placeId === data.placeId);
+
+      if (existingIndex >= 0) {
+        return places;
+      }
+
+      return [...places, { ...data, visitedAt: today, visitedTime: "" }];
+    });
+  }
+
+  function updateItineraryPlace(
+    placeId: string,
+    field: "visitedAt" | "visitedTime",
+    value: string,
+  ) {
+    setItineraryPlaces((places) =>
+      places.map((place) =>
+        place.placeId === placeId ? { ...place, [field]: value } : place,
+      ),
+    );
+  }
 
   async function submitCompressedForm(formData: FormData) {
     const thumbnail = formData.get("thumbnail_file");
@@ -188,6 +243,21 @@ export function TravelForm({
     <form action={submitCompressedForm} className="grid gap-5">
       <input type="hidden" name="scope" value={reviewScope} />
 
+      {isItineraryMode ? (
+        <label className="grid gap-2 text-sm font-bold">
+          <FieldLabel required>여행 제목</FieldLabel>
+          <input
+            name="tripTitle"
+            defaultValue={travel?.tripTitle}
+            required
+            placeholder="예: 2026 도쿄 3박 4일"
+            className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:bg-white ${focusInputClass}`}
+          />
+        </label>
+      ) : (
+        <input type="hidden" name="tripTitle" value={travel?.tripTitle ?? ""} />
+      )}
+
       {showSlugField ? (
         <label className="grid gap-2 text-sm font-bold">
           <FieldLabel>URL ID</FieldLabel>
@@ -201,10 +271,13 @@ export function TravelForm({
       ) : null}
 
       <PlaceSearch
-        onSelectPlace={(data) => setPlaceData(data)}
-        label={isOverseas ? "일본 맛집 장소 검색" : "맛집 장소 검색"}
+        key={isItineraryMode ? `itinerary-${itineraryPlaces.length}` : "travel-place"}
+        onSelectPlace={isItineraryMode ? addItineraryPlace : (data) => setPlaceData(data)}
+        label={isItineraryMode ? "여행 장소 추가" : isOverseas ? "여행 장소 검색" : "맛집 장소 검색"}
         description={
-          isOverseas
+          isItineraryMode
+            ? "장소를 선택할 때마다 여행 동선에 추가됩니다. 여러 장소를 계속 검색해 넣을 수 있습니다."
+            : isOverseas
             ? "일본어 상호명으로 검색해도 됩니다. 장소를 선택하면 상호명, 주소, 위도/경도가 자동으로 입력됩니다."
             : "Google Maps에서 장소를 선택하면 상호명, 주소, 위도/경도가 자동으로 입력됩니다."
         }
@@ -220,6 +293,44 @@ export function TravelForm({
         tone="travel"
       />
 
+      {isItineraryMode ? (
+        <section className="grid gap-3 rounded-md border border-[#d9efb9] bg-[#fbfff5] p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-bold text-[#365314]">여행 동선</p>
+              <p className="mt-1 text-xs leading-5 text-[#64748b]">장소마다 방문일과 시간을 지정하세요.</p>
+            </div>
+            <span className="rounded-md bg-[#ecfccb] px-2.5 py-1 text-xs font-bold text-[#3f6212]">{itineraryPlaces.length}개 장소</span>
+          </div>
+
+          {itineraryPlaces.length ? (
+            <div className="grid gap-3">
+              {orderedItineraryPlaces.map((place) => (
+                <div key={place.placeId} className="grid gap-3 rounded-md border border-[#d9efb9] bg-white p-3 sm:grid-cols-[1fr_auto_auto_auto] sm:items-end">
+                  <div className="min-w-0">
+                    <p className="flex items-center gap-1 text-sm font-bold text-[#17202a]"><MapPin size={15} className="text-[#65a30d]" />{place.storeName}</p>
+                    <p className="mt-1 line-clamp-1 text-xs text-[#64748b]">{place.address}</p>
+                  </div>
+                  <label className="grid gap-1 text-xs font-bold text-[#52616b]">
+                    방문일
+                    <input type="date" value={place.visitedAt} onChange={(event) => updateItineraryPlace(place.placeId, "visitedAt", event.target.value)} className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-3 py-2 text-sm font-normal outline-none ${focusInputClass}`} />
+                  </label>
+                  <label className="grid gap-1 text-xs font-bold text-[#52616b]">
+                    방문시간
+                    <input type="time" value={place.visitedTime} onChange={(event) => updateItineraryPlace(place.placeId, "visitedTime", event.target.value)} className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-3 py-2 text-sm font-normal outline-none ${focusInputClass}`} />
+                  </label>
+                  <button type="button" onClick={() => setItineraryPlaces((places) => places.filter((item) => item.placeId !== place.placeId))} className="inline-flex h-10 items-center justify-center rounded-md border border-[#f1c9c6] px-3 text-[#be4b49] transition hover:bg-[#fff5f3]" aria-label={`${place.storeName} 삭제`}><Trash2 size={16} /></button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 rounded-md border border-dashed border-[#cce5a4] px-3 py-4 text-sm font-semibold text-[#64748b]"><CalendarDays size={17} className="text-[#65a30d]" />위에서 첫 여행 장소를 검색해 추가해 주세요.</div>
+          )}
+          <input type="hidden" name="itinerary" value={JSON.stringify(itineraryPlaces)} />
+          {legacyTravelIds.length ? <input type="hidden" name="legacyTravelIds" value={JSON.stringify(legacyTravelIds)} /> : null}
+        </section>
+      ) : null}
+
       {placeData && (
         <>
           <input type="hidden" name="address" value={placeData.address} />
@@ -227,7 +338,7 @@ export function TravelForm({
           <input type="hidden" name="longitude" value={placeData.longitude} />
           <input type="hidden" name="placeId" value={placeData.placeId} />
           <input type="hidden" name="mapUrl" value={placeData.mapUrl} />
-          {reviewScope === "overseas" && placeData.photoUrl ? (
+          {reviewScope === "overseas" && placeData.photoUrl && !isItineraryMode ? (
             <input type="hidden" name="thumbnail" value={placeData.photoUrl} />
           ) : null}
         </>
@@ -240,17 +351,20 @@ export function TravelForm({
           value={placeData?.storeName ?? travel?.title ?? ""}
         />
       ) : (
-      <label className="grid gap-2 text-sm font-bold">
-        <FieldLabel required>제목</FieldLabel>
-        <input
-          name="title"
-          defaultValue={travel?.title}
-          required
-          className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:bg-white ${focusInputClass}`}
-        />
-      </label>
+        <label className="grid gap-2 text-sm font-bold">
+          <FieldLabel required>제목</FieldLabel>
+          <input
+            name="title"
+            defaultValue={travel?.title}
+            required
+            className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:bg-white ${focusInputClass}`}
+          />
+        </label>
       )}
 
+      {isItineraryMode ? (
+        <input type="hidden" name="storeName" value={placeData?.storeName ?? ""} />
+      ) : (
       <label className="grid gap-2 text-sm font-bold">
         <FieldLabel required>식당명</FieldLabel>
         <input
@@ -275,6 +389,7 @@ export function TravelForm({
           className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:bg-white ${focusInputClass}`}
         />
       </label>
+      )}
 
       {reviewScope === "overseas" ? (
         <>
@@ -295,6 +410,28 @@ export function TravelForm({
               className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:bg-white ${focusInputClass}`}
             />
           </label>
+          {!isItineraryMode ? <div className="grid gap-5 sm:grid-cols-2">
+            <label className="grid gap-2 text-sm font-bold">
+              <FieldLabel required>방문일</FieldLabel>
+              <input
+                name="visitedAt"
+                type="date"
+                defaultValue={travel?.visitedAt ?? new Date().toISOString().slice(0, 10)}
+                required
+                className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:bg-white ${focusInputClass}`}
+              />
+            </label>
+            <label className="grid gap-2 text-sm font-bold">
+              <FieldLabel>방문시간</FieldLabel>
+              <input
+                name="visitedTime"
+                type="time"
+                defaultValue={travel?.visitedTime?.slice(0, 5)}
+                className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:bg-white ${focusInputClass}`}
+              />
+            </label>
+          </div>
+          : null}
         </>
       ) : null}
 
@@ -355,12 +492,12 @@ export function TravelForm({
       </div>
       ) : null}
 
-      {reviewScope === "domestic" ? (
+      {reviewScope === "domestic" || isItineraryMode ? (
       <>
       <input type="hidden" name="thumbnail" value={travel?.thumbnail ?? ""} />
 
       <label className="grid gap-2 text-sm font-bold rounded-lg border border-[#ddd6cc] bg-[#fbfaf7] p-4">
-        <FieldLabel>썸네일 업로드</FieldLabel>
+        <FieldLabel>{isItineraryMode ? "대표 사진" : "썸네일 업로드"}</FieldLabel>
         {travel?.thumbnail ? (
           <div className="flex flex-wrap items-center gap-3 rounded-md border border-[#d8cfc2] bg-white p-3">
             <NextImage
@@ -394,7 +531,7 @@ export function TravelForm({
           className="sr-only"
         />
         <div className="flex min-w-0 flex-wrap items-start gap-3 rounded-md border border-[#d8cfc2] bg-white p-3">
-          <span className="shrink-0 rounded-md bg-[#5ca1e6] px-3 py-2 text-sm font-bold text-white">
+          <span className={`shrink-0 rounded-md px-3 py-2 text-sm font-bold text-white ${isItineraryMode ? "bg-[#65a30d]" : "bg-[#5ca1e6]"}`}>
             파일 선택
           </span>
           <span className="min-w-0 flex-1 break-all text-xs font-normal leading-5 text-[#7a6f63]">
@@ -406,7 +543,7 @@ export function TravelForm({
       ) : null}
 
       <label className="grid gap-2 text-sm font-bold">
-        <FieldLabel required>요약</FieldLabel>
+        <FieldLabel required>{isItineraryMode ? "여행 메모" : "요약"}</FieldLabel>
         <textarea
           name="summary"
           defaultValue={travel?.summary}
@@ -417,7 +554,7 @@ export function TravelForm({
       </label>
 
       <label className="grid gap-2 text-sm font-bold">
-        <FieldLabel required>평가</FieldLabel>
+        <FieldLabel required>{isItineraryMode ? "여행 기록" : "평가"}</FieldLabel>
         <textarea
           name="review"
           defaultValue={travel?.review}

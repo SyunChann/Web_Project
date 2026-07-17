@@ -13,6 +13,7 @@ const maxThumbnailSize = 5 * 1024 * 1024;
 
 type TravelPayload = {
   scope: "domestic" | "overseas";
+  trip_title: string | null;
   title: string;
   store_name: string;
   category: "korea" | "japan" | "china" | "other";
@@ -24,10 +25,23 @@ type TravelPayload = {
   has_parking: string | null;
   rating: number;
   visited_at: string;
+  visited_time: string | null;
   thumbnail: string | null;
   thumbnail_alt: string | null;
   summary: string;
   review: string;
+};
+
+type ItineraryPlaceInput = {
+  storeName: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  placeId: string;
+  mapUrl: string;
+  photoUrl?: string;
+  visitedAt: string;
+  visitedTime: string;
 };
 
 function normalizeSlug(value: string) {
@@ -51,6 +65,7 @@ function readTravelPayload(formData: FormData): TravelPayload {
   const scope = String(formData.get("scope") ?? "domestic") as TravelPayload["scope"];
   const isOverseasScope = scope === "overseas";
   const title = String(formData.get("title") ?? "").trim();
+  const tripTitle = String(formData.get("tripTitle") ?? "").trim();
   const storeName = String(formData.get("storeName") ?? "").trim();
   const category = String(
     formData.get("category") ?? (isOverseasScope ? "other" : ""),
@@ -67,6 +82,7 @@ function readTravelPayload(formData: FormData): TravelPayload {
   const visitedAt =
     String(formData.get("visitedAt") ?? "").trim() ||
     (isOverseasScope ? new Date().toISOString().slice(0, 10) : "");
+  const visitedTime = String(formData.get("visitedTime") ?? "").trim();
   const thumbnail = String(formData.get("thumbnail") ?? "").trim();
   const summary = String(formData.get("summary") ?? "").trim();
   const review = String(formData.get("review") ?? "").trim();
@@ -87,8 +103,17 @@ function readTravelPayload(formData: FormData): TravelPayload {
     throw new Error("별점은 0부터 5 사이로 입력해 주세요.");
   }
 
+  if (isOverseasScope && formData.has("itinerary") && !tripTitle) {
+    throw new Error("여행 제목을 입력해 주세요.");
+  }
+
+  if (visitedTime && !/^\d{2}:\d{2}$/.test(visitedTime)) {
+    throw new Error("방문 시간 형식이 올바르지 않습니다.");
+  }
+
   return {
     scope,
+    trip_title: tripTitle || null,
     title,
     store_name: storeName,
     category,
@@ -100,11 +125,84 @@ function readTravelPayload(formData: FormData): TravelPayload {
     has_parking: hasParking,
     rating,
     visited_at: visitedAt,
+    visited_time: visitedTime || null,
     thumbnail: thumbnail || null,
     thumbnail_alt: `${title} 리뷰 썸네일`,
     summary,
     review,
   };
+}
+
+function readItineraryPlaces(formData: FormData) {
+  const value = String(formData.get("itinerary") ?? "").trim();
+
+  if (!value) {
+    return [];
+  }
+
+  let places: unknown;
+
+  try {
+    places = JSON.parse(value);
+  } catch {
+    throw new Error("여행 동선 정보를 읽지 못했습니다.");
+  }
+
+  if (!Array.isArray(places) || places.length === 0) {
+    throw new Error("여행 장소를 하나 이상 추가해 주세요.");
+  }
+
+  const itinerary = places.map((place, index) => {
+    const item = place as Partial<ItineraryPlaceInput>;
+    const storeName = String(item.storeName ?? "").trim();
+    const visitedAt = String(item.visitedAt ?? "").trim();
+    const visitedTime = String(item.visitedTime ?? "").trim();
+
+    if (!storeName || !visitedAt) {
+      throw new Error(`${index + 1}번째 장소의 이름과 방문일을 확인해 주세요.`);
+    }
+
+    if (visitedTime && !/^\d{2}:\d{2}$/.test(visitedTime)) {
+      throw new Error(`${index + 1}번째 장소의 방문 시간 형식이 올바르지 않습니다.`);
+    }
+
+    return {
+      storeName,
+      address: String(item.address ?? "").trim(),
+      latitude: Number(item.latitude ?? 0),
+      longitude: Number(item.longitude ?? 0),
+      placeId: String(item.placeId ?? "").trim(),
+      mapUrl: String(item.mapUrl ?? "").trim(),
+      photoUrl: typeof item.photoUrl === "string" ? item.photoUrl.trim() : "",
+      visitedAt,
+      visitedTime,
+    };
+  });
+
+  return itinerary.sort((left, right) => {
+    const leftKey = `${left.visitedAt}T${left.visitedTime || "23:59"}`;
+    const rightKey = `${right.visitedAt}T${right.visitedTime || "23:59"}`;
+
+    return leftKey.localeCompare(rightKey, "en");
+  });
+}
+
+function readLegacyTravelIds(formData: FormData) {
+  const value = String(formData.get("legacyTravelIds") ?? "").trim();
+
+  if (!value) {
+    return [];
+  }
+
+  try {
+    const ids = JSON.parse(value);
+
+    return Array.isArray(ids)
+      ? ids.filter((id): id is string => typeof id === "string" && id.trim().length > 0)
+      : [];
+  } catch {
+    return [];
+  }
 }
 
 function readThumbnailFile(formData: FormData) {
@@ -239,6 +337,55 @@ function withoutScope(payload: TravelPayload) {
 export async function createTravel(formData: FormData) {
   const { supabase, user } = await requireSupabaseUser();
   const payload = readTravelPayload(formData);
+  const itineraryPlaces = payload.scope === "overseas" ? readItineraryPlaces(formData) : [];
+
+  if (itineraryPlaces.length) {
+    const firstPlace = itineraryPlaces[0];
+    const id = `travel-${Date.now()}`;
+    const insertPayload = {
+      ...payload,
+      id,
+      title: payload.trip_title ?? firstPlace.storeName,
+      store_name: firstPlace.storeName,
+      address: firstPlace.address || null,
+      latitude: Number.isFinite(firstPlace.latitude) ? firstPlace.latitude : null,
+      longitude: Number.isFinite(firstPlace.longitude) ? firstPlace.longitude : null,
+      place_id: firstPlace.placeId || null,
+      map_url: firstPlace.mapUrl || null,
+      visited_at: firstPlace.visitedAt,
+      visited_time: firstPlace.visitedTime || null,
+      thumbnail: firstPlace.photoUrl || payload.thumbnail,
+      thumbnail_alt: `${payload.trip_title} 여행 사진`,
+      itinerary: itineraryPlaces,
+      author_id: user.id,
+      author_name: getAuthorName(user),
+    };
+    const { error } = await supabase.from("travel").insert(insertPayload);
+
+    if (error) {
+      if (error.message.includes("Could not find the table 'public.travel'")) {
+        throw new Error("Supabase SQL Editor에서 add-travel-visited-time.sql을 먼저 실행해 주세요.");
+      }
+
+      if (error.message.includes("visited_time")) {
+        throw new Error("Supabase SQL Editor에서 add-travel-visited-time.sql을 먼저 실행해 주세요.");
+      }
+
+      throw new Error(error.message);
+    }
+
+    await notifyDiscord({
+      title: "여행 동선 작성",
+      description: `${itineraryPlaces.length}개 장소가 여행 기록에 추가되었습니다.`,
+    });
+    revalidateTravelPaths();
+    redirect(`/travel/${id}`);
+  }
+
+  if (payload.scope === "overseas") {
+    throw new Error("여행 장소를 하나 이상 추가해 주세요.");
+  }
+
   const requestedId = String(formData.get("id") ?? "").trim();
   const id = normalizeSlug(requestedId || payload.title);
   const uploadedThumbnail = await uploadThumbnail(supabase, id, formData);
@@ -283,9 +430,25 @@ export async function updateTravel(id: string, formData: FormData) {
   const { supabase, user } = await requireSupabaseUser();
   await assertCanManageReview(supabase, user, id);
   const payload = readTravelPayload(formData);
+  const itineraryPlaces = payload.scope === "overseas" ? readItineraryPlaces(formData) : [];
   const uploadedThumbnail = await uploadThumbnail(supabase, id, formData);
 
-  const updatePayload = {
+  const updatePayload = itineraryPlaces.length ? {
+    ...payload,
+    title: payload.trip_title ?? itineraryPlaces[0].storeName,
+    store_name: itineraryPlaces[0].storeName,
+    address: itineraryPlaces[0].address || null,
+    latitude: Number.isFinite(itineraryPlaces[0].latitude) ? itineraryPlaces[0].latitude : null,
+    longitude: Number.isFinite(itineraryPlaces[0].longitude) ? itineraryPlaces[0].longitude : null,
+    place_id: itineraryPlaces[0].placeId || null,
+    map_url: itineraryPlaces[0].mapUrl || null,
+    visited_at: itineraryPlaces[0].visitedAt,
+    visited_time: itineraryPlaces[0].visitedTime || null,
+    thumbnail: uploadedThumbnail ?? payload.thumbnail ?? itineraryPlaces[0].photoUrl,
+    thumbnail_alt: `${payload.trip_title ?? itineraryPlaces[0].storeName} 여행 사진`,
+    itinerary: itineraryPlaces,
+    updated_at: new Date().toISOString(),
+  } : {
     ...payload,
     thumbnail: uploadedThumbnail ?? payload.thumbnail,
     updated_at: new Date().toISOString(),
@@ -311,6 +474,20 @@ export async function updateTravel(id: string, formData: FormData) {
     }
   } else if (error) {
     throw new Error(error.message);
+  }
+
+  const legacyTravelIds = readLegacyTravelIds(formData).filter((legacyId) => legacyId !== id);
+
+  if (itineraryPlaces.length && legacyTravelIds.length) {
+    const { error: deleteError } = await supabase
+      .from("travel")
+      .delete()
+      .in("id", legacyTravelIds)
+      .eq("author_id", user.id);
+
+    if (deleteError) {
+      throw new Error(deleteError.message);
+    }
   }
 
   await notifyDiscord({

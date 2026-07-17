@@ -15,6 +15,7 @@ https://web-project-omega-ruby-60.vercel.app
 - 콘텐츠: 영화, 애니, 게임, 드라마 리뷰와 기대작을 탭으로 전환
 - 맛집리뷰: 국내·해외 목록과 지도를 하나의 탭 흐름으로 제공
 - 해외여행: Google Maps 장소 검색 기반 여행 기록, 목록, 상세, 지도 보기
+- 해외여행 동선: 방문일·시간 기준으로 장소를 날짜별 타임라인으로 정리
 - 초대 코드 회원가입: 관리자 발급 링크로만 가입 가능
 - 권한 관리: 작성자는 본인 글만 수정/삭제, 관리자는 전체 관리
 - 관리자 페이지: 초대 코드 생성, 복사, 폐기, 사용 현황 요약
@@ -96,6 +97,10 @@ ADMIN_EMAILS=admin@example.com,another-admin@example.com
 - `.env.local`은 Git에 커밋하지 않습니다.
 - Google Maps API Key와 Discord Webhook URL은 실제 비밀값입니다.
 - Vercel 배포 시 Project Settings > Environment Variables에 같은 값을 등록합니다.
+
+해외여행 기록과 동선 기능을 사용하려면 Supabase SQL Editor에서
+`supabase/add-travel-visited-time.sql`을 한 번 실행합니다. 이 파일은
+`public.travel` 테이블과 방문시간 컬럼을 함께 생성합니다.
 
 ## Google Maps 설정
 

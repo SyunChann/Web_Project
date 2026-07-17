@@ -1,284 +1,143 @@
 import {
   ArrowLeft,
-  ArrowRight,
-  Bookmark,
-  CalendarClock,
+  CalendarDays,
+  Clock3,
+  ExternalLink,
+  MapPin,
+  MapPinned,
   Pencil,
-  Play,
+  Star,
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { deleteWatchlistItem } from "@/app/actions/watchlist";
+import { deleteTravel } from "@/app/actions/travel";
 import { AppNav } from "@/components/AppNav";
-import { DeleteWatchlistButton } from "@/components/watchlist/DeleteWatchlistButton";
+import { DeleteReviewButton } from "@/components/travel/DeleteTravelButtom";
 import { ThumbnailImage } from "@/components/ThumbnailImage";
-import {
-  getWatchItem,
-  getWatchItems,
-  watchStatusLabel,
-  watchStatusTheme,
-  type WatchItem,
-} from "@/data/watchlist";
-import { typeLabel, typeTheme } from "@/data/reviews";
+import { getTravel, getTravels, sortTravelStops, travelToStop } from "@/data/travel";
 import { canManageContent } from "@/lib/contentPermissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { getYouTubeEmbedUrl } from "@/lib/supabase/utils";
 
-type WatchlistDetailPageProps = {
-  params: Promise<{
-    id: string;
-  }>;
+type TravelDetailPageProps = {
+  params: Promise<{ id: string }>;
 };
 
 export async function generateStaticParams() {
-  const items = await getWatchItems();
+  const items = await getTravels();
 
-  return items.map((item) => ({
-    id: item.id,
-  }));
+  return items.map((item) => ({ id: item.id }));
 }
 
-export async function generateMetadata({ params }: WatchlistDetailPageProps) {
+export async function generateMetadata({ params }: TravelDetailPageProps) {
   const { id } = await params;
-  const item = await getWatchItem(id);
+  const item = await getTravel(id);
 
   return {
-    title: item ? `${item.title} | 기대작` : "기대작 없음",
-    description: item?.reason ?? "기대작을 찾을 수 없습니다.",
+    title: item ? `${item.tripTitle ?? item.title} | 해외여행` : "여행 기록 없음",
+    description: item?.summary ?? "여행 기록을 찾을 수 없습니다.",
   };
 }
 
-export default async function WatchlistDetailPage({
-  params,
-}: WatchlistDetailPageProps) {
+export default async function TravelDetailPage({ params }: TravelDetailPageProps) {
   const { id } = await params;
-  const item = await getWatchItem(id);
+  const item = await getTravel(id);
 
-  if (!item) {
-    notFound();
-  }
+  if (!item) notFound();
 
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
-  const theme = typeTheme(item.type);
-  const deleteAction = deleteWatchlistItem.bind(null, item.id);
-  const canManageItem = canManageContent(user, item.authorId);
-  const embedUrl = getYouTubeEmbedUrl(item.youtubeUrl);
-  const orderedItems = await getWatchItems();
-  const currentIndex = orderedItems.findIndex((watchItem) => watchItem.id === item.id);
-  const previousItem =
-    currentIndex >= 0 ? orderedItems[currentIndex + 1] : undefined;
-  const nextItem =
-    currentIndex > 0 ? orderedItems[currentIndex - 1] : undefined;
+  const canManageTravel = canManageContent(user, item.authorId);
+  const deleteAction = deleteTravel.bind(null, item.id);
+  const legacyTravelItems = item.itinerary.length || !item.tripTitle
+    ? []
+    : (await getTravels()).filter(
+        (travel) =>
+          travel.tripTitle === item.tripTitle && travel.authorId === item.authorId,
+      );
+  const stops = item.itinerary.length
+    ? item.itinerary
+    : legacyTravelItems.length
+      ? sortTravelStops(legacyTravelItems.map(travelToStop))
+      : [{
+          storeName: item.storeName,
+          address: item.address,
+          mapUrl: item.mapUrl,
+          visitedAt: item.visitedAt,
+          visitedTime: item.visitedTime,
+        }];
+  const title = item.tripTitle ?? item.title;
 
   return (
     <main className="min-h-screen px-4 py-5 sm:px-10 sm:py-8">
       <section className="mx-auto w-full max-w-6xl">
-        <AppNav active="watchlist" />
+        <AppNav active="travel" />
+
         <article className="mx-auto mt-7 w-full max-w-3xl sm:mt-10">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <Link
-            href="/watchlist/items"
-            className="inline-flex items-center gap-2 text-sm font-bold text-[#5ca1e6]"
-          >
-            <ArrowLeft size={17} />
-            여행리뷰 목록
-          </Link>
-
-          {canManageItem ? (
-            <div className="flex flex-wrap gap-2">
-              <Link
-                href={`/watchlist/${item.id}/edit`}
-                className="inline-flex items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 py-2 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#38a39b] hover:text-[#2f7f7a]"
-              >
-                <Pencil size={16} />
-                수정
-              </Link>
-              <form action={deleteAction}>
-                <DeleteWatchlistButton title={item.title} />
-              </form>
-            </div>
-          ) : null}
-        </div>
-
-        <header
-          className={`mt-8 overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] ${theme.border} bg-white shadow-sm`}
-        >
-          <ThumbnailImage
-            src={item.thumbnail}
-            alt={item.thumbnailAlt}
-            title={item.title}
-            label="여행리뷰"
-            tone={item.type}
-            loading="eager"
-            fetchPriority="high"
-          />
-          <div className="p-6 sm:p-8">
-            <div className="flex flex-wrap items-center gap-3">
-              <span
-                className={`rounded-md px-3 py-1 text-sm font-bold ${theme.badge}`}
-              >
-                {typeLabel(item.type)}
-              </span>
-              <span
-                className={`rounded-md px-3 py-1 text-sm font-bold ${watchStatusTheme(item.status)}`}
-              >
-                {watchStatusLabel(item.status)}
-              </span>
-              {item.genre.map((genre) => (
-                <span
-                  key={genre}
-                  className="rounded-md bg-[#f3e6d8] px-3 py-1 text-sm font-semibold text-[#8a3b2f]"
-                >
-                  {genre}
-                </span>
-              ))}
-            </div>
-
-            <h1 className="mt-6 text-3xl font-bold leading-tight sm:text-4xl">
-              {item.title}
-            </h1>
-
-            <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-bold text-[#52616b]">
-              <span className="flex items-center gap-2">
-                <CalendarClock size={17} />
-                <span className="text-[#5ca1e6]">공개</span>
-                {item.releaseLabel}
-              </span>
-              <span className="flex items-center gap-2">
-                <Bookmark size={17} />
-                <span className="text-[#5ca1e6]">상태</span>
-                {watchStatusLabel(item.status)}
-              </span>
-              <span className="flex items-center gap-2">
-                <CalendarClock size={17} />
-                <span className="text-[#a33f3c]">등록일</span>
-                {formatFullDate(item.createdAt)}
-              </span>
-              {item.authorName ? (
-                <span>
-                  <span className="text-[#6d470c]">작성자:</span>{" "}
-                  {item.authorName}
-                </span>
-              ) : null}
-            </div>
-
-            <p className="mt-6 whitespace-pre-wrap text-lg leading-8 text-[#3f4a54]">
-              {item.reason}
-            </p>
-          </div>
-        </header>
-
-        {embedUrl ? (
-          <section className="mt-8 rounded-lg border border-[#ddd6cc] bg-white p-6 shadow-sm sm:p-8">
-            <div className="mb-5 flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-md bg-[#e8f1fa] text-[#5ca1e6]">
-                <Play size={18} fill="currentColor" />
-              </span>
-              <div>
-                <h2 className="text-xl font-bold">관련 리뷰(?)</h2>
-                <p className="mt-1 text-sm font-semibold text-[#6b7280]">
-                  난 영상이 필요한가?
-                </p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <Link href="/travel/items" className="inline-flex items-center gap-2 text-sm font-bold text-[#4d7c0f] hover:text-[#3f6212]">
+              <ArrowLeft size={17} />
+              여행리뷰 목록
+            </Link>
+            {canManageTravel ? (
+              <div className="flex flex-wrap gap-2">
+                <Link href={`/travel/${item.id}/map`} className="inline-flex items-center gap-2 rounded-md border border-[#d9efb9] bg-[#f7fee7] px-4 py-2 text-sm font-bold text-[#4d7c0f] shadow-sm transition hover:border-[#65a30d]">
+                  <MapPinned size={16} />
+                  동선 지도
+                </Link>
+                <Link href={`/travel/${item.id}/edit`} className="inline-flex items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 py-2 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#65a30d] hover:text-[#4d7c0f]">
+                  <Pencil size={16} />
+                  수정
+                </Link>
+                <form action={deleteAction}>
+                  <DeleteReviewButton title={title} />
+                </form>
               </div>
-            </div>
-            <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-black">
-              <iframe
-                src={embedUrl}
-                title={`${item.title} 관련 영상`}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-                loading="lazy"
-                className="absolute top-0 left-0 h-full w-full border-0"
-              />
-            </div>
-          </section>
-        ) : null}
-        {previousItem || nextItem ? (
-          <nav
-            aria-label="여행리뷰 이전 다음 글"
-            className="mt-8 grid gap-4 sm:grid-cols-2"
-          >
-            {previousItem ? (
-              <WatchAdjacentCard
-                item={previousItem}
-                label="이전 여행리뷰"
-                direction="previous"
-              />
-            ) : (
-              <div className="hidden sm:block" />
-            )}
-            {nextItem ? (
-              <WatchAdjacentCard
-                item={nextItem}
-                label="다음 여행리뷰"
-                direction="next"
-              />
             ) : null}
-          </nav>
-        ) : null}
+          </div>
+
+          {!canManageTravel ? <Link href={`/travel/${item.id}/map`} className="mt-4 inline-flex items-center gap-2 rounded-md border border-[#d9efb9] bg-[#f7fee7] px-4 py-2 text-sm font-bold text-[#4d7c0f] shadow-sm transition hover:border-[#65a30d]"><MapPinned size={16} />동선 지도</Link> : null}
+
+          <header className="mt-8 overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] border-l-[#65a30d] bg-white shadow-sm">
+            <ThumbnailImage src={item.thumbnail} alt={item.thumbnailAlt} title={title} label="해외여행" loading="eager" fetchPriority="high" googlePlaceId={item.placeId} googlePlaceQuery={[item.storeName, item.address].filter(Boolean).join(" ")} />
+            <div className="p-6 sm:p-8">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <span className="rounded-md bg-[#f7fee7] px-3 py-1 text-sm font-bold text-[#4d7c0f]">여행 장소 {stops.length}곳</span>
+                <span className="inline-flex items-center gap-1 text-sm font-black text-[#17202a]"><Star size={16} fill="#f2b84b" color="#f2b84b" />{item.rating}</span>
+              </div>
+              <h1 className="mt-5 text-3xl font-black leading-tight text-[#17202a] sm:text-4xl">{title}</h1>
+              <p className="mt-4 whitespace-pre-wrap text-base leading-8 text-[#52616b]">{item.summary}</p>
+              {item.authorName ? <p className="mt-5 text-sm font-bold text-[#64748b]">작성자: {item.authorName}</p> : null}
+            </div>
+          </header>
+
+          <section className="mt-8 rounded-lg border border-[#d9efb9] bg-white p-6 shadow-sm sm:p-8">
+            <div className="flex items-center gap-2 text-[#4d7c0f]"><MapPin size={18} /><h2 className="text-xl font-black text-[#17202a]">여행 동선</h2></div>
+            <ol className="mt-6 grid gap-3 border-l-2 border-[#d9efb9] pl-5">
+              {stops.map((stop, index) => (
+                <li key={`${stop.storeName}-${index}`} className="relative rounded-md border border-[#e5e7eb] bg-[#fbfaf7] p-4">
+                  <span className="absolute -left-[1.65rem] top-5 h-3 w-3 rounded-full border-2 border-white bg-[#65a30d]" />
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div><h3 className="font-bold text-[#17202a]">{stop.storeName}</h3>{stop.address ? <p className="mt-1 text-sm leading-6 text-[#64748b]">{stop.address}</p> : null}</div>
+                    <span className="inline-flex items-center gap-1 text-sm font-bold text-[#4d7c0f]"><CalendarDays size={15} />{formatDate(stop.visitedAt)} <Clock3 size={15} className="ml-1" />{stop.visitedTime?.slice(0, 5) ?? "시간 미정"}</span>
+                  </div>
+                  {stop.mapUrl ? <a href={stop.mapUrl} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-[#4d7c0f] hover:text-[#3f6212]">Google Maps <ExternalLink size={13} /></a> : null}
+                </li>
+              ))}
+            </ol>
+          </section>
+
+          <section className="mt-8 rounded-lg border border-[#ddd6cc] bg-white p-6 shadow-sm sm:p-8">
+            <h2 className="text-sm font-bold uppercase text-[#4d7c0f]">Travel Review</h2>
+            <p className="mt-4 whitespace-pre-wrap text-base leading-8 text-[#3f4a54] sm:text-lg">{item.review}</p>
+          </section>
         </article>
       </section>
     </main>
   );
 }
 
-function formatFullDate(value: string) {
-  if (/^\d{4}-\d{2}-\d{2}/.test(value)) {
-    return value.slice(0, 10);
-  }
-
-  return new Intl.DateTimeFormat("en-CA", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date(value));
-}
-
-function WatchAdjacentCard({
-  item,
-  label,
-  direction,
-}: {
-  item: WatchItem;
-  label: string;
-  direction: "previous" | "next";
-}) {
-  const Icon = direction === "previous" ? ArrowLeft : ArrowRight;
-
-  return (
-    <Link
-      href={`/watchlist/${item.id}`}
-      className="group grid grid-cols-[88px_1fr] overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] border-l-[#4584c4] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
-    >
-      <ThumbnailImage
-        src={item.thumbnail}
-        alt={item.thumbnailAlt}
-        title={item.title}
-        label="여행리뷰"
-        tone={item.type}
-        className="h-full min-h-28 w-full object-cover"
-        fallbackClassName="h-full min-h-28 w-full"
-        loading="lazy"
-      />
-      <div className="min-w-0 p-4">
-        <p className="flex items-center gap-2 text-xs font-bold text-[#5ca1e6]">
-          {direction === "previous" ? <Icon size={14} /> : null}
-          {label}
-          {direction === "next" ? <Icon size={14} /> : null}
-        </p>
-        <h2 className="mt-2 line-clamp-2 font-bold leading-6 transition group-hover:text-[#5ca1e6]">
-          {item.title}
-        </h2>
-        <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-semibold text-[#6b7280]">
-          <span>{item.releaseLabel}</span>
-          <span className={`rounded px-2 py-1 ${watchStatusTheme(item.status)}`}>
-            {watchStatusLabel(item.status)}
-          </span>
-        </div>
-      </div>
-    </Link>
-  );
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("ko-KR", { month: "long", day: "numeric" }).format(new Date(`${value}T00:00:00`));
 }

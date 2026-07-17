@@ -104,6 +104,53 @@ create policy "restaurant reviews are publicly readable"
 create index if not exists restaurant_reviews_scope_idx
   on public.restaurant_reviews (scope);
 
+create table if not exists public.travel (
+  id text primary key,
+  scope text not null default 'overseas' check (scope in ('domestic', 'overseas')),
+  trip_title text,
+  title text not null,
+  store_name text not null,
+  category text not null check (category in ('korea', 'japan', 'china', 'other')),
+  address text,
+  latitude double precision,
+  longitude double precision,
+  place_id text,
+  map_url text,
+  has_parking text,
+  rating numeric(2, 1) not null check (rating >= 0 and rating <= 5),
+  visited_at date not null,
+  visited_time time,
+  itinerary jsonb not null default '[]'::jsonb,
+  thumbnail text,
+  thumbnail_alt text,
+  summary text not null,
+  review text not null,
+  author_id uuid references auth.users(id) on delete set null,
+  author_name text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.travel
+  add column if not exists trip_title text,
+  add column if not exists visited_time time,
+  add column if not exists itinerary jsonb not null default '[]'::jsonb,
+  add column if not exists author_id uuid references auth.users(id) on delete set null,
+  add column if not exists author_name text;
+
+alter table public.travel enable row level security;
+
+drop policy if exists "travel is publicly readable" on public.travel;
+
+create policy "travel is publicly readable"
+  on public.travel
+  for select
+  using (true);
+
+create index if not exists travel_scope_idx on public.travel (scope);
+create index if not exists travel_visited_at_idx
+  on public.travel (visited_at, visited_time);
+
 create table if not exists public.invite_codes (
   id uuid primary key default gen_random_uuid(),
   code text not null unique,
