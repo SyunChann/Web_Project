@@ -26,26 +26,57 @@ async function getTrackedItems() {
 
 async function findCoupangPrice(page) {
   await page.waitForLoadState("domcontentloaded");
-  await page.waitForTimeout(1500);
+  await page.waitForTimeout(2000);
 
-  const price = await page.evaluate(() => {
+  const result = await page.evaluate(() => {
+    const parse = (value) => {
+      const numeric = String(value ?? "").replace(/[^0-9]/g, "");
+      return numeric ? Number(numeric) : null;
+    };
     const metaPrice = document.querySelector('meta[itemprop="price"]')?.getAttribute("content");
-    if (metaPrice) return metaPrice;
-    const selectors = [".total-price strong", ".final-price-amount", "[class*='price'] strong", "[class*='price']"];
+    if (metaPrice) return { price: metaPrice, title: document.title };
+
+    const selectors = [
+      ".total-price strong",
+      ".prod-sale-price strong",
+      ".final-price-amount",
+      ".prod-price strong",
+      "[data-testid*='price']",
+      "[class*='price'] strong",
+    ];
     for (const selector of selectors) {
       const text = document.querySelector(selector)?.textContent;
-      if (text && /[0-9]/.test(text)) return text;
+      if (text && /[0-9]/.test(text)) return { price: text, title: document.title };
     }
+
+    const values = [];
+    const visit = (value) => {
+      if (!value || typeof value !== "object") return;
+      if (Array.isArray(value)) {
+        value.forEach(visit);
+        return;
+      }
+      for (const [key, nested] of Object.entries(value)) {
+        if (/(^price$|saleprice|finalprice|discountprice)/i.test(key) && typeof nested !== "object") {
+          const candidate = parse(nested);
+          if (candidate) values.push(candidate);
+        }
+        visit(nested);
+      }
+    };
     const jsonLd = [...document.querySelectorAll('script[type="application/ld+json"]')]
       .map((script) => {
         try { return JSON.parse(script.textContent ?? ""); } catch { return null; }
-      })
-      .flat();
-    const offer = jsonLd.find((item) => item?.offers?.price)?.offers;
-    return offer?.price ?? null;
+      });
+    jsonLd.forEach(visit);
+    if (values.length) return { price: values[0], title: document.title };
+
+    const bodyText = document.body?.innerText ?? "";
+    const labeledPrice = bodyText.match(/(?:판매가|쿠팡판매가|할인가|즉시할인가)\s*([0-9,]+)\s*원/);
+    return { price: labeledPrice?.[1] ?? null, title: document.title };
   });
 
-  return parsePrice(price);
+  return { price: parsePrice(result.price), title: result.title };
 }
 
 async function saveResult(item, price) {
@@ -67,16 +98,19 @@ async function saveResult(item, price) {
 }
 
 const browser = await chromium.launch({ headless: true });
-const page = await browser.newPage({ userAgent: "Mozilla/5.0 (compatible; PersonalPriceWatch/1.0)" });
+const page = await browser.newPage({
+  userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+  locale: "ko-KR",
+});
 
 try {
   for (const item of await getTrackedItems()) {
     try {
       await page.goto(item.product_url, { waitUntil: "domcontentloaded", timeout: 30000 });
-      const price = await findCoupangPrice(page);
-      if (!price) throw new Error("Price element was not found.");
-      await saveResult(item, price);
-      console.log(`${item.title}: ${price.toLocaleString("ko-KR")} KRW`);
+       const result = await findCoupangPrice(page);
+       if (!result.price) throw new Error(`Price element was not found. Page title: ${result.title}`);
+       await saveResult(item, result.price);
+       console.log(`${item.title}: ${result.price.toLocaleString("ko-KR")} KRW`);
     } catch (error) {
       console.error(`Failed to collect ${item.title}:`, error instanceof Error ? error.message : error);
     }

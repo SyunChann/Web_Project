@@ -47,3 +47,29 @@ export async function recordPrice(id: string, formData: FormData) {
   if (historyError) throw new Error(historyError.message);
   updateTag("price-watchlists"); revalidatePath("/prices");
 }
+
+export async function updatePriceWatchlist(id: string, formData: FormData) {
+  const title = String(formData.get("title") ?? "").trim();
+  const rawTargetPrice = String(formData.get("targetPrice") ?? "").trim();
+  const targetPrice = rawTargetPrice ? Number(rawTargetPrice) : null;
+
+  if (!title) throw new Error("상품명을 입력해 주세요.");
+  if (targetPrice !== null && (!Number.isFinite(targetPrice) || targetPrice < 0)) {
+    throw new Error("목표 가격을 확인해 주세요.");
+  }
+
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) redirect("/login?error=config");
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { error } = await supabase
+    .from("price_watchlists")
+    .update({ title, target_price: targetPrice, updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .eq("author_id", user.id);
+
+  if (error) throw new Error(error.message);
+  updateTag("price-watchlists");
+  revalidatePath("/prices");
+}
