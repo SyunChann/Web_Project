@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import {
+  BadgeDollarSign,
   Bookmark,
   ChevronDown,
   Ellipsis,
@@ -22,6 +23,7 @@ type AppNavProps = {
     | "watchlist"
     | "restaurants"
     | "travel"
+    | "prices"
     | "restaurant-map"
     | "admin";
 };
@@ -39,6 +41,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
     watchlist: "기대작",
     restaurants: "맛집리뷰",
     travel: "해외여행",
+    prices: "가격추적",
     "restaurant-map": "해외 맛집리뷰 지도",
     admin: "관리자",
   };
@@ -83,6 +86,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
       admin: "bg-[#e0f2fe] text-[#075985]",
     },
     travel: { brandHover: "hover:border-[#65a30d]", icon: "bg-[#65a30d] group-hover:bg-[#4d7c0f]", text: "text-[#4d7c0f]", controlHover: "hover:border-[#65a30d] hover:text-[#4d7c0f]", primary: "bg-[#65a30d] hover:bg-[#4d7c0f]", admin: "bg-[#f7fee7] text-[#3f6212]" },
+    prices: { brandHover: "hover:border-[#a16207]", icon: "bg-[#a16207] group-hover:bg-[#854d0e]", text: "text-[#a16207]", controlHover: "hover:border-[#a16207] hover:text-[#a16207]", primary: "bg-[#a16207] hover:bg-[#854d0e]", admin: "bg-[#fff7e6] text-[#a16207]" },
     default: {
       brandHover: "hover:border-[#be4b49]",
       icon: "bg-[#be4b49] group-hover:bg-[#a83f3d]",
@@ -222,6 +226,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
               hoverClass="hover:bg-[#e0f2fe] hover:text-[#0284c7]"
             />
             <NavMenuLink href="/travel/items" active={active === "travel"} icon={<MapPinned size={16} />} label="해외여행" activeClass="bg-[#f7fee7] text-[#3f6212]" hoverClass="hover:bg-[#f7fee7] hover:text-[#4d7c0f]" />
+            <NavMenuLink href="/prices" active={active === "prices"} icon={<BadgeDollarSign size={16} />} label="가격추적" activeClass="bg-[#fff7e6] text-[#a16207]" hoverClass="hover:bg-[#fff7e6] hover:text-[#a16207]" />
           </div>
         </details>
 
