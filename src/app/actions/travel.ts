@@ -95,7 +95,7 @@ function readTravelPayload(formData: FormData): TravelPayload {
     throw new Error("올바른 여행리뷰 유형을 선택해 주세요.");
   }
 
-  if (!["korean", "japanese", "chinese", "western", "asian", "cafe", "other"].includes(category)) {
+  if (!["korea", "japan", "china", "other"].includes(category)) {
     throw new Error("올바른 카테고리를 선택해 주세요.");
   }
 

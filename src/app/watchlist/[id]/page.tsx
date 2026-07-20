@@ -43,8 +43,7 @@ export async function generateMetadata({ params }: WatchlistDetailPageProps) {
   const item = await getWatchItem(id);
 
   return {
-    title: item ? `${item.title} | 기대작` : "기대작 없음",
-    description: item?.reason ?? "기대작을 찾을 수 없습니다.",
+    title: item ? `${item.title} | 여행리뷰` : "여행리뷰 없음",
   };
 }
 
