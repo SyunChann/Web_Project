@@ -142,6 +142,7 @@ export function WatchlistForm({
       : "이미지는 업로드 전에 자동으로 1200px 이하 WebP로 압축됩니다.",
   );
   const [isCompressing, setIsCompressing] = useState(false);
+  const [releasePrecision, setReleasePrecision] = useState(item?.releasePrecision ?? "tba");
 
   async function submitCompressedForm(formData: FormData) {
     const thumbnail = formData.get("thumbnail_file");
@@ -218,16 +219,23 @@ export function WatchlistForm({
         </label>
 
         <label className="grid gap-2 text-sm font-bold">
-          <FieldLabel required>공개/출시 라벨</FieldLabel>
-          <input
-            name="releaseLabel"
-            defaultValue={item?.releaseLabel}
-            placeholder="예: 2026년 공개 예정"
-            required
-            className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#38a39b] focus:bg-white"
-          />
+          <FieldLabel required>공개 일정</FieldLabel>
+          <select name="releasePrecision" value={releasePrecision} onChange={(event) => setReleasePrecision(event.target.value as typeof releasePrecision)} className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#38a39b] focus:bg-white">
+            <option value="day">정확한 날짜</option>
+            <option value="month">월 예정</option>
+            <option value="year">연도 예정</option>
+            <option value="tba">공개일 미정</option>
+          </select>
         </label>
       </div>
+
+      {releasePrecision !== "tba" ? (
+        <div className="grid gap-3 rounded-lg border border-[#d7e7e4] bg-[#f7fcfb] p-4 sm:grid-cols-3">
+          <label className="grid gap-2 text-sm font-bold">연도<input name="releaseYear" type="number" min="1900" max="2100" required defaultValue={item?.releaseYear} placeholder="2027" className="rounded-md border border-[#c8dedb] bg-white px-3 py-2.5 font-normal" /></label>
+          {releasePrecision !== "year" ? <label className="grid gap-2 text-sm font-bold">월<input name="releaseMonth" type="number" min="1" max="12" required defaultValue={item?.releaseMonth} placeholder="8" className="rounded-md border border-[#c8dedb] bg-white px-3 py-2.5 font-normal" /></label> : <span />}
+          {releasePrecision === "day" ? <label className="grid gap-2 text-sm font-bold">일<input name="releaseDay" type="number" min="1" max="31" required defaultValue={item?.releaseDay} placeholder="21" className="rounded-md border border-[#c8dedb] bg-white px-3 py-2.5 font-normal" /></label> : <span />}
+        </div>
+      ) : <p className="rounded-lg border border-dashed border-[#c8dedb] bg-[#f7fcfb] px-4 py-3 text-sm text-[#52616b]">공개일이 정해지면 기대작 수정 화면에서 일정 정보를 추가할 수 있습니다.</p>}
 
       <label className="grid gap-2 text-sm font-bold">
         <FieldLabel>장르</FieldLabel>
