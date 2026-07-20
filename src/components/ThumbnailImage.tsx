@@ -14,6 +14,7 @@ interface ThumbnailImageProps {
   tone?: ThumbnailTone;
   loading?: "eager" | "lazy";
   fetchPriority?: "high" | "low" | "auto";
+  blurredBackdrop?: boolean;
   className?: string;
   fallbackClassName?: string;
   googlePlaceId?: string | null;
@@ -50,6 +51,7 @@ export function ThumbnailImage({
   tone = "watchlist",
   loading = "lazy",
   fetchPriority = "auto",
+  blurredBackdrop = false,
   className = "aspect-video h-auto w-full object-cover",
   fallbackClassName = "aspect-video w-full",
   googlePlaceId,
@@ -171,6 +173,34 @@ export function ThumbnailImage({
           </p>
         </div>
         </div>
+      </div>
+    );
+  }
+
+  if (blurredBackdrop) {
+    return (
+      <div ref={containerRef} className={`relative isolate overflow-hidden ${className}`}>
+        <Image
+          src={effectiveSrc}
+          alt=""
+          aria-hidden="true"
+          width={960}
+          height={540}
+          className="absolute inset-0 h-full w-full scale-110 object-cover opacity-55 blur-md"
+          loading={loading}
+          unoptimized={isGoogleImageSource(effectiveSrc)}
+        />
+        <Image
+          src={effectiveSrc}
+          alt={alt}
+          width={960}
+          height={540}
+          className="relative z-10 h-full w-full object-contain"
+          loading={loading}
+          fetchPriority={fetchPriority}
+          unoptimized={isGoogleImageSource(effectiveSrc)}
+          onError={() => setFailedSrc(effectiveSrc)}
+        />
       </div>
     );
   }

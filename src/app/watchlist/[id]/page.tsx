@@ -111,6 +111,9 @@ export default async function WatchlistDetailPage({
             title={item.title}
             label="기대작"
             tone={item.type}
+            className="h-[28rem] w-full bg-[#f7f4ef] object-contain"
+            fallbackClassName="h-[28rem] w-full"
+            blurredBackdrop
             loading="eager"
             fetchPriority="high"
           />
@@ -258,8 +261,9 @@ function WatchAdjacentCard({
         title={item.title}
         label="기대작"
         tone={item.type}
-        className="h-full min-h-28 w-full object-cover"
+        className="h-full min-h-28 w-full bg-[#f7f4ef] object-contain"
         fallbackClassName="h-full min-h-28 w-full"
+        blurredBackdrop
         loading="lazy"
       />
       <div className="min-w-0 p-4">

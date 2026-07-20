@@ -205,6 +205,9 @@ function WatchItemCard({ item }: { item: WatchItem }) {
         title={item.title}
         label="기대작"
         tone={item.type}
+        className="h-72 w-full bg-[#f7f4ef] object-contain"
+        fallbackClassName="h-72 w-full"
+        blurredBackdrop
         loading="lazy"
       />
       <div className="p-5">
