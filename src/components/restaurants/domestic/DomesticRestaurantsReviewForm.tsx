@@ -138,7 +138,7 @@ export function DomesticRestaurantsReviewForm({
   showSlugField = false,
 }: DomesticRestaurantsReviewFormProps) {
   const reviewScope = scope ?? restaurantsReview?.scope ?? "domestic";
-  const primaryButtonClass = "bg-[#e57632] hover:bg-[#a83f3d]";
+  const primaryButtonClass = "bg-[#e57632] hover:bg-[#c85a17]";
   const secondaryButtonClass = "hover:border-[#e57632] hover:text-[#e57632]";
   const focusInputClass = "focus:border-[#e57632]";
   const currentThumbnailName = getFileNameFromPath(restaurantsReview?.thumbnail);

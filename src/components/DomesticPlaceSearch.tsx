@@ -131,13 +131,13 @@ export function DomesticPlaceSearch({
           onChange={(event) => setQuery(event.target.value)}
           onKeyDown={handleInputKeyDown}
           placeholder={placeholder}
-          className="flex-1 rounded-md border border-[#bae6fd] px-3 py-2 text-sm outline-none focus:border-[#0284c7]"
+          className="flex-1 rounded-md border border-[#fdddba] px-3 py-2 text-sm outline-none focus:border-[#e57632]"
         />
         <button
           type="button"
           onClick={handleSearch}
           disabled={isSearching}
-          className="inline-flex items-center gap-1 whitespace-nowrap rounded-md bg-[#0284c7] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#0369a1] disabled:opacity-60"
+          className="inline-flex items-center gap-1 whitespace-nowrap rounded-md bg-[#e57632] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#0369a1] disabled:opacity-60"
         >
           {isSearching ? (
             <Loader2 className="animate-spin" size={16} />
@@ -155,7 +155,7 @@ export function DomesticPlaceSearch({
       ) : null}
 
       {results.length > 0 ? (
-        <ul className="absolute z-10 mt-2 max-h-72 w-full overflow-y-auto rounded-md border border-[#bae6fd] bg-white shadow-lg">
+        <ul className="absolute z-10 mt-2 max-h-72 w-full overflow-y-auto rounded-md border border-[#fdddba] bg-white shadow-lg">
           {results.map((place) => (
             <li key={place.id}>
               <button
@@ -164,7 +164,7 @@ export function DomesticPlaceSearch({
                 className="flex w-full flex-col items-start gap-0.5 border-b border-[#f0f9ff] px-4 py-3 text-left transition hover:bg-[#f0f9ff] last:border-b-0"
               >
                 <span className="flex items-center gap-1 text-sm font-bold text-[#17202a]">
-                  <MapPin size={14} className="text-[#0284c7]" />
+                  <MapPin size={14} className="text-[#e57632]" />
                   {place.placeName}
                 </span>
                 {place.categoryName ? (
