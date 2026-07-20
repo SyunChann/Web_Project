@@ -49,7 +49,11 @@ create table if not exists public.watchlist_items (
 
 alter table public.watchlist_items
   add column if not exists author_id uuid references auth.users(id) on delete set null,
-  add column if not exists author_name text;
+  add column if not exists author_name text,
+  add column if not exists release_precision text not null default 'tba' check (release_precision in ('day', 'month', 'year', 'tba')),
+  add column if not exists release_year integer,
+  add column if not exists release_month integer check (release_month between 1 and 12),
+  add column if not exists release_day integer check (release_day between 1 and 31);
 
 alter table public.watchlist_items enable row level security;
 

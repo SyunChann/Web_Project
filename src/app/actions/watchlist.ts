@@ -17,6 +17,10 @@ type WatchlistPayload = {
   genre: string[];
   status: "waiting" | "watching" | "paused";
   release_label: string;
+  release_precision: "day" | "month" | "year" | "tba";
+  release_year: number | null;
+  release_month: number | null;
+  release_day: number | null;
   thumbnail: string | null;
   thumbnail_alt: string;
   reason: string;
@@ -48,12 +52,15 @@ function readWatchlistPayload(formData: FormData): WatchlistPayload {
     .map((item) => item.trim())
     .filter(Boolean);
   const status = String(formData.get("status") ?? "waiting") as WatchlistPayload["status"];
-  const releaseLabel = String(formData.get("releaseLabel") ?? "").trim();
+  const releasePrecision = String(formData.get("releasePrecision") ?? "tba") as WatchlistPayload["release_precision"];
+  const releaseYear = Number(formData.get("releaseYear"));
+  const releaseMonth = Number(formData.get("releaseMonth"));
+  const releaseDay = Number(formData.get("releaseDay"));
   const thumbnail = String(formData.get("thumbnail") ?? "").trim();
   const reason = String(formData.get("reason") ?? "").trim();
   const youtubeUrl = String(formData.get("youtubeUrl") ?? "").trim();
 
-  if (!title || !releaseLabel || !reason) {
+  if (!title || !reason) {
     throw new Error("필수 기대작 정보를 입력해 주세요.");
   }
 
@@ -65,12 +72,29 @@ function readWatchlistPayload(formData: FormData): WatchlistPayload {
     throw new Error("올바른 기대 상태를 선택해 주세요.");
   }
 
+  if (!["day", "month", "year", "tba"].includes(releasePrecision)) {
+    throw new Error("공개 일정 정확도를 확인해 주세요.");
+  }
+
+  const hasYear = Number.isInteger(releaseYear) && releaseYear >= 1900 && releaseYear <= 2100;
+  const hasMonth = Number.isInteger(releaseMonth) && releaseMonth >= 1 && releaseMonth <= 12;
+  const hasDay = Number.isInteger(releaseDay) && releaseDay >= 1 && releaseDay <= 31;
+  if ((releasePrecision === "day" && (!hasYear || !hasMonth || !hasDay)) || (releasePrecision === "month" && (!hasYear || !hasMonth)) || (releasePrecision === "year" && !hasYear)) {
+    throw new Error("선택한 공개 일정에 맞는 날짜를 입력해 주세요.");
+  }
+
+  const releaseLabel = releasePrecision === "day" ? `${releaseYear}. ${releaseMonth}. ${releaseDay}. 공개` : releasePrecision === "month" ? `${releaseYear}년 ${releaseMonth}월 예정` : releasePrecision === "year" ? `${releaseYear}년 예정` : "공개일 미정";
+
   return {
     title,
     type,
     genre,
     status,
     release_label: releaseLabel,
+    release_precision: releasePrecision,
+    release_year: hasYear ? releaseYear : null,
+    release_month: releasePrecision === "day" || releasePrecision === "month" ? releaseMonth : null,
+    release_day: releasePrecision === "day" ? releaseDay : null,
     thumbnail: thumbnail || null,
     thumbnail_alt: `${title} 기대작 썸네일`,
     reason,

@@ -1,12 +1,12 @@
-import { Bookmark, Library } from "lucide-react";
+import { Bookmark, CalendarDays, Library } from "lucide-react";
 import Link from "next/link";
 
 type ContentSectionTabsProps = {
-  active: "reviews" | "watchlist";
+  active: "reviews" | "watchlist" | "calendar";
 };
 
 export function ContentSectionTabs({ active }: ContentSectionTabsProps) {
-  const theme = active === "watchlist"
+  const theme = active === "watchlist" || active === "calendar"
     ? {
         active: "bg-[#2f7f7a] text-white",
         idle: "text-[#52616b] hover:bg-[#eefaf8] hover:text-[#2f7f7a]",
@@ -18,6 +18,7 @@ export function ContentSectionTabs({ active }: ContentSectionTabsProps) {
   const tabs = [
     { href: "/reviews", label: "\uB9AC\uBDF0", icon: <Library size={16} />, key: "reviews" },
     { href: "/watchlist/items", label: "\uAE30\uB300\uC791", icon: <Bookmark size={16} />, key: "watchlist" },
+    { href: "/release-calendar", label: "\uB9B4\uB9AC\uC988 \uCE98\uB9B0\uB354", icon: <CalendarDays size={16} />, key: "calendar" },
   ] as const;
 
   return (
