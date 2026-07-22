@@ -11,7 +11,6 @@ import {
   type Travel,
   type ReviewSort,
 } from "@/data/travel";
-import Pagination from "@/components/Pagination";
 
 type TravelsPageProps = {
   searchParams?: Promise<{
@@ -75,8 +74,6 @@ export default async function TravelsPage({
 
 const currentPage = Number(params?.page) || 1;
   const itemsPerPage = 9;
-  const totalPages = Math.ceil(travelPosts.length / itemsPerPage);
-  
   // 전체 travels 배열에서 현재 페이지에 보여줄 9개만 잘라냅니다.
   const paginatedTravelPosts = travelPosts.slice(
     (currentPage - 1) * itemsPerPage,
@@ -298,22 +295,6 @@ function parseSort(value: string | string[] | undefined): ReviewSort {
   }
 
   return "created-desc";
-}
-
-function parseCategory(value: string | string[] | undefined): ReviewCategoryFilter {
-  const categoryValue = Array.isArray(value) ? value[0] : value;
-
-  if (
-    categoryValue === "korea" ||
-    categoryValue === "japan" ||
-    categoryValue === "china" ||
-
-    categoryValue === "other"
-  ) {
-    return categoryValue;
-  }
-
-  return "all";
 }
 
 function parseScope(value: string | string[] | undefined): Travel["scope"] {
