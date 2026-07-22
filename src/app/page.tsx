@@ -1,5 +1,5 @@
 import { Suspense, type ReactNode } from "react";
-import { ArrowRight, Bookmark, Library, MapPinned, Utensils } from "lucide-react";
+import { ArrowRight, Bookmark, Library, MapPinned, Utensils, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { StatusToast } from "@/components/StatusToast";
@@ -7,6 +7,7 @@ import { getRestaurantsReviews } from "@/data/restaurants";
 import { getReviews } from "@/data/reviews";
 import { getTravels, groupTravelPosts } from "@/data/travel";
 import { getWatchItems } from "@/data/watchlist";
+import { getMerchandiseReviews } from "@/data/merchandise";
 
 type HomeProps = {
   searchParams?: Promise<{ status?: string }>;
@@ -46,12 +47,13 @@ export default async function Home({ searchParams }: HomeProps) {
 }
 
 async function HomeDashboard() {
-  const [reviews, watchItems, restaurants, overseasRestaurants, travels] = await Promise.all([
+  const [reviews, watchItems, restaurants, overseasRestaurants, travels, merchandise] = await Promise.all([
     getReviews(),
     getWatchItems(),
     getRestaurantsReviews(),
     getRestaurantsReviews("overseas"),
     getTravels(),
+    getMerchandiseReviews(),
   ]);
   const restaurantReviews = [...restaurants, ...overseasRestaurants].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
@@ -64,6 +66,7 @@ async function HomeDashboard() {
       <DashboardSection href="/watchlist/items" icon={<Bookmark size={20} />} label={"\uAE30\uB300\uC791"} count={watchItems.length} latest={watchItems[0]?.title} latestDate={watchItems[0]?.createdAt} tone="teal" />
       <DashboardSection href="/restaurants/items" icon={<Utensils size={20} />} label={"\uB9DB\uC9D1\uB9AC\uBDF0"} count={restaurantReviews.length} latest={restaurantReviews[0]?.title} latestDate={restaurantReviews[0]?.createdAt} meta={`\uAD6D\uB0B4 ${restaurants.length}\uAC1C \u00B7 \uD574\uC678 ${overseasRestaurants.length}\uAC1C`} tone="orange" />
       <DashboardSection href="/travel/items" icon={<MapPinned size={20} />} label={"\uD574\uC678\uC5EC\uD589"} count={travelPosts.length} latest={travelPosts[0]?.travel.tripTitle ?? travelPosts[0]?.travel.title} latestDate={travelPosts[0]?.travel.createdAt} tone="green" />
+      <DashboardSection href="/merchandise" icon={<ShoppingCart size={20} />} label={"\uC0C1\uD488"} count={merchandise.length} latest={merchandise[0]?.title} latestDate={merchandise[0]?.createdAt} tone="purple" />
     </section>
   );
 }
@@ -97,7 +100,7 @@ function DashboardSection({
   latest?: string;
   latestDate?: string;
   meta?: string;
-  tone: "red" | "teal" | "orange" | "blue" | "green";
+  tone: "red" | "teal" | "orange" | "blue" | "green" | "purple";
 }) {
   const themes = {
     red: "text-[#be4b49] hover:border-[#be4b49]",
@@ -105,6 +108,7 @@ function DashboardSection({
     orange: "text-[#e57632] hover:border-[#e57632]",
     blue: "text-[#0284c7] hover:border-[#0284c7]",
     green: "text-[#4d7c0f] hover:border-[#65a30d]",
+    purple: "text-[#9249be] hover:border-[#9249be]",
   } as const;
 
   return (

@@ -107,6 +107,7 @@ export default async function MerchandiseReviewsPage({ searchParams }: Merchandi
         <AppNav active="merchandise" />
 
         <header className="py-10">
+          <ContentSectionTabs active="merchandise" />
           <p className="text-sm font-semibold text-[#a349be]">Merchandise</p>
           <h1 className="mt-3 text-3xl font-bold sm:text-4xl">전체 리뷰</h1>
           <p className="mt-4 max-w-2xl leading-7 text-[#52616b]">
