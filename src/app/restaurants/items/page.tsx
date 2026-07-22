@@ -66,7 +66,6 @@ export default async function RestaurantsReviewsPage({
   const softHover = isOverseas
     ? "hover:border-[#0284c7] hover:text-[#0284c7]"
     : "hover:border-[#e57632] hover:text-[#e57632]";
-  const cardBorder = isOverseas ? "border-l-[#0284c7]" : "";
   const badgeClass = isOverseas
     ? "bg-[#e0f2fe] text-[#075985]"
     : "";
@@ -235,7 +234,7 @@ export default async function RestaurantsReviewsPage({
                 <Link
                   key={review.id}
                   href={`/restaurants/${review.id}`}
-                  className={`overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] ${isOverseas ? cardBorder : theme.border} bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md`}
+                  className="overflow-hidden rounded-lg border border-[#ddd6cc] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
                 >
                   <ThumbnailImage
                     src={review.thumbnail}

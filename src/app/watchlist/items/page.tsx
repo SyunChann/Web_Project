@@ -197,7 +197,7 @@ function WatchItemCard({ item }: { item: WatchItem }) {
   return (
     <Link
       href={`/watchlist/${item.id}`}
-      className="block overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] border-l-[#38a39b] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+      className="block overflow-hidden rounded-lg border border-[#ddd6cc] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
     >
       <ThumbnailImage
         src={item.thumbnail}
