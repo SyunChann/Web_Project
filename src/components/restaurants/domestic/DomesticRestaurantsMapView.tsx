@@ -125,7 +125,6 @@ export function DomesticRestaurantsMapView({ items }: DomesticRestaurantsMapView
       overlayRefs.current.forEach((overlay) => overlay.setMap(null));
       overlayRefs.current = [];
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items]);
 
   function handleSelectItem(item: DomesticRestaurantMapItem) {

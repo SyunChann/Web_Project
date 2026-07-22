@@ -1,4 +1,4 @@
-import { ArrowLeft, Bookmark, Library, MapPinned, Utensils, Plane } from "lucide-react";
+import { ArrowLeft, Bookmark, Library, MapPinned, Utensils, Plane, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
@@ -12,6 +12,8 @@ import { TravelForm } from "@/components/travel/TravelForm"
 import { WatchlistForm } from "@/components/watchlist/WatchlistForm";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createTravel } from "../actions/travel";
+import { MerchandiseReviewForm } from "@/components/merchandise/MerchandiseForm";
+import { createMerchandiseReview } from "@/app/actions/merchandise";
 
 type NewPostPageProps = {
   searchParams: Promise<{
@@ -43,6 +45,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
         backLabel="작성 유형 선택"
         eyebrow="Review"
         title="새 리뷰 작성"
+        tone="review"
       >
         <ReviewForm action={createReview} submitLabel="리뷰 저장" showSlugField />
       </PostFormShell>
@@ -56,6 +59,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
         backLabel="작성 유형 선택"
         eyebrow="Watchlist"
         title="새 기대작 작성"
+        tone="watchlist"
       >
         <WatchlistForm
           action={createWatchlistItem}
@@ -73,6 +77,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
         backLabel="작성 유형 선택"
         eyebrow="Restaurants"
         title="새 맛집 작성"
+        tone="restaurants"
       >
         <DomesticRestaurantsReviewForm
           action={createRestaurantReview}
@@ -91,6 +96,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
         backLabel="작성 유형 선택"
         eyebrow="Overseas Restaurants"
         title="새 해외 맛집 작성"
+        tone="overseas"
       >
         <OverseasRestaurantsReviewForm
           action={createRestaurantReview}
@@ -102,7 +108,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
     );
   }
 
-    if (type === "travel") {
+  if (type === "travel") {
     return (
       <PostFormShell
         backHref="/new"
@@ -119,6 +125,24 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
         />
       </PostFormShell>
     );
+  }
+
+  if ( type === "merchandise" ){
+    return (
+      <PostFormShell
+        backHref="/new"
+        backLabel="작성 유형 선택"
+        eyebrow="Merchandise"
+        title="새 상품 리뷰 작성"
+        tone="merchandise"
+      >
+        <MerchandiseReviewForm
+          action={createMerchandiseReview}
+          submitLabel="상품 리뷰 저장"
+          showSlugField
+        />
+      </PostFormShell>
+    )
   }
 
   return (
@@ -171,10 +195,17 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
           />
           <PostTypeCard
             href="/new?type=travel"
-            icon={<MapPinned size={20} />}
+            icon={<Plane size={20} />}
             title="해외여행"
             description="해외여행에서 방문한 장소를 기록합니다."
             tone="travel"
+          />
+          <PostTypeCard
+            href="/new?type=merchandise"
+            icon={<ShoppingCart size={20} />}
+            title="상품리뷰"
+            description="사용한 상품의 리뷰를 기록합니다."
+            tone="merchandise"
           />
         </div>
       </section>
@@ -193,7 +224,7 @@ function PostTypeCard({
   icon: ReactNode;
   title: string;
   description: string;
-  tone: "review" | "watchlist" | "restaurants" | "overseas" | "travel";
+  tone: "review" | "watchlist" | "restaurants" | "overseas" | "travel" | "merchandise";
 }) {
   const theme = {
     review: {
@@ -216,6 +247,10 @@ function PostTypeCard({
       border: "hover:border-[#65a30d]",
       icon: "bg-[#f7fee7] text-[#4d7c0f]",
     },
+    merchandise: {
+      border: "hover:border-[#9932CC]",
+      icon: "bg-[#f5e7fe] text-[#A841DB]",
+    }
   }[tone];
 
   return (
@@ -240,16 +275,24 @@ function PostFormShell({
   eyebrow,
   title,
   children,
-  tone = "default",
+  tone,
 }: {
   backHref: string;
   backLabel: string;
   eyebrow: string;
   title: string;
   children: ReactNode;
-  tone?: "default" | "travel";
+  tone: "review" | "watchlist" | "restaurants" | "overseas" | "travel" | "merchandise";
 }) {
-  const accentClass = tone === "travel" ? "text-[#4d7c0f]" : "text-[#be4b49]";
+  const toneColors: Record<string, string> = {
+    review: "text-[#be4b49]",
+    watchlist: "text-[#2f7f7a]",
+    restaurants: "text-[#e57632]",
+    overseas: "text-[#0284c7]",
+    travel: "text-[#4d7c0f]",
+    merchandise: "text-[#A841DB]",
+  };
+  const accentClass = toneColors[tone] ?? "text-[#be4b49]";
   return (
     <main className="min-h-screen px-4 py-5 sm:px-10 sm:py-8">
       <section className="mx-auto w-full max-w-3xl">

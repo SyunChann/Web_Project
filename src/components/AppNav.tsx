@@ -9,6 +9,8 @@ import {
   MapPinned,
   Plus,
   Utensils,
+  Plane,
+  ShoppingCart,
 } from "lucide-react";
 import Link from "next/link";
 import { LogoutButton } from "@/components/LogoutButton";
@@ -24,6 +26,7 @@ type AppNavProps = {
     | "overseas-restaurants-map"
     | "travel"
     | "restaurant-map"
+    | "merchandise"
     | "admin";
 };
 
@@ -42,6 +45,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
     "overseas-restaurants-map": "해외 맛집리뷰 지도",
     travel: "해외여행",
     "restaurant-map": "해외 맛집리뷰 지도",
+    merchandise: "상품리뷰",
     admin: "관리자",
   };
   const activeSectionLabel = sectionLabels[active] || "리뷰 홈";
@@ -87,7 +91,22 @@ export async function AppNav({ active = "home" }: AppNavProps) {
       primary: "bg-[#0284c7] hover:bg-[#0369a1]",
       admin: "bg-[#e0f2fe] text-[#075985]",
     },
-    travel: { brandHover: "hover:border-[#65a30d]", icon: "bg-[#65a30d] group-hover:bg-[#4d7c0f]", text: "text-[#4d7c0f]", controlHover: "hover:border-[#65a30d] hover:text-[#4d7c0f]", primary: "bg-[#65a30d] hover:bg-[#4d7c0f]", admin: "bg-[#f7fee7] text-[#3f6212]" },
+    travel: { 
+      brandHover: "hover:border-[#65a30d]", 
+      icon: "bg-[#65a30d] group-hover:bg-[#4d7c0f]", 
+      text: "text-[#4d7c0f]", 
+      controlHover: "hover:border-[#65a30d] hover:text-[#4d7c0f]", 
+      primary: "bg-[#65a30d] hover:bg-[#4d7c0f]", 
+      admin: "bg-[#f7fee7] text-[#3f6212]" 
+    },
+    merchandise: { 
+      brandHover: "hover:border-[#8f49be]", 
+      icon: "bg-[#9249be] group-hover:bg-[#a349be]", 
+      text: "text-[#a349be]", 
+      controlHover: "hover:border-[#8f49be] hover:text-[#a749be]", 
+      primary: "bg-[#9249be] hover:bg-[#863da8]", 
+      admin: "bg-[#f7fee7] text-[#3f6212]" 
+    },
     default: {
       brandHover: "hover:border-[#be4b49]",
       icon: "bg-[#be4b49] group-hover:bg-[#a83f3d]",
@@ -226,7 +245,22 @@ export async function AppNav({ active = "home" }: AppNavProps) {
               activeClass="bg-[#e0f2fe] text-[#075985]"
               hoverClass="hover:bg-[#e0f2fe] hover:text-[#0284c7]"
             />
-            <NavMenuLink href="/travel/items" active={active === "travel"} icon={<MapPinned size={16} />} label="해외여행" activeClass="bg-[#f7fee7] text-[#3f6212]" hoverClass="hover:bg-[#f7fee7] hover:text-[#4d7c0f]" />
+            <NavMenuLink 
+              href="/travel/items" 
+              active={active === "travel"} 
+              icon={<Plane size={16} />} 
+              label="해외여행" 
+              activeClass="bg-[#f7fee7] text-[#3f6212]" 
+              hoverClass="hover:bg-[#f7fee7] hover:text-[#4d7c0f]" 
+            />
+            <NavMenuLink 
+              href="/merchandise" 
+              active={active === "merchandise"} 
+              icon={<ShoppingCart size={16} />} 
+              label="상품리뷰" 
+              activeClass="bg-[#9d49be] text-[#9349be]" 
+              hoverClass="hover:bg-[#863da8] hover:text-[#8f49be]" 
+            />
           </div>
         </details>
 
