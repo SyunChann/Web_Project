@@ -371,22 +371,18 @@ export function categoryTheme(type: Travel["category"]) {
   const category = {
     korea: {
       badge: "bg-[#fde8e7] text-[#a73735]",
-      border: "border-l-[#d24b47]",
       text: "text-[#be4b49]",
     },
     japan: {
       badge: "bg-[#e9ecff] text-[#4657b8]",
-      border: "border-l-[#6574d8]",
       text: "text-[#5967c7]",
     },
     china: {
       badge: "bg-[#fff0d9] text-[#9a5a13]",
-      border: "border-l-[#d9902f]",
       text: "text-[#b56f1d]",
     },
     other: {
       badge: "bg-[#e5f4ed] text-[#247053]",
-      border: "border-l-[#2f9d72]",
       text: "text-[#2f7f61]",
     },
   };

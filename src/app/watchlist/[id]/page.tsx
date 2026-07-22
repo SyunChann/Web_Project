@@ -103,7 +103,7 @@ export default async function WatchlistDetailPage({
         </div>
 
         <header
-          className={`mt-8 overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] ${theme.border} bg-white shadow-sm`}
+          className="mt-8 overflow-hidden rounded-lg border border-[#ddd6cc] bg-white shadow-sm"
         >
           <ThumbnailImage
             src={item.thumbnail}
@@ -253,7 +253,7 @@ function WatchAdjacentCard({
   return (
     <Link
       href={`/watchlist/${item.id}`}
-      className="group grid grid-cols-[88px_1fr] overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] border-l-[#38a39b] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+      className="group grid grid-cols-[88px_1fr] overflow-hidden rounded-lg border border-[#ddd6cc] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
     >
       <ThumbnailImage
         src={item.thumbnail}

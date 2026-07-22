@@ -99,7 +99,6 @@ export default async function RestaurantsDetailPage({
   const badgeLabel = isOverseas ? "해외 맛집" : categoryLabel(item.category);
   const accentText = isOverseas ? "text-[#0284c7]" : "text-[#e57632]";
   const accentHoverText = isOverseas ? "hover:text-[#0369a1]" : "hover:text-[#a83f3d]";
-  const accentBorder = isOverseas ? "border-l-[#0284c7]" : theme.border;
   const badgeClass = isOverseas ? "bg-[#e0f2fe] text-[#075985]" : theme.badge;
   const softBorder = isOverseas ? "border-[#bae6fd]" : "border-[#eadcc7]";
   const softBg = isOverseas ? "bg-[#f0f9ff]" : "bg-[#fffdf8]";
@@ -152,7 +151,7 @@ export default async function RestaurantsDetailPage({
           </div>
 
           <header
-            className={`mt-8 overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] ${accentBorder} bg-white shadow-sm`}
+            className="mt-8 overflow-hidden rounded-lg border border-[#ddd6cc] bg-white shadow-sm"
           >
             <ThumbnailImage
               src={item.thumbnail}
@@ -346,14 +345,13 @@ function RestaurantAdjacentCard({
   const Icon = direction === "previous" ? ArrowLeft : ArrowRight;
   const title = item.scope === "overseas" ? item.storeName : item.title;
   const isOverseas = item.scope === "overseas";
-  const accentBorder = isOverseas ? "border-l-[#0284c7]" : theme.border;
   const accentText = isOverseas ? "text-[#0284c7]" : "text-[#e57632]";
   const hoverText = isOverseas ? "group-hover:text-[#0284c7]" : "group-hover:text-[#e57632]";
 
   return (
     <Link
       href={`/restaurants/${item.id}`}
-      className={`group grid grid-cols-[88px_1fr] overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] ${accentBorder} bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md`}
+      className="group grid grid-cols-[88px_1fr] overflow-hidden rounded-lg border border-[#ddd6cc] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
     >
       <ThumbnailImage
         src={item.thumbnail}

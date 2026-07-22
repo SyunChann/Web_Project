@@ -100,17 +100,17 @@ function DashboardSection({
   tone: "red" | "teal" | "orange" | "blue" | "green";
 }) {
   const themes = {
-    red: "border-l-[#be4b49] text-[#be4b49] hover:border-[#be4b49]",
-    teal: "border-l-[#2f7f7a] text-[#2f7f7a] hover:border-[#2f7f7a]",
-    orange: "border-l-[#e57632] text-[#e57632] hover:border-[#e57632]",
-    blue: "border-l-[#0284c7] text-[#0284c7] hover:border-[#0284c7]",
-    green: "border-l-[#65a30d] text-[#4d7c0f] hover:border-[#65a30d]",
+    red: "text-[#be4b49] hover:border-[#be4b49]",
+    teal: "text-[#2f7f7a] hover:border-[#2f7f7a]",
+    orange: "text-[#e57632] hover:border-[#e57632]",
+    blue: "text-[#0284c7] hover:border-[#0284c7]",
+    green: "text-[#4d7c0f] hover:border-[#65a30d]",
   } as const;
 
   return (
     <Link
       href={href}
-      className={`group min-h-40 rounded-lg border border-l-4 border-[#ddd6cc] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:min-h-44 sm:p-5 ${themes[tone]}`}
+      className={`group min-h-40 rounded-lg border border-[#ddd6cc] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:min-h-44 sm:p-5 ${themes[tone]}`}
     >
       <div className="flex items-center justify-between gap-3">
         <span>{icon}</span>

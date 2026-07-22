@@ -128,7 +128,7 @@ export default async function TravelDetailPage({ params }: TravelDetailPageProps
 
           {!canManageTravel ? <Link href={`/travel/${item.id}/map`} className="mt-4 inline-flex items-center gap-2 rounded-md border border-[#d9efb9] bg-[#f7fee7] px-4 py-2 text-sm font-bold text-[#4d7c0f] shadow-sm transition hover:border-[#65a30d]"><MapPinned size={16} />동선 지도</Link> : null}
 
-          <header className="mt-8 overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] border-l-[#65a30d] bg-white shadow-sm">
+          <header className="mt-8 overflow-hidden rounded-lg border border-[#ddd6cc] bg-white shadow-sm">
             <ThumbnailImage src={item.thumbnail} alt={item.thumbnailAlt} title={title} label="해외여행" loading="eager" fetchPriority="high" googlePlaceId={item.placeId} googlePlaceQuery={[item.storeName, item.address].filter(Boolean).join(" ")} />
             <div className="p-6 sm:p-8">
               <div className="flex flex-wrap items-center justify-between gap-3">

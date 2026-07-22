@@ -123,7 +123,7 @@ function EmptyFeaturedTravelItem() {
 
 function FeaturedTravelItem({ item }: { item:  Travel}) {
   return (
-    <article className="overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] border-l-[#4584c4] bg-white shadow-sm">
+    <article className="overflow-hidden rounded-lg border border-[#ddd6cc] bg-white shadow-sm">
       <Image
         src={item.thumbnail}
         alt={item.thumbnailAlt}
@@ -172,7 +172,7 @@ function TravelItemCard({ item, placeCount }: { item: Travel; placeCount: number
   return (
     <Link
       href={`/travel/${item.id}`}
-      className="block overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] border-l-[#5ca1e6] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+      className="block overflow-hidden rounded-lg border border-[#ddd6cc] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
     >
       <Image
         src={item.thumbnail}

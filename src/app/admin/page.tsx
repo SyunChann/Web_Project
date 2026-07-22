@@ -1,4 +1,6 @@
 import { headers } from "next/headers";
+import { ArrowUpRight, FileWarning, ImageOff, MapPin, Pencil, ShieldCheck } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AppNav } from "@/components/AppNav";
 import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
@@ -23,6 +25,57 @@ type InviteCodeRow = {
   revoked_at: string | null;
   created_at: string;
 };
+
+type AdminContentKind = "review" | "watchlist" | "restaurant" | "travel";
+
+type AdminContentRow = {
+  id: string;
+  kind: AdminContentKind;
+  title: string;
+  authorName: string | null;
+  createdAt: string;
+  thumbnail: string | null;
+  summary: string | null;
+  latitude: number | null;
+  longitude: number | null;
+};
+
+type AdminSourceRow = {
+  id: string;
+  title: string;
+  created_at: string;
+  thumbnail: string | null;
+  summary?: string | null;
+  reason?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  author_name?: string | null;
+};
+
+const contentMeta: Record<AdminContentKind, { label: string; listHref: string; detailHref: (id: string) => string; editHref: (id: string) => string; tone: string }> = {
+  review: { label: "리뷰", listHref: "/reviews", detailHref: (id) => `/reviews/${id}`, editHref: (id) => `/reviews/${id}/edit`, tone: "text-[#be4b49]" },
+  watchlist: { label: "기대작", listHref: "/watchlist", detailHref: (id) => `/watchlist/${id}`, editHref: (id) => `/watchlist/${id}/edit`, tone: "text-[#2f7f7a]" },
+  restaurant: { label: "맛집리뷰", listHref: "/restaurants/items", detailHref: (id) => `/restaurants/${id}`, editHref: (id) => `/restaurants/${id}/edit`, tone: "text-[#e57632]" },
+  travel: { label: "해외여행", listHref: "/travel/items", detailHref: (id) => `/travel/${id}`, editHref: (id) => `/travel/${id}/edit`, tone: "text-[#4d7c0f]" },
+};
+
+function toAdminContentRows(kind: AdminContentKind, rows: AdminSourceRow[] | null) {
+  return (rows ?? []).map((row) => ({
+    id: row.id,
+    kind,
+    title: row.title,
+    authorName: row.author_name ?? null,
+    createdAt: row.created_at,
+    thumbnail: row.thumbnail,
+    summary: row.summary ?? row.reason ?? null,
+    latitude: row.latitude ?? null,
+    longitude: row.longitude ?? null,
+  }));
+}
+
+function formatShortDate(value: string) {
+  return new Intl.DateTimeFormat("ko-KR", { month: "short", day: "numeric" }).format(new Date(value));
+}
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("ko-KR", {
@@ -129,8 +182,35 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     .from("invite_codes")
     .select("id,code,role,max_uses,used_count,expires_at,revoked_at,created_at")
     .order("created_at", { ascending: false });
+  const [reviewsResult, watchlistResult, restaurantsResult, travelResult] = await Promise.all([
+    supabase.from("reviews").select("id,title,created_at,thumbnail,summary,author_name").order("created_at", { ascending: false }),
+    supabase.from("watchlist_items").select("id,title,created_at,thumbnail,reason,author_name").order("created_at", { ascending: false }),
+    supabase.from("restaurant_reviews").select("id,title,created_at,thumbnail,summary,latitude,longitude,author_name").order("created_at", { ascending: false }),
+    supabase.from("travel").select("id,title,created_at,thumbnail,summary,latitude,longitude,author_name").order("created_at", { ascending: false }),
+  ]);
   const inviteCodes = (data ?? []) as InviteCodeRow[];
   const inviteSummary = getInviteSummary(inviteCodes, currentTime);
+  const contentRows = [
+    ...toAdminContentRows("review", reviewsResult.data as AdminSourceRow[] | null),
+    ...toAdminContentRows("watchlist", watchlistResult.data as AdminSourceRow[] | null),
+    ...toAdminContentRows("restaurant", restaurantsResult.data as AdminSourceRow[] | null),
+    ...toAdminContentRows("travel", travelResult.data as AdminSourceRow[] | null),
+  ].sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime());
+  const contentCounts = contentRows.reduce<Record<AdminContentKind, number>>(
+    (counts, item) => ({ ...counts, [item.kind]: counts[item.kind] + 1 }),
+    { review: 0, watchlist: 0, restaurant: 0, travel: 0 },
+  );
+  const healthIssues = contentRows.flatMap((item) => {
+    const issues: { label: string; icon: "image" | "location" | "content" }[] = [];
+
+    if (!item.thumbnail?.trim()) issues.push({ label: "대표 이미지 없음", icon: "image" });
+    if (!item.summary?.trim()) issues.push({ label: "요약 없음", icon: "content" });
+    if ((item.kind === "restaurant" || item.kind === "travel") && (!item.latitude || !item.longitude)) {
+      issues.push({ label: "장소 좌표 없음", icon: "location" });
+    }
+
+    return issues.map((issue) => ({ item, ...issue }));
+  }).slice(0, 12);
   const createdUrl = created
     ? `${origin}/signup?invite=${encodeURIComponent(created)}`
     : null;
@@ -166,6 +246,46 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             초대 코드를 발급하고 가입 URL을 공유합니다. 초대받은 사용자는
             회원가입 후 리뷰와 기대작을 작성할 수 있습니다.
           </p>
+        </section>
+
+        <section className="grid gap-5">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="flex items-center gap-2 text-sm font-semibold text-[#2f7f7a]"><ShieldCheck size={16} /> Content operations</p>
+              <h2 className="mt-2 text-2xl font-black">콘텐츠 관리</h2>
+            </div>
+            <p className="text-sm font-semibold text-[#64748b]">전체 {contentRows.length}개 기록</p>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {(Object.keys(contentMeta) as AdminContentKind[]).map((kind) => (
+              <ContentCountCard key={kind} kind={kind} count={contentCounts[kind]} />
+            ))}
+          </div>
+
+          <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
+            <section className="border-t border-[#d8cfc2] pt-5">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="text-lg font-black">최근 등록 콘텐츠</h3>
+                <span className="text-sm font-semibold text-[#64748b]">최근 8개</span>
+              </div>
+              <div className="mt-3 divide-y divide-[#e7eeed] rounded-lg border border-[#d8cfc2] bg-white shadow-sm">
+                {contentRows.slice(0, 8).map((item) => <ContentManagementRow key={`${item.kind}-${item.id}`} item={item} />)}
+                {!contentRows.length ? <p className="p-5 text-sm text-[#64748b]">아직 등록된 콘텐츠가 없습니다.</p> : null}
+              </div>
+            </section>
+
+            <section className="border-t border-[#d8cfc2] pt-5">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="flex items-center gap-2 text-lg font-black"><FileWarning size={18} className="text-[#b45309]" />데이터 점검</h3>
+                <span className="rounded-md bg-[#fff4da] px-2 py-1 text-xs font-black text-[#9a5a13]">{healthIssues.length}건</span>
+              </div>
+              <div className="mt-3 divide-y divide-[#f0e5d5] rounded-lg border border-[#f0ddbd] bg-[#fffdf8] shadow-sm">
+                {healthIssues.map((issue) => <DataHealthRow key={`${issue.item.kind}-${issue.item.id}-${issue.label}`} item={issue.item} label={issue.label} icon={issue.icon} />)}
+                {!healthIssues.length ? <p className="p-5 text-sm font-semibold text-[#2f7f7a]">점검이 필요한 콘텐츠가 없습니다.</p> : null}
+              </div>
+            </section>
+          </div>
         </section>
 
         {createdUrl ? (
@@ -376,6 +496,59 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         </section>
       </div>
     </main>
+  );
+}
+
+function ContentCountCard({ kind, count }: { kind: AdminContentKind; count: number }) {
+  const meta = contentMeta[kind];
+
+  return (
+    <Link href={meta.listHref} className="rounded-lg border border-[#d8cfc2] bg-white p-5 shadow-sm transition hover:border-[#8fc9c4] hover:shadow-md">
+      <p className={`text-sm font-bold ${meta.tone}`}>{meta.label}</p>
+      <div className="mt-3 flex items-end justify-between gap-3">
+        <p className="text-3xl font-black text-[#17202a]">{count}</p>
+        <ArrowUpRight size={18} className="text-[#8a95a1]" />
+      </div>
+    </Link>
+  );
+}
+
+function ContentManagementRow({ item }: { item: AdminContentRow }) {
+  const meta = contentMeta[item.kind];
+
+  return (
+    <article className="flex items-center justify-between gap-3 p-4">
+      <Link href={meta.detailHref(item.id)} className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <span className={`text-xs font-black ${meta.tone}`}>{meta.label}</span>
+          <span className="text-xs font-semibold text-[#94a3b8]">{formatShortDate(item.createdAt)}</span>
+        </div>
+        <h4 className="mt-1 truncate font-bold text-[#17202a]">{item.title}</h4>
+        <p className="mt-1 text-xs text-[#64748b]">{item.authorName ?? "작성자 없음"}</p>
+      </Link>
+      <Link href={meta.editHref(item.id)} className="inline-flex shrink-0 items-center justify-center rounded-md border border-[#d8cfc2] bg-white p-2 text-[#52616b] transition hover:border-[#2f7f7a] hover:text-[#2f7f7a]" aria-label={`${item.title} 수정`}>
+        <Pencil size={16} />
+      </Link>
+    </article>
+  );
+}
+
+function DataHealthRow({ item, label, icon }: { item: AdminContentRow; label: string; icon: "image" | "location" | "content" }) {
+  const meta = contentMeta[item.kind];
+  const Icon = icon === "image" ? ImageOff : icon === "location" ? MapPin : FileWarning;
+
+  return (
+    <article className="flex items-center justify-between gap-3 p-4">
+      <div className="min-w-0">
+        <p className="flex items-center gap-1.5 text-xs font-black text-[#9a5a13]"><Icon size={14} />{label}</p>
+        <p className="mt-1 truncate text-sm font-bold text-[#17202a]">{item.title}</p>
+        <p className={`mt-1 text-xs font-semibold ${meta.tone}`}>{meta.label}</p>
+      </div>
+      <Link href={meta.editHref(item.id)} className="inline-flex shrink-0 items-center gap-1 rounded-md border border-[#e2c17f] bg-white px-2.5 py-2 text-xs font-bold text-[#9a5a13] transition hover:border-[#d49a35] hover:bg-[#fff4da]">
+        수정
+        <ArrowUpRight size={14} />
+      </Link>
+    </article>
   );
 }
 

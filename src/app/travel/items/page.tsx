@@ -61,7 +61,6 @@ export default async function TravelsPage({
   const accentHoverBg = "hover:bg-[#4d7c0f]";
   const softActive = "border-[#65a30d] bg-[#f7fee7] text-[#3f6212]";
   const softHover = "hover:border-[#65a30d] hover:text-[#4d7c0f]";
-  const cardBorder = "border-l-[#65a30d]";
   const badgeClass = "bg-[#f7fee7] text-[#3f6212]";
   const travels = sortTravels(
     filterReviews(
@@ -229,7 +228,7 @@ const currentPage = Number(params?.page) || 1;
                 <Link
                   key={review.id}
                   href={`/travel/${review.id}`}
-                  className={`overflow-hidden rounded-lg border border-l-4 border-[#ddd6cc] ${isOverseas ? cardBorder : theme.border} bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md`}
+                  className="overflow-hidden rounded-lg border border-[#ddd6cc] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md"
                 >
                   <ThumbnailImage
                     src={review.thumbnail}
