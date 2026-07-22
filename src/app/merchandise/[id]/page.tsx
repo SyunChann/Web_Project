@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, Calendar, Pencil, Play, Star } from "lucide-react";
+import { ArrowLeft, ArrowRight, Calendar, Pencil, Star } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { deleteMerchandiseReview } from "@/app/actions/merchandise";
