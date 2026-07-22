@@ -7,6 +7,7 @@ import {
   MapPinned,
   Pencil,
   Star,
+  Plane,
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -17,6 +18,7 @@ import { ThumbnailImage } from "@/components/ThumbnailImage";
 import { getTravel, getTravels, sortTravelStops, travelToStop } from "@/data/travel";
 import { canManageContent } from "@/lib/contentPermissions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getAirportCode } from "@/lib/airports";
 
 type TravelDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -69,6 +71,27 @@ export default async function TravelDetailPage({ params }: TravelDetailPageProps
         }];
   const title = item.tripTitle ?? item.title;
 
+  function getSkyscannerDate(addDays = 0) {
+  const date = new Date(); 
+  date.setDate(date.getDate() + addDays);
+
+  // YYMMDD 형태로 조립
+  const yy = String(date.getFullYear()).slice(-2);
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+
+  return `${yy}${mm}${dd}`;
+}
+
+  const destinationCode = getAirportCode(item.city);
+  console.log("도시 테스트: " + item.city );
+  let skyscannerUrl = "https://www.skyscanner.co.kr/";
+  
+  if (destinationCode) {
+      const outboundDate = getSkyscannerDate(1);//현시간 + 1
+      const inboundDate = getSkyscannerDate(3); //출발날짜 +1 +2(2박3일)
+      skyscannerUrl = `https://www.skyscanner.co.kr/transport/flights/sela/${destinationCode}/${outboundDate}/${inboundDate}/?adultsv2=1&cabinclass=economy&rtn=1&preferdirects=false`;
+    }
   return (
     <main className="min-h-screen px-4 py-5 sm:px-10 sm:py-8">
       <section className="mx-auto w-full max-w-6xl">
@@ -86,6 +109,12 @@ export default async function TravelDetailPage({ params }: TravelDetailPageProps
                   <MapPinned size={16} />
                   동선 지도
                 </Link>
+                <a 
+                  href={skyscannerUrl} target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-md border border-[#bae6fd] bg-[#f0f9ff] px-4 py-2 text-sm font-bold text-[#0369a1] shadow-sm transition hover:border-[#0284c7]">
+                  <Plane size={16} />
+                  항공권 검색
+                </a>
                 <Link href={`/travel/${item.id}/edit`} className="inline-flex items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 py-2 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#65a30d] hover:text-[#4d7c0f]">
                   <Pencil size={16} />
                   수정

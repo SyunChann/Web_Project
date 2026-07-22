@@ -366,7 +366,7 @@ export function TravelForm({
         <input type="hidden" name="storeName" value={placeData?.storeName ?? ""} />
       ) : (
       <label className="grid gap-2 text-sm font-bold">
-        <FieldLabel required>식당명</FieldLabel>
+        <FieldLabel required>여행지</FieldLabel>
         <input
           name="storeName"
           value={placeData?.storeName ?? ""}
@@ -393,23 +393,53 @@ export function TravelForm({
 
       {reviewScope === "overseas" ? (
         <>
-          <input type="hidden" name="category" value="other" />
+          {/* <input type="hidden" name="category" value="other" /> */}
           <input type="hidden" name="companion" value="other" />
           <input type="hidden" name="hasParking" value="false" />
           <input type="hidden" name="willRevisit" value="false" />
-          <label className="grid gap-2 text-sm font-bold">
-            <FieldLabel required>별점</FieldLabel>
-            <input
-              name="rating"
-              type="number"
-              min="0"
-              max="5"
-              step="0.1"
-              defaultValue={travel?.rating ?? 4}
-              required
-              className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:bg-white ${focusInputClass}`}
-            />
-          </label>
+
+          <div className="flex w-full gap-4">
+            <label className="grid w-2/3 gap-2 text-sm font-bold">
+              <FieldLabel required>카테고리</FieldLabel>
+                <select
+                  name="category"
+                  defaultValue={travel?.category ?? "korea"}
+                  required
+                  className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:bg-white ${focusInputClass}`}>
+                  <option value="korea">한국</option>
+                  <option value="japan">일본</option>
+                  <option value="china">중국</option>
+                  <option value="other">기타</option>
+                </select>
+            </label>
+
+            <label className="grid w-2/3 gap-2 text-sm font-bold">
+              <FieldLabel required>도시</FieldLabel>
+              <input
+                name="city"   
+                type="text"     
+                defaultValue={travel?.city ?? ""} 
+                placeholder="예: 후쿠오카, 도쿄" 
+                required
+                className="rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:border-[#be4b49] focus:bg-white"
+              />
+            </label>
+
+            <label className="grid w-2/3 gap-2 text-sm font-bold">
+              <FieldLabel required>별점</FieldLabel>
+              <input
+                name="rating"
+                type="number"
+                min="0"
+                max="5"
+                step="0.1"
+                defaultValue={travel?.rating ?? 4}
+                required
+                className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:bg-white ${focusInputClass}`}
+              />
+            </label>
+          </div>
+
           {!isItineraryMode ? <div className="grid gap-5 sm:grid-cols-2">
             <label className="grid gap-2 text-sm font-bold">
               <FieldLabel required>방문일</FieldLabel>
@@ -437,20 +467,6 @@ export function TravelForm({
 
       {reviewScope === "domestic" ? (
       <div className="grid gap-5 sm:grid-cols-3">
-        <label className="grid gap-2 text-sm font-bold">
-          <FieldLabel required>카테고리</FieldLabel>
-            <select
-              name="category"
-              defaultValue={travel?.category ?? "korea"}
-              required
-          className={`rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none transition focus:bg-white ${focusInputClass}`}
-            >
-              <option value="korea">한국</option>
-              <option value="japan">일본</option>
-              <option value="china">중국</option>
-              <option value="other">기타</option>
-            </select>
-        </label>
 
         <label className="grid gap-2 text-sm font-bold">
           <FieldLabel required>별점</FieldLabel>

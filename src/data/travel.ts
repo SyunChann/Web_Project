@@ -8,6 +8,7 @@ export type Travel = {
   title: string;
   storeName: string;
   category: "korea" | "japan" | "china" | "other";
+  city: string;
   address?: string;
   latitude?: number;
   longitude?: number;
@@ -77,6 +78,7 @@ type TravelRow = {
   title: string;
   store_name: string;
   category: Travel["category"];
+  city: string;
   address: string | null;
   latitude: number | null;
   longitude: number | null;
@@ -98,13 +100,13 @@ type TravelRow = {
 };
 
 const travelSelect =
-  "id,scope,trip_title,title,store_name,category,address,latitude,longitude,place_id,map_url,rating,visited_at,visited_time,itinerary,thumbnail,thumbnail_alt,summary,review,author_id,author_name,created_at,updated_at";
+  "id,scope,trip_title,title,store_name,category,city,address,latitude,longitude,place_id,map_url,rating,visited_at,visited_time,itinerary,thumbnail,thumbnail_alt,summary,review,author_id,author_name,created_at,updated_at";
 const travelSelectWithoutItinerary =
-  "id,scope,trip_title,title,store_name,category,address,latitude,longitude,place_id,map_url,rating,visited_at,visited_time,thumbnail,thumbnail_alt,summary,review,author_id,author_name,created_at,updated_at";
+  "id,scope,trip_title,title,store_name,category,city,address,latitude,longitude,place_id,map_url,rating,visited_at,visited_time,thumbnail,thumbnail_alt,summary,review,author_id,author_name,created_at,updated_at";
 const travelSelectWithoutItineraryColumns =
-  "id,scope,title,store_name,category,address,latitude,longitude,place_id,map_url,rating,visited_at,thumbnail,thumbnail_alt,summary,review,author_id,author_name,created_at,updated_at";
+  "id,scope,title,store_name,category,city,address,latitude,longitude,place_id,map_url,rating,visited_at,thumbnail,thumbnail_alt,summary,review,author_id,author_name,created_at,updated_at";
 const legacyTravelSelect =
-  "id,title,store_name,category,address,latitude,longitude,place_id,map_url,rating,visited_at,thumbnail,thumbnail_alt,summary,review,author_id,author_name,created_at,updated_at";
+  "id,title,store_name,category,city,address,latitude,longitude,place_id,map_url,rating,visited_at,thumbnail,thumbnail_alt,summary,review,author_id,author_name,created_at,updated_at";
 
 function formatAuthorName(value: string | null) {
   const name = value?.trim();
@@ -126,6 +128,7 @@ function mapTravelRow(row: TravelRow): Travel {
     title: row.title,
     storeName: row.store_name,
     category: row.category,
+    city: row.city,
     address: row.address ?? undefined,
     latitude: row.latitude ?? undefined,
     longitude: row.longitude ?? undefined,

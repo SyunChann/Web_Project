@@ -17,6 +17,7 @@ type TravelPayload = {
   title: string;
   store_name: string;
   category: "korea" | "japan" | "china" | "other";
+  city: string;
   address: string | null;
   latitude: number | null;
   longitude: number | null;
@@ -70,6 +71,7 @@ function readTravelPayload(formData: FormData): TravelPayload {
   const category = String(
     formData.get("category") ?? (isOverseasScope ? "other" : ""),
   ) as TravelPayload["category"];
+  const city = String(formData.get("city") ?? "").trim();
   const address = String(formData.get("address") ?? "");
   const latitude = Number(formData.get("latitude") ?? 0);
   const longitude = Number(formData.get("longitude") ?? 0);
@@ -117,6 +119,7 @@ function readTravelPayload(formData: FormData): TravelPayload {
     title,
     store_name: storeName,
     category,
+    city,
     address,
     latitude,
     longitude,
