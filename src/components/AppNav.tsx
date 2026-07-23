@@ -10,7 +10,6 @@ import {
   Plus,
   Utensils,
   Plane,
-  ShoppingCart,
 } from "lucide-react";
 import Link from "next/link";
 import { LogoutButton } from "@/components/LogoutButton";
@@ -252,14 +251,6 @@ export async function AppNav({ active = "home" }: AppNavProps) {
               label="해외여행" 
               activeClass="bg-[#f7fee7] text-[#3f6212]" 
               hoverClass="hover:bg-[#f7fee7] hover:text-[#4d7c0f]" 
-            />
-            <NavMenuLink 
-              href="/merchandise" 
-              active={active === "merchandise"} 
-              icon={<ShoppingCart size={16} />} 
-              label="상품리뷰" 
-              activeClass="bg-[#9d49be] text-[#9349be]" 
-              hoverClass="hover:bg-[#863da8] hover:text-[#8f49be]" 
             />
           </div>
         </details>

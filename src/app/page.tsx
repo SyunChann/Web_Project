@@ -1,5 +1,5 @@
 import { Suspense, type ReactNode } from "react";
-import { ArrowRight, Bookmark, Library, MapPinned, Utensils, ShoppingCart } from "lucide-react";
+import { ArrowRight, Bookmark, Library, MapPinned, Plane, ShoppingCart, Utensils } from "lucide-react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { StatusToast } from "@/components/StatusToast";
@@ -55,18 +55,16 @@ async function HomeDashboard() {
     getTravels(),
     getMerchandiseReviews(),
   ]);
-  const restaurantReviews = [...restaurants, ...overseasRestaurants].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
   const travelPosts = groupTravelPosts(travels);
 
   return (
     <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
       <DashboardSection href="/reviews" icon={<Library size={20} />} label={"\uB9AC\uBDF0"} count={reviews.length} latest={reviews[0]?.title} latestDate={reviews[0]?.createdAt} tone="red" />
       <DashboardSection href="/watchlist/items" icon={<Bookmark size={20} />} label={"\uAE30\uB300\uC791"} count={watchItems.length} latest={watchItems[0]?.title} latestDate={watchItems[0]?.createdAt} tone="teal" />
-      <DashboardSection href="/restaurants/items" icon={<Utensils size={20} />} label={"\uB9DB\uC9D1\uB9AC\uBDF0"} count={restaurantReviews.length} latest={restaurantReviews[0]?.title} latestDate={restaurantReviews[0]?.createdAt} meta={`\uAD6D\uB0B4 ${restaurants.length}\uAC1C \u00B7 \uD574\uC678 ${overseasRestaurants.length}\uAC1C`} tone="orange" />
-      <DashboardSection href="/travel/items" icon={<MapPinned size={20} />} label={"\uD574\uC678\uC5EC\uD589"} count={travelPosts.length} latest={travelPosts[0]?.travel.tripTitle ?? travelPosts[0]?.travel.title} latestDate={travelPosts[0]?.travel.createdAt} tone="green" />
       <DashboardSection href="/merchandise" icon={<ShoppingCart size={20} />} label={"\uC0C1\uD488"} count={merchandise.length} latest={merchandise[0]?.title} latestDate={merchandise[0]?.createdAt} tone="purple" />
+      <DashboardSection href="/restaurants/items" icon={<Utensils size={20} />} label={"\uAD6D\uB0B4 \uB9DB\uC9D1"} count={restaurants.length} latest={restaurants[0]?.title} latestDate={restaurants[0]?.createdAt} tone="orange" />
+      <DashboardSection href="/restaurants/items?scope=overseas" icon={<MapPinned size={20} />} label={"\uD574\uC678 \uB9DB\uC9D1"} count={overseasRestaurants.length} latest={overseasRestaurants[0]?.title} latestDate={overseasRestaurants[0]?.createdAt} tone="blue" />
+      <DashboardSection href="/travel/items" icon={<Plane size={20} />} label={"\uD574\uC678\uC5EC\uD589"} count={travelPosts.length} latest={travelPosts[0]?.travel.tripTitle ?? travelPosts[0]?.travel.title} latestDate={travelPosts[0]?.travel.createdAt} tone="green" />
     </section>
   );
 }
