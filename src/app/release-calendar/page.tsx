@@ -2,7 +2,9 @@ import { CalendarDays, Clock3, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { ContentSectionTabs } from "@/components/ContentSectionTabs";
+import { AniListQuarterCalendar } from "@/components/watchlist/AniListQuarterCalendar";
 import { ReleaseMonthCalendar } from "@/components/watchlist/ReleaseMonthCalendar";
+import { getAniListQuarterReleases, getCurrentAniListQuarter, type AniListQuarter } from "@/data/anilist";
 import { getWatchItems, type WatchItem } from "@/data/watchlist";
 import { typeLabel } from "@/data/reviews";
 
@@ -11,8 +13,37 @@ function dateValue(item: WatchItem) {
   return new Date(item.releaseYear, (item.releaseMonth ?? 12) - 1, item.releaseDay ?? 31).getTime();
 }
 
-export default async function ReleaseCalendarPage() {
-  const items = await getWatchItems();
+type ReleaseCalendarPageProps = {
+  searchParams?: Promise<{
+    year?: string | string[];
+    quarter?: string | string[];
+  }>;
+};
+
+function readSearchValue(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function parseQuarter(value: string | string[] | undefined) {
+  const quarter = Number(readSearchValue(value));
+
+  return quarter >= 1 && quarter <= 4 ? quarter as AniListQuarter : getCurrentAniListQuarter();
+}
+
+function parseYear(value: string | string[] | undefined) {
+  const year = Number(readSearchValue(value));
+
+  return Number.isInteger(year) && year >= 2000 && year <= 2100 ? year : new Date().getFullYear();
+}
+
+export default async function ReleaseCalendarPage({ searchParams }: ReleaseCalendarPageProps) {
+  const params = await searchParams;
+  const selectedYear = parseYear(params?.year);
+  const selectedQuarter = parseQuarter(params?.quarter);
+  const [items, aniListItems] = await Promise.all([
+    getWatchItems(),
+    getAniListQuarterReleases(selectedYear, selectedQuarter),
+  ]);
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth();
@@ -31,6 +62,12 @@ export default async function ReleaseCalendarPage() {
         </header>
 
         <ReleaseMonthCalendar items={items} />
+
+        <AniListQuarterCalendar
+          year={selectedYear}
+          quarter={selectedQuarter}
+          items={aniListItems}
+        />
 
         <section className="mt-8 grid gap-6 lg:grid-cols-2">
           <div className="rounded-xl border border-[#d7e7e4] bg-white p-5 shadow-sm"><h2 className="flex items-center gap-2 text-lg font-black"><Sparkles size={18} className="text-[#2f7f7a]" /> 다가오는 공개작</h2><div className="mt-4 grid gap-3">{upcoming.length ? upcoming.map((item) => <ReleaseItem key={item.id} item={item} />) : <Empty text="등록된 공개 일정이 없습니다." />}</div></div>

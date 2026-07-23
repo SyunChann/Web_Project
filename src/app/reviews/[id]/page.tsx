@@ -107,6 +107,9 @@ export default async function ReviewDetailPage({
             title={review.title}
             label={typeLabel(review.type)}
             tone={review.type}
+            className="h-[28rem] w-full bg-[#f7f4ef] object-contain"
+            fallbackClassName="h-[28rem] w-full"
+            blurredBackdrop
             loading="eager"
             fetchPriority="high"
           />
@@ -231,7 +234,6 @@ function ReviewAdjacentCard({
   label: string;
   direction: "previous" | "next";
 }) {
-  const theme = typeTheme(review.type);
   const Icon = direction === "previous" ? ArrowLeft : ArrowRight;
 
   return (
@@ -245,8 +247,9 @@ function ReviewAdjacentCard({
         title={review.title}
         label={typeLabel(review.type)}
         tone={review.type}
-        className="h-full min-h-28 w-full object-cover"
+        className="h-full min-h-28 w-full bg-[#f7f4ef] object-contain"
         fallbackClassName="h-full min-h-28 w-full"
+        blurredBackdrop
         loading="lazy"
       />
       <div className="min-w-0 p-4">

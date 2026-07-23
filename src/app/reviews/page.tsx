@@ -223,6 +223,9 @@ export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
                     title={review.title}
                     label={typeLabel(review.type)}
                     tone={review.type}
+                    className="h-72 w-full bg-[#f7f4ef] object-contain"
+                    fallbackClassName="h-72 w-full"
+                    blurredBackdrop
                     loading={isAboveFoldImage ? "eager" : "lazy"}
                     fetchPriority={isFirstImage ? "high" : "auto"}
                   />
