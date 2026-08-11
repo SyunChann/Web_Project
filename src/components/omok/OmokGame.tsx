@@ -51,11 +51,10 @@ function emptyBoard(): Board {
 export function OmokGame({ initialRoom, userId }: { initialRoom: OmokRoomState; userId: string | null }) {
   const [room, setRoom] = useState(initialRoom);
   const [error, setError] = useState("");
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState(0);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
-  useEffect(() => setRoom(initialRoom), [initialRoom]);
   useEffect(() => {
     const supabase = createSupabasePublicClient();
     if (!supabase) return;
@@ -73,7 +72,7 @@ export function OmokGame({ initialRoom, userId }: { initialRoom: OmokRoomState; 
   const board = useMemo(() => normalizeBoard(room.board), [room.board]);
   const myStone: Stone | null = room.black_player_id === userId ? "black" : room.white_player_id === userId ? "white" : null;
   const canPlay = room.status === "playing" && room.turn === myStone;
-  const secondsLeft = room.turn_started_at
+  const secondsLeft = now && room.turn_started_at
     ? Math.max(0, Math.ceil((new Date(room.turn_started_at).getTime() + 30_000 - now) / 1_000))
     : 30;
   const statusText = room.status === "waiting"
@@ -111,9 +110,12 @@ export function OmokGame({ initialRoom, userId }: { initialRoom: OmokRoomState; 
   }
 
   useEffect(() => {
-    if (!userId || room.status !== "playing" || secondsLeft > 0 || isPending) return;
-    runAction(() => claimOmokTimeout(room.id));
-  }, [isPending, room.id, room.status, secondsLeft, userId]);
+    if (!userId || room.status !== "playing" || secondsLeft > 0) return;
+    const timeout = window.setTimeout(() => {
+      void claimOmokTimeout(room.id).then(() => router.refresh());
+    }, 0);
+    return () => window.clearTimeout(timeout);
+  }, [room.id, room.status, secondsLeft, router, userId]);
 
   return <>
     <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
