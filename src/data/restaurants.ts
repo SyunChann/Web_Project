@@ -172,10 +172,19 @@ async function getRestaurantsReviewFromSupabase(id: string) {
   return mapRestaurantsReviewRow(legacyData as RestaurantsReviewRow);
 }
 
+const getCachedRestaurantsReviews = unstable_cache(
+  getRestaurantsReviewsFromSupabase,
+  ["restaurant-review-list"],
+  {
+    tags: ["restaurants"],
+    revalidate: 60,
+  },
+);
+
 export async function getRestaurantsReviews(
   scope: RestaurantsReviewScope = "domestic",
 ) {
-  return getRestaurantsReviewsFromSupabase(scope);
+  return getCachedRestaurantsReviews(scope);
 }
 
 export const getRestaurantsReview = unstable_cache(

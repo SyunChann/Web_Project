@@ -5,8 +5,7 @@ import { ContentSectionTabs } from "@/components/ContentSectionTabs";
 import Pagination from "@/components/Pagination";
 import { ThumbnailImage } from "@/components/ThumbnailImage";
 import {
-  getMerchandiseReviews,
-  sortReviews,
+  getMerchandiseReviewsPage,
   categoryLabel,
   categoryTheme,
   type MerchandiseReview,
@@ -81,25 +80,17 @@ export default async function MerchandiseReviewsPage({ searchParams }: Merchandi
   const activeQuery = parseSearchValue(params?.q);
   const activeSort = parseSort(params?.sort);
   const activeCategory = parseType(params?.category);
-  const reviews = sortReviews(
-    filterReviews(await getMerchandiseReviews(), activeQuery, activeCategory),
-    activeSort,
-  );
-  const isFiltered = Boolean(activeQuery) || activeCategory !== "all";
-
   const currentPage = Number(params?.page) || 1;
   const ITEMS_PER_PAGE = 9;
-
-  const filteredReviews = sortReviews(
-    filterReviews(await getMerchandiseReviews(), activeQuery, activeCategory),
-    activeSort,
-  );
-
-  const totalPages = Math.ceil(filteredReviews.length / ITEMS_PER_PAGE);
-  const paginatedReviews = filteredReviews.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  const { items: paginatedReviews, totalCount } = await getMerchandiseReviewsPage({
+    query: activeQuery,
+    category: activeCategory,
+    sort: activeSort,
+    page: currentPage,
+    pageSize: ITEMS_PER_PAGE,
+  });
+  const isFiltered = Boolean(activeQuery) || activeCategory !== "all";
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   return (
     <main className="min-h-screen px-4 py-5 sm:px-10">
@@ -121,7 +112,7 @@ export default async function MerchandiseReviewsPage({ searchParams }: Merchandi
             className="grid gap-3 md:grid-cols-[1fr_auto_auto] md:items-center"
           >
             {activeCategory !== "all" ? (
-              <input type="hidden" name="type" value={activeCategory} />
+              <input type="hidden" name="category" value={activeCategory} />
             ) : null}
             {activeSort !== "created-desc" ? (
               <input type="hidden" name="sort" value={activeSort} />
@@ -211,7 +202,7 @@ export default async function MerchandiseReviewsPage({ searchParams }: Merchandi
           </div>
 
           <p className="mt-4 text-sm font-semibold text-[#6b7280]">
-            {isFiltered ? `검색 결과 ${reviews.length}개` : `전체 ${reviews.length}개`}
+            {isFiltered ? `검색 결과 ${totalCount}개` : `전체 ${totalCount}개`}
           </p>
         </section>
 
@@ -332,36 +323,6 @@ function parseSearchValue(value: string | string[] | undefined) {
   return searchValue?.trim() ?? "";
 }
 
-function filterReviews(
-  reviews: MerchandiseReview[],
-  query: string,
-  category: ReviewCategoryFilter,
-) {
-  const normalizedQuery = query.toLowerCase();
-
-  return reviews.filter((review) => {
-    const matchesType = category === "all" || review.category === category;
-
-    if (!matchesType) {
-      return false;
-    }
-
-    if (!normalizedQuery) {
-      return true;
-    }
-
-    return [
-      review.title,
-      categoryLabel(review.category),
-      review.summary,
-      review.review,
-      ...review.tags,
-    ]
-      .join(" ")
-      .toLowerCase()
-      .includes(normalizedQuery);
-  });
-}
 
 function buildReviewsHref({
   query,

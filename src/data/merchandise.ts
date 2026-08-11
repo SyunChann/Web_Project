@@ -36,7 +36,7 @@ type MerchandiseReviewRow = {
   thumbnail: string | null;
   thumbnail_alt: string | null;
   summary: string;
-  review: string;
+  review?: string | null;
   product_id: string | null;
   product_name: string | null;
   current_lowest_price: number | null;
@@ -47,6 +47,8 @@ type MerchandiseReviewRow = {
 
 const merchandiseReviewSelect =
   "id, title, category, tags, rating, purchased_at, created_at, updated_at, thumbnail, thumbnail_alt, summary, review, product_id, product_name, current_lowest_price, purchase_url, author_id, author_name";
+const merchandiseReviewListSelect =
+  "id, title, category, tags, rating, purchased_at, created_at, updated_at, thumbnail, thumbnail_alt, summary, product_id, product_name, current_lowest_price, purchase_url, author_id, author_name";
 
 function formatAuthorName(value: string | null) {
   const name = value?.trim();
@@ -73,7 +75,7 @@ function mapReviewRow(row: MerchandiseReviewRow): MerchandiseReview {
     thumbnail: row.thumbnail ?? "/thumbnails/your-name.svg",
     thumbnailAlt: row.thumbnail_alt ?? `${row.title} 리뷰 썸네일`,
     summary: row.summary,
-    review: row.review,
+    review: row.review ?? "",
     productId: row.product_id,
     productName: row.product_name,
     currentLowestPrice: row.current_lowest_price,
@@ -167,6 +169,49 @@ export const getMerchandiseReviews = unstable_cache(
     tags: ["merchandise-reviews"],
     revalidate: 60,
   },
+);
+
+export type MerchandiseReviewPageOptions = {
+  query?: string;
+  category?: MerchandiseReview["category"] | "all";
+  sort?: MerchandiseReviewSort;
+  page?: number;
+  pageSize?: number;
+};
+
+export type MerchandiseReviewPage = { items: MerchandiseReview[]; totalCount: number };
+
+async function getMerchandiseReviewsPageFromSupabase({
+  query = "",
+  category = "all",
+  sort = "created-desc",
+  page = 1,
+  pageSize = 9,
+}: MerchandiseReviewPageOptions): Promise<MerchandiseReviewPage> {
+  const supabase = createSupabasePublicClient();
+  if (!supabase) return { items: [], totalCount: 0 };
+
+  let request = supabase.from("merchandise_reviews").select(merchandiseReviewListSelect, { count: "exact" });
+  if (category !== "all") request = request.eq("category", category);
+
+  const normalizedQuery = query.replace(/[,.()]/g, " ").trim();
+  if (normalizedQuery) {
+    const pattern = `%${normalizedQuery}%`;
+    request = request.or(`title.ilike.${pattern},summary.ilike.${pattern},review.ilike.${pattern},product_name.ilike.${pattern}`);
+  }
+
+  const orderColumn = sort === "purchased-desc" ? "purchased_at" : sort === "rating-desc" ? "rating" : "created_at";
+  const start = Math.max(0, page - 1) * pageSize;
+  const { data, error, count } = await request.order(orderColumn, { ascending: false }).range(start, start + pageSize - 1);
+  if (error || !data) return { items: [], totalCount: 0 };
+
+  return { items: (data as MerchandiseReviewRow[]).map(mapReviewRow), totalCount: count ?? 0 };
+}
+
+export const getMerchandiseReviewsPage = unstable_cache(
+  getMerchandiseReviewsPageFromSupabase,
+  ["merchandise-review-page"],
+  { tags: ["merchandise-reviews"], revalidate: 60 },
 );
 
 export const getMerchandiseReview = unstable_cache(

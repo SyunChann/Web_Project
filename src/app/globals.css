@@ -23,6 +23,20 @@ main.min-h-screen {
   padding: 2rem clamp(1.5rem, 3vw, 2.5rem) 3rem;
 }
 
+@media (min-width: 640px) {
+  .app-nav-mobile {
+    display: none !important;
+  }
+
+  .app-nav-brand {
+    display: inline-flex !important;
+  }
+
+  .app-nav-controls {
+    display: flex !important;
+  }
+}
+
 a {
   color: inherit;
   text-decoration: none;

@@ -5,8 +5,7 @@ import { ContentSectionTabs } from "@/components/ContentSectionTabs";
 import Pagination from "@/components/Pagination";
 import { ThumbnailImage } from "@/components/ThumbnailImage";
 import {
-  getReviews,
-  sortReviews,
+  getReviewsPage,
   typeLabel,
   typeTheme,
   type Review,
@@ -69,25 +68,17 @@ export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
   const activeQuery = parseSearchValue(params?.q);
   const activeSort = parseSort(params?.sort);
   const activeType = parseType(params?.type);
-  const reviews = sortReviews(
-    filterReviews(await getReviews(), activeQuery, activeType),
-    activeSort,
-  );
-  const isFiltered = Boolean(activeQuery) || activeType !== "all";
-
   const currentPage = Number(params?.page) || 1;
   const ITEMS_PER_PAGE = 9;
-
-  const filteredReviews = sortReviews(
-    filterReviews(await getReviews(), activeQuery, activeType),
-    activeSort,
-  );
-
-  const totalPages = Math.ceil(filteredReviews.length / ITEMS_PER_PAGE);
-  const paginatedReviews = filteredReviews.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  const { items: paginatedReviews, totalCount } = await getReviewsPage({
+    query: activeQuery,
+    type: activeType,
+    sort: activeSort,
+    page: currentPage,
+    pageSize: ITEMS_PER_PAGE,
+  });
+  const isFiltered = Boolean(activeQuery) || activeType !== "all";
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
@@ -200,7 +191,7 @@ export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
           </div>
 
           <p className="mt-4 text-sm font-semibold text-[#6b7280]">
-            {isFiltered ? `검색 결과 ${reviews.length}개` : `전체 ${reviews.length}개`}
+            {isFiltered ? `검색 결과 ${totalCount}개` : `전체 ${totalCount}개`}
           </p>
         </section>
 
@@ -320,37 +311,6 @@ function parseSearchValue(value: string | string[] | undefined) {
   const searchValue = Array.isArray(value) ? value[0] : value;
 
   return searchValue?.trim() ?? "";
-}
-
-function filterReviews(
-  reviews: Review[],
-  query: string,
-  type: ReviewTypeFilter,
-) {
-  const normalizedQuery = query.toLowerCase();
-
-  return reviews.filter((review) => {
-    const matchesType = type === "all" || review.type === type;
-
-    if (!matchesType) {
-      return false;
-    }
-
-    if (!normalizedQuery) {
-      return true;
-    }
-
-    return [
-      review.title,
-      typeLabel(review.type),
-      review.summary,
-      review.review,
-      ...review.genre,
-    ]
-      .join(" ")
-      .toLowerCase()
-      .includes(normalizedQuery);
-  });
 }
 
 function buildReviewsHref({

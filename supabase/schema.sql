@@ -108,6 +108,9 @@ create policy "restaurant reviews are publicly readable"
 create index if not exists restaurant_reviews_scope_idx
   on public.restaurant_reviews (scope);
 
+create index if not exists restaurant_reviews_scope_created_at_idx
+  on public.restaurant_reviews (scope, created_at desc);
+
 create table if not exists public.travel (
   id text primary key,
   scope text not null default 'overseas' check (scope in ('domestic', 'overseas')),

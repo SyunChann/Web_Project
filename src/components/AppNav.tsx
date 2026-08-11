@@ -10,6 +10,7 @@ import {
   Plus,
   Utensils,
   Plane,
+  Swords,
 } from "lucide-react";
 import Link from "next/link";
 import { LogoutButton } from "@/components/LogoutButton";
@@ -26,6 +27,7 @@ type AppNavProps = {
     | "travel"
     | "restaurant-map"
     | "merchandise"
+    | "games"
     | "admin";
 };
 
@@ -45,6 +47,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
     travel: "해외여행",
     "restaurant-map": "해외 맛집리뷰 지도",
     merchandise: "상품리뷰",
+    games: "미니게임",
     admin: "관리자",
   };
   const activeSectionLabel = sectionLabels[active] || "리뷰 홈";
@@ -120,7 +123,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
 
   return (
     <nav className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-      <div className="flex items-center justify-between sm:hidden">
+      <div className="app-nav-mobile flex items-center justify-between sm:hidden">
         <Link
           href="/"
           className={`group inline-flex items-center rounded-md border border-[#d8cfc2] bg-white p-2 shadow-sm transition ${theme.brandHover} hover:shadow-md`}
@@ -166,7 +169,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
 
       <Link
         href="/"
-        className={`group hidden self-start items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-2.5 py-2 shadow-sm transition sm:inline-flex sm:gap-3 sm:px-3 ${theme.brandHover} hover:shadow-md`}
+        className={`app-nav-brand group hidden self-start items-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-2.5 py-2 shadow-sm transition sm:inline-flex sm:gap-3 sm:px-3 ${theme.brandHover} hover:shadow-md`}
         aria-label="취향보관소"
       >
         <span
@@ -182,7 +185,7 @@ export async function AppNav({ active = "home" }: AppNavProps) {
         </span>
       </Link>
 
-      <div className="hidden w-full flex-wrap items-center gap-2 sm:flex sm:w-auto sm:justify-end">
+      <div className="app-nav-controls hidden w-full flex-wrap items-center gap-2 sm:flex sm:w-auto sm:justify-end">
         <details className="group relative">
           <summary
             className={`flex cursor-pointer list-none items-center gap-1.5 rounded-md border border-[#d8cfc2] bg-white px-3 py-2 text-sm font-bold text-[#52616b] shadow-sm transition sm:gap-2 sm:px-4 ${theme.controlHover} [&::-webkit-details-marker]:hidden`}
@@ -252,6 +255,14 @@ export async function AppNav({ active = "home" }: AppNavProps) {
               activeClass="bg-[#f7fee7] text-[#3f6212]" 
               hoverClass="hover:bg-[#f7fee7] hover:text-[#4d7c0f]" 
             />
+            <NavMenuLink
+              href="/omok"
+              active={active === "games"}
+              icon={<Swords size={16} />}
+              label="미니게임"
+              activeClass="bg-[#fff7ed] text-[#b45309]"
+              hoverClass="hover:bg-[#fff7ed] hover:text-[#b45309]"
+            />
           </div>
         </details>
 
@@ -302,12 +313,13 @@ function MobileBottomNav({ active }: { active: NonNullable<AppNavProps["active"]
   const isContentSection = active === "reviews" || active === "watchlist";
   
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-[#d8cfc2] bg-white/95 px-1 pb-[max(0.35rem,env(safe-area-inset-bottom))] pt-1 shadow-[0_-4px_16px_rgba(23,32,42,0.08)] backdrop-blur sm:hidden">
+    <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t border-[#d8cfc2] bg-white/95 px-1 pb-[max(0.35rem,env(safe-area-inset-bottom))] pt-1 shadow-[0_-4px_16px_rgba(23,32,42,0.08)] backdrop-blur sm:hidden">
       {[
         { href: "/", label: "\uD648", icon: <Home size={19} />, active: active === "home" },
         { href: "/reviews", label: "\uCF58\uD150\uCE20", icon: <Library size={19} />, active: isContentSection },
         { href: "/restaurants/items", label: "\uB9DB\uC9D1\uB9AC\uBDF0", icon: <Utensils size={19} />, active: active === "domestic-restaurants-map" || active === "overseas-restaurants-map" },
         { href: "/travel/items", label: "\uD574\uC678\uC5EC\uD589", icon: <MapPinned size={19} />, active: active === "travel" },
+        { href: "/omok", label: "\uAC8C\uC784", icon: <Swords size={19} />, active: active === "games" },
         { href: "/new", label: "\uC0C8\uAE00", icon: <Plus size={20} />, active: false, primary: true },
       ].map((item) => (
         <Link

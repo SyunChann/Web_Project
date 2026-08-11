@@ -200,7 +200,7 @@ async function uploadThumbnail(
 }
 
 function revalidateMerchandiseReviewPaths() {
-  updateTag("merchandise");
+  updateTag("merchandise-reviews");
   revalidatePath("/");
   revalidatePath("/merchandise");
 }

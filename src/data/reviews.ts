@@ -34,13 +34,15 @@ type ReviewRow = {
   thumbnail: string | null;
   thumbnail_alt: string | null;
   summary: string;
-  review: string;
+  review?: string | null;
   author_id: string | null;
   author_name: string | null;
 };
 
 const reviewSelect =
   "id,title,type,genre,youtube_url,rating,watched_at,created_at,updated_at,thumbnail,thumbnail_alt,summary,review,author_id,author_name";
+const reviewListSelect =
+  "id,title,type,genre,youtube_url,rating,watched_at,created_at,updated_at,thumbnail,thumbnail_alt,summary,author_id,author_name";
 
 function formatAuthorName(value: string | null) {
   const name = value?.trim();
@@ -68,7 +70,7 @@ function mapReviewRow(row: ReviewRow): Review {
     thumbnail: row.thumbnail ?? "/thumbnails/your-name.svg",
     thumbnailAlt: row.thumbnail_alt ?? `${row.title} 리뷰 썸네일`,
     summary: row.summary,
-    review: row.review,
+    review: row.review ?? "",
     authorId: row.author_id,
     authorName: formatAuthorName(row.author_name),
   };
@@ -159,6 +161,52 @@ export const getReviews = unstable_cache(
     revalidate: 60,
   },
 );
+
+export type ReviewPageOptions = {
+  query?: string;
+  type?: Review["type"] | "all";
+  sort?: ReviewSort;
+  page?: number;
+  pageSize?: number;
+};
+
+export type ReviewPage = { items: Review[]; totalCount: number };
+
+function escapeFilterValue(value: string) {
+  return value.replace(/[,.()]/g, " ").trim();
+}
+
+async function getReviewsPageFromSupabase({
+  query = "",
+  type = "all",
+  sort = "created-desc",
+  page = 1,
+  pageSize = 9,
+}: ReviewPageOptions): Promise<ReviewPage> {
+  const supabase = createSupabasePublicClient();
+  if (!supabase) return { items: [], totalCount: 0 };
+
+  let request = supabase.from("reviews").select(reviewListSelect, { count: "exact" });
+  if (type !== "all") request = request.eq("type", type);
+
+  const normalizedQuery = escapeFilterValue(query);
+  if (normalizedQuery) {
+    const pattern = `%${normalizedQuery}%`;
+    request = request.or(`title.ilike.${pattern},summary.ilike.${pattern},review.ilike.${pattern}`);
+  }
+
+  const orderColumn = sort === "watched-desc" ? "watched_at" : sort === "rating-desc" ? "rating" : "created_at";
+  const start = Math.max(0, page - 1) * pageSize;
+  const { data, error, count } = await request.order(orderColumn, { ascending: false }).range(start, start + pageSize - 1);
+
+  if (error || !data) return { items: [], totalCount: 0 };
+  return { items: (data as ReviewRow[]).map(mapReviewRow), totalCount: count ?? 0 };
+}
+
+export const getReviewsPage = unstable_cache(getReviewsPageFromSupabase, ["reviews-page"], {
+  tags: ["reviews"],
+  revalidate: 60,
+});
 
 export const getReview = unstable_cache(
   getReviewFromSupabase,
