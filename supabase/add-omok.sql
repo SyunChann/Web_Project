@@ -57,3 +57,36 @@ begin
 exception
   when duplicate_object then null;
 end $$;
+
+create or replace function public.prevent_multiple_active_omok_rooms()
+returns trigger
+language plpgsql
+as $$
+begin
+  if new.status not in ('waiting', 'playing') then
+    return new;
+  end if;
+
+  if exists (
+    select 1
+    from public.omok_rooms as existing_room
+    where existing_room.id <> new.id
+      and existing_room.status in ('waiting', 'playing')
+      and (
+        existing_room.black_player_id = new.black_player_id
+        or existing_room.white_player_id = new.black_player_id
+        or (new.white_player_id is not null and existing_room.black_player_id = new.white_player_id)
+        or (new.white_player_id is not null and existing_room.white_player_id = new.white_player_id)
+      )
+  ) then
+    raise exception 'A player can only have one active Omok game.';
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists prevent_multiple_active_omok_rooms on public.omok_rooms;
+create trigger prevent_multiple_active_omok_rooms
+before insert or update on public.omok_rooms
+for each row execute function public.prevent_multiple_active_omok_rooms();

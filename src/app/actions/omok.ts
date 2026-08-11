@@ -45,6 +45,21 @@ function emptyBoard(): Board {
   return Array.from({ length: BOARD_SIZE }, () => Array<Stone | null>(BOARD_SIZE).fill(null));
 }
 
+async function findActiveOmokRoomId(
+  supabase: NonNullable<Awaited<ReturnType<typeof createSupabaseServerClient>>>,
+  userId: string,
+) {
+  const { data, error } = await supabase.from("omok_rooms")
+    .select("id")
+    .in("status", ["waiting", "playing"])
+    .or(`black_player_id.eq.${userId},white_player_id.eq.${userId}`)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return data?.id ?? null;
+}
+
 function parseBoard(value: unknown): Board {
   if (!Array.isArray(value) || value.length !== BOARD_SIZE) return emptyBoard();
   return value.map((row) => Array.isArray(row) && row.length === BOARD_SIZE
@@ -74,6 +89,8 @@ function hasFive(board: Board, row: number, col: number, stone: Stone) {
 
 export async function createOmokRoom() {
   const { supabase, user } = await requireUser();
+  const activeRoomId = await findActiveOmokRoomId(supabase, user.id);
+  if (activeRoomId) redirect(`/omok/${activeRoomId}`);
   const id = randomUUID();
   const { error } = await supabase.from("omok_rooms").insert({
     id,
@@ -87,6 +104,8 @@ export async function createOmokRoom() {
 
 export async function joinOmokRoom(roomId: string) {
   const { supabase, user } = await requireUser();
+  const activeRoomId = await findActiveOmokRoomId(supabase, user.id);
+  if (activeRoomId) redirect(`/omok/${activeRoomId}`);
   const { data: room, error } = await supabase
     .from("omok_rooms")
     .select("black_player_id, white_player_id, status")
@@ -240,6 +259,8 @@ export async function offerOmokDraw(roomId: string) {
 
 export async function requestOmokRematch(roomId: string) {
   const { supabase, user } = await requireUser();
+  const activeRoomId = await findActiveOmokRoomId(supabase, user.id);
+  if (activeRoomId) return { roomId: activeRoomId };
   const room = await getRoomOrThrow(supabase, roomId);
   if (!playerStone(room, user.id) || room.status !== "finished" || !room.white_player_id || !room.white_player_name) {
     throw new Error("Only completed two-player games can be replayed.");
