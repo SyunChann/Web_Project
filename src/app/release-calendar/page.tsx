@@ -51,7 +51,7 @@ export default async function ReleaseCalendarPage({ searchParams }: ReleaseCalen
   const uncertain = items.filter((item) => item.releasePrecision !== "day").sort((a, b) => dateValue(a) - dateValue(b));
 
   return (
-    <main className="min-h-screen px-4 py-5 sm:px-10 sm:py-8">
+    <main className="min-h-screen">
       <section className="mx-auto w-full max-w-6xl">
         <AppNav active="watchlist" />
         <header className="py-10">

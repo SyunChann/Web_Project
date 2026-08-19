@@ -67,7 +67,7 @@ export default async function WatchlistItemsPage({
   );
   
   return (
-    <main className="min-h-screen px-6 py-8 sm:px-10">
+    <main className="min-h-screen">
       <section className="mx-auto w-full max-w-6xl">
         <AppNav active="watchlist" />
 

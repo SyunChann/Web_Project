@@ -93,7 +93,7 @@ export default async function MerchandiseReviewsPage({ searchParams }: Merchandi
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   return (
-    <main className="min-h-screen px-4 py-5 sm:px-10">
+    <main className="min-h-screen">
       <section className="mx-auto w-full max-w-6xl">
         <AppNav active="merchandise" />
 
