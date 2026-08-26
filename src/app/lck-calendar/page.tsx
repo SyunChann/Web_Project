@@ -3,23 +3,26 @@ import type { ReactNode } from "react";
 import { AppNav } from "@/components/AppNav";
 import { ContentSectionTabs } from "@/components/ContentSectionTabs";
 import { LckMonthCalendar } from "@/components/lck/LckMonthCalendar";
-import { lckMatches } from "@/data/lck";
+import { getNaverLckMatches } from "@/lib/naverLckSchedule";
 
-export default function LckCalendarPage() {
-  const regularSeason = lckMatches.filter((match) => match.stage.startsWith("Week")).length;
+export const dynamic = "force-dynamic";
+
+export default async function LckCalendarPage() {
+  const lckMatches = await getNaverLckMatches();
+  const regularSeason = lckMatches.filter((match) => match.format === "Bo3").length;
   const postseason = lckMatches.length - regularSeason;
 
   return (
     <main className="min-h-screen">
       <section className="mx-auto w-full max-w-6xl">
-        <AppNav active="reviews" />
+        <AppNav active="reviews" showAuth={false} />
         <header className="py-10">
           <ContentSectionTabs active="lol" />
           <p className="flex items-center gap-2 text-sm font-black tracking-wide text-[#e32732]"><Radio size={16} /> LCK SCHEDULE</p>
           <div className="mt-3 flex flex-wrap items-end justify-between gap-5">
             <div>
               <h1 className="text-3xl font-black tracking-tight text-[#13233d] sm:text-5xl">LCK 경기 캘린더</h1>
-              <p className="mt-3 max-w-2xl leading-7 text-[#52616b]">2026 LCK 일정입니다. 모든 경기 시간은 한국 표준시(KST) 기준으로 표시됩니다.</p>
+              <p className="mt-3 max-w-2xl leading-7 text-[#52616b]">네이버 e스포츠 일정 기준으로 갱신되는 LCK 경기입니다. 모든 경기 시간은 한국 표준시(KST) 기준으로 표시됩니다.</p>
             </div>
             <div className="flex gap-2 text-sm font-bold">
               <span className="rounded-full bg-[#fff0f0] px-3 py-2 text-[#c21d28]">정규 시즌 {regularSeason}경기</span>

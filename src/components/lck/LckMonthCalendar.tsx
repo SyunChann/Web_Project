@@ -24,7 +24,10 @@ function getKoreanToday() {
 }
 
 export function LckMonthCalendar({ matches }: { matches: LckMatch[] }) {
-  const [visibleMonth, setVisibleMonth] = useState(() => new Date(2026, 7, 1));
+  const [visibleMonth, setVisibleMonth] = useState(() => {
+    const today = getKoreanToday();
+    return new Date(today.year, today.month, 1);
+  });
   const year = visibleMonth.getFullYear();
   const month = visibleMonth.getMonth();
   const today = getKoreanToday();

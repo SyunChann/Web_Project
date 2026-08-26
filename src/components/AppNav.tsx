@@ -13,11 +13,13 @@ import {
   Swords,
 } from "lucide-react";
 import Link from "next/link";
+import type { User } from "@supabase/supabase-js";
 import { LogoutButton } from "@/components/LogoutButton";
 import { isAdminUser } from "@/lib/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type AppNavProps = {
+  showAuth?: boolean;
   active?:
     | "home"
     | "reviews"
@@ -31,11 +33,21 @@ type AppNavProps = {
     | "admin";
 };
 
-export async function AppNav({ active = "home" }: AppNavProps) {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+export async function AppNav({ active = "home", showAuth = true }: AppNavProps) {
+  const supabase = showAuth ? await createSupabaseServerClient() : null;
+  let user: User | null = null;
+
+  if (supabase) {
+    try {
+      const {
+        data: { user: sessionUser },
+      } = await supabase.auth.getUser();
+      user = sessionUser;
+    } catch {
+      // A stale browser token must not prevent public pages from rendering.
+    }
+  }
+
   const isAdmin = isAdminUser(user);
 
   const sectionLabels: Record<string, string> = {

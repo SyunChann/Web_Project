@@ -33,9 +33,42 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const clearInvalidAuthCookies = () => {
+    const authCookieNames = request.cookies
+      .getAll()
+      .filter(({ name }) => name.startsWith("sb-"))
+      .map(({ name }) => name);
+
+    authCookieNames.forEach((name) => request.cookies.delete(name));
+
+    response = NextResponse.next({ request });
+    authCookieNames.forEach((name) => {
+      response.cookies.set(name, "", {
+        expires: new Date(0),
+        maxAge: 0,
+        path: "/",
+      });
+    });
+  };
+
+  let user = null;
+
+  try {
+    const {
+      data: { user: sessionUser },
+      error,
+    } = await supabase.auth.getUser();
+
+    if (error) {
+      clearInvalidAuthCookies();
+      return response;
+    }
+
+    user = sessionUser;
+  } catch {
+    clearInvalidAuthCookies();
+    return response;
+  }
 
   const pendingInviteCode =
     request.cookies.get(pendingInviteCookieName)?.value ||
