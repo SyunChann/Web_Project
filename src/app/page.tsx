@@ -1,5 +1,5 @@
 import { Suspense, type ReactNode } from "react";
-import { ArrowRight, Bookmark, Library, MapPinned, Plane, ShoppingCart, Utensils } from "lucide-react";
+import { ArrowRight, Bookmark, Library, MapPinned, Plane, ShoppingCart, Trophy, Utensils } from "lucide-react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { StatusToast } from "@/components/StatusToast";
@@ -34,7 +34,7 @@ export default async function Home({ searchParams }: HomeProps) {
             {"\uB0B4 \uAE30\uB85D\uC744 \uD55C\uB208\uC5D0 \uBD05\uB2C8\uB2E4"}
           </h1>
           <p className="mt-4 max-w-2xl leading-7 text-[#52616b]">
-            {"\uCF58\uD150\uCE20\uC640 \uB9DB\uC9D1, \uD574\uC678\uC5EC\uD589\uC758 \uCD5C\uC2E0 \uAE30\uB85D\uC744 \uD55C \uACF3\uC5D0\uC11C \uD655\uC778\uD558\uC138\uC694."}
+            {"\uCF58\uD150\uCE20, \uB9DB\uC9D1, \uD574\uC678\uC5EC\uD589, LCK\uC758 \uCD5C\uC2E0 \uAE30\uB85D\uC744 \uD55C \uACF3\uC5D0\uC11C \uD655\uC778\uD558\uC138\uC694."}
           </p>
         </header>
 
@@ -65,6 +65,7 @@ async function HomeDashboard() {
       <DashboardSection href="/restaurants/items" icon={<Utensils size={20} />} label={"\uAD6D\uB0B4 \uB9DB\uC9D1"} count={restaurants.length} latest={restaurants[0]?.title} latestDate={restaurants[0]?.createdAt} tone="orange" />
       <DashboardSection href="/restaurants/items?scope=overseas" icon={<MapPinned size={20} />} label={"\uD574\uC678 \uB9DB\uC9D1"} count={overseasRestaurants.length} latest={overseasRestaurants[0]?.title} latestDate={overseasRestaurants[0]?.createdAt} tone="blue" />
       <DashboardSection href="/travel/items" icon={<Plane size={20} />} label={"\uD574\uC678\uC5EC\uD589"} count={travelPosts.length} latest={travelPosts[0]?.travel.tripTitle ?? travelPosts[0]?.travel.title} latestDate={travelPosts[0]?.travel.createdAt} tone="green" />
+      <DashboardSection href="/lck-calendar" icon={<Trophy size={20} />} label="LCK" value="경기 일정" latest="LCK 경기 캘린더" meta="네이버 e스포츠 연동" tone="red" />
     </section>
   );
 }
@@ -86,6 +87,7 @@ function DashboardSection({
   icon,
   label,
   count,
+  value,
   latest,
   latestDate,
   meta,
@@ -94,7 +96,8 @@ function DashboardSection({
   href: string;
   icon: ReactNode;
   label: string;
-  count: number;
+  count?: number;
+  value?: string;
   latest?: string;
   latestDate?: string;
   meta?: string;
@@ -119,7 +122,7 @@ function DashboardSection({
         <ArrowRight size={18} className="text-[#8a95a1] transition group-hover:translate-x-0.5" />
       </div>
       <p className="mt-4 text-sm font-bold sm:mt-6">{label}</p>
-      <p className="mt-1 text-2xl font-black text-[#17202a] sm:text-3xl">{count}{"\uAC1C"}</p>
+      <p className="mt-1 text-2xl font-black text-[#17202a] sm:text-3xl">{value ?? `${count ?? 0}\uAC1C`}</p>
       {meta ? <p className="mt-1 text-xs font-bold text-[#8a95a1]">{meta}</p> : null}
       <div className="mt-3 border-t border-[#eee8df] pt-2 sm:mt-4 sm:pt-3">
         <p className="text-xs font-bold text-[#8a95a1]">{"\uCD5C\uADFC \uAE30\uB85D"}</p>
