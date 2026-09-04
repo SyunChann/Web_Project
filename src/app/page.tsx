@@ -1,5 +1,5 @@
 import { Suspense, type ReactNode } from "react";
-import { ArrowRight, Bookmark, Library, MapPinned, Plane, ShoppingCart, Trophy, Utensils } from "lucide-react";
+import { ArrowRight, Bookmark, Library, MapPinned, Plane, ShoppingCart, Sparkles, Trophy, Utensils } from "lucide-react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { StatusToast } from "@/components/StatusToast";
@@ -62,6 +62,7 @@ async function HomeDashboard() {
       <DashboardSection href="/reviews" icon={<Library size={20} />} label={"\uB9AC\uBDF0"} count={reviews.length} latest={reviews[0]?.title} latestDate={reviews[0]?.createdAt} tone="red" />
       <DashboardSection href="/watchlist/items" icon={<Bookmark size={20} />} label={"\uAE30\uB300\uC791"} count={watchItems.length} latest={watchItems[0]?.title} latestDate={watchItems[0]?.createdAt} tone="teal" />
       <DashboardSection href="/merchandise" icon={<ShoppingCart size={20} />} label={"\uC0C1\uD488"} count={merchandise.length} latest={merchandise[0]?.title} latestDate={merchandise[0]?.createdAt} tone="purple" />
+      <DashboardSection href="/recommendations" icon={<Sparkles size={20} />} label="추천 콘텐츠" value="에디터 픽" latest="직접 고른 상품을 게시글로 소개합니다" meta="토스쇼핑 쉐어링크 연동" tone="red" />
       <DashboardSection href="/restaurants/items" icon={<Utensils size={20} />} label={"\uAD6D\uB0B4 \uB9DB\uC9D1"} count={restaurants.length} latest={restaurants[0]?.title} latestDate={restaurants[0]?.createdAt} tone="orange" />
       <DashboardSection href="/restaurants/items?scope=overseas" icon={<MapPinned size={20} />} label={"\uD574\uC678 \uB9DB\uC9D1"} count={overseasRestaurants.length} latest={overseasRestaurants[0]?.title} latestDate={overseasRestaurants[0]?.createdAt} tone="blue" />
       <DashboardSection href="/travel/items" icon={<Plane size={20} />} label={"\uD574\uC678\uC5EC\uD589"} count={travelPosts.length} latest={travelPosts[0]?.travel.tripTitle ?? travelPosts[0]?.travel.title} latestDate={travelPosts[0]?.travel.createdAt} tone="green" />
