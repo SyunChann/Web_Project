@@ -4,8 +4,18 @@ export type LckMatch = {
   time: string;
   home: string;
   away: string;
-  format: "Bo3" | "Bo5";
+  format: "Bo1" | "Bo3" | "Bo5";
   stage: string;
+  league: "LCK" | "Worlds";
+  state: "scheduled" | "live" | "completed";
+};
+
+export type EsportsSeasonEvent = {
+  id: string;
+  title: string;
+  category: string;
+  startDate: string;
+  endDate: string;
 };
 
 // Team marks served by the official LoL Esports static asset host.

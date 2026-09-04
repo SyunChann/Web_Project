@@ -58,8 +58,11 @@ export function LckMonthCalendar({ matches }: { matches: LckMatch[] }) {
 }
 
 function MatchCard({ match }: { match: LckMatch }) {
-  const isTbd = match.home === "TBD";
-  return <article className={`rounded-md border px-1.5 py-1 text-[10px] leading-tight shadow-sm sm:px-2 sm:py-1.5 sm:text-xs ${isTbd ? "border-[#d7deea] bg-[#f5f7fa] text-[#718096]" : "border-[#f1bec0] bg-[#fff5f5] text-[#17202a]"}`}><p className="flex items-center gap-1 font-black text-[#e32732]"><Radio size={10} /> {match.time}</p><p className="mt-0.5 flex items-center gap-1 font-bold"><TeamMark code={match.home} /><span>{match.home}</span><span className="mx-0.5 text-[#8a95a1]">vs</span><TeamMark code={match.away} /><span>{match.away}</span></p><p className="hidden pt-0.5 text-[10px] font-semibold text-[#718096] sm:block">{match.stage} · {match.format}</p></article>;
+  const isTbd = match.home === "TBD" || match.away === "TBD";
+  const isWorlds = match.league === "Worlds";
+  const tone = isWorlds ? "border-[#d8cafa] bg-[#f8f5ff] text-[#241a3d]" : isTbd ? "border-[#d7deea] bg-[#f5f7fa] text-[#718096]" : "border-[#f1bec0] bg-[#fff5f5] text-[#17202a]";
+  const accent = isWorlds ? "text-[#6842b8]" : "text-[#e32732]";
+  return <article className={`rounded-md border px-1.5 py-1 text-[10px] leading-tight shadow-sm sm:px-2 sm:py-1.5 sm:text-xs ${tone}`}><p className={`flex items-center gap-1 font-black ${accent}`}><Radio size={10} /> {match.time}{match.state === "live" ? <span className="ml-auto rounded bg-red-600 px-1 text-[9px] text-white">LIVE</span> : null}</p><p className="mt-0.5 flex items-center gap-1 font-bold"><TeamMark code={match.home} /><span>{match.home}</span><span className="mx-0.5 text-[#8a95a1]">vs</span><TeamMark code={match.away} /><span>{match.away}</span></p><p className="hidden pt-0.5 text-[10px] font-semibold text-[#718096] sm:block">{match.league} · {match.stage} · {match.format}</p></article>;
 }
 
 function TeamMark({ code }: { code: string }) {
