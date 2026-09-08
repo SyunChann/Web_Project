@@ -1,4 +1,4 @@
-import { ArrowUpRight, Check, CircleDollarSign, Clock3, FileText, Sparkles } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, CircleDollarSign, Clock3, FileText, ImageIcon, MousePointerClick, ShoppingBag, Sparkles } from "lucide-react";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { AppNav } from "@/components/AppNav";
@@ -50,16 +50,50 @@ export default async function RecommendationsPage() {
               </ul>
             </section>
 
-            <section className="mt-8 rounded-xl border border-[#efd5d1] bg-white p-5 shadow-sm sm:p-6">
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-black tracking-wide text-[#be4b49]">오늘의 한 가지</p>
-                  <h3 className="mt-2 text-xl font-black text-[#17202a]">{product?.displayName ?? "추천 상품 노출 예시"}</h3>
-                  {product ? <p className="mt-2 text-2xl font-black text-[#be4b49]">{product.displayPrice.toLocaleString("ko-KR")}원</p> : <p className="mt-2 text-sm leading-6 text-[#64748b]">Open API 승인 후 선택한 상품의 최신 정보와 발급된 쉐어링크가 이 위치에 표시됩니다.</p>}
+            <section className="mt-8 overflow-hidden rounded-xl border border-[#efd5d1] bg-white shadow-sm" aria-label="토스쇼핑 추천 상품 노출 영역">
+              <div className="grid sm:grid-cols-[13rem_minmax(0,1fr)]">
+                <div className="flex min-h-48 flex-col items-center justify-center gap-3 bg-[#f8f5f2] p-6 text-center text-[#8f3735]">
+                  <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm"><ShoppingBag size={30} /></span>
+                  <p className="flex items-center gap-1.5 text-xs font-black"><ImageIcon size={14} /> 토스쇼핑 상품 이미지 영역</p>
                 </div>
-                {product && !product.isSoldOut ? <a href={product.shareUrl} target="_blank" rel="sponsored noreferrer" className="inline-flex items-center gap-2 rounded-lg bg-[#be4b49] px-5 py-3 text-sm font-black text-white transition hover:bg-[#a83f3d]">토스에서 상품 보기 <ArrowUpRight size={16} /></a> : <span className="inline-flex cursor-not-allowed items-center gap-2 rounded-lg bg-[#ece7e4] px-5 py-3 text-sm font-black text-[#64748b]">{product?.isSoldOut ? "현재 품절" : "연동 승인 후 활성화"}</span>}
+
+                <div className="flex min-w-0 flex-col justify-between p-5 sm:p-6">
+                  <div>
+                    <span className="inline-flex rounded-full bg-[#fff0ed] px-3 py-1 text-xs font-black text-[#be4b49]">
+                      {product ? "오늘의 한 가지" : "심사용 노출 시안"}
+                    </span>
+                    <h3 className="mt-3 text-xl font-black leading-snug text-[#17202a]">
+                      {product?.displayName ?? "데일리 보온 텀블러 500ml"}
+                    </h3>
+                    <p className="mt-2 text-2xl font-black text-[#be4b49]">
+                      {product ? `${product.displayPrice.toLocaleString("ko-KR")}원` : "29,900원 (예시)"}
+                    </p>
+                    <p className="mt-3 text-sm leading-6 text-[#64748b]">
+                      {product
+                        ? "토스쇼핑 Open API에서 받은 상품명과 현재 가격을 표시합니다."
+                        : "승인 후 이 자리에 Open API로 조회한 실제 상품명과 가격이 표시됩니다."}
+                    </p>
+                  </div>
+
+                  <div className="mt-5">
+                    {product && !product.isSoldOut ? (
+                      <a href={product.shareUrl} target="_blank" rel="sponsored noreferrer" className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#be4b49] px-5 py-3 text-sm font-black text-white transition hover:bg-[#a83f3d] sm:w-auto">
+                        토스에서 상품 보기 <ArrowUpRight size={16} />
+                      </a>
+                    ) : product?.isSoldOut ? (
+                      <span className="inline-flex w-full cursor-not-allowed items-center justify-center rounded-lg bg-[#ece7e4] px-5 py-3 text-sm font-black text-[#64748b] sm:w-auto">현재 품절</span>
+                    ) : (
+                      <span aria-disabled="true" className="inline-flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-lg bg-[#be4b49] px-5 py-3 text-sm font-black text-white opacity-80 sm:w-auto">
+                        토스에서 상품 보기 <ArrowUpRight size={16} />
+                      </span>
+                    )}
+                    <p className="mt-3 flex items-start gap-2 text-xs font-semibold leading-5 text-[#64748b]">
+                      <Clock3 size={14} className="mt-0.5 shrink-0" />
+                      {product ? "가격과 판매 상태는 게시 시점에 다시 확인합니다." : "현재는 승인 전 화면 시안이며 버튼은 동작하지 않습니다. 승인 후 발급된 쉐어링크가 새 창에서 열립니다."}
+                    </p>
+                  </div>
+                </div>
               </div>
-              {product ? <p className="mt-4 flex items-center gap-2 text-xs font-semibold text-[#64748b]"><Clock3 size={14} /> 가격과 판매 상태는 게시 시점에 다시 확인합니다.</p> : null}
             </section>
           </div>
         </article>
@@ -68,6 +102,20 @@ export default async function RecommendationsPage() {
           <InfoCard icon={<FileText size={18} />} title="게시글 중심" text="상품 DB, 검색, 카테고리 탐색, 가격 비교 기능 없이 직접 작성한 추천 글 안에서만 상품을 소개합니다." />
           <InfoCard icon={<CircleDollarSign size={18} />} title="명확한 제휴 표시" text="수수료 지급 사실을 상품 소개와 구매 링크보다 먼저, 접지 않고 바로 보이는 위치에 표시합니다." />
         </section>
+
+        <section className="mx-auto mt-6 max-w-3xl rounded-2xl border border-[#d8cfc2] bg-white p-6 shadow-sm sm:p-8" aria-labelledby="sharelink-flow-title">
+          <p className="text-sm font-black tracking-wide text-[#be4b49]">노출 및 이동 방식</p>
+          <h2 id="sharelink-flow-title" className="mt-2 text-2xl font-black text-[#17202a]">쉐어링크는 이 경로에서만 사용합니다</h2>
+          <ol className="mt-6 grid gap-3 sm:grid-cols-3">
+            <FlowStep icon={<Sparkles size={18} />} number="1" title="홈에서 진입" text="홈 화면의 추천 콘텐츠 카드를 선택합니다." />
+            <FlowStep icon={<FileText size={18} />} number="2" title="추천 글 확인" text="광고 안내와 직접 작성한 추천 내용을 먼저 읽습니다." />
+            <FlowStep icon={<MousePointerClick size={18} />} number="3" title="토스로 이동" text="상품 보기 버튼을 누르면 발급된 쉐어링크가 새 창에서 열립니다." />
+          </ol>
+          <p className="mt-5 flex items-start gap-2 rounded-lg bg-[#f8faf8] p-4 text-sm font-semibold leading-6 text-[#52616b]">
+            <ArrowRight size={17} className="mt-1 shrink-0 text-[#be4b49]" />
+            한 게시글에서 한 가지 상품만 소개하며, 상품 검색·목록·가격 비교 화면에는 쉐어링크를 노출하지 않습니다.
+          </p>
+        </section>
       </section>
     </main>
   );
@@ -75,4 +123,14 @@ export default async function RecommendationsPage() {
 
 function InfoCard({ icon, title, text }: { icon: ReactNode; title: string; text: string }) {
   return <div className="rounded-xl border border-[#efd5d1] bg-white p-5 shadow-sm"><h2 className="flex items-center gap-2 font-black text-[#17202a]"><span className="text-[#be4b49]">{icon}</span>{title}</h2><p className="mt-2 text-sm leading-6 text-[#52616b]">{text}</p></div>;
+}
+
+function FlowStep({ icon, number, title, text }: { icon: ReactNode; number: string; title: string; text: string }) {
+  return (
+    <li className="rounded-xl border border-[#eee8df] bg-[#fffdfa] p-4">
+      <div className="flex items-center gap-2 text-[#be4b49]"><span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#fff0ed] text-xs font-black">{number}</span>{icon}</div>
+      <h3 className="mt-3 font-black text-[#17202a]">{title}</h3>
+      <p className="mt-2 text-sm leading-6 text-[#64748b]">{text}</p>
+    </li>
+  );
 }
