@@ -15,7 +15,9 @@ for (const line of lines) {
   if (get(row, "league") !== "LCK" || get(row, "year") !== "2026") continue;
   const id = get(row, "game_id");
   if (!id) continue;
-  const game = gamesById.get(id) ?? { id, date: get(row, "date").slice(0, 10), patch: get(row, "patch"), split: get(row, "split") || "Season", stage: get(row, "playoffs") === "TRUE" ? "playoffs" : "regular" };
+  const date = get(row, "date").slice(0, 10);
+  const teams = [get(row, "team_name"), get(row, "opponent_team_name")].sort();
+  const game = gamesById.get(id) ?? { id, date, patch: get(row, "patch"), split: get(row, "split") || "Season", stage: get(row, "playoffs") === "TRUE" ? "playoffs" : "regular", seriesId: `${date}|${teams.join("|")}`, gameNumber: Number(get(row, "game_number")) || 1 };
   game[get(row, "side").toLowerCase()] = {
     team: get(row, "team_name"), won: get(row, "result") === "TRUE",
     bans: ["ban1", "ban2", "ban3", "ban4", "ban5"].map((key) => get(row, key)).filter(Boolean),
