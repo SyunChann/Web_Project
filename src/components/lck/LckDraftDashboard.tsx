@@ -99,7 +99,23 @@ function championDetail(list: Game[], champion: string) {
 
 function fearlessSeries(list: Game[]) {
   const grouped = new Map<string, Game[]>(); for (const game of list) (grouped.get(game.seriesId) ?? grouped.set(game.seriesId, []).get(game.seriesId))!.push(game);
-  return [...grouped.values()].filter((rows) => rows.length >= 2).map((rows) => { const sorted = rows.sort((a, b) => a.gameNumber - b.gameNumber); const teamNames = [sorted[0].blue.team, sorted[0].red.team]; const summaries = teamNames.map((name) => { const picks = sorted.flatMap((game) => game.blue.team === name ? game.blue.picks : game.red.picks); return { name, unique: new Set(picks).size, total: picks.length, repeats: picks.length - new Set(picks).size }; }); return { id: sorted[0].seriesId, date: sorted[0].date, patch: sorted[0].patch, games: sorted, teams: summaries }; }).sort((a, b) => b.date.localeCompare(a.date));
+  return [...grouped.values()].filter((rows) => rows.length >= 2).map((rows) => {
+    const sorted = rows.sort((a, b) => a.gameNumber - b.gameNumber);
+    const picks = sorted.flatMap((game) => [...game.blue.picks, ...game.red.picks]);
+    const pickCounts = new Map<string, number>();
+    for (const champion of picks) pickCounts.set(champion, (pickCounts.get(champion) ?? 0) + 1);
+    const repeatedChampions = [...pickCounts].filter(([, count]) => count > 1).map(([name, count]) => ({ name, count }));
+    return {
+      id: sorted[0].seriesId,
+      date: sorted[0].date,
+      patch: sorted[0].patch,
+      games: sorted,
+      teams: [sorted[0].blue.team, sorted[0].red.team],
+      totalPicks: picks.length,
+      uniqueChampions: pickCounts.size,
+      repeatedChampions,
+    };
+  }).sort((a, b) => b.date.localeCompare(a.date));
 }
 
 function PatchComparison({ currentPatch, current, previousPatch, previous }: { currentPatch: string; current: ReturnType<typeof compute>; previousPatch: string | null; previous: ReturnType<typeof compute> | null }) {
@@ -119,7 +135,7 @@ function Heatmap({ stats, metric, setMetric }: { stats: ReturnType<typeof comput
 }
 
 function FearlessPanel({ series }: { series: ReturnType<typeof fearlessSeries> }) {
-  return <TablePanel title="다전제 챔피언 풀 · Fearless" description="‘20종 / 20픽’은 4세트 동안 팀이 총 20번 픽했고, 그 20개가 모두 서로 다른 챔피언이라는 뜻입니다."><div className="border-b border-[#e7edf5] bg-[#f8faff] px-5 py-3 text-xs font-bold leading-5 text-[#52616b]">팀당 총 픽 수는 세트 수 × 5입니다. 고유 챔피언 수가 총 픽 수와 같고 중복이 없으면, 이전 세트에서 사용한 챔피언을 다시 선택하지 않은 것입니다.</div><table><thead><tr><th>날짜·패치</th><th>매치업</th><th>진행</th><th>팀별 챔피언 풀</th><th>중복 픽</th></tr></thead><tbody>{series.slice(0, 20).map((row) => <tr key={row.id}><td className="whitespace-nowrap">{row.date}<br /><span className="text-xs text-[#7b8798]">패치 {row.patch}</span></td><td>{row.teams.map((team) => team.name).join(" vs ")}</td><td className="whitespace-nowrap"><strong>{row.games.length}세트</strong><br /><span className="text-xs text-[#7b8798]">팀당 {row.games.length * 5}픽</span></td><td>{row.teams.map((team) => <div key={team.name} className="whitespace-nowrap"><span className="text-[#52616b]">{team.name}</span>: <strong className="text-[#253b67]">{team.unique}종 / {team.total}픽</strong></div>)}</td><td>{row.teams.map((team) => <div key={team.name} className={`whitespace-nowrap ${team.repeats ? "text-[#c43c46]" : "text-[#087443]"}`}><span>{team.name}</span>: <strong>{team.repeats ? `${team.repeats}회` : "없음"}</strong></div>)}</td></tr>)}</tbody></table>{series.length === 0 ? <p className="p-5 text-sm font-bold text-[#718096]">선택한 조건에 2세트 이상 진행된 시리즈가 없습니다.</p> : null}</TablePanel>;
+  return <TablePanel title="시리즈 챔피언 소모 현황 · Fearless" description="Fearless에서는 양 팀이 앞선 세트에서 사용한 챔피언을 시리즈가 끝날 때까지 다시 선택할 수 없습니다."><div className="border-b border-[#e7edf5] bg-[#f8faff] px-5 py-3 text-xs font-bold leading-5 text-[#52616b]">한 세트에는 양 팀 합계 10픽이 발생합니다. 사용 챔피언 수와 총 픽 수가 같으면 모든 픽이 서로 달랐다는 뜻이며, 재등장은 규칙 위반 또는 원본 데이터 오류로 표시합니다.</div><table><thead><tr><th>날짜·패치</th><th>매치업</th><th>진행</th><th>사용 챔피언</th><th>누적 제한 대상</th><th>데이터 확인</th></tr></thead><tbody>{series.slice(0, 20).map((row) => <tr key={row.id}><td className="whitespace-nowrap">{row.date}<br /><span className="text-xs text-[#7b8798]">패치 {row.patch}</span></td><td>{row.teams.join(" vs ")}</td><td className="whitespace-nowrap"><strong>{row.games.length}세트</strong><br /><span className="text-xs text-[#7b8798]">총 {row.totalPicks}픽</span></td><td className="whitespace-nowrap"><strong className="text-[#253b67]">{row.uniqueChampions}종</strong><br /><span className="text-xs text-[#7b8798]">전체 {row.totalPicks}픽 기준</span></td><td className="whitespace-nowrap"><strong>{row.uniqueChampions}종</strong><br /><span className="text-xs text-[#7b8798]">다음 세트 선택 불가</span></td><td>{row.repeatedChampions.length ? <div className="text-[#c43c46]"><strong>재등장 {row.repeatedChampions.length}종</strong><div className="mt-1 text-xs">{row.repeatedChampions.map((champion) => `${koreanName(champion.name)} ${champion.count}회`).join(", ")}</div></div> : <strong className="whitespace-nowrap text-[#087443]">정상 · 재등장 없음</strong>}</td></tr>)}</tbody></table>{series.length === 0 ? <p className="p-5 text-sm font-bold text-[#718096]">선택한 조건에 2세트 이상 진행된 시리즈가 없습니다.</p> : null}</TablePanel>;
 }
 
 function Select({ label, value, onChange, options, labelOf }: { label: string; value: string; onChange: (value: string) => void; options: string[]; labelOf: (value: string) => string }) { return <label className="grid gap-1 text-sm font-black text-[#334155]"><span>{label}</span><select value={value} onChange={(event) => onChange(event.target.value)} className="rounded-lg border border-[#cbd6e6] bg-white px-3 py-2.5 font-bold text-[#13233d]">{options.map((option) => <option key={option} value={option}>{labelOf(option)}</option>)}</select></label>; }
