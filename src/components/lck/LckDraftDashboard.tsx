@@ -1,0 +1,36 @@
+"use client";
+
+import { useMemo, useState, type ReactNode } from "react";
+import { BarChart3, ShieldBan, Swords, Trophy } from "lucide-react";
+import data from "@/data/lckDraftGames.json";
+
+type Side = { team: string; won: boolean; bans: string[]; picks: string[] };
+type Game = { id: string; date: string; patch: string; split: string; stage: "regular" | "playoffs"; blue: Side; red: Side };
+type Count = { name: string; picks: number; bans: number; wins: number };
+const games = data.games as Game[];
+const rate = (value: number, total: number) => total ? `${(value * 100 / total).toFixed(1)}%` : "-";
+
+export function LckDraftDashboard() {
+  const patches = useMemo(() => [...new Set(games.map((game) => game.patch))].sort((a, b) => b.localeCompare(a, undefined, { numeric: true })), []);
+  const teams = useMemo(() => [...new Set(games.flatMap((game) => [game.blue.team, game.red.team]))].sort(), []);
+  const [patch, setPatch] = useState("all"); const [stage, setStage] = useState("all"); const [team, setTeam] = useState("all");
+  const stats = useMemo(() => compute(games.filter((game) => (patch === "all" || game.patch === patch) && (stage === "all" || game.stage === stage) && (team === "all" || game.blue.team === team || game.red.team === team))), [patch, stage, team]);
+  return <section className="space-y-6">
+    <div className="grid gap-3 rounded-2xl border border-[#dce4f0] bg-white p-4 shadow-sm sm:grid-cols-3"><Select label="패치" value={patch} onChange={setPatch} options={["all", ...patches]} labelOf={(v) => v === "all" ? "전체 패치" : v} /><Select label="대회 구간" value={stage} onChange={setStage} options={["all", "regular", "playoffs"]} labelOf={(v) => ({ all: "정규시즌 + 플레이오프", regular: "정규시즌", playoffs: "플레이오프" })[v] ?? v} /><Select label="팀" value={team} onChange={setTeam} options={["all", ...teams]} labelOf={(v) => v === "all" ? "전체 팀" : v} /></div>
+    <div className="grid gap-3 sm:grid-cols-4"><Metric icon={<Swords size={17} />} label="집계 경기" value={`${stats.gameCount}게임`} /><Metric icon={<BarChart3 size={17} />} label="챔피언 풀" value={`${stats.champions.length}명`} /><Metric icon={<ShieldBan size={17} />} label="최다 존재감" value={stats.champions[0]?.name ?? "-"} /><Metric icon={<Trophy size={17} />} label="최다 승리 팀" value={stats.teams[0]?.name ?? "-"} /></div>
+    <div className="grid gap-6 xl:grid-cols-2"><TablePanel title="챔피언 밴픽 순위" description="존재감 = (픽 + 밴) ÷ 경기 수. 픽 승률은 챔피언을 선택한 팀의 승률입니다."><table><thead><tr><th>챔피언</th><th>픽</th><th>밴</th><th>존재감</th><th>픽 승률</th></tr></thead><tbody>{stats.champions.slice(0, 20).map((row) => <tr key={row.name}><td>{row.name}</td><td>{row.picks}</td><td>{row.bans}</td><td>{rate(row.picks + row.bans, stats.gameCount)}</td><td>{rate(row.wins, row.picks)}</td></tr>)}</tbody></table></TablePanel><TablePanel title="팀별 드래프트 성과" description="선호 픽과 견제 밴은 해당 팀에서 가장 많이 나온 챔피언입니다."><table><thead><tr><th>팀</th><th>게임</th><th>승률</th><th>선호 픽</th><th>견제 밴</th></tr></thead><tbody>{stats.teams.map((row) => <tr key={row.name}><td>{row.name}</td><td>{row.games}</td><td>{rate(row.wins, row.games)}</td><td>{row.topPick ?? "-"}</td><td>{row.topBan ?? "-"}</td></tr>)}</tbody></table></TablePanel></div>
+    <TablePanel title="함께 선택된 조합" description="같은 팀이 한 게임에서 고른 2챔피언 조합입니다. 2경기 이상만 표시합니다."><table><thead><tr><th>조합</th><th>선택</th><th>승</th><th>승률</th></tr></thead><tbody>{stats.pairs.slice(0, 20).map((row) => <tr key={row.name}><td>{row.name}</td><td>{row.picks}</td><td>{row.wins}</td><td>{rate(row.wins, row.picks)}</td></tr>)}</tbody></table>{stats.gameCount === 0 ? <p className="p-5 text-sm font-bold text-[#718096]">선택한 조건의 경기 데이터가 없습니다.</p> : null}</TablePanel>
+    <p className="text-xs leading-5 text-[#718096]">데이터: <a href={data.sourceUrl} target="_blank" rel="noreferrer" className="underline">{data.source}</a> · 갱신: {new Intl.DateTimeFormat("ko-KR", { dateStyle: "medium" }).format(new Date(data.updatedAt))}</p>
+  </section>;
+}
+
+function compute(list: Game[]) {
+  const champions = new Map<string, Count>(); const teams = new Map<string, { name: string; games: number; wins: number; picks: Map<string, number>; bans: Map<string, number> }>(); const pairs = new Map<string, { name: string; picks: number; wins: number }>();
+  const add = (map: Map<string, number>, name: string) => map.set(name, (map.get(name) ?? 0) + 1);
+  for (const game of list) for (const side of [game.blue, game.red]) { const team = teams.get(side.team) ?? { name: side.team, games: 0, wins: 0, picks: new Map(), bans: new Map() }; team.games++; if (side.won) team.wins++; teams.set(side.team, team); for (const name of side.bans) { const row = champions.get(name) ?? { name, picks: 0, bans: 0, wins: 0 }; row.bans++; champions.set(name, row); add(team.bans, name); } for (const name of side.picks) { const row = champions.get(name) ?? { name, picks: 0, bans: 0, wins: 0 }; row.picks++; if (side.won) row.wins++; champions.set(name, row); add(team.picks, name); } for (let i = 0; i < 5; i++) for (let j = i + 1; j < 5; j++) { const name = [side.picks[i], side.picks[j]].sort().join(" + "); const row = pairs.get(name) ?? { name, picks: 0, wins: 0 }; row.picks++; if (side.won) row.wins++; pairs.set(name, row); } }
+  const best = (map: Map<string, number>) => [...map].sort((a, b) => b[1] - a[1])[0]?.[0];
+  return { gameCount: list.length, champions: [...champions.values()].sort((a, b) => b.picks + b.bans - a.picks - a.bans || b.picks - a.picks), teams: [...teams.values()].map((row) => ({ ...row, topPick: best(row.picks), topBan: best(row.bans) })).sort((a, b) => b.wins - a.wins || b.games - a.games), pairs: [...pairs.values()].filter((row) => row.picks >= 2).sort((a, b) => b.picks - a.picks || b.wins - a.wins) };
+}
+function Select({ label, value, onChange, options, labelOf }: { label: string; value: string; onChange: (value: string) => void; options: string[]; labelOf: (value: string) => string }) { return <label className="grid gap-1 text-sm font-black text-[#334155]"><span>{label}</span><select value={value} onChange={(event) => onChange(event.target.value)} className="rounded-lg border border-[#cbd6e6] bg-white px-3 py-2.5 font-bold text-[#13233d]">{options.map((option) => <option key={option} value={option}>{labelOf(option)}</option>)}</select></label>; }
+function Metric({ icon, label, value }: { icon: ReactNode; label: string; value: string }) { return <article className="rounded-xl border border-[#dce4f0] bg-white p-4 shadow-sm"><p className="flex items-center gap-2 text-xs font-black text-[#64748b]">{icon}{label}</p><p className="mt-2 truncate text-xl font-black text-[#13233d]">{value}</p></article>; }
+function TablePanel({ title, description, children }: { title: string; description: string; children: ReactNode }) { return <article className="overflow-x-auto rounded-2xl border border-[#dce4f0] bg-white shadow-sm"><header className="border-b border-[#e7edf5] px-5 py-4"><h2 className="font-black text-[#13233d]">{title}</h2><p className="mt-1 text-xs leading-5 text-[#64748b]">{description}</p></header><div className="min-w-130 [&_table]:w-full [&_td]:border-b [&_td]:border-[#edf1f6] [&_td]:px-4 [&_td]:py-3 [&_td]:text-sm [&_td]:font-bold [&_td]:text-[#334155] [&_th]:border-b [&_th]:border-[#dce4f0] [&_th]:bg-[#f8faff] [&_th]:px-4 [&_th]:py-3 [&_th]:text-left [&_th]:text-xs [&_th]:font-black [&_th]:text-[#64748b]">{children}</div></article>; }

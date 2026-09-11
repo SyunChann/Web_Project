@@ -1,4 +1,4 @@
-import { CalendarDays, Gamepad2, Globe2, Radio } from "lucide-react";
+import { BarChart3, CalendarDays, Gamepad2, Globe2, Radio } from "lucide-react";
 import type { ReactNode } from "react";
 import { AppNav } from "@/components/AppNav";
 import { ContentSectionTabs } from "@/components/ContentSectionTabs";
@@ -25,7 +25,8 @@ export default async function LckCalendarPage() {
               <h1 className="text-3xl font-black tracking-tight text-[#13233d] sm:text-5xl">LCK 경기 캘린더</h1>
               <p className="mt-3 max-w-2xl leading-7 text-[#52616b]">LoL Esports 공식 일정에서 LCK 플레이인·플레이오프와 월드 챔피언십 일정을 자동으로 불러옵니다. 모든 경기 시간은 한국 표준시(KST) 기준입니다.</p>
             </div>
-            <div className="flex gap-2 text-sm font-bold">
+            <div className="flex flex-wrap gap-2 text-sm font-bold">
+              <a href="/lck-analysis" className="inline-flex items-center gap-1.5 rounded-full bg-[#13233d] px-3 py-2 text-white transition hover:bg-[#e32732]"><BarChart3 size={15} /> 밴픽 분석</a>
               <span className="rounded-full bg-[#fff0f0] px-3 py-2 text-[#c21d28]">LCK {lckMatches}경기</span>
               <span className="rounded-full bg-[#f2edff] px-3 py-2 text-[#6842b8]">Worlds {worldsMatches}경기</span>
             </div>
