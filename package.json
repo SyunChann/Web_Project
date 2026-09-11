@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start -p 4281",
     "lint": "eslint",
-    "data:lck": "node scripts/build-lck-draft-data.mjs"
+    "data:lck": "node scripts/build-lck-draft-data.mjs",
+    "data:lck-names": "node scripts/build-lck-champion-names.mjs"
   },
   "dependencies": {
     "@googlemaps/js-api-loader": "^2.1.1",

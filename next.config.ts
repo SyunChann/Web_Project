@@ -40,6 +40,12 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "ddragon.leagueoflegends.com",
+        port: "",
+        pathname: "/cdn/**",
+      },
     ],
   },
 };

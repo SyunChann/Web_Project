@@ -26,7 +26,7 @@ export default async function LckCalendarPage() {
               <p className="mt-3 max-w-2xl leading-7 text-[#52616b]">LoL Esports 공식 일정에서 LCK 플레이인·플레이오프와 월드 챔피언십 일정을 자동으로 불러옵니다. 모든 경기 시간은 한국 표준시(KST) 기준입니다.</p>
             </div>
             <div className="flex flex-wrap gap-2 text-sm font-bold">
-              <a href="/lck-analysis" className="inline-flex items-center gap-1.5 rounded-full bg-[#13233d] px-3 py-2 text-white transition hover:bg-[#e32732]"><BarChart3 size={15} /> 밴픽 분석</a>
+              <a href="/lck-analysis" className="inline-flex items-center gap-1.5 rounded-full border border-[#efb3b7] bg-[#fff5f5] px-3 py-2 text-[#a81420] shadow-sm transition hover:border-[#e32732] hover:bg-[#ffe8e9]"><BarChart3 size={15} strokeWidth={2.5} className="text-[#c21d28]" /> 밴픽 분석</a>
               <span className="rounded-full bg-[#fff0f0] px-3 py-2 text-[#c21d28]">LCK {lckMatches}경기</span>
               <span className="rounded-full bg-[#f2edff] px-3 py-2 text-[#6842b8]">Worlds {worldsMatches}경기</span>
             </div>
