@@ -1,7 +1,9 @@
 import "server-only";
 
 const CACHE_TTL_MS = 60 * 60 * 1000;
-const BEST_SELLING_SIZE = 20;
+const DISPLAY_PRODUCT_COUNT = 20;
+const BEST_SELLING_CANDIDATE_COUNT = 50;
+const PRODUCT_DETAIL_BATCH_SIZE = 20;
 
 type TossApiResult<T> = {
   resultType: "SUCCESS" | "FAIL";
@@ -81,43 +83,55 @@ async function loadProducts(proxyBaseUrl: string, proxyApiKey: string) {
   const bestSelling = await callProxy<{ items: ProductDetail[] }>(
     proxyBaseUrl,
     proxyApiKey,
-    `/v1/products/best-selling?size=${BEST_SELLING_SIZE}`,
+    `/v1/products/best-selling?size=${BEST_SELLING_CANDIDATE_COUNT}`,
   );
-  const rankedProducts = bestSelling.items.slice(0, BEST_SELLING_SIZE);
+  const rankedProducts = bestSelling.items.slice(0, BEST_SELLING_CANDIDATE_COUNT);
   const itemIds = [...new Set(rankedProducts.map((product) => product.tacaItemId))];
-  if (itemIds.length === 0) throw new Error("토스쇼핑 베스트셀러 상품을 찾을 수 없습니다.");
+  if (itemIds.length === 0) throw new Error("토스쇼핑 베스트 상품을 찾을 수 없습니다.");
 
-  const detail = await callProxy<{ items: ProductDetail[] }>(
-    proxyBaseUrl,
-    proxyApiKey,
-    `/v1/products/detail?tacaItemIds=${itemIds.join(",")}`,
+  const detailBatches = await Promise.all(
+    Array.from({ length: Math.ceil(itemIds.length / PRODUCT_DETAIL_BATCH_SIZE) }, (_, index) =>
+      itemIds.slice(
+        index * PRODUCT_DETAIL_BATCH_SIZE,
+        (index + 1) * PRODUCT_DETAIL_BATCH_SIZE,
+      ),
+    ).map((batch) =>
+      callProxy<{ items: ProductDetail[] }>(
+        proxyBaseUrl,
+        proxyApiKey,
+        `/v1/products/detail?tacaItemIds=${batch.join(",")}`,
+      ),
+    ),
   );
-  const detailsById = new Map(detail.items.map((product) => [product.tacaItemId, product]));
-
-  const products = await Promise.all(
-    rankedProducts.map(async (rankedProduct, index) => {
-      const product = detailsById.get(rankedProduct.tacaItemId) ?? rankedProduct;
-
-      try {
-        const link = await callProxy<LinkResult>(proxyBaseUrl, proxyApiKey, "/v1/links", {
-          method: "POST",
-          body: JSON.stringify({ tacaItemId: product.tacaItemId }),
-        });
-        return {
-          ...product,
-          rank: rankedProduct.rank ?? index + 1,
-          shareUrl: link.shortUrl || link.originUrl,
-        } satisfies TossSharelinkProduct;
-      } catch (error) {
-        console.error(`토스쇼핑 상품 ${product.tacaItemId} 링크 발급 실패`, error);
-        return null;
-      }
-    }),
+  const detailsById = new Map(
+    detailBatches.flatMap((detail) => detail.items).map((product) => [product.tacaItemId, product]),
   );
 
-  const availableProducts = products.filter(
-    (product): product is TossSharelinkProduct => product !== null,
-  );
+  const availableProducts: TossSharelinkProduct[] = [];
+  for (const rankedProduct of rankedProducts) {
+    if (availableProducts.length >= DISPLAY_PRODUCT_COUNT) break;
+
+    const product = detailsById.get(rankedProduct.tacaItemId) ?? rankedProduct;
+    if (product.isSoldOut) continue;
+
+    try {
+      const link = await callProxy<LinkResult>(proxyBaseUrl, proxyApiKey, "/v1/links", {
+        method: "POST",
+        body: JSON.stringify({ tacaItemId: product.tacaItemId }),
+      });
+      const shareUrl = link.shortUrl || link.originUrl;
+      if (!shareUrl) continue;
+
+      availableProducts.push({
+        ...product,
+        rank: availableProducts.length + 1,
+        shareUrl,
+      });
+    } catch (error) {
+      console.error(`토스쇼핑 상품 ${product.tacaItemId} 링크 발급 실패`, error);
+    }
+  }
+
   if (availableProducts.length === 0) throw new Error("노출 가능한 토스쇼핑 상품이 없습니다.");
   return availableProducts;
 }
@@ -135,7 +149,7 @@ export async function getTossSharelinkContent(): Promise<TossSharelinkContentSta
     productCache = { value: products, expiresAt: Date.now() + CACHE_TTL_MS };
     return { status: "ready", products };
   } catch (error) {
-    console.error("토스쇼핑 베스트셀러를 불러오지 못했습니다.", error);
+    console.error("토스쇼핑 베스트를 불러오지 못했습니다.", error);
     return { status: "error" };
   }
 }
