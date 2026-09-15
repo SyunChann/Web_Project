@@ -31,27 +31,27 @@ export default async function RecommendationsPage() {
   const rankedProducts = products.slice(3);
 
   return (
-    <main className="min-h-screen px-5 py-8 sm:px-10">
+    <main className="min-h-screen px-4 py-6 sm:px-10 sm:py-8">
       <section className="mx-auto w-full max-w-6xl">
         <AppNav active="reviews" showAuth={false} />
 
-        <header className="mt-8 overflow-hidden rounded-3xl border border-[#eadfd6] bg-[linear-gradient(135deg,#fff9f4_0%,#fff_48%,#f8faf8_100%)] px-6 py-8 shadow-sm sm:px-10 sm:py-10">
+        <header className="mt-6 overflow-hidden rounded-2xl border border-[#eadfd6] bg-[linear-gradient(135deg,#fff9f4_0%,#fff_48%,#f8faf8_100%)] px-5 py-7 shadow-sm sm:mt-8 sm:rounded-3xl sm:px-10 sm:py-10">
           <ContentSectionTabs active="recommendations" />
           <div className="mt-7 flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
             <div>
               <p className="flex items-center gap-2 text-sm font-black tracking-[0.14em] text-[#be4b49]">
                 <TrendingUp size={17} /> TOSS SHOPPING BEST
               </p>
-              <h1 className="mt-3 text-4xl font-black tracking-tight text-[#17202a] sm:text-5xl">
+              <h1 className="mt-3 break-keep text-3xl font-black tracking-tight text-[#17202a] sm:text-5xl">
                 베스트셀러 TOP 20
               </h1>
-              <p className="mt-4 max-w-2xl text-base leading-7 text-[#52616b] sm:text-lg">
+              <p className="mt-4 max-w-2xl break-keep text-sm leading-6 text-[#52616b] sm:text-lg sm:leading-7">
                 토스쇼핑에서 지금 많이 팔리는 상품을 순위대로 모았습니다. 상품명과 가격을
                 비교하고, 관심 있는 상품은 토스에서 자세히 확인해 보세요.
               </p>
             </div>
 
-            <dl className="grid shrink-0 grid-cols-3 gap-2 text-center">
+            <dl className="grid w-full grid-cols-3 gap-2 text-center lg:w-auto lg:shrink-0">
               <Stat icon={<ShoppingBag size={16} />} value={String(products.length || 20)} label="상품" />
               <Stat icon={<Clock3 size={16} />} value="1시간" label="갱신" />
               <Stat icon={<ShieldCheck size={16} />} value="공식" label="API" />
@@ -59,7 +59,7 @@ export default async function RecommendationsPage() {
           </div>
         </header>
 
-        <aside className="mt-5 rounded-2xl border border-[#f0d4cf] bg-[#fff7f5] px-5 py-4 text-sm font-semibold leading-6 text-[#7f3c3a] sm:px-6">
+        <aside className="mt-4 rounded-xl border border-[#f0d4cf] bg-[#fff7f5] px-4 py-4 text-sm font-semibold leading-6 text-[#7f3c3a] sm:mt-5 sm:rounded-2xl sm:px-6">
           <span className="mr-2 inline-flex rounded-md bg-[#be4b49] px-2 py-0.5 text-xs font-black text-white">
             광고
           </span>
@@ -73,7 +73,7 @@ export default async function RecommendationsPage() {
               <div className="flex items-end justify-between gap-4">
                 <div>
                   <p className="text-xs font-black tracking-[0.16em] text-[#be4b49]">TOP RANKING</p>
-                  <h2 id="top-three-title" className="mt-1 text-2xl font-black text-[#17202a]">
+                  <h2 id="top-three-title" className="mt-1 break-keep text-xl font-black text-[#17202a] sm:text-2xl">
                     가장 많이 팔리는 상품
                   </h2>
                 </div>
@@ -92,7 +92,7 @@ export default async function RecommendationsPage() {
                 <div className="flex items-end justify-between gap-4">
                   <div>
                     <p className="text-xs font-black tracking-[0.16em] text-[#be4b49]">MORE BEST</p>
-                    <h2 id="ranked-list-title" className="mt-1 text-2xl font-black text-[#17202a]">
+                    <h2 id="ranked-list-title" className="mt-1 break-keep text-xl font-black text-[#17202a] sm:text-2xl">
                       이어지는 베스트 상품
                     </h2>
                   </div>
@@ -134,8 +134,8 @@ export default async function RecommendationsPage() {
 
 function Stat({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
   return (
-    <div className="min-w-20 rounded-xl border border-white bg-white/80 px-3 py-3 shadow-sm">
-      <div className="flex items-center justify-center gap-1.5 text-sm font-black text-[#17202a]">
+    <div className="min-w-0 rounded-xl border border-white bg-white/80 px-2 py-2.5 shadow-sm sm:min-w-20 sm:px-3 sm:py-3">
+      <div className="flex items-center justify-center gap-1 text-xs font-black text-[#17202a] sm:gap-1.5 sm:text-sm">
         <span className="text-[#be4b49]">{icon}</span>
         {value}
       </div>
@@ -147,7 +147,7 @@ function Stat({ icon, value, label }: { icon: React.ReactNode; value: string; la
 
 function TopProductCard({ product }: { product: TossSharelinkProduct }) {
   return (
-    <li className="relative flex min-h-80 flex-col overflow-hidden rounded-2xl border border-[#eadfd6] bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+    <li className="relative flex flex-col overflow-hidden rounded-2xl border border-[#eadfd6] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:p-6 lg:min-h-80">
       <div className="absolute -right-4 -top-8 text-[8rem] font-black leading-none text-[#f7ece8]" aria-hidden="true">
         {product.rank}
       </div>
@@ -160,8 +160,8 @@ function TopProductCard({ product }: { product: TossSharelinkProduct }) {
         </span>
       </div>
 
-      <div className="relative mt-8 flex-1">
-        <h3 className="line-clamp-3 text-xl font-black leading-7 text-[#17202a]">
+      <div className="relative mt-6 flex-1 sm:mt-8">
+        <h3 className="line-clamp-3 break-words text-lg font-black leading-7 text-[#17202a] sm:text-xl">
           {product.displayName}
         </h3>
         <Price product={product} featured />
@@ -175,15 +175,17 @@ function TopProductCard({ product }: { product: TossSharelinkProduct }) {
 
 function RankedProductRow({ product }: { product: TossSharelinkProduct }) {
   return (
-    <li className="group flex items-center gap-4 rounded-2xl border border-[#e8e4de] bg-white p-4 shadow-sm transition hover:border-[#dfbbb5] hover:shadow-md sm:p-5">
-      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#f8f5f2] text-lg font-black text-[#8f3735]">
+    <li className="group grid grid-cols-[2.75rem_minmax(0,1fr)] items-start gap-x-3 gap-y-4 rounded-2xl border border-[#e8e4de] bg-white p-4 shadow-sm transition hover:border-[#dfbbb5] hover:shadow-md sm:flex sm:items-center sm:gap-4 sm:p-5">
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#f8f5f2] text-base font-black text-[#8f3735] sm:h-12 sm:w-12 sm:text-lg">
         {product.rank}
       </span>
 
       <div className="min-w-0 flex-1">
-        <h3 className="line-clamp-2 font-black leading-6 text-[#17202a]">{product.displayName}</h3>
+        <h3 className="line-clamp-2 break-words text-sm font-black leading-5 text-[#17202a] sm:text-base sm:leading-6">
+          {product.displayName}
+        </h3>
         <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span className="text-lg font-black text-[#be4b49]">
+          <span className="whitespace-nowrap text-base font-black text-[#be4b49] sm:text-lg">
             {product.displayPrice.toLocaleString("ko-KR")}원
           </span>
           {product.discountRate && product.discountRate > 0 ? (
@@ -199,21 +201,27 @@ function RankedProductRow({ product }: { product: TossSharelinkProduct }) {
         </div>
       </div>
 
-      {product.isSoldOut ? (
-        <span className="shrink-0 rounded-lg bg-[#ece7e4] px-3 py-2 text-xs font-black text-[#64748b]">
-          품절
-        </span>
-      ) : (
-        <a
-          href={product.shareUrl}
-          target="_blank"
-          rel="sponsored noreferrer"
-          aria-label={`${product.displayName} 토스에서 보기`}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fff0ed] text-[#be4b49] transition group-hover:bg-[#be4b49] group-hover:text-white"
-        >
-          <ArrowUpRight size={18} />
-        </a>
-      )}
+      <div className="col-span-2 sm:hidden">
+        <CompactProductAction product={product} />
+      </div>
+
+      <div className="hidden shrink-0 sm:block">
+        {product.isSoldOut ? (
+          <span className="rounded-lg bg-[#ece7e4] px-3 py-2 text-xs font-black text-[#64748b]">
+            품절
+          </span>
+        ) : (
+          <a
+            href={product.shareUrl}
+            target="_blank"
+            rel="sponsored noreferrer"
+            aria-label={`${product.displayName} 토스에서 보기`}
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#fff0ed] text-[#be4b49] transition group-hover:bg-[#be4b49] group-hover:text-white"
+          >
+            <ArrowUpRight size={18} />
+          </a>
+        )}
+      </div>
     </li>
   );
 }
@@ -267,6 +275,27 @@ function ProductAction({ product }: { product: TossSharelinkProduct }) {
       className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#be4b49] px-4 py-3 text-sm font-black text-white transition hover:bg-[#a83f3d]"
     >
       토스에서 상품 보기 <ArrowUpRight size={16} />
+    </a>
+  );
+}
+
+function CompactProductAction({ product }: { product: TossSharelinkProduct }) {
+  if (product.isSoldOut) {
+    return (
+      <span className="inline-flex w-full items-center justify-center rounded-lg bg-[#ece7e4] px-3 py-2.5 text-xs font-black text-[#64748b]">
+        현재 품절
+      </span>
+    );
+  }
+
+  return (
+    <a
+      href={product.shareUrl}
+      target="_blank"
+      rel="sponsored noreferrer"
+      className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#fff0ed] px-3 py-2.5 text-xs font-black text-[#a83f3d]"
+    >
+      토스에서 보기 <ArrowUpRight size={14} />
     </a>
   );
 }
