@@ -45,7 +45,10 @@ export function ContentSectionTabs({ active }: ContentSectionTabsProps) {
   ] as const;
 
   return (
-    <nav aria-label="\uCF58\uD150\uCE20 \uBA54\uB274" className="mb-5 flex max-w-full w-fit overflow-x-auto rounded-md border border-[#d8cfc2] bg-white p-1 shadow-sm">
+    <nav
+      aria-label="\uCF58\uD150\uCE20 \uBA54\uB274"
+      className="mb-5 grid w-full grid-cols-3 gap-1 rounded-xl border border-[#d8cfc2] bg-white p-1.5 shadow-sm sm:flex sm:w-fit sm:max-w-full sm:overflow-x-auto sm:rounded-md sm:p-1"
+    >
       {tabs.map((tab) => {
         const isActive = tab.key === active;
 
@@ -54,7 +57,7 @@ export function ContentSectionTabs({ active }: ContentSectionTabsProps) {
             key={tab.key}
             href={tab.href}
             aria-current={isActive ? "page" : undefined}
-            className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-bold transition sm:px-4 ${
+            className={`flex min-w-0 flex-col items-center justify-center gap-1 whitespace-nowrap rounded-lg px-1 py-2 text-[11px] font-bold leading-none transition sm:inline-flex sm:shrink-0 sm:flex-row sm:gap-2 sm:rounded-md sm:px-4 sm:text-sm ${
               isActive ? currentTheme.active : currentTheme.idle
             }`}
           >
