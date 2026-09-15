@@ -1,9 +1,13 @@
+import { unstable_cache } from "next/cache";
 import type { EsportsSeasonEvent, LckMatch } from "@/data/lck";
 
 const LOL_ESPORTS_PAGES = [
+  "https://lolesports.com/ko-KR/",
   "https://lolesports.com/ko-KR/leagues/lck",
   "https://lolesports.com/ko-KR/leagues/worlds",
 ] as const;
+
+const SCHEDULE_REVALIDATE_SECONDS = 60;
 
 type LolEsportsTeam = { code?: string | null; name?: string | null };
 
@@ -22,6 +26,7 @@ type LolEsportsSeasonEvent = {
   seasonDateStart?: string;
   seasonDateEnd?: string;
   seasonEyebrow?: string;
+  seasonEyebrown?: string;
   seasonTitle?: string;
 };
 
@@ -101,6 +106,13 @@ function getKstDateParts(value: string) {
   }).formatToParts(new Date(value));
   const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((item) => item.type === type)?.value;
   return { date: `${part("year")}-${part("month")}-${part("day")}`, time: `${part("hour")}:${part("minute")}` };
+}
+
+function getKstYear() {
+  return new Intl.DateTimeFormat("en", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+  }).format(new Date());
 }
 
 function getFormat(count?: number): LckMatch["format"] {
@@ -190,9 +202,13 @@ function mergeMatches(lolEsportsMatches: LckMatch[], naverMatches: LckMatch[]) {
 function toSeasonEvents(htmlPages: string[]): EsportsSeasonEvent[] {
   const unique = new Map<string, EsportsSeasonEvent>();
   for (const html of htmlPages) {
-    for (const event of extractJsonObjects<LolEsportsSeasonEvent>(html, "EsportsSeasonEvent")) {
+    const sources = [html, html.replace(/\\"/g, '"')];
+    for (const event of sources.flatMap((source) =>
+      extractJsonObjects<LolEsportsSeasonEvent>(source, "EsportsSeasonEvent"),
+    )) {
       if (!event.seasonTitle || !event.seasonDateStart || !event.seasonDateEnd) continue;
-      const searchable = `${event.seasonTitle} ${event.seasonEyebrow ?? ""}`.toLowerCase();
+      const eyebrow = event.seasonEyebrow ?? event.seasonEyebrown ?? "";
+      const searchable = `${event.seasonTitle} ${eyebrow}`.toLowerCase();
       if (!searchable.includes("월드") && !searchable.includes("world")) continue;
       const id = `${event.seasonDateStart}-${event.seasonTitle}`;
       unique.set(id, {
@@ -207,12 +223,12 @@ function toSeasonEvents(htmlPages: string[]): EsportsSeasonEvent[] {
   return [...unique.values()].sort((left, right) => left.startDate.localeCompare(right.startDate));
 }
 
-export async function getLolEsportsSchedule(): Promise<LolEsportsSchedule> {
+async function loadLolEsportsSchedule(): Promise<LolEsportsSchedule> {
   const [pageResponses, naverResponses] = await Promise.all([
     Promise.allSettled(
     LOL_ESPORTS_PAGES.map(async (url) => {
       const response = await fetch(url, {
-        next: { revalidate: 300 },
+        cache: "no-store",
         headers: { "User-Agent": "Mozilla/5.0" },
         signal: AbortSignal.timeout(25_000),
       });
@@ -222,7 +238,7 @@ export async function getLolEsportsSchedule(): Promise<LolEsportsSchedule> {
     ),
     Promise.allSettled(
       getNaverMonthUrls().map(async (url) => {
-        const response = await fetch(url, { next: { revalidate: 300 }, signal: AbortSignal.timeout(10_000) });
+        const response = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(10_000) });
         if (!response.ok) throw new Error(`Naver schedule request failed: ${response.status}`);
         return response.json() as Promise<NaverScheduleResponse>;
       }),
@@ -230,9 +246,20 @@ export async function getLolEsportsSchedule(): Promise<LolEsportsSchedule> {
   ]);
   const htmlPages = pageResponses.flatMap((response) => response.status === "fulfilled" ? [response.value] : []);
   const naverSchedules = naverResponses.flatMap((response) => response.status === "fulfilled" ? [response.value] : []);
+  const currentYear = getKstYear();
   return {
-    matches: mergeMatches(toMatches(htmlPages), toNaverMatches(naverSchedules)),
-    seasonEvents: toSeasonEvents(htmlPages),
+    matches: mergeMatches(toMatches(htmlPages), toNaverMatches(naverSchedules)).filter((match) => match.date.startsWith(currentYear)),
+    seasonEvents: toSeasonEvents(htmlPages).filter((event) => event.startDate.startsWith(currentYear)),
     sourceAvailable: htmlPages.length > 0 || naverSchedules.length > 0,
   };
+}
+
+const getCachedLolEsportsSchedule = unstable_cache(
+  loadLolEsportsSchedule,
+  ["lol-esports-schedule-v2"],
+  { revalidate: SCHEDULE_REVALIDATE_SECONDS },
+);
+
+export async function getLolEsportsSchedule(): Promise<LolEsportsSchedule> {
+  return getCachedLolEsportsSchedule();
 }

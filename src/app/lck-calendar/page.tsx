@@ -12,12 +12,15 @@ export default async function LckCalendarPage() {
   const { matches, seasonEvents, sourceAvailable } = await getLolEsportsSchedule();
   const lckMatches = matches.filter((match) => match.league === "LCK").length;
   const worldsMatches = matches.filter((match) => match.league === "Worlds").length;
+  const worldsEvent = seasonEvents.find((event) =>
+    /world|\uC6D4\uB4DC/i.test(event.title),
+  );
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen overflow-x-hidden px-4 py-6 sm:px-10 sm:py-8">
       <section className="mx-auto w-full max-w-6xl">
         <AppNav active="reviews" showAuth={false} />
-        <header className="py-10">
+        <header className="py-8 sm:py-10">
           <ContentSectionTabs active="lol" />
           <p className="flex items-center gap-2 text-sm font-black tracking-wide text-[#e32732]"><Radio size={16} /> LCK SCHEDULE</p>
           <div className="mt-3 flex flex-wrap items-end justify-between gap-5">
@@ -33,6 +36,11 @@ export default async function LckCalendarPage() {
           </div>
         </header>
         {seasonEvents.length > 0 ? <TournamentPeriods events={seasonEvents} /> : null}
+        {worldsEvent && worldsMatches === 0 ? (
+          <p className="mb-5 rounded-xl border border-[#d8cafa] bg-[#f8f5ff] px-4 py-3 text-sm font-bold text-[#4f3b78]">
+            {`2026 Worlds ${formatDate(worldsEvent.startDate)}~${formatDate(worldsEvent.endDate)} · 세부 대진 공개 예정입니다. 공식 일정이 등록되면 이 캘린더에 자동으로 표시됩니다.`}
+          </p>
+        ) : null}
         {!sourceAvailable ? <p className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800">공식 일정에 일시적으로 연결할 수 없습니다. 잠시 후 자동으로 다시 확인합니다.</p> : null}
         <LckMonthCalendar matches={matches} />
         <section className="mt-6 grid gap-4 sm:grid-cols-2">
