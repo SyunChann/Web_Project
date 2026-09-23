@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { getMerchandiseReviews } from "@/data/merchandise";
 import { getRestaurantsReviews } from "@/data/restaurants";
 import { getReviews } from "@/data/reviews";
+import { getPublishedSharelinkPosts } from "@/data/sharelink";
 import { getTravels, groupTravelPosts } from "@/data/travel";
 import { getWatchItems } from "@/data/watchlist";
 import { getSiteUrl } from "@/lib/siteUrl";
@@ -57,6 +58,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     addContent("/travel", travel.id, travel.updatedAt),
   );
   merchandise.forEach((item) => addContent("/merchandise", item.id, item.updatedAt));
+  getPublishedSharelinkPosts().forEach((post) =>
+    addContent("/recommendations", post.slug, post.publishedAt, 0.8),
+  );
 
   return [...new Map(entries.map((entry) => [entry.url, entry])).values()];
 }

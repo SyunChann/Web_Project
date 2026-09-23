@@ -10,8 +10,14 @@ import {
   TrendingUp,
 } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { ContentSectionTabs } from "@/components/ContentSectionTabs";
+import {
+  getPublishedSharelinkPosts,
+  getSharelinkPostByTacaItemId,
+  type SharelinkEditorialPost,
+} from "@/data/sharelink";
 import {
   getTossSharelinkContent,
   type TossSharelinkProduct,
@@ -19,7 +25,7 @@ import {
 
 export const metadata: Metadata = {
   title: "토스쇼핑 베스트 | 취향보관소",
-  description: "토스쇼핑에서 지금 많이 팔리는 베스트셀러 20개를 확인합니다.",
+  description: "토스쇼핑 베스트셀러 20개와 직접 작성한 상품별 상세 후기를 확인합니다.",
 };
 
 export const revalidate = 3600;
@@ -27,6 +33,7 @@ export const revalidate = 3600;
 export default async function RecommendationsPage() {
   const sharelink = await getTossSharelinkContent();
   const products = sharelink.status === "ready" ? sharelink.products : [];
+  const editorialPosts = getPublishedSharelinkPosts();
   const podiumProducts = products.slice(0, 3);
   const rankedProducts = products.slice(3);
 
@@ -67,6 +74,8 @@ export default async function RecommendationsPage() {
           수수료를 지급받습니다.
         </aside>
 
+        <EditorialPosts posts={editorialPosts} />
+
         {products.length > 0 ? (
           <>
             <section className="mt-9" aria-labelledby="top-three-title">
@@ -82,7 +91,11 @@ export default async function RecommendationsPage() {
 
               <ol className="mt-5 grid gap-5 lg:grid-cols-3">
                 {podiumProducts.map((product) => (
-                  <TopProductCard key={product.tacaItemId} product={product} />
+                  <TopProductCard
+                    key={product.tacaItemId}
+                    product={product}
+                    reviewSlug={getSharelinkPostByTacaItemId(product.tacaItemId)?.slug}
+                  />
                 ))}
               </ol>
             </section>
@@ -101,7 +114,11 @@ export default async function RecommendationsPage() {
 
                 <ol className="mt-5 grid gap-3 lg:grid-cols-2">
                   {rankedProducts.map((product) => (
-                    <RankedProductRow key={product.tacaItemId} product={product} />
+                    <RankedProductRow
+                      key={product.tacaItemId}
+                      product={product}
+                      reviewSlug={getSharelinkPostByTacaItemId(product.tacaItemId)?.slug}
+                    />
                   ))}
                 </ol>
               </section>
@@ -132,6 +149,46 @@ export default async function RecommendationsPage() {
   );
 }
 
+function EditorialPosts({ posts }: { posts: SharelinkEditorialPost[] }) {
+  if (posts.length === 0) return null;
+
+  return (
+    <section className="mt-9" aria-labelledby="editorial-posts-title">
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <p className="text-xs font-black tracking-[0.16em] text-[#be4b49]">EDITOR&apos;S REVIEW</p>
+          <h2 id="editorial-posts-title" className="mt-1 break-keep text-xl font-black text-[#17202a] sm:text-2xl">
+            하나씩 자세히 살펴본 추천
+          </h2>
+        </div>
+        <p className="hidden text-sm font-semibold text-[#64748b] sm:block">직접 작성한 선택 기준과 후기</p>
+      </div>
+
+      <div className="mt-5 grid gap-4 lg:grid-cols-2">
+        {posts.map((post) => (
+          <Link
+            key={post.slug}
+            href={`/recommendations/${post.slug}`}
+            className="group rounded-2xl border border-[#eadfd6] bg-[linear-gradient(135deg,#fff7f5_0%,#fff_62%,#f7f4ff_100%)] p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-[#dfbbb5] hover:shadow-md sm:p-6"
+          >
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-xs font-black tracking-[0.14em] text-[#be4b49]">{post.eyebrow}</span>
+              <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-black text-[#64748b] shadow-sm">
+                {post.kind === "product-review" ? "상품 후기" : "선택 가이드"}
+              </span>
+            </div>
+            <h3 className="mt-4 break-keep text-xl font-black leading-8 text-[#17202a]">{post.title}</h3>
+            <p className="mt-2 line-clamp-2 break-keep text-sm font-semibold leading-6 text-[#64748b]">{post.summary}</p>
+            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-black text-[#a83f3d]">
+              자세히 읽기 <ArrowUpRight size={15} className="transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </span>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function Stat({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
   return (
     <div className="min-w-0 rounded-xl border border-white bg-white/80 px-2 py-2.5 shadow-sm sm:min-w-20 sm:px-3 sm:py-3">
@@ -145,7 +202,7 @@ function Stat({ icon, value, label }: { icon: React.ReactNode; value: string; la
   );
 }
 
-function TopProductCard({ product }: { product: TossSharelinkProduct }) {
+function TopProductCard({ product, reviewSlug }: { product: TossSharelinkProduct; reviewSlug?: string }) {
   return (
     <li className="relative flex flex-col overflow-hidden rounded-2xl border border-[#eadfd6] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:p-6 lg:min-h-80">
       <div className="absolute -right-4 -top-8 text-[8rem] font-black leading-none text-[#f7ece8]" aria-hidden="true">
@@ -166,6 +223,11 @@ function TopProductCard({ product }: { product: TossSharelinkProduct }) {
         </h3>
         <Price product={product} featured />
         <Review product={product} />
+        {reviewSlug ? (
+          <Link href={`/recommendations/${reviewSlug}`} className="mt-4 inline-flex items-center gap-1 text-sm font-black text-[#8f3735] underline decoration-[#dfbbb5] underline-offset-4">
+            상세 후기 읽기 <ArrowUpRight size={14} />
+          </Link>
+        ) : null}
       </div>
 
       <ProductAction product={product} />
@@ -173,7 +235,7 @@ function TopProductCard({ product }: { product: TossSharelinkProduct }) {
   );
 }
 
-function RankedProductRow({ product }: { product: TossSharelinkProduct }) {
+function RankedProductRow({ product, reviewSlug }: { product: TossSharelinkProduct; reviewSlug?: string }) {
   return (
     <li className="group grid grid-cols-[2.75rem_minmax(0,1fr)] items-start gap-x-3 gap-y-4 rounded-2xl border border-[#e8e4de] bg-white p-4 shadow-sm transition hover:border-[#dfbbb5] hover:shadow-md sm:flex sm:items-center sm:gap-4 sm:p-5">
       <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#f8f5f2] text-base font-black text-[#8f3735] sm:h-12 sm:w-12 sm:text-lg">
@@ -199,6 +261,11 @@ function RankedProductRow({ product }: { product: TossSharelinkProduct }) {
             </span>
           ) : null}
         </div>
+        {reviewSlug ? (
+          <Link href={`/recommendations/${reviewSlug}`} className="mt-2 inline-flex items-center gap-1 text-xs font-black text-[#8f3735] underline decoration-[#dfbbb5] underline-offset-4">
+            상세 후기 읽기 <ArrowUpRight size={13} />
+          </Link>
+        ) : null}
       </div>
 
       <div className="col-span-2 sm:hidden">
