@@ -13,11 +13,9 @@ type TossApiResult<T> = {
   error?: { errorCode?: string; reason?: string; message?: string };
 };
 
-export type TossProductDetail = {
+type ProductDetail = {
   tacaItemId: number;
   displayName: string;
-  thumbnailUrl?: string | null;
-  mainImageUrls?: string[] | null;
   displayPrice: number;
   originalPrice?: number | null;
   discountRate?: number | null;
@@ -34,16 +32,10 @@ type LinkResult = {
   originUrl: string;
 };
 
-export type TossSharelinkProduct = TossProductDetail & {
+export type TossSharelinkProduct = ProductDetail & {
   rank: number;
   shareUrl: string;
 };
-
-export type TossEditorialProductState =
-  | { status: "not-configured" }
-  | { status: "ready"; product: TossSharelinkProduct }
-  | { status: "unavailable" }
-  | { status: "error" };
 
 export type TossSharelinkContentState =
   | { status: "not-configured" }
@@ -52,10 +44,6 @@ export type TossSharelinkContentState =
 
 let productCache: { value: TossSharelinkProduct[]; expiresAt: number } | null = null;
 let productLoadPromise: Promise<TossSharelinkProduct[]> | null = null;
-const editorialProductCache = new Map<
-  number,
-  { value: TossSharelinkProduct; expiresAt: number }
->();
 
 function getConfig() {
   const proxyBaseUrl = process.env.TOSS_PROXY_BASE_URL?.trim().replace(/\/+$/, "");
@@ -95,7 +83,7 @@ async function callProxy<T>(
 }
 
 async function loadProducts(proxyBaseUrl: string, proxyApiKey: string) {
-  const bestSelling = await callProxy<{ items: TossProductDetail[] }>(
+  const bestSelling = await callProxy<{ items: ProductDetail[] }>(
     proxyBaseUrl,
     proxyApiKey,
     `/v1/products/best-selling?size=${BEST_SELLING_CANDIDATE_COUNT}`,
@@ -111,7 +99,7 @@ async function loadProducts(proxyBaseUrl: string, proxyApiKey: string) {
         (index + 1) * PRODUCT_DETAIL_BATCH_SIZE,
       ),
     ).map((batch) =>
-      callProxy<{ items: TossProductDetail[] }>(
+      callProxy<{ items: ProductDetail[] }>(
         proxyBaseUrl,
         proxyApiKey,
         `/v1/products/detail?tacaItemIds=${batch.join(",")}`,
@@ -187,51 +175,5 @@ export async function getTossSharelinkContent(): Promise<TossSharelinkContentSta
     return { status: "error" };
   } finally {
     productLoadPromise = null;
-  }
-}
-
-export async function getTossEditorialProduct(
-  tacaItemId: number,
-): Promise<TossEditorialProductState> {
-  const config = getConfig();
-  if (!config) return { status: "not-configured" };
-
-  const rankedProduct = productCache?.value.find((product) => product.tacaItemId === tacaItemId);
-  if (rankedProduct) return { status: "ready", product: rankedProduct };
-
-  const cachedProduct = editorialProductCache.get(tacaItemId);
-  if (cachedProduct && cachedProduct.expiresAt > Date.now()) {
-    return { status: "ready", product: cachedProduct.value };
-  }
-
-  try {
-    const detail = await callProxy<{ items: TossProductDetail[] }>(
-      config.proxyBaseUrl,
-      config.proxyApiKey,
-      `/v1/products/detail?tacaItemIds=${tacaItemId}`,
-    );
-    const product = detail.items.find((item) => item.tacaItemId === tacaItemId);
-    if (!product) return { status: "unavailable" };
-
-    const link = await callProxy<LinkResult>(config.proxyBaseUrl, config.proxyApiKey, "/v1/links", {
-      method: "POST",
-      body: JSON.stringify({ tacaItemId }),
-    });
-    const shareUrl = link.shortUrl || link.originUrl;
-    if (!shareUrl) return { status: "unavailable" };
-
-    const editorialProduct: TossSharelinkProduct = {
-      ...product,
-      rank: product.rank ?? 0,
-      shareUrl,
-    };
-    editorialProductCache.set(tacaItemId, {
-      value: editorialProduct,
-      expiresAt: Date.now() + CACHE_TTL_MS,
-    });
-    return { status: "ready", product: editorialProduct };
-  } catch (error) {
-    console.error(`토스쇼핑 상품 ${tacaItemId} 상세 정보를 불러오지 못했습니다.`, error);
-    return { status: "error" };
   }
 }
