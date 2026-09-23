@@ -24,6 +24,7 @@ type NewPostPageProps = {
 export const metadata = {
   title: "새 글 작성 | 취향보관소",
   description: "리뷰와 기대작, 맛집리뷰를 새로 작성합니다.",
+  robots: { index: false, follow: false },
 };
 
 export default async function NewPostPage({ searchParams }: NewPostPageProps) {

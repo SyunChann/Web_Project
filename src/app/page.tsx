@@ -59,10 +59,10 @@ async function HomeDashboard() {
 
   return (
     <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
+      <EditorPickSection />
       <DashboardSection href="/reviews" icon={<Library size={20} />} label={"\uB9AC\uBDF0"} count={reviews.length} latest={reviews[0]?.title} latestDate={reviews[0]?.createdAt} tone="red" />
       <DashboardSection href="/watchlist/items" icon={<Bookmark size={20} />} label={"\uAE30\uB300\uC791"} count={watchItems.length} latest={watchItems[0]?.title} latestDate={watchItems[0]?.createdAt} tone="teal" />
       <DashboardSection href="/merchandise" icon={<ShoppingCart size={20} />} label={"\uC0C1\uD488"} count={merchandise.length} latest={merchandise[0]?.title} latestDate={merchandise[0]?.createdAt} tone="purple" />
-      <DashboardSection href="/recommendations" icon={<Sparkles size={20} />} label="추천 콘텐츠" value="에디터 픽" latest="직접 고른 상품을 게시글로 소개합니다" meta="토스쇼핑 쉐어링크 연동" tone="red" />
       <DashboardSection href="/restaurants/items" icon={<Utensils size={20} />} label={"\uAD6D\uB0B4 \uB9DB\uC9D1"} count={restaurants.length} latest={restaurants[0]?.title} latestDate={restaurants[0]?.createdAt} tone="orange" />
       <DashboardSection href="/restaurants/items?scope=overseas" icon={<MapPinned size={20} />} label={"\uD574\uC678 \uB9DB\uC9D1"} count={overseasRestaurants.length} latest={overseasRestaurants[0]?.title} latestDate={overseasRestaurants[0]?.createdAt} tone="blue" />
       <DashboardSection href="/travel/items" icon={<Plane size={20} />} label={"\uD574\uC678\uC5EC\uD589"} count={travelPosts.length} latest={travelPosts[0]?.travel.tripTitle ?? travelPosts[0]?.travel.title} latestDate={travelPosts[0]?.travel.createdAt} tone="green" />
@@ -78,8 +78,45 @@ function HomeNavFallback() {
 function DashboardSkeleton() {
   return (
     <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3" aria-busy="true">
+      <div className="col-span-2 min-h-52 animate-pulse rounded-2xl border border-[#f0d4cf] bg-[#fff7f5] lg:col-span-3" />
       {Array.from({ length: 4 }, (_, index) => <div key={index} className="min-h-40 animate-pulse rounded-lg border border-[#eee8df] bg-white sm:min-h-44" />)}
     </section>
+  );
+}
+
+function EditorPickSection() {
+  return (
+    <Link
+      href="/recommendations"
+      className="group relative col-span-2 min-h-52 overflow-hidden rounded-2xl border border-[#e9b9b2] bg-[linear-gradient(125deg,#fff2ef_0%,#fffaf7_56%,#f6f1ff_100%)] p-5 shadow-[0_12px_35px_rgba(190,75,73,0.12)] transition hover:-translate-y-0.5 hover:border-[#be4b49] hover:shadow-[0_16px_42px_rgba(190,75,73,0.18)] sm:p-7 lg:col-span-3"
+    >
+      <span className="absolute -right-12 -top-16 h-44 w-44 rounded-full bg-[#f6c9c2]/50 blur-2xl transition group-hover:scale-110" aria-hidden="true" />
+      <span className="absolute -bottom-20 right-24 h-40 w-40 rounded-full bg-[#d8cafa]/45 blur-3xl" aria-hidden="true" />
+
+      <div className="relative flex h-full flex-col justify-between gap-8 sm:flex-row sm:items-center">
+        <div className="max-w-2xl">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#be4b49] px-3 py-1.5 text-xs font-black tracking-[0.12em] text-white shadow-sm">
+              <Sparkles size={14} /> FEATURED
+            </span>
+            <span className="text-xs font-black tracking-[0.14em] text-[#8f3735]">EDITOR&apos;S PICK</span>
+          </div>
+          <p className="mt-5 text-2xl font-black tracking-tight text-[#17202a] sm:text-4xl">오늘의 에디터 픽</p>
+          <p className="mt-3 max-w-xl break-keep text-sm font-semibold leading-6 text-[#52616b] sm:text-base sm:leading-7">
+            실제 사용 장면과 선택 기준을 담아, 추천 상품을 하나씩 자세히 소개합니다.
+          </p>
+        </div>
+
+        <div className="flex shrink-0 items-center justify-between gap-4 sm:flex-col sm:items-end">
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/80 bg-white/85 text-[#be4b49] shadow-sm sm:h-20 sm:w-20">
+            <Sparkles size={30} strokeWidth={1.8} />
+          </span>
+          <span className="inline-flex items-center gap-2 rounded-full bg-[#17202a] px-4 py-2.5 text-sm font-black text-white transition group-hover:bg-[#be4b49]">
+            추천 글 보기 <ArrowRight size={16} className="transition group-hover:translate-x-0.5" />
+          </span>
+        </div>
+      </div>
+    </Link>
   );
 }
 
