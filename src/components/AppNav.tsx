@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import {
   Bookmark,
+  CalendarDays,
   ChevronDown,
   Ellipsis,
   Home,
@@ -11,6 +12,7 @@ import {
   Utensils,
   Plane,
   Swords,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
@@ -268,6 +270,14 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
               hoverClass="hover:bg-[#f7fee7] hover:text-[#4d7c0f]" 
             />
             <NavMenuLink
+              href="/eternal-return"
+              active={active === "games"}
+              icon={<Swords size={16} />}
+              label="이터널 리턴 전적"
+              activeClass="bg-[#eef2ff] text-[#4338ca]"
+              hoverClass="hover:bg-[#eef2ff] hover:text-[#4338ca]"
+            />
+            <NavMenuLink
               href="/omok"
               active={active === "games"}
               icon={<Swords size={16} />}
@@ -322,37 +332,21 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
 }
 
 function MobileBottomNav({ active }: { active: NonNullable<AppNavProps["active"]> }) {
-  const isContentSection = active === "reviews" || active === "watchlist";
-  
-  return (
-    <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t border-[#d8cfc2] bg-white/95 px-1 pb-[max(0.35rem,env(safe-area-inset-bottom))] pt-1 shadow-[0_-4px_16px_rgba(23,32,42,0.08)] backdrop-blur sm:hidden">
-      {[
-        { href: "/", label: "\uD648", icon: <Home size={19} />, active: active === "home" },
-        { href: "/reviews", label: "\uCF58\uD150\uCE20", icon: <Library size={19} />, active: isContentSection },
-        { href: "/restaurants/items", label: "\uB9DB\uC9D1\uB9AC\uBDF0", icon: <Utensils size={19} />, active: active === "domestic-restaurants-map" || active === "overseas-restaurants-map" },
-        { href: "/travel/items", label: "\uD574\uC678\uC5EC\uD589", icon: <MapPinned size={19} />, active: active === "travel" },
-        { href: "/omok", label: "\uAC8C\uC784", icon: <Swords size={19} />, active: active === "games" },
-        { href: "/new", label: "\uC0C8\uAE00", icon: <Plus size={20} />, active: false, primary: true },
-      ].map((item) => (
-        <Link
-          key={item.href}
-          href={item.href}
-          aria-current={item.active ? "page" : undefined}
-          className={`flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-md text-[11px] font-bold transition ${
-            item.primary
-              ? "bg-[#be4b49] text-white"
-              : item.active
-                ? "bg-[#fff1ef] text-[#be4b49]"
-                : "text-[#52616b] hover:bg-[#f7f3ed]"
-          }`}
-        >
-          {item.icon}
-          <span>{item.label}</span>
-        </Link>
-      ))}
-    </div>
-  );
+  const isContentSection = active === "reviews" || active === "watchlist" || active === "merchandise";
+  return <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-[#d8cfc2] bg-white/95 px-1 pb-[max(0.35rem,env(safe-area-inset-bottom))] pt-1 shadow-[0_-4px_16px_rgba(23,32,42,0.08)] backdrop-blur sm:hidden">
+    <Link href="/" aria-current={active === "home" ? "page" : undefined} className={mobileNavButton(active === "home")}><Home size={19} /><span>홈</span></Link>
+    <MobileNavGroup label="콘텐츠" icon={<Library size={19} />} active={isContentSection} items={[{ href: "/reviews", label: "콘텐츠 리뷰" }, { href: "/watchlist/items", label: "기대작" }, { href: "/merchandise", label: "상품 리뷰" }]} />
+    <Link href="/recommendations" aria-current={active === "reviews" ? "page" : undefined} className={mobileNavButton(false)}><Sparkles size={19} /><span>에디터픽</span></Link>
+    <MobileNavGroup label="경기일정" icon={<CalendarDays size={19} />} active={false} items={[{ href: "/release-calendar", label: "릴리즈 캘린더" }, { href: "/lck-calendar", label: "LCK 경기 일정" }, { href: "/lck-analysis", label: "LCK 밴픽 분석" }]} />
+    <MobileNavGroup label="게임" icon={<Swords size={19} />} active={active === "games"} align="right" items={[{ href: "/eternal-return", label: "이터널 리턴 전적" }, { href: "/omok", label: "온라인 오목" }]} />
+  </div>;
 }
+
+function MobileNavGroup({ label, icon, active, items, align = "left" }: { label: string; icon: ReactNode; active: boolean; items: { href: string; label: string }[]; align?: "left" | "right" }) {
+  return <details name="mobile-bottom-nav" className="group relative"><summary className={`${mobileNavButton(active)} list-none [&::-webkit-details-marker]:hidden`}>{icon}<span>{label}</span></summary><div className={`absolute bottom-full mb-2 flex w-44 flex-col overflow-hidden rounded-xl border border-[#d8cfc2] bg-white p-1.5 shadow-xl ${align === "right" ? "right-0" : "left-0"}`}>{items.map((item) => <Link key={item.href} href={item.href} className="rounded-lg px-3 py-2.5 text-sm font-bold text-[#334155] transition hover:bg-[#f7f3ed] hover:text-[#be4b49]">{item.label}</Link>)}</div></details>;
+}
+
+function mobileNavButton(active: boolean) { return `flex min-h-14 w-full flex-col items-center justify-center gap-0.5 rounded-md text-[11px] font-bold transition ${active ? "bg-[#fff1ef] text-[#be4b49]" : "text-[#52616b] hover:bg-[#f7f3ed]"}`; }
 
 function NavMenuLink({
   href,
