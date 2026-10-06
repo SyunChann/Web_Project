@@ -1,5 +1,5 @@
 import { Suspense, type ReactNode } from "react";
-import { ArrowRight, Bookmark, Library, MapPinned, Plane, ShoppingCart, Sparkles, Trophy, Utensils } from "lucide-react";
+import { ArrowRight, Bookmark, Crosshair, Library, MapPinned, Plane, ShoppingCart, Sparkles, Trophy, Utensils } from "lucide-react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { StatusToast } from "@/components/StatusToast";
@@ -67,6 +67,7 @@ async function HomeDashboard() {
       <DashboardSection href="/restaurants/items?scope=overseas" icon={<MapPinned size={20} />} label={"\uD574\uC678 \uB9DB\uC9D1"} count={overseasRestaurants.length} latest={overseasRestaurants[0]?.title} latestDate={overseasRestaurants[0]?.createdAt} tone="blue" />
       <DashboardSection href="/travel/items" icon={<Plane size={20} />} label={"\uD574\uC678\uC5EC\uD589"} count={travelPosts.length} latest={travelPosts[0]?.travel.tripTitle ?? travelPosts[0]?.travel.title} latestDate={travelPosts[0]?.travel.createdAt} tone="green" />
       <DashboardSection href="/lck-calendar" icon={<Trophy size={20} />} label="LCK" value="경기 일정" latest="LCK 경기 캘린더" meta="네이버 e스포츠 연동" tone="red" />
+      <DashboardSection href="/eternal-return" icon={<Crosshair size={20} />} label="이터널 리턴" value="전적 검색" latest="최근 매치 · 공식 API 연동" meta="게임 닉네임으로 조회" tone="purple" />
     </section>
   );
 }
