@@ -2,6 +2,7 @@ import { Suspense, type ReactNode } from "react";
 import { ArrowRight, Bookmark, Crosshair, Library, MapPinned, Plane, ShoppingCart, Sparkles, Trophy, Utensils } from "lucide-react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
+import { ExchangeRateCard, ExchangeRateCardSkeleton } from "@/components/ExchangeRateCard";
 import { StatusToast } from "@/components/StatusToast";
 import { getRestaurantsReviews } from "@/data/restaurants";
 import { getReviews } from "@/data/reviews";
@@ -28,14 +29,19 @@ export default async function Home({ searchParams }: HomeProps) {
           <AppNav active="home" />
         </Suspense>
 
-        <header className="max-w-3xl pt-2 sm:pt-6">
-          <p className="text-sm font-bold text-[#be4b49]">ARCHIVE HOME</p>
-          <h1 className="mt-3 text-3xl font-black leading-tight text-[#17202a] sm:text-5xl">
-            {"\uB0B4 \uAE30\uB85D\uC744 \uD55C\uB208\uC5D0 \uBD05\uB2C8\uB2E4"}
-          </h1>
-          <p className="mt-4 max-w-2xl leading-7 text-[#52616b]">
-            {"\uCF58\uD150\uCE20, \uB9DB\uC9D1, \uD574\uC678\uC5EC\uD589, LCK\uC758 \uCD5C\uC2E0 \uAE30\uB85D\uC744 \uD55C \uACF3\uC5D0\uC11C \uD655\uC778\uD558\uC138\uC694."}
-          </p>
+        <header className="flex flex-col gap-5 pt-2 sm:pt-6 lg:flex-row lg:items-end lg:justify-between lg:gap-8">
+          <div className="max-w-3xl">
+            <p className="text-sm font-bold text-[#be4b49]">ARCHIVE HOME</p>
+            <h1 className="mt-3 text-3xl font-black leading-tight text-[#17202a] sm:text-5xl">
+              {"\uB0B4 \uAE30\uB85D\uC744 \uD55C\uB208\uC5D0 \uBD05\uB2C8\uB2E4"}
+            </h1>
+            <p className="mt-4 max-w-2xl leading-7 text-[#52616b]">
+              {"\uCF58\uD150\uCE20, \uB9DB\uC9D1, \uD574\uC678\uC5EC\uD589, LCK\uC758 \uCD5C\uC2E0 \uAE30\uB85D\uC744 \uD55C \uACF3\uC5D0\uC11C \uD655\uC778\uD558\uC138\uC694."}
+            </p>
+          </div>
+          <Suspense fallback={<ExchangeRateCardSkeleton />}>
+            <ExchangeRateCard />
+          </Suspense>
         </header>
 
         <Suspense fallback={<DashboardSkeleton />}>
