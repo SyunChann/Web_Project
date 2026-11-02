@@ -88,7 +88,7 @@ function readThumbnailFile(formData: FormData) {
     return null;
   }
 
-  if (!file.type.startsWith("image/")) {
+  if (!["image/jpeg", "image/png", "image/webp", "image/gif"].includes(file.type)) {
     throw new Error("썸네일은 이미지 파일만 업로드할 수 있습니다.");
   }
 
