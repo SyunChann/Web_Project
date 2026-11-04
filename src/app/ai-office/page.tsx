@@ -6,7 +6,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "AI Office | 취향보관소",
-  description: "집의 게임룸과 AI 회사를 오가는 인터랙티브 픽셀 오피스",
+  description: "장소를 클릭해 캐릭터를 이동시키는 로그인 전용 Pixel Agents 오피스",
   robots: { index: false, follow: false },
 };
 

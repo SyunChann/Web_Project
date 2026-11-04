@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Prebuilt Pixel Agents vendor bundle.
+    "public/pixel-agents/assets/*.js",
   ]),
 ]);
 
