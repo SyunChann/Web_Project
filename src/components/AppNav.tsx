@@ -342,12 +342,12 @@ function OfficeFloatingLink() {
       aria-label="AI Office로 이동"
       className="group fixed right-4 bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-30 flex items-center gap-2 sm:right-6 sm:bottom-6"
     >
-      <span className="pointer-events-none translate-x-2 rounded-md border border-[#c4b5fd] bg-[#1e1b4b] px-2.5 py-1.5 text-[11px] font-black tracking-wide text-[#ddd6fe] opacity-0 shadow-lg transition group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100 max-sm:hidden">
-        AI OFFICE
+      <span className="pointer-events-none translate-x-2 rounded-md border border-[#e4c8bf] bg-[#fffaf7] px-2.5 py-1.5 text-[11px] font-black tracking-wide text-[#8f403e] opacity-0 shadow-[0_6px_18px_rgba(85,45,40,0.16)] transition group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100 max-sm:hidden">
+        AI 오피스
       </span>
-      <span className="relative grid h-14 w-14 place-items-center border-2 border-[#c4b5fd] bg-[#7c3aed] text-white shadow-[4px_4px_0_#1e1b4b] transition group-hover:-translate-y-1 group-hover:bg-[#6d28d9] group-focus-visible:-translate-y-1">
-        <Building2 size={26} strokeWidth={2.4} />
-        <i className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full border border-[#14532d] bg-[#4ade80] shadow-[0_0_7px_#4ade80]" />
+      <span className="relative grid h-14 w-14 place-items-center rounded-xl border border-[#dfb2a8] bg-[#fff7f5] text-[#be4b49] shadow-[4px_4px_0_#7f3b39] transition group-hover:-translate-y-1 group-hover:border-[#be4b49] group-hover:bg-[#be4b49] group-hover:text-white group-focus-visible:-translate-y-1 group-focus-visible:border-[#be4b49] group-focus-visible:bg-[#be4b49] group-focus-visible:text-white">
+        <Building2 size={25} strokeWidth={2.3} />
+        <i className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full border border-[#2f6f5e] bg-[#67b69e] shadow-[0_0_0_2px_#e3f3ed]" />
       </span>
     </Link>
   );

@@ -22,7 +22,7 @@ export default async function AiOfficePage() {
 
   return (
     <main className="min-h-screen bg-[#eef1ed]">
-      <section className="mx-auto w-full max-w-7xl">
+      <section className="mx-auto w-full max-w-[1800px]">
         <AppNav active="ai-office" />
         <AiOfficeWorld />
       </section>
