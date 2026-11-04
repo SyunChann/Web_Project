@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import {
   Bookmark,
+  Building2,
   CalendarDays,
   ChevronDown,
   Ellipsis,
@@ -32,6 +33,7 @@ type AppNavProps = {
     | "restaurant-map"
     | "merchandise"
     | "games"
+    | "ai-office"
     | "admin";
 };
 
@@ -62,6 +64,7 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
     "restaurant-map": "해외 맛집리뷰 지도",
     merchandise: "상품리뷰",
     games: "미니게임",
+    "ai-office": "AI Office",
     admin: "관리자",
   };
   const activeSectionLabel = sectionLabels[active] || "리뷰 홈";
@@ -327,7 +330,26 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
       </div>
 
       <MobileBottomNav active={active} />
+      {user && active !== "ai-office" ? <OfficeFloatingLink /> : null}
     </nav>
+  );
+}
+
+function OfficeFloatingLink() {
+  return (
+    <Link
+      href="/ai-office"
+      aria-label="AI Office로 이동"
+      className="group fixed right-4 bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-30 flex items-center gap-2 sm:right-6 sm:bottom-6"
+    >
+      <span className="pointer-events-none translate-x-2 rounded-md border border-[#c4b5fd] bg-[#1e1b4b] px-2.5 py-1.5 text-[11px] font-black tracking-wide text-[#ddd6fe] opacity-0 shadow-lg transition group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100 max-sm:hidden">
+        AI OFFICE
+      </span>
+      <span className="relative grid h-14 w-14 place-items-center border-2 border-[#c4b5fd] bg-[#7c3aed] text-white shadow-[4px_4px_0_#1e1b4b] transition group-hover:-translate-y-1 group-hover:bg-[#6d28d9] group-focus-visible:-translate-y-1">
+        <Building2 size={26} strokeWidth={2.4} />
+        <i className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full border border-[#14532d] bg-[#4ade80] shadow-[0_0_7px_#4ade80]" />
+      </span>
+    </Link>
   );
 }
 
@@ -338,7 +360,7 @@ function MobileBottomNav({ active }: { active: NonNullable<AppNavProps["active"]
     <MobileNavGroup label="콘텐츠" icon={<Library size={19} />} active={isContentSection} items={[{ href: "/reviews", label: "콘텐츠 리뷰" }, { href: "/watchlist/items", label: "기대작" }, { href: "/merchandise", label: "상품 리뷰" }]} />
     <Link href="/recommendations" aria-current={active === "reviews" ? "page" : undefined} className={mobileNavButton(false)}><Sparkles size={19} /><span>에디터픽</span></Link>
     <MobileNavGroup label="경기일정" icon={<CalendarDays size={19} />} active={false} items={[{ href: "/release-calendar", label: "릴리즈 캘린더" }, { href: "/lck-calendar", label: "LCK 경기 일정" }, { href: "/lck-analysis", label: "LCK 밴픽 분석" }]} />
-    <MobileNavGroup label="게임" icon={<Swords size={19} />} active={active === "games"} align="right" items={[{ href: "/eternal-return", label: "이터널 리턴 전적" }, { href: "/omok", label: "온라인 오목" }]} />
+    <MobileNavGroup label="게임" icon={<Swords size={19} />} active={active === "games" || active === "ai-office"} align="right" items={[{ href: "/eternal-return", label: "이터널 리턴 전적" }, { href: "/omok", label: "온라인 오목" }]} />
   </div>;
 }
 
