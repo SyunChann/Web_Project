@@ -1,190 +1,213 @@
 "use client";
 
-import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { BriefcaseBusiness, Gamepad2, House, MapPin, Sparkles } from "lucide-react";
+import type { CSSProperties, ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
+import {
+  Armchair,
+  Building2,
+  Coffee,
+  Gamepad2,
+  House,
+  Monitor,
+  MousePointer2,
+  Sparkles,
+  Users,
+} from "lucide-react";
 import styles from "./AiOfficeWorld.module.css";
 
-type Position = { x: number; y: number };
-type Activity = "이동 중" | "휴식 중" | "게임 중" | "업무 중" | "회의 중";
+type Spot = {
+  id: string;
+  name: string;
+  action: string;
+  x: number;
+  y: number;
+  color: string;
+  icon: ReactNode;
+};
 
-const HOME_POSITION = { x: 24, y: 69 };
-const OFFICE_POSITION = { x: 76, y: 69 };
+const spots: Spot[] = [
+  { id: "rest", name: "휴식 공간", action: "집에서 쉬는 중", x: 19, y: 59, color: "#65a30d", icon: <Armchair size={14} /> },
+  { id: "game", name: "게임룸", action: "게임을 즐기는 중", x: 28, y: 35, color: "#2563eb", icon: <Gamepad2 size={14} /> },
+  { id: "planning", name: "기획팀", action: "새 기능을 기획하는 중", x: 57, y: 34, color: "#f59e0b", icon: <Sparkles size={14} /> },
+  { id: "development", name: "개발팀", action: "코드를 작성하는 중", x: 67, y: 58, color: "#16a34a", icon: <Monitor size={14} /> },
+  { id: "meeting", name: "회의실", action: "팀 회의에 참여 중", x: 82, y: 37, color: "#64748b", icon: <Users size={14} /> },
+  { id: "cafe", name: "오피스 카페", action: "커피를 마시는 중", x: 84, y: 66, color: "#ea580c", icon: <Coffee size={14} /> },
+];
 
-function getLocation({ x, y }: Position) {
-  if (x < 42) return y < 40 ? "HOME · LIVING ROOM" : "HOME · GAME ROOM";
-  if (x > 62) return y < 40 ? "AI OFFICE · LOUNGE" : "AI OFFICE · WORKSPACE";
-  return "SUNSET STREET";
-}
+const initialSpot = spots[0];
 
 export function AiOfficeWorld() {
-  const [position, setPosition] = useState<Position>(HOME_POSITION);
-  const [activity, setActivity] = useState<Activity>("휴식 중");
-  const [facing, setFacing] = useState<"left" | "right">("right");
-  const keys = useRef(new Set<string>());
-  const frame = useRef<number | null>(null);
-  const lastTime = useRef(0);
+  const [position, setPosition] = useState({ x: initialSpot.x, y: initialSpot.y });
+  const [currentSpot, setCurrentSpot] = useState(initialSpot.id);
+  const [movingTo, setMovingTo] = useState<string | null>(null);
+  const [activity, setActivity] = useState(initialSpot.action);
+  const moveTimer = useRef<number | null>(null);
 
-  const move = useCallback((dx: number, dy: number) => {
-    if (dx) setFacing(dx < 0 ? "left" : "right");
-    setActivity("이동 중");
-    setPosition((current) => ({
-      x: Math.max(3, Math.min(97, current.x + dx)),
-      y: Math.max(17, Math.min(86, current.y + dy)),
-    }));
+  useEffect(() => () => {
+    if (moveTimer.current) window.clearTimeout(moveTimer.current);
   }, []);
 
-  useEffect(() => {
-    const movementKeys = new Set(["arrowup", "arrowdown", "arrowleft", "arrowright", "w", "a", "s", "d"]);
-    const onKeyDown = (event: KeyboardEvent) => {
-      const key = event.key.toLowerCase();
-      if (!movementKeys.has(key)) return;
-      event.preventDefault();
-      keys.current.add(key);
-    };
-    const onKeyUp = (event: KeyboardEvent) => keys.current.delete(event.key.toLowerCase());
-    const tick = (time: number) => {
-      const elapsed = Math.min(32, time - lastTime.current || 16);
-      lastTime.current = time;
-      const speed = elapsed * 0.018;
-      const active = keys.current;
-      const dx = (active.has("arrowright") || active.has("d") ? speed : 0) - (active.has("arrowleft") || active.has("a") ? speed : 0);
-      const dy = (active.has("arrowdown") || active.has("s") ? speed : 0) - (active.has("arrowup") || active.has("w") ? speed : 0);
-      if (dx || dy) move(dx, dy);
-      frame.current = requestAnimationFrame(tick);
-    };
-    window.addEventListener("keydown", onKeyDown, { passive: false });
-    window.addEventListener("keyup", onKeyUp);
-    frame.current = requestAnimationFrame(tick);
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("keyup", onKeyUp);
-      if (frame.current) cancelAnimationFrame(frame.current);
-    };
-  }, [move]);
+  function visit(spot: Spot) {
+    if (moveTimer.current) window.clearTimeout(moveTimer.current);
+    if (spot.id === currentSpot && !movingTo) {
+      setActivity(spot.action);
+      return;
+    }
 
-  const location = useMemo(() => getLocation(position), [position]);
-  const atHomeComputer = position.x < 39 && position.y > 42;
-  const atOfficeDesk = position.x > 64 && position.y > 42;
-
-  function handleWorldClick(event: ReactPointerEvent<HTMLDivElement>) {
-    if ((event.target as HTMLElement).closest("button")) return;
-    const bounds = event.currentTarget.getBoundingClientRect();
-    const target = {
-      x: ((event.clientX - bounds.left) / bounds.width) * 100,
-      y: ((event.clientY - bounds.top) / bounds.height) * 100,
-    };
-    setFacing(target.x < position.x ? "left" : "right");
-    setPosition({ x: Math.max(3, Math.min(97, target.x)), y: Math.max(17, Math.min(86, target.y)) });
-    setActivity("이동 중");
+    setMovingTo(spot.id);
+    setActivity(`${spot.name}(으)로 이동 중`);
+    setPosition({ x: spot.x, y: spot.y });
+    moveTimer.current = window.setTimeout(() => {
+      setCurrentSpot(spot.id);
+      setMovingTo(null);
+      setActivity(spot.action);
+    }, 950);
   }
 
-  function interact() {
-    if (atHomeComputer) setActivity((value) => value === "게임 중" ? "휴식 중" : "게임 중");
-    else if (atOfficeDesk) setActivity((value) => value === "업무 중" ? "회의 중" : "업무 중");
-  }
-
-  function teleport(target: "home" | "office") {
-    setPosition(target === "home" ? HOME_POSITION : OFFICE_POSITION);
-    setFacing(target === "home" ? "right" : "left");
-    setActivity(target === "home" ? "휴식 중" : "업무 중");
-  }
+  const selected = spots.find((spot) => spot.id === (movingTo ?? currentSpot)) ?? initialSpot;
 
   return (
     <div className={styles.shell}>
       <header className={styles.hero}>
         <div>
-          <p className={styles.eyebrow}><Sparkles size={15} /> INTERACTIVE PIXEL WORLD</p>
+          <p className={styles.eyebrow}><Sparkles size={15} /> VISIBLE WORKSPACE</p>
           <h1>AI Office</h1>
-          <p>집의 게임룸에서 쉬다가 길을 건너 AI 회사로 출근해 보세요.</p>
+          <p>공간을 클릭하면 캐릭터가 이동하고 그곳의 일을 시작합니다.</p>
         </div>
-        <div className={styles.liveBadge}><i /> WORLD ONLINE</div>
+        <div className={styles.liveBadge}><i /> OFFICE ONLINE</div>
       </header>
 
-      <section className={styles.dashboard} aria-label="AI Office 상태">
+      <section className={styles.statusBar} aria-label="현재 상태">
         <div className={styles.profile}>
           <span className={styles.miniAvatar}>S</span>
           <div><strong>SYUN</strong><small>{activity}</small></div>
         </div>
-        <div className={styles.location}><MapPin size={16} /><div><small>CURRENT LOCATION</small><strong>{location}</strong></div></div>
-        <div className={styles.quickTravel}>
-          <button type="button" onClick={() => teleport("home")}><House size={15} /> 집으로</button>
-          <button type="button" onClick={() => teleport("office")}><BriefcaseBusiness size={15} /> 회사로</button>
+        <div className={styles.currentLocation}>
+          <span style={{ "--spot-color": selected.color } as CSSProperties}>{selected.icon}</span>
+          <div><small>CURRENT PLACE</small><strong>{selected.name}</strong></div>
         </div>
+        <p className={styles.clickGuide}><MousePointer2 size={15} /> 라벨을 눌러 이동</p>
       </section>
 
-      <div className={styles.worldFrame}>
-        <div className={styles.world} onPointerDown={handleWorldClick} role="application" aria-label="집과 회사를 이동하는 AI Office 월드">
-          <div className={styles.grass} />
-          <div className={styles.road}><span className={styles.roadLine} /><span className={styles.crosswalk} /></div>
-          <div className={`${styles.tree} ${styles.treeOne}`} /><div className={`${styles.tree} ${styles.treeTwo}`} /><div className={`${styles.tree} ${styles.treeThree}`} />
+      <div className={styles.sceneFrame}>
+        <div className={styles.scene}>
+          <OfficeScene />
 
-          <section className={`${styles.building} ${styles.home}`} aria-label="집">
-            <div className={styles.buildingLabel}><House size={14} /> SYUN&apos;S HOME</div>
-            <div className={`${styles.room} ${styles.livingRoom}`}>
-              <div className={styles.window}><i /><i /><i /><i /></div>
-              <div className={styles.sofa}><span /><span /></div>
-              <div className={styles.rug} />
-              <div className={styles.plant}>♣</div>
-              <span className={styles.roomName}>LIVING</span>
-            </div>
-            <div className={`${styles.room} ${styles.gameRoom}`}>
-              <div className={styles.desk}>
-                <span className={styles.monitor}><i>AI</i></span><span className={styles.monitor}><i>GAME</i></span>
-                <span className={styles.keyboard} />
-              </div>
-              <div className={styles.chair}>▼</div>
-              <div className={styles.console}>● ●</div>
-              <div className={styles.shelf}><i /><i /><i /></div>
-              <span className={styles.roomName}>GAME ROOM</span>
-            </div>
-          </section>
-
-          <div className={styles.busStop}><span>AI</span><small>BUS</small></div>
-          <div className={styles.signpost}><span>HOME</span><span>OFFICE</span></div>
-
-          <section className={`${styles.building} ${styles.office}`} aria-label="AI 회사">
-            <div className={styles.buildingLabel}><BriefcaseBusiness size={14} /> PIXEL AI LAB</div>
-            <div className={`${styles.room} ${styles.officeLounge}`}>
-              <div className={styles.coffeeBar}><span>☕</span><i /><i /></div>
-              <div className={styles.officeSofa}><span /><span /></div>
-              <div className={styles.vending}>AI<br />SNACK</div>
-              <span className={styles.roomName}>LOUNGE</span>
-            </div>
-            <div className={`${styles.room} ${styles.workRoom}`}>
-              <div className={`${styles.workDesk} ${styles.workDeskOne}`}><span>⌁</span><i /></div>
-              <div className={`${styles.workDesk} ${styles.workDeskTwo}`}><span>AI</span><i /></div>
-              <div className={`${styles.workDesk} ${styles.workDeskThree}`}><span>✓</span><i /></div>
-              <div className={`${styles.bot} ${styles.botOne}`}>◉</div>
-              <div className={`${styles.bot} ${styles.botTwo}`}>◉</div>
-              <div className={styles.board}>SPRINT<br /><i>▰ ▰ ▱</i></div>
-              <span className={styles.roomName}>WORKSPACE</span>
-            </div>
-          </section>
-
-          <div className={`${styles.avatar} ${facing === "left" ? styles.faceLeft : ""} ${activity === "이동 중" ? styles.walking : ""}`} style={{ "--x": `${position.x}%`, "--y": `${position.y}%` } as CSSProperties} aria-label={`플레이어, ${activity}`}>
+          <div
+            className={`${styles.avatar} ${movingTo ? styles.avatarMoving : ""}`}
+            style={{ "--avatar-x": `${position.x}%`, "--avatar-y": `${position.y}%` } as CSSProperties}
+            aria-label={`SYUN, ${activity}`}
+          >
             <span className={styles.avatarShadow} />
             <span className={styles.avatarHair} />
-            <span className={styles.avatarHead}><i /></span>
+            <span className={styles.avatarFace}><i /><i /></span>
             <span className={styles.avatarBody}>S</span>
             <span className={styles.avatarLegs}><i /><i /></span>
-            <b>{activity}</b>
           </div>
+
+          {spots.map((spot) => {
+            const active = spot.id === currentSpot && !movingTo;
+            const destination = spot.id === movingTo;
+            return (
+              <button
+                key={spot.id}
+                type="button"
+                onClick={() => visit(spot)}
+                className={`${styles.spot} ${active ? styles.spotActive : ""} ${destination ? styles.spotMoving : ""}`}
+                style={{ "--spot-x": `${spot.x}%`, "--spot-y": `${spot.y}%`, "--spot-color": spot.color } as CSSProperties}
+                aria-pressed={active}
+              >
+                <span>{spot.icon}</span>
+                <strong>{spot.name}</strong>
+                {active ? <small>● {spot.action}</small> : destination ? <small>이동 중...</small> : null}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      <section className={styles.controls}>
-        <div><strong>이동 방법</strong><p>방향키 · WASD · 월드 클릭으로 이동</p></div>
-        <div className={styles.dpad} aria-label="모바일 이동 버튼">
-          <button type="button" onPointerDown={() => move(0, -3)} aria-label="위로 이동">▲</button>
-          <button type="button" onPointerDown={() => move(-3, 0)} aria-label="왼쪽으로 이동">◀</button>
-          <button type="button" onPointerDown={() => move(0, 3)} aria-label="아래로 이동">▼</button>
-          <button type="button" onPointerDown={() => move(3, 0)} aria-label="오른쪽으로 이동">▶</button>
-        </div>
-        <button type="button" className={styles.actionButton} onClick={interact} disabled={!atHomeComputer && !atOfficeDesk}>
-          <Gamepad2 size={17} /> {atHomeComputer ? "게임룸 이용" : atOfficeDesk ? "업무 시작" : "방 안으로 이동하세요"}
-        </button>
+      <section className={styles.helpBar}>
+        <MousePointer2 size={18} />
+        <div><strong>원하는 장소를 클릭하세요</strong><p>직접 움직일 필요 없이 캐릭터가 이동하고 선택한 행동을 시작합니다.</p></div>
+        <div className={styles.placeLegend}><span><House size={14} /> HOME</span><i /><span><Building2 size={14} /> AI COMPANY</span></div>
       </section>
     </div>
+  );
+}
+
+function OfficeScene() {
+  return (
+    <svg className={styles.sceneArt} viewBox="0 0 1200 720" role="img" aria-label="집과 AI 회사가 연결된 아이소메트릭 공간">
+      <defs>
+        <linearGradient id="floor-home" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#f2e7cf" /><stop offset="1" stopColor="#dfca9e" /></linearGradient>
+        <linearGradient id="floor-office" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#edf0ef" /><stop offset="1" stopColor="#d9dfde" /></linearGradient>
+        <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#dff6f8" stopOpacity=".58" /><stop offset="1" stopColor="#aacdd2" stopOpacity=".22" /></linearGradient>
+        <pattern id="wood" width="44" height="44" patternUnits="userSpaceOnUse" patternTransform="rotate(30)"><rect width="44" height="44" fill="url(#floor-home)" /><path d="M0 3h44" stroke="#d4bd91" strokeWidth="2" opacity=".45" /></pattern>
+        <filter id="shadow"><feDropShadow dx="8" dy="11" stdDeviation="6" floodColor="#18231d" floodOpacity=".22" /></filter>
+      </defs>
+
+      <path d="M77 347 489 78l650 257-447 316z" fill="#b8bcb7" opacity=".45" transform="translate(0 18)" />
+      <path d="M77 347 489 78l650 257-447 316z" fill="#f7f8f5" stroke="#cfd4cf" strokeWidth="5" filter="url(#shadow)" />
+      <path d="M100 348 469 107 644 178 274 432z" fill="url(#wood)" stroke="#d6d2c8" strokeWidth="4" />
+      <path d="M274 432 644 178 1114 351 684 623z" fill="url(#floor-office)" stroke="#d6d2c8" strokeWidth="4" />
+
+      <path d="M100 348 469 107 469 53 99 294z" fill="#d5d8d5" />
+      <path d="M469 107 644 178 644 122 469 53z" fill="#c6cbc8" />
+      <path d="M100 348 274 432 274 402 100 318z" fill="url(#glass)" stroke="#9db6b7" strokeWidth="4" />
+      <path d="M274 432 684 623 684 590 274 400z" fill="url(#glass)" stroke="#a3b7b8" strokeWidth="4" />
+
+      <path d="M534 253 644 178 934 285 818 363z" fill="#e8eded" stroke="#c6cecc" strokeWidth="3" />
+      <path d="M818 363 934 285 1114 351 990 430z" fill="#e2e7e6" stroke="#c6cecc" strokeWidth="3" />
+      <path d="M531 253 818 363 818 319 531 210z" fill="url(#glass)" stroke="#9eb7bb" strokeWidth="4" />
+      <path d="M818 363 934 285 934 242 818 319z" fill="url(#glass)" stroke="#9eb7bb" strokeWidth="4" />
+      <path d="M934 285 1114 351 1114 308 934 242z" fill="url(#glass)" stroke="#9eb7bb" strokeWidth="4" />
+
+      <g className={styles.homeFurniture}>
+        <IsoDesk x={256} y={218} accent="#2563eb" />
+        <path d="M321 276l58-37 59 23-60 40z" fill="#73859b" stroke="#465569" strokeWidth="4" />
+        <path d="M337 248l25-16 27 11-26 17z" fill="#192233" /><path d="M393 271l24-15 12 5-25 17z" fill="#192233" />
+        <path d="M149 354l78-50 80 37-80 54z" fill="#7fa6a2" stroke="#426c69" strokeWidth="5" />
+        <path d="M161 334l57-36 65 29-59 39z" fill="#91bbb7" />
+        <Plant x={412} y={152} />
+        <text x="128" y="278" fill="#84735a" fontSize="18" fontWeight="800">SYUN&apos;S HOME</text>
+      </g>
+
+      <g className={styles.officeFurniture}>
+        <IsoDesk x={540} y={365} accent="#f59e0b" />
+        <IsoDesk x={655} y={421} accent="#16a34a" />
+        <IsoDesk x={782} y={477} accent="#7c3aed" />
+        <path d="M773 295l82-53 99 37-87 57z" fill="#c6a87c" stroke="#7e6b50" strokeWidth="4" />
+        <path d="M795 299l12-8 18 7-13 8zm42 16 12-8 18 7-13 8zm43-46 12-8 18 7-13 8z" fill="#73808b" />
+        <path d="M924 461l105-65 70 25-108 70z" fill="#b7865e" stroke="#79553a" strokeWidth="4" />
+        <path d="M945 452l24-15 26 10-25 16zm57-35 24-15 26 10-25 16z" fill="#f1e3cb" />
+        <Plant x={501} y={300} /><Plant x={1049} y={347} />
+        <text x="905" y="565" fill="#84908c" fontSize="18" fontWeight="800">PIXEL AI COMPANY</text>
+      </g>
+
+      <path d="M470 487 569 527 625 491 526 453z" fill="#d1d5d1" stroke="#bbc0bb" strokeWidth="3" />
+      <path d="m491 488 18 7m20 8 18 7m20 8 18 7" stroke="#fff" strokeWidth="9" />
+      <text x="482" y="548" fill="#98a09b" fontSize="13" fontWeight="700">HOME ⇄ OFFICE</text>
+    </svg>
+  );
+}
+
+function IsoDesk({ x, y, accent }: { x: number; y: number; accent: string }) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <path d="M0 26 66-16l83 31-69 45z" fill="#c8b08b" stroke="#7b6a50" strokeWidth="4" />
+      <path d="M21 8 50-10l34 13-30 20z" fill="#202d3c" stroke="#101827" strokeWidth="3" />
+      <path d="M26 5 49-9l27 10-24 15z" fill={accent} />
+      <path d="M51 22v12m32-33v13" stroke="#66727d" strokeWidth="4" />
+      <path d="m91 42 23-15 21 8-24 16z" fill="#6b7780" />
+    </g>
+  );
+}
+
+function Plant({ x, y }: { x: number; y: number }) {
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <path d="m0 19 13-8 15 6-14 9z" fill="#9b7255" />
+      <circle cx="13" cy="6" r="10" fill="#76a666" /><circle cx="4" cy="9" r="7" fill="#8ab779" /><circle cx="21" cy="10" r="7" fill="#5f9254" />
+    </g>
   );
 }
