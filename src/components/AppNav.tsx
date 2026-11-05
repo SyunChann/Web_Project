@@ -273,14 +273,6 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
               hoverClass="hover:bg-[#f7fee7] hover:text-[#4d7c0f]" 
             />
             <NavMenuLink
-              href="/eternal-return"
-              active={active === "games"}
-              icon={<Swords size={16} />}
-              label="이터널 리턴 전적"
-              activeClass="bg-[#eef2ff] text-[#4338ca]"
-              hoverClass="hover:bg-[#eef2ff] hover:text-[#4338ca]"
-            />
-            <NavMenuLink
               href="/omok"
               active={active === "games"}
               icon={<Swords size={16} />}
@@ -360,7 +352,7 @@ function MobileBottomNav({ active }: { active: NonNullable<AppNavProps["active"]
     <MobileNavGroup label="콘텐츠" icon={<Library size={19} />} active={isContentSection} items={[{ href: "/reviews", label: "콘텐츠 리뷰" }, { href: "/watchlist/items", label: "기대작" }, { href: "/merchandise", label: "상품 리뷰" }]} />
     <Link href="/recommendations" aria-current={active === "reviews" ? "page" : undefined} className={mobileNavButton(false)}><Sparkles size={19} /><span>에디터픽</span></Link>
     <MobileNavGroup label="경기일정" icon={<CalendarDays size={19} />} active={false} items={[{ href: "/release-calendar", label: "릴리즈 캘린더" }, { href: "/lck-calendar", label: "LCK 경기 일정" }, { href: "/lck-analysis", label: "LCK 밴픽 분석" }]} />
-    <MobileNavGroup label="게임" icon={<Swords size={19} />} active={active === "games" || active === "ai-office"} align="right" items={[{ href: "/eternal-return", label: "이터널 리턴 전적" }, { href: "/omok", label: "온라인 오목" }]} />
+    <MobileNavGroup label="게임" icon={<Swords size={19} />} active={active === "games" || active === "ai-office"} align="right" items={[{ href: "/omok", label: "온라인 오목" }]} />
   </div>;
 }
 
