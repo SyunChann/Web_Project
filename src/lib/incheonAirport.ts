@@ -66,12 +66,14 @@ export async function getJapanDepartures(): Promise<DepartureBoardResult> {
   const serviceKey = normalizeServiceKey(process.env.DATA_GO_KR_API_KEY);
   if (!serviceKey) return { state: "missing-key", flights: [] };
 
+  const timeWindow = getKoreanTimeWindow();
+
   const query = new URLSearchParams({
     serviceKey,
     type: "json",
-    searchday: getKoreanDate(),
-    from_time: "0000",
-    to_time: "2400",
+    searchday: timeWindow.date,
+    from_time: timeWindow.apiFromTime,
+    to_time: "2359",
     airport_code: "",
     f_id: "",
     flight_id: "",
@@ -114,6 +116,7 @@ export async function getJapanDepartures(): Promise<DepartureBoardResult> {
       .filter((item) => item.codeshare?.trim().toLowerCase() !== "slave")
       .filter((item) => JAPAN_AIRPORT_CODES.has(item.airportCode?.trim().toUpperCase() ?? ""))
       .map(toBoardFlight)
+      .filter((flight) => isWithinTimeWindow(flight, timeWindow.now, timeWindow.endOfDay))
       .sort((a, b) => getSortTime(a) - getSortTime(b));
 
     return flights.length > 0
@@ -125,11 +128,21 @@ export async function getJapanDepartures(): Promise<DepartureBoardResult> {
   }
 }
 
-function getKoreanDate() {
-  const koreaTime = new Date(Date.now() + 9 * 60 * 60 * 1000);
+function getKoreanTimeWindow(now = new Date()) {
+  const koreaTime = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  const year = koreaTime.getUTCFullYear();
   const month = String(koreaTime.getUTCMonth() + 1).padStart(2, "0");
   const day = String(koreaTime.getUTCDate()).padStart(2, "0");
-  return `${koreaTime.getUTCFullYear()}${month}${day}`;
+  const hour = String(koreaTime.getUTCHours()).padStart(2, "0");
+  const minute = koreaTime.getUTCMinutes();
+  const apiMinute = String(Math.floor(minute / 5) * 5).padStart(2, "0");
+
+  return {
+    date: `${year}${month}${day}`,
+    apiFromTime: `${hour}${apiMinute}`,
+    now: now.getTime(),
+    endOfDay: Date.parse(`${year}-${month}-${day}T23:59:59.999+09:00`),
+  };
 }
 
 function normalizeServiceKey(value?: string) {
@@ -218,6 +231,11 @@ function getSortTime(flight: DepartureBoardFlight) {
 
   const parsed = Date.parse(value);
   return Number.isNaN(parsed) ? Number.MAX_SAFE_INTEGER : parsed;
+}
+
+function isWithinTimeWindow(flight: DepartureBoardFlight, start: number, end: number) {
+  const departureTime = getSortTime(flight);
+  return departureTime >= start && departureTime <= end;
 }
 
 function readXmlErrorCode(xml: string) {

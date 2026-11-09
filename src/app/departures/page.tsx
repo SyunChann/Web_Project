@@ -116,8 +116,8 @@ function BoardCell({ label, className, children }: { label: string; className: s
 function BoardState({ result }: { result: Exclude<DepartureBoardResult, { state: "ready" }> }) {
   const messages = {
     empty: {
-      title: "표시할 일본행 출발편이 없습니다",
-      description: "현재 조회 구간에 운항 예정인 항공편이 없습니다. 잠시 뒤 다시 확인해 주세요.",
+      title: "오늘 남은 일본행 출발편이 없습니다",
+      description: "현재 시각부터 오늘 자정까지 운항 예정인 항공편이 없습니다.",
     },
     "missing-key": {
       title: "항공편 정보를 준비하고 있습니다",
