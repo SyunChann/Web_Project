@@ -12,7 +12,9 @@ export async function ExchangeRateCard() {
           <span className="h-2 w-2 rounded-full bg-[#2f7f7a] shadow-[0_0_0_3px_#e3f3f1]" />
           <p className="text-xs font-black tracking-[0.12em] text-[#52616b]">TODAY&apos;S RATE</p>
         </div>
-        <p className="text-[10px] font-semibold text-[#9a938a]">{formatSnapshotDate(snapshot.date)} 기준</p>
+        <p className="text-right text-[10px] font-semibold leading-4 text-[#9a938a]">
+          {snapshot.sourceLabel}<br />{formatSnapshotDate(snapshot.date)} 기준
+        </p>
       </div>
 
       <div className="mt-2 divide-y divide-[#eee8df]">

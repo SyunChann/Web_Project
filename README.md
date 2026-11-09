@@ -87,6 +87,7 @@ NEXT_PUBLIC_SITE_URL=
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=
 NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID=
 ADMIN_EMAILS=
+KOREAEXIM_API_KEY=
 DISCORD_MONITORING_WEBHOOK_URL=
 ```
 
@@ -99,6 +100,10 @@ ADMIN_EMAILS=admin@example.com,another-admin@example.com
 관리자 계정은 별도의 사용자명이 아니라 `ADMIN_EMAILS`에 등록한 Supabase Auth 사용자입니다.
 현재 관리자 이메일은 로그인 후 `/admin`의 `관리자 계정` 영역에서 확인할 수 있습니다.
 로그인할 계정을 찾을 때는 Supabase Dashboard의 `Authentication > Users`에서 같은 이메일을 확인합니다.
+
+`KOREAEXIM_API_KEY`를 설정하면 메인 환율 카드가 한국수출입은행 Open API의
+원/달러 및 원/엔 매매기준율을 사용합니다. 키가 없거나 공식 API가 응답하지 않으면
+ECB 기준 환율을 제공하는 Frankfurter 데이터로 자동 전환합니다.
 
 주의:
 
