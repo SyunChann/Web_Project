@@ -4,6 +4,7 @@ import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { ExchangeRateCard, ExchangeRateCardSkeleton } from "@/components/ExchangeRateCard";
 import { StatusToast } from "@/components/StatusToast";
+import { SplitFlapText } from "@/components/SplitFlapText";
 import { getRestaurantsReviews } from "@/data/restaurants";
 import { getReviews } from "@/data/reviews";
 import { getTravels, groupTravelPosts } from "@/data/travel";
@@ -87,13 +88,15 @@ function DepartureBoardCard() {
       <span className="absolute -right-10 -top-12 h-28 w-28 rounded-full bg-[#e8b65b]/8 blur-2xl" aria-hidden="true" />
       <div className="relative z-10 flex items-center justify-between gap-3">
         <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#4a5a6c] bg-[#1b2430] text-[#e8c477]">
-          <PlaneTakeoff size={20} className="departure-card-plane" />
+          <PlaneTakeoff size={20} />
         </span>
         <ArrowRight size={18} className="text-[#8fa0b2] transition group-hover:translate-x-0.5 group-hover:text-[#e8c477]" />
       </div>
       <div className="relative z-10 mt-4 flex-1 sm:mt-5">
         <p className="text-xl font-black tracking-tight text-[#f3d38d] sm:text-2xl">출발편 전광판</p>
-        <p className="mt-3 text-sm font-bold leading-relaxed text-[#f8fafc] sm:text-base">인천공항 → 일본</p>
+        <p className="mt-3 text-sm font-bold leading-relaxed text-[#f8fafc] sm:text-base">
+          <SplitFlapText value="인천공항 → 일본" delayMs={120} />
+        </p>
       </div>
       <div className="relative z-10 mt-4 flex items-center justify-between gap-3 border-t border-[#3d4a58] pt-3 text-xs font-bold">
         <span className="inline-flex min-w-0 items-center gap-1.5 truncate text-[#9baaba]"><i aria-hidden="true" className="departure-live-dot h-1.5 w-1.5 shrink-0 rounded-full bg-[#7dd3a7]" />인천국제공항공사 공공데이터</span>

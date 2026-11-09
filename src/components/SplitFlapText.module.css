@@ -1,0 +1,127 @@
+.text {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  gap: 0.055em;
+  perspective: 700px;
+  vertical-align: middle;
+}
+
+.flap {
+  position: relative;
+  flex: 0 0 auto;
+  width: 0.68em;
+  height: 1.12em;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 0.1em;
+  background: #111923;
+  box-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.65),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+  color: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  font-weight: inherit;
+  line-height: 1;
+  transform-style: preserve-3d;
+}
+
+.wide {
+  width: 0.92em;
+}
+
+.space {
+  width: 0.28em;
+  flex: 0 0 auto;
+}
+
+.top,
+.bottom,
+.flipTop,
+.flipBottom {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  overflow: hidden;
+  backface-visibility: hidden;
+}
+
+.top,
+.flipTop {
+  top: 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.9);
+  background: linear-gradient(180deg, #1c2733, #131c26);
+}
+
+.bottom,
+.flipBottom {
+  bottom: 0;
+  border-top: 1px solid rgba(71, 85, 105, 0.22);
+  background: linear-gradient(180deg, #0e151e, #18222d);
+}
+
+.glyph {
+  position: absolute;
+  left: 0;
+  display: flex;
+  width: 100%;
+  height: 200%;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-shadow: 0 1px 0 #000;
+}
+
+.top .glyph,
+.flipTop .glyph {
+  top: 0;
+}
+
+.bottom .glyph,
+.flipBottom .glyph {
+  bottom: 0;
+}
+
+.flipTop {
+  z-index: 3;
+  transform-origin: bottom;
+  animation: flapTop 760ms cubic-bezier(0.45, 0, 0.2, 1) var(--flap-delay) both;
+}
+
+.flipBottom {
+  z-index: 2;
+  transform-origin: top;
+  animation: flapBottom 760ms cubic-bezier(0.45, 0, 0.2, 1) var(--flap-delay) both;
+}
+
+.flap::after {
+  content: "";
+  position: absolute;
+  z-index: 4;
+  top: 50%;
+  right: 0.06em;
+  left: 0.06em;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.9);
+  box-shadow: 0 1px rgba(255, 255, 255, 0.04);
+}
+
+@keyframes flapTop {
+  0%, 12% { transform: rotateX(0deg); filter: brightness(1); }
+  48%, 100% { transform: rotateX(-90deg); filter: brightness(0.65); }
+}
+
+@keyframes flapBottom {
+  0%, 45% { transform: rotateX(90deg); filter: brightness(0.65); }
+  82%, 100% { transform: rotateX(0deg); filter: brightness(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flipTop,
+  .flipBottom {
+    display: none;
+    animation: none;
+  }
+}
