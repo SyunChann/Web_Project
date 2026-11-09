@@ -96,7 +96,7 @@ function DepartureBoardCard() {
         <p className="mt-3 text-sm font-bold leading-relaxed text-white sm:text-base">인천공항 → 일본</p>
       </div>
       <div className="relative mt-4 flex items-center justify-between gap-3 border-t border-[#273244] pt-3 text-xs font-bold">
-        <span className="truncate text-[#64748b]">AeroDataBox 실시간 연동</span>
+        <span className="truncate text-[#64748b]">인천국제공항공사 공공데이터</span>
         <span className="shrink-0 text-[#fbbf24]">전체 보기</span>
       </div>
     </Link>
