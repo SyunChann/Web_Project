@@ -42,6 +42,58 @@ a {
   text-decoration: none;
 }
 
+.departure-menu-card {
+  isolation: isolate;
+}
+
+.departure-menu-card::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: -35%;
+  bottom: -35%;
+  left: -35%;
+  width: 16%;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.09), transparent);
+  transform: skewX(-18deg);
+  animation: departure-card-scan 6s ease-in-out infinite;
+}
+
+.departure-card-plane {
+  animation: departure-plane-float 3.2s ease-in-out infinite;
+}
+
+.departure-live-dot {
+  box-shadow: 0 0 0 0 rgb(125 211 167 / 0.35);
+  animation: departure-live-pulse 2s ease-out infinite;
+}
+
+@keyframes departure-card-scan {
+  0%, 58% { left: -35%; opacity: 0; }
+  64% { opacity: 1; }
+  86% { left: 120%; opacity: 0; }
+  100% { left: 120%; opacity: 0; }
+}
+
+@keyframes departure-plane-float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-2px) rotate(2deg); }
+}
+
+@keyframes departure-live-pulse {
+  0% { box-shadow: 0 0 0 0 rgb(125 211 167 / 0.35); }
+  70%, 100% { box-shadow: 0 0 0 5px rgb(125 211 167 / 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .departure-menu-card::after,
+  .departure-card-plane,
+  .departure-live-dot {
+    animation: none;
+  }
+}
+
 @media (max-width: 639px) {
   html {
     font-size: 15px;

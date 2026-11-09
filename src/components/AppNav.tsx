@@ -129,10 +129,10 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
       admin: "bg-[#f7fee7] text-[#3f6212]" 
     },
     departures: {
-      brandHover: "hover:border-[#f59e0b]",
+      brandHover: "hover:border-[#64748b]",
       icon: "bg-[#111827] group-hover:bg-[#1f2937]",
-      text: "text-[#b45309]",
-      controlHover: "hover:border-[#f59e0b] hover:text-[#b45309]",
+      text: "text-[#475569]",
+      controlHover: "hover:border-[#64748b] hover:text-[#334155]",
       primary: "bg-[#111827] hover:bg-[#1f2937]",
       admin: "bg-[#fef3c7] text-[#92400e]",
     },
@@ -308,7 +308,7 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
                 className={`rounded-md border px-2.5 py-2 text-sm font-bold shadow-sm transition sm:px-3 ${
                   active === "admin"
                     ? "border-[#d49a35] bg-[#f3d9a4] text-[#17202a]"
-                    : "border-[#e2c17f] bg-[#fff4da] text-[#5c3b09] hover:border-[#d49a35] hover:bg-[#f3d9a4]"
+                    : "border-[#d8b568] bg-[#fff1c7] !text-[#4a2c00] hover:border-[#c8922f] hover:bg-[#f4d58f]"
                 }`}
               >
                 관리자

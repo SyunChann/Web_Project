@@ -79,8 +79,13 @@ function FlightTable({ flights }: { flights: DepartureBoardFlight[] }) {
         <span role="columnheader">상태</span>
       </div>
       <div role="rowgroup">
-        {flights.map((flight) => (
-          <div key={flight.id} className={`${styles.row} ${styles[flight.statusTone]}`} role="row">
+        {flights.map((flight, index) => (
+          <div
+            key={flight.id}
+            className={`${styles.row} ${styles[flight.statusTone]}`}
+            role="row"
+            style={{ animationDelay: `${Math.min(index, 12) * 45}ms` }}
+          >
             <span className={styles.flightNumber} role="cell">{flight.number}</span>
             <span className={styles.airline} role="cell">{flight.airline}</span>
             <span className={styles.destination} role="cell">
