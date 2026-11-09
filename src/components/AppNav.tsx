@@ -33,6 +33,7 @@ type AppNavProps = {
     | "restaurant-map"
     | "merchandise"
     | "games"
+    | "departures"
     | "ai-office"
     | "admin";
 };
@@ -64,6 +65,7 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
     "restaurant-map": "해외 맛집리뷰 지도",
     merchandise: "상품리뷰",
     games: "미니게임",
+    departures: "출발편 전광판",
     "ai-office": "AI Office",
     admin: "관리자",
   };
@@ -125,6 +127,14 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
       controlHover: "hover:border-[#8f49be] hover:text-[#a749be]", 
       primary: "bg-[#9249be] hover:bg-[#863da8]", 
       admin: "bg-[#f7fee7] text-[#3f6212]" 
+    },
+    departures: {
+      brandHover: "hover:border-[#f59e0b]",
+      icon: "bg-[#111827] group-hover:bg-[#1f2937]",
+      text: "text-[#b45309]",
+      controlHover: "hover:border-[#f59e0b] hover:text-[#b45309]",
+      primary: "bg-[#111827] hover:bg-[#1f2937]",
+      admin: "bg-[#fef3c7] text-[#92400e]",
     },
     default: {
       brandHover: "hover:border-[#be4b49]",

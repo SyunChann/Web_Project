@@ -1,5 +1,5 @@
 import { Suspense, type ReactNode } from "react";
-import { ArrowRight, Bookmark, Library, MapPinned, Plane, ShoppingCart, Sparkles, Trophy, Utensils } from "lucide-react";
+import { ArrowRight, Bookmark, Library, MapPinned, Plane, PlaneTakeoff, ShoppingCart, Sparkles, Trophy, Utensils } from "lucide-react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { ExchangeRateCard, ExchangeRateCardSkeleton } from "@/components/ExchangeRateCard";
@@ -72,6 +72,7 @@ async function HomeDashboard() {
       <DashboardSection href="/restaurants/items" icon={<Utensils size={20} />} label={"\uAD6D\uB0B4 \uB9DB\uC9D1"} latest={restaurants[0]?.title} latestDate={restaurants[0]?.createdAt} tone="orange" />
       <DashboardSection href="/restaurants/items?scope=overseas" icon={<MapPinned size={20} />} label={"\uD574\uC678 \uB9DB\uC9D1"} latest={overseasRestaurants[0]?.title} latestDate={overseasRestaurants[0]?.createdAt} tone="blue" />
       <DashboardSection href="/travel/items" icon={<Plane size={20} />} label={"\uD574\uC678\uC5EC\uD589"} latest={travelPosts[0]?.travel.tripTitle ?? travelPosts[0]?.travel.title} latestDate={travelPosts[0]?.travel.createdAt} tone="green" />
+      <DashboardSection href="/departures" icon={<PlaneTakeoff size={20} />} label="출발편 전광판" latest="인천공항 → 일본" meta="AeroDataBox 실시간 연동" tone="blue" />
       <DashboardSection href="/lck-calendar" icon={<Trophy size={20} />} label="LCK" latest="LCK 경기 캘린더" meta="네이버 e스포츠 연동" tone="red" />
     </section>
   );
@@ -85,7 +86,7 @@ function DashboardSkeleton() {
   return (
     <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3" aria-busy="true">
       <div className="col-span-2 min-h-52 animate-pulse rounded-2xl border border-[#f0d4cf] bg-[#fff7f5] lg:col-span-3" />
-      {Array.from({ length: 7 }, (_, index) => <div key={index} className="min-h-40 animate-pulse rounded-lg border border-[#eee8df] bg-white sm:min-h-44" />)}
+      {Array.from({ length: 8 }, (_, index) => <div key={index} className="min-h-40 animate-pulse rounded-lg border border-[#eee8df] bg-white sm:min-h-44" />)}
     </section>
   );
 }
