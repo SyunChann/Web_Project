@@ -122,6 +122,14 @@ function BoardState({ result }: { result: Exclude<DepartureBoardResult, { state:
       title: "잠시 후 다시 확인해 주세요",
       description: "AeroDataBox 호출 한도에 도달했습니다. 한도가 갱신되면 출발편 정보가 자동으로 다시 제공됩니다.",
     },
+    authentication: {
+      title: "AeroDataBox 인증을 확인해 주세요",
+      description: "등록된 API 키가 RapidAPI의 AeroDataBox 구독과 연결되어 있는지 확인이 필요합니다. 키 값은 브라우저에 노출되지 않았습니다.",
+    },
+    "bad-request": {
+      title: "항공편 조회 요청이 거절되었습니다",
+      description: "AeroDataBox에서 현재 조회 형식을 처리하지 못했습니다. 서버 로그의 응답 코드를 확인해 주세요.",
+    },
     unavailable: {
       title: "출발편 정보를 불러오지 못했습니다",
       description: "AeroDataBox 연결이 원활하지 않습니다. 잠시 뒤 페이지를 새로고침해 주세요.",

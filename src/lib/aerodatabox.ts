@@ -2,6 +2,11 @@ import "server-only";
 
 const AERODATABOX_HOST = "aerodatabox.p.rapidapi.com";
 const AERODATABOX_URL = `https://${AERODATABOX_HOST}/flights/airports/iata/ICN`;
+const AERODATABOX_HEADERS = (apiKey: string) => ({
+  Accept: "application/json",
+  "X-RapidAPI-Host": AERODATABOX_HOST,
+  "X-RapidAPI-Key": apiKey,
+});
 
 type AeroDateTime = {
   utc?: string;
@@ -60,10 +65,14 @@ export type DepartureBoardFlight = {
 export type DepartureBoardResult =
   | { state: "ready"; flights: DepartureBoardFlight[]; updatedAt: string }
   | { state: "empty"; flights: []; updatedAt: string }
-  | { state: "missing-key" | "rate-limit" | "unavailable"; flights: []; updatedAt?: string };
+  | {
+      state: "missing-key" | "rate-limit" | "authentication" | "bad-request" | "unavailable";
+      flights: [];
+      updatedAt?: string;
+    };
 
 export async function getJapanDepartures(): Promise<DepartureBoardResult> {
-  const apiKey = process.env.AERODATABOX_API_KEY;
+  const apiKey = normalizeApiKey(process.env.AERODATABOX_API_KEY);
 
   if (!apiKey) {
     return { state: "missing-key", flights: [] };
@@ -82,20 +91,30 @@ export async function getJapanDepartures(): Promise<DepartureBoardResult> {
   });
 
   try {
-    const response = await fetch(`${AERODATABOX_URL}?${query}`, {
-      headers: {
-        Accept: "application/json",
-        "X-RapidAPI-Host": AERODATABOX_HOST,
-        "X-RapidAPI-Key": apiKey,
-      },
-      next: { revalidate: 300 },
-    });
+    let response = await requestAeroDataBox(`${AERODATABOX_URL}?${query}`, apiKey);
+
+    // Some marketplace plans reject the relative-time form even though the FIDS tier is enabled.
+    // Retry the equivalent official local-time range endpoint only for request/path failures.
+    if (response.status === 400 || response.status === 404 || response.status === 422) {
+      response = await requestAeroDataBox(getLocalTimeRangeUrl(), apiKey);
+    }
 
     if (response.status === 429) {
       return { state: "rate-limit", flights: [] };
     }
 
+    if (response.status === 401 || response.status === 403) {
+      console.error(`[AeroDataBox] authentication or subscription rejected (${response.status}).`);
+      return { state: "authentication", flights: [] };
+    }
+
+    if (response.status === 400 || response.status === 404 || response.status === 422) {
+      console.error(`[AeroDataBox] request rejected (${response.status}).`);
+      return { state: "bad-request", flights: [] };
+    }
+
     if (!response.ok) {
+      console.error(`[AeroDataBox] upstream request failed (${response.status}).`);
       return { state: "unavailable", flights: [] };
     }
 
@@ -116,8 +135,50 @@ export async function getJapanDepartures(): Promise<DepartureBoardResult> {
 
     return { state: "ready", flights, updatedAt };
   } catch {
+    console.error("[AeroDataBox] network or response parsing failed.");
     return { state: "unavailable", flights: [] };
   }
+}
+
+function normalizeApiKey(value?: string) {
+  if (!value) return "";
+
+  return value
+    .trim()
+    .replace(/^(["'])(.*)\1$/, "$2")
+    .replace(/^Bearer\s+/i, "")
+    .trim();
+}
+
+function requestAeroDataBox(url: string, apiKey: string) {
+  return fetch(url, {
+    headers: AERODATABOX_HEADERS(apiKey),
+    next: { revalidate: 300 },
+    signal: AbortSignal.timeout(12_000),
+  });
+}
+
+function getLocalTimeRangeUrl() {
+  const from = formatIncheonLocalTime(new Date(Date.now() - 2 * 60 * 60 * 1000));
+  const to = formatIncheonLocalTime(new Date(Date.now() + 10 * 60 * 60 * 1000));
+  const query = new URLSearchParams({
+    direction: "Departure",
+    withLeg: "true",
+    withCancelled: "true",
+    withCodeshared: "false",
+    withCargo: "false",
+    withPrivate: "false",
+    withLocation: "false",
+  });
+
+  return `${AERODATABOX_URL}/${from}/${to}?${query}`;
+}
+
+function formatIncheonLocalTime(date: Date) {
+  const koreaTime = new Date(date.getTime() + 9 * 60 * 60 * 1000);
+  const pad = (value: number) => String(value).padStart(2, "0");
+
+  return `${koreaTime.getUTCFullYear()}-${pad(koreaTime.getUTCMonth() + 1)}-${pad(koreaTime.getUTCDate())}T${pad(koreaTime.getUTCHours())}:${pad(koreaTime.getUTCMinutes())}`;
 }
 
 function toBoardFlight(flight: AeroFlight, index: number): DepartureBoardFlight {
