@@ -1,12 +1,12 @@
 import { headers } from "next/headers";
-import { ArrowUpRight, FileWarning, ImageOff, MapPin, Pencil, ShieldCheck } from "lucide-react";
+import { ArrowUpRight, FileWarning, ImageOff, KeyRound, MapPin, Pencil, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AppNav } from "@/components/AppNav";
 import { ConfirmSubmitButton } from "@/components/ConfirmSubmitButton";
 import { CopyButton } from "@/components/CopyButton";
 import { createInviteCode, revokeInviteCode } from "./actions";
-import { isAdminUser } from "@/lib/admin";
+import { getAdminConfiguration, isAdminUser } from "@/lib/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type AdminPageProps = {
@@ -26,7 +26,7 @@ type InviteCodeRow = {
   created_at: string;
 };
 
-type AdminContentKind = "review" | "watchlist" | "restaurant" | "travel";
+type AdminContentKind = "review" | "watchlist" | "restaurant" | "travel" | "merchandise";
 
 type AdminContentRow = {
   id: string;
@@ -57,6 +57,7 @@ const contentMeta: Record<AdminContentKind, { label: string; listHref: string; d
   watchlist: { label: "기대작", listHref: "/watchlist", detailHref: (id) => `/watchlist/${id}`, editHref: (id) => `/watchlist/${id}/edit`, tone: "text-[#2f7f7a]" },
   restaurant: { label: "맛집리뷰", listHref: "/restaurants/items", detailHref: (id) => `/restaurants/${id}`, editHref: (id) => `/restaurants/${id}/edit`, tone: "text-[#e57632]" },
   travel: { label: "해외여행", listHref: "/travel/items", detailHref: (id) => `/travel/${id}`, editHref: (id) => `/travel/${id}/edit`, tone: "text-[#4d7c0f]" },
+  merchandise: { label: "상품리뷰", listHref: "/merchandise", detailHref: (id) => `/merchandise/${id}`, editHref: (id) => `/merchandise/${id}/edit`, tone: "text-[#7c3fa0]" },
 };
 
 function toAdminContentRows(kind: AdminContentKind, rows: AdminSourceRow[] | null) {
@@ -176,17 +177,19 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   }
 
   const { created } = await searchParams;
+  const adminConfiguration = getAdminConfiguration();
   const origin = await getOrigin();
   const currentTime = new Date().getTime();
   const { data, error } = await supabase
     .from("invite_codes")
     .select("id,code,role,max_uses,used_count,expires_at,revoked_at,created_at")
     .order("created_at", { ascending: false });
-  const [reviewsResult, watchlistResult, restaurantsResult, travelResult] = await Promise.all([
+  const [reviewsResult, watchlistResult, restaurantsResult, travelResult, merchandiseResult] = await Promise.all([
     supabase.from("reviews").select("id,title,created_at,thumbnail,summary,author_name").order("created_at", { ascending: false }),
     supabase.from("watchlist_items").select("id,title,created_at,thumbnail,reason,author_name").order("created_at", { ascending: false }),
     supabase.from("restaurant_reviews").select("id,title,created_at,thumbnail,summary,latitude,longitude,author_name").order("created_at", { ascending: false }),
     supabase.from("travel").select("id,title,created_at,thumbnail,summary,latitude,longitude,author_name").order("created_at", { ascending: false }),
+    supabase.from("merchandise_reviews").select("id,title,created_at,thumbnail,summary,author_name").order("created_at", { ascending: false }),
   ]);
   const inviteCodes = (data ?? []) as InviteCodeRow[];
   const inviteSummary = getInviteSummary(inviteCodes, currentTime);
@@ -195,10 +198,11 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
     ...toAdminContentRows("watchlist", watchlistResult.data as AdminSourceRow[] | null),
     ...toAdminContentRows("restaurant", restaurantsResult.data as AdminSourceRow[] | null),
     ...toAdminContentRows("travel", travelResult.data as AdminSourceRow[] | null),
+    ...toAdminContentRows("merchandise", merchandiseResult.data as AdminSourceRow[] | null),
   ].sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime());
   const contentCounts = contentRows.reduce<Record<AdminContentKind, number>>(
     (counts, item) => ({ ...counts, [item.kind]: counts[item.kind] + 1 }),
-    { review: 0, watchlist: 0, restaurant: 0, travel: 0 },
+    { review: 0, watchlist: 0, restaurant: 0, travel: 0, merchandise: 0 },
   );
   const healthIssues = contentRows.flatMap((item) => {
     const issues: { label: string; icon: "image" | "location" | "content" }[] = [];
@@ -248,6 +252,29 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           </p>
         </section>
 
+        <section className="rounded-lg border border-[#cbe8e4] bg-[#f4fbfa] p-5 shadow-sm">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="flex items-center gap-2 text-sm font-bold text-[#2f7f7a]">
+                <KeyRound size={16} /> 관리자 계정
+              </p>
+              <p className="mt-2 text-lg font-black text-[#17202a]">{user.email}</p>
+              <p className="mt-1 text-sm leading-6 text-[#52616b]">
+                현재 로그인한 계정이며 <code className="rounded bg-white px-1.5 py-0.5 font-bold">ADMIN_EMAILS</code>에 등록되어 있습니다.
+              </p>
+            </div>
+            <div className="rounded-md border border-[#cbe8e4] bg-white px-4 py-3 sm:max-w-sm">
+              <p className="text-xs font-black text-[#2f7f7a]">등록된 관리자 이메일</p>
+              <ul className="mt-2 grid gap-1 text-sm font-semibold text-[#3f4a54]">
+                {adminConfiguration.emails.map((email) => <li key={email}>{email}</li>)}
+              </ul>
+              {adminConfiguration.source === "development-fallback" ? (
+                <p className="mt-2 text-xs text-[#8b7460]">로컬 개발 기본값을 사용 중입니다.</p>
+              ) : null}
+            </div>
+          </div>
+        </section>
+
         <section className="grid gap-5">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
@@ -257,7 +284,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             <p className="text-sm font-semibold text-[#64748b]">전체 {contentRows.length}개 기록</p>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {(Object.keys(contentMeta) as AdminContentKind[]).map((kind) => (
               <ContentCountCard key={kind} kind={kind} count={contentCounts[kind]} />
             ))}

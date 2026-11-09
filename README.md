@@ -22,7 +22,7 @@ https://web-project-omega-ruby-60.vercel.app
 - 해외여행 동선: 방문일·시간 기준으로 장소를 날짜별 타임라인으로 정리
 - 초대 코드 회원가입: 관리자 발급 링크로만 가입 가능
 - 권한 관리: 작성자는 본인 글만 수정/삭제, 관리자는 전체 관리
-- 관리자 페이지: 초대 코드 생성, 복사, 폐기, 사용 현황 요약
+- 관리자 페이지: 관리자 계정 확인, 전체 콘텐츠 관리, 초대 코드 생성·복사·폐기
 - 이미지 업로드: Supabase Storage에 WebP 변환 후 저장
 - YouTube 미리보기: 리뷰/기대작 작성 시 URL 인식 및 상세 페이지 임베드
 - 검색, 정렬, 페이지네이션
@@ -96,6 +96,10 @@ DISCORD_MONITORING_WEBHOOK_URL=
 ADMIN_EMAILS=admin@example.com,another-admin@example.com
 ```
 
+관리자 계정은 별도의 사용자명이 아니라 `ADMIN_EMAILS`에 등록한 Supabase Auth 사용자입니다.
+현재 관리자 이메일은 로그인 후 `/admin`의 `관리자 계정` 영역에서 확인할 수 있습니다.
+로그인할 계정을 찾을 때는 Supabase Dashboard의 `Authentication > Users`에서 같은 이메일을 확인합니다.
+
 주의:
 
 - `.env.local`은 Git에 커밋하지 않습니다.
@@ -154,6 +158,8 @@ Supabase 프로젝트 생성 후 SQL Editor에서 아래 순서로 실행합니�
 - `reviews`
 - `watchlist_items`
 - `restaurant_reviews`
+- `travel`
+- `merchandise_reviews`
 - `invite_codes`
 - `invite_code_uses`
 - 초대 코드 검증/사용 RPC
@@ -196,6 +202,8 @@ where user_id = (
 - 관리자: 모든 글 수정/삭제 및 초대 코드 관리 가능
 
 관리자 여부는 `ADMIN_EMAILS` 기준으로 판단합니다.
+Supabase RLS에서도 같은 이메일을 사용하도록 `admin-policies.example.sql`의
+`array['your-email@example.com']` 값을 바꿔야 합니다. 관리자가 여러 명이면 배열에 이메일을 쉼표로 추가합니다.
 
 ## 주요 페이지
 

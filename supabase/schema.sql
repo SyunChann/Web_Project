@@ -158,6 +158,47 @@ create index if not exists travel_scope_idx on public.travel (scope);
 create index if not exists travel_visited_at_idx
   on public.travel (visited_at, visited_time);
 
+create table if not exists public.merchandise_reviews (
+  id text primary key,
+  title text not null,
+  category text not null check (category in ('electronics', 'fashion', 'cosmetics', 'supplements', 'lifestyle', 'sports', 'other')),
+  tags text[] not null default '{}',
+  rating numeric(2, 1) not null check (rating >= 0 and rating <= 5),
+  purchased_at date not null,
+  thumbnail text,
+  thumbnail_alt text,
+  summary text not null,
+  review text not null,
+  product_id text,
+  product_name text,
+  current_lowest_price numeric,
+  purchase_url text,
+  author_id uuid references auth.users(id) on delete set null,
+  author_name text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.merchandise_reviews
+  add column if not exists product_id text,
+  add column if not exists product_name text,
+  add column if not exists current_lowest_price numeric,
+  add column if not exists purchase_url text,
+  add column if not exists author_id uuid references auth.users(id) on delete set null,
+  add column if not exists author_name text;
+
+alter table public.merchandise_reviews enable row level security;
+
+drop policy if exists "merchandise reviews are publicly readable" on public.merchandise_reviews;
+
+create policy "merchandise reviews are publicly readable"
+  on public.merchandise_reviews
+  for select
+  using (true);
+
+create index if not exists merchandise_reviews_created_at_idx
+  on public.merchandise_reviews (created_at desc);
+
 create table if not exists public.invite_codes (
   id uuid primary key default gen_random_uuid(),
   code text not null unique,

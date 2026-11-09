@@ -163,8 +163,8 @@ function DashboardSection({
         <ArrowRight size={18} className="text-[#8a95a1] transition group-hover:translate-x-0.5" />
       </div>
       <div className="mt-4 flex-1 sm:mt-5">
-        <p className={`text-xs font-black tracking-[0.12em] ${theme.accent}`}>{label}</p>
-        <p className="mt-2 line-clamp-2 text-lg font-black leading-snug text-[#17202a] sm:text-xl">
+        <p className={`text-xl font-black tracking-tight sm:text-2xl ${theme.accent}`}>{label}</p>
+        <p className="mt-3 line-clamp-2 text-sm font-bold leading-relaxed text-[#17202a] sm:text-base">
           {latest ?? "\uC0C8 \uAE30\uB85D\uC744 \uAE30\uB2E4\uB9AC\uACE0 \uC788\uC5B4\uC694"}
         </p>
         {latestDate ? <p className="mt-2 text-xs font-semibold text-[#8a95a1]">최근 업데이트 · {formatDate(latestDate)}</p> : null}

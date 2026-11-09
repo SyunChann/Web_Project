@@ -1,4 +1,20 @@
 -- Replace the email below with the administrator email created in Supabase Auth.
+-- Add more values to the array when multiple administrators are configured.
+
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select lower(coalesce(auth.jwt() ->> 'email', '')) = any (
+    array['your-email@example.com']::text[]
+  );
+$$;
+
+revoke execute on function public.is_admin() from public;
+grant execute on function public.is_admin() to authenticated;
 
 drop policy if exists "admin can insert reviews" on public.reviews;
 drop policy if exists "admin can update reviews" on public.reviews;
@@ -24,6 +40,12 @@ drop policy if exists "admin can delete watchlist items" on public.watchlist_ite
 drop policy if exists "invited users can insert watchlist items" on public.watchlist_items;
 drop policy if exists "authors can update own watchlist items" on public.watchlist_items;
 drop policy if exists "authors can delete own watchlist items" on public.watchlist_items;
+drop policy if exists "admin can insert merchandise reviews" on public.merchandise_reviews;
+drop policy if exists "admin can update merchandise reviews" on public.merchandise_reviews;
+drop policy if exists "admin can delete merchandise reviews" on public.merchandise_reviews;
+drop policy if exists "invited users can insert merchandise reviews" on public.merchandise_reviews;
+drop policy if exists "authors can update own merchandise reviews" on public.merchandise_reviews;
+drop policy if exists "authors can delete own merchandise reviews" on public.merchandise_reviews;
 drop policy if exists "admin can read invite codes" on public.invite_codes;
 drop policy if exists "admin can insert invite codes" on public.invite_codes;
 drop policy if exists "admin can update invite codes" on public.invite_codes;
@@ -38,20 +60,20 @@ create policy "admin can insert reviews"
   on public.reviews
   for insert
   to authenticated
-  with check ((auth.jwt() ->> 'email') = 'your-email@example.com');
+  with check (public.is_admin());
 
 create policy "admin can update reviews"
   on public.reviews
   for update
   to authenticated
-  using ((auth.jwt() ->> 'email') = 'your-email@example.com')
-  with check ((auth.jwt() ->> 'email') = 'your-email@example.com');
+  using (public.is_admin())
+  with check (public.is_admin());
 
 create policy "admin can delete reviews"
   on public.reviews
   for delete
   to authenticated
-  using ((auth.jwt() ->> 'email') = 'your-email@example.com');
+  using (public.is_admin());
 
 create policy "invited users can insert reviews"
   on public.reviews
@@ -88,20 +110,20 @@ create policy "admin can insert restaurant reviews"
   on public.restaurant_reviews
   for insert
   to authenticated
-  with check ((auth.jwt() ->> 'email') = 'your-email@example.com');
+  with check (public.is_admin());
 
 create policy "admin can update restaurant reviews"
   on public.restaurant_reviews
   for update
   to authenticated
-  using ((auth.jwt() ->> 'email') = 'your-email@example.com')
-  with check ((auth.jwt() ->> 'email') = 'your-email@example.com');
+  using (public.is_admin())
+  with check (public.is_admin());
 
 create policy "admin can delete restaurant reviews"
   on public.restaurant_reviews
   for delete
   to authenticated
-  using ((auth.jwt() ->> 'email') = 'your-email@example.com');
+  using (public.is_admin());
 
 create policy "invited users can insert restaurant reviews"
   on public.restaurant_reviews
@@ -136,16 +158,16 @@ create policy "authors can delete own restaurant reviews"
 
 create policy "admin can insert travel"
   on public.travel for insert to authenticated
-  with check ((auth.jwt() ->> 'email') = 'your-email@example.com');
+  with check (public.is_admin());
 
 create policy "admin can update travel"
   on public.travel for update to authenticated
-  using ((auth.jwt() ->> 'email') = 'your-email@example.com')
-  with check ((auth.jwt() ->> 'email') = 'your-email@example.com');
+  using (public.is_admin())
+  with check (public.is_admin());
 
 create policy "admin can delete travel"
   on public.travel for delete to authenticated
-  using ((auth.jwt() ->> 'email') = 'your-email@example.com');
+  using (public.is_admin());
 
 create policy "invited users can insert travel"
   on public.travel for insert to authenticated
@@ -164,20 +186,20 @@ create policy "admin can insert watchlist items"
   on public.watchlist_items
   for insert
   to authenticated
-  with check ((auth.jwt() ->> 'email') = 'your-email@example.com');
+  with check (public.is_admin());
 
 create policy "admin can update watchlist items"
   on public.watchlist_items
   for update
   to authenticated
-  using ((auth.jwt() ->> 'email') = 'your-email@example.com')
-  with check ((auth.jwt() ->> 'email') = 'your-email@example.com');
+  using (public.is_admin())
+  with check (public.is_admin());
 
 create policy "admin can delete watchlist items"
   on public.watchlist_items
   for delete
   to authenticated
-  using ((auth.jwt() ->> 'email') = 'your-email@example.com');
+  using (public.is_admin());
 
 create policy "invited users can insert watchlist items"
   on public.watchlist_items
@@ -210,36 +232,86 @@ create policy "authors can delete own watchlist items"
     and author_id = auth.uid()
   );
 
+create policy "admin can insert merchandise reviews"
+  on public.merchandise_reviews
+  for insert
+  to authenticated
+  with check (public.is_admin());
+
+create policy "admin can update merchandise reviews"
+  on public.merchandise_reviews
+  for update
+  to authenticated
+  using (public.is_admin())
+  with check (public.is_admin());
+
+create policy "admin can delete merchandise reviews"
+  on public.merchandise_reviews
+  for delete
+  to authenticated
+  using (public.is_admin());
+
+create policy "invited users can insert merchandise reviews"
+  on public.merchandise_reviews
+  for insert
+  to authenticated
+  with check (
+    public.is_invited_user()
+    and author_id = auth.uid()
+  );
+
+create policy "authors can update own merchandise reviews"
+  on public.merchandise_reviews
+  for update
+  to authenticated
+  using (
+    public.is_invited_user()
+    and author_id = auth.uid()
+  )
+  with check (
+    public.is_invited_user()
+    and author_id = auth.uid()
+  );
+
+create policy "authors can delete own merchandise reviews"
+  on public.merchandise_reviews
+  for delete
+  to authenticated
+  using (
+    public.is_invited_user()
+    and author_id = auth.uid()
+  );
+
 create policy "admin can read invite codes"
   on public.invite_codes
   for select
   to authenticated
-  using ((auth.jwt() ->> 'email') = 'your-email@example.com');
+  using (public.is_admin());
 
 create policy "admin can insert invite codes"
   on public.invite_codes
   for insert
   to authenticated
-  with check ((auth.jwt() ->> 'email') = 'your-email@example.com');
+  with check (public.is_admin());
 
 create policy "admin can update invite codes"
   on public.invite_codes
   for update
   to authenticated
-  using ((auth.jwt() ->> 'email') = 'your-email@example.com')
-  with check ((auth.jwt() ->> 'email') = 'your-email@example.com');
+  using (public.is_admin())
+  with check (public.is_admin());
 
 create policy "admin can delete invite codes"
   on public.invite_codes
   for delete
   to authenticated
-  using ((auth.jwt() ->> 'email') = 'your-email@example.com');
+  using (public.is_admin());
 
 create policy "admin can read invite code uses"
   on public.invite_code_uses
   for select
   to authenticated
-  using ((auth.jwt() ->> 'email') = 'your-email@example.com');
+  using (public.is_admin());
 
 create policy "invited users can upload review thumbnails"
   on storage.objects
@@ -256,7 +328,7 @@ create policy "admin can upload review thumbnails"
   to authenticated
   with check (
     bucket_id = 'review-thumbnails'
-    and (auth.jwt() ->> 'email') = 'your-email@example.com'
+    and public.is_admin()
   );
 
 create policy "admin can update review thumbnails"
@@ -265,11 +337,11 @@ create policy "admin can update review thumbnails"
   to authenticated
   using (
     bucket_id = 'review-thumbnails'
-    and (auth.jwt() ->> 'email') = 'your-email@example.com'
+    and public.is_admin()
   )
   with check (
     bucket_id = 'review-thumbnails'
-    and (auth.jwt() ->> 'email') = 'your-email@example.com'
+    and public.is_admin()
   );
 
 create policy "admin can delete review thumbnails"
@@ -278,5 +350,5 @@ create policy "admin can delete review thumbnails"
   to authenticated
   using (
     bucket_id = 'review-thumbnails'
-    and (auth.jwt() ->> 'email') = 'your-email@example.com'
+    and public.is_admin()
   );
