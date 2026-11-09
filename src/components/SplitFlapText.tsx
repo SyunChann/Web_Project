@@ -16,7 +16,7 @@ export function SplitFlapText({ value, className = "", delayMs = 0 }: SplitFlapT
         if (character === " ") return <span key={`space-${index}`} className={styles.space} aria-hidden="true" />;
 
         const previous = getPreviousCharacter(character, index);
-        const style: FlapStyle = { "--flap-delay": `${delayMs + index * 55}ms` };
+        const style: FlapStyle = { "--flap-delay": `${delayMs + index * 38}ms` };
         const isWide = !/[\x00-\x7F]/.test(character);
 
         return (

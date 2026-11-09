@@ -86,16 +86,16 @@ function FlightTable({ flights }: { flights: DepartureBoardFlight[] }) {
             className={`${styles.row} ${styles[flight.statusTone]}`}
             role="row"
           >
-            <span className={styles.flightNumber} role="cell"><SplitFlapText value={flight.number} delayMs={Math.min(index, 10) * 90} /></span>
+            <span className={styles.flightNumber} role="cell"><SplitFlapText value={flight.number} delayMs={Math.min(index, 8) * 65} /></span>
             <span className={styles.airline} role="cell">{flight.airline}</span>
             <span className={styles.destination} role="cell">
-              <span className={styles.destinationName}><SplitFlapText value={flight.destination} delayMs={Math.min(index, 10) * 90 + 80} /></span>
+              <span className={styles.destinationName}>{flight.destination}</span>
               <span className={styles.destinationCode}>{flight.destinationCode}</span>
             </span>
-            <BoardCell label="예정 시간" className={styles.time}><SplitFlapText value={formatKoreanTime(flight.scheduledAt)} delayMs={Math.min(index, 10) * 90 + 160} /></BoardCell>
-            <BoardCell label="변경 시간" className={flight.revisedAt ? styles.changedTime : styles.time}><SplitFlapText value={formatKoreanTime(flight.revisedAt)} delayMs={Math.min(index, 10) * 90 + 220} /></BoardCell>
-            <BoardCell label="터미널" className={styles.compact}><SplitFlapText value={flight.terminal} delayMs={Math.min(index, 10) * 90 + 280} /></BoardCell>
-            <BoardCell label="게이트" className={styles.compact}><SplitFlapText value={flight.gate} delayMs={Math.min(index, 10) * 90 + 320} /></BoardCell>
+            <BoardCell label="예정 시간" className={styles.time}><SplitFlapText value={formatKoreanTime(flight.scheduledAt)} delayMs={Math.min(index, 8) * 65 + 80} /></BoardCell>
+            <BoardCell label="변경 시간" className={flight.revisedAt ? styles.changedTime : styles.time}><SplitFlapText value={formatKoreanTime(flight.revisedAt)} delayMs={Math.min(index, 8) * 65 + 130} /></BoardCell>
+            <BoardCell label="터미널" className={styles.compact}>{flight.terminal}</BoardCell>
+            <BoardCell label="게이트" className={styles.compact}>{flight.gate}</BoardCell>
             <span className={styles.status} role="cell">{flight.status}</span>
           </div>
         ))}
