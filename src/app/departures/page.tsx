@@ -145,6 +145,9 @@ function BoardState({ result }: { result: Exclude<DepartureBoardResult, { state:
         </span>
         <p className={styles.emptyTitle}>{message.title}</p>
         <p className={styles.emptyDescription}>{message.description}</p>
+        {"diagnostic" in result && result.diagnostic ? (
+          <p className={styles.diagnostic}>진단 코드 · {result.diagnostic}</p>
+        ) : null}
       </div>
     </div>
   );

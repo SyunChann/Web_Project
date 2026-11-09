@@ -264,6 +264,18 @@
   line-height: 1.65;
 }
 
+.diagnostic {
+  width: fit-content;
+  margin: 0.85rem auto 0;
+  padding: 0.3rem 0.55rem;
+  border: 1px solid #273244;
+  border-radius: 0.3rem;
+  color: #64748b;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
 .footer {
   display: flex;
   flex-wrap: wrap;

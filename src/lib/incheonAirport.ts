@@ -1,13 +1,13 @@
 import "server-only";
 
 const DEPARTURES_API_URL =
-  "https://apis.data.go.kr/B551177/StatusOfPassengerFlightsDSOdp/getPassengerDeparturesDSOdp";
+  "https://apis.data.go.kr/B551177/StatusOfPassengerFlightsDeOdp/getPassengerDeparturesDeOdp";
 
 const JAPAN_AIRPORT_CODES = new Set([
   "AKJ", "AOJ", "ASJ", "AXT", "CTS", "FKS", "FSZ", "FUJ", "FUK", "GAJ", "HAC", "HIJ", "HKD", "HND",
   "HSG", "IBR", "ISG", "ITM", "IWJ", "IZO", "KCZ", "KIJ", "KIX", "KKJ", "KMQ", "KOJ", "KUH", "KMJ",
   "KMI", "MMB", "MMJ", "MSJ", "MYJ", "NGO", "NGS", "NKM", "NRT", "OBO", "OIT", "OKA", "OKJ", "ONJ",
-  "SDJ", "SHB", "TAK", "TOY", "TKS", "TTJ", "UBJ", "UKB", "YGJ",
+  "OSA", "SDJ", "SHB", "TAK", "TOY", "TKS", "TTJ", "UBJ", "UKB", "YGJ",
 ]);
 
 type PublicDepartureItem = {
@@ -20,6 +20,7 @@ type PublicDepartureItem = {
   terminalid?: string;
   gatenumber?: string | number;
   remark?: string;
+  codeshare?: string;
 };
 
 type PublicDataResponse = {
@@ -58,6 +59,7 @@ export type DepartureBoardResult =
       state: "missing-key" | "rate-limit" | "authentication" | "bad-request" | "unavailable";
       flights: [];
       updatedAt?: string;
+      diagnostic?: string;
     };
 
 export async function getJapanDepartures(): Promise<DepartureBoardResult> {
@@ -66,15 +68,17 @@ export async function getJapanDepartures(): Promise<DepartureBoardResult> {
 
   const query = new URLSearchParams({
     serviceKey,
+    type: "json",
+    searchday: getKoreanDate(),
     from_time: "0000",
     to_time: "2400",
-    airport: "",
+    airport_code: "",
+    f_id: "",
     flight_id: "",
-    airline: "",
+    inqtimechcd: "E",
     lang: "K",
-    type: "json",
-    pageNo: "1",
     numOfRows: "500",
+    pageNo: "1",
   });
 
   try {
@@ -83,11 +87,17 @@ export async function getJapanDepartures(): Promise<DepartureBoardResult> {
       signal: AbortSignal.timeout(12_000),
     });
 
-    if (response.status === 429) return { state: "rate-limit", flights: [] };
-    if (response.status === 401 || response.status === 403) return { state: "authentication", flights: [] };
+    if (response.status === 429) return { state: "rate-limit", flights: [], diagnostic: "HTTP 429" };
+    if (response.status === 401 || response.status === 403) {
+      return { state: "authentication", flights: [], diagnostic: `HTTP ${response.status}` };
+    }
     if (!response.ok) {
       console.error(`[Incheon Airport API] upstream request failed (${response.status}).`);
-      return { state: response.status < 500 ? "bad-request" : "unavailable", flights: [] };
+      return {
+        state: response.status < 500 ? "bad-request" : "unavailable",
+        flights: [],
+        diagnostic: `HTTP ${response.status}`,
+      };
     }
 
     const text = await response.text();
@@ -101,6 +111,7 @@ export async function getJapanDepartures(): Promise<DepartureBoardResult> {
 
     const updatedAt = response.headers.get("date") ?? new Date().toISOString();
     const flights = getItems(payload.response?.body?.items)
+      .filter((item) => item.codeshare?.trim().toLowerCase() !== "slave")
       .filter((item) => JAPAN_AIRPORT_CODES.has(item.airportCode?.trim().toUpperCase() ?? ""))
       .map(toBoardFlight)
       .sort((a, b) => getSortTime(a) - getSortTime(b));
@@ -112,6 +123,13 @@ export async function getJapanDepartures(): Promise<DepartureBoardResult> {
     console.error("[Incheon Airport API] network or response parsing failed.");
     return { state: "unavailable", flights: [] };
   }
+}
+
+function getKoreanDate() {
+  const koreaTime = new Date(Date.now() + 9 * 60 * 60 * 1000);
+  const month = String(koreaTime.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(koreaTime.getUTCDate()).padStart(2, "0");
+  return `${koreaTime.getUTCFullYear()}${month}${day}`;
 }
 
 function normalizeServiceKey(value?: string) {
@@ -209,11 +227,15 @@ function readXmlErrorCode(xml: string) {
 function mapPublicDataError(code: string): DepartureBoardResult {
   const normalized = code.trim().toUpperCase();
   if (normalized === "03") return { state: "empty", flights: [], updatedAt: new Date().toISOString() };
-  if (normalized === "22" || normalized.includes("LIMIT")) return { state: "rate-limit", flights: [] };
-  if (["20", "30", "31", "32"].includes(normalized) || normalized.includes("SERVICE_KEY")) {
-    return { state: "authentication", flights: [] };
+  if (normalized === "22" || normalized.includes("LIMIT")) {
+    return { state: "rate-limit", flights: [], diagnostic: `OPENAPI ${normalized}` };
   }
-  if (["10", "11", "12"].includes(normalized)) return { state: "bad-request", flights: [] };
+  if (["20", "30", "31", "32"].includes(normalized) || normalized.includes("SERVICE_KEY")) {
+    return { state: "authentication", flights: [], diagnostic: `OPENAPI ${normalized}` };
+  }
+  if (["10", "11", "12", "99"].includes(normalized)) {
+    return { state: "bad-request", flights: [], diagnostic: `OPENAPI ${normalized}` };
+  }
 
   console.error(`[Incheon Airport API] public-data error (${normalized || "unknown"}).`);
   return { state: "unavailable", flights: [] };
