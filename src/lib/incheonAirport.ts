@@ -1,7 +1,7 @@
 import "server-only";
 
 const DEPARTURES_API_URL =
-  "https://apis.data.go.kr/B551177/StatusOfPassengerFlightsOdp/getPassengerDeparturesOdp";
+  "https://apis.data.go.kr/B551177/StatusOfPassengerFlightsDSOdp/getPassengerDeparturesDSOdp";
 
 const JAPAN_AIRPORT_CODES = new Set([
   "AKJ", "AOJ", "ASJ", "AXT", "CTS", "FKS", "FSZ", "FUJ", "FUK", "GAJ", "HAC", "HIJ", "HKD", "HND",
