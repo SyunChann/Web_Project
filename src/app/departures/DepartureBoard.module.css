@@ -108,20 +108,20 @@
 }
 
 .header {
-  padding: 0.7rem 1.1rem;
+  padding: 0.8rem 1.1rem;
   border-bottom: 1px solid #273244;
   background: #0d141f;
   color: #64748b;
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.08em;
 }
 
 .row {
   position: relative;
-  min-height: 5rem;
-  padding: 0.8rem 1.1rem;
+  min-height: 5.75rem;
+  padding: 0.95rem 1.1rem;
   border-bottom: 1px solid #202a38;
   background: linear-gradient(90deg, rgba(255, 255, 255, 0.018), transparent 45%);
 }
@@ -148,15 +148,15 @@
 
 .flightNumber {
   color: #f8fafc;
-  font-size: 1.05rem;
+  font-size: 1.2rem;
   font-weight: 900;
-  letter-spacing: 0.035em;
+  letter-spacing: 0.025em;
 }
 
 .airline {
   overflow: hidden;
   color: #cbd5e1;
-  font-size: 0.84rem;
+  font-size: 1rem;
   font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -169,25 +169,31 @@
 .destinationName {
   display: block;
   overflow: hidden;
-  font-size: 1rem;
+  font-size: 1.08rem;
   font-weight: 900;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .destinationCode {
-  display: block;
-  margin-top: 0.2rem;
-  color: #64748b;
+  display: inline-flex;
+  width: fit-content;
+  margin-top: 0.38rem;
+  padding: 0.18rem 0.42rem;
+  border: 1px solid rgba(251, 191, 36, 0.32);
+  border-radius: 0.25rem;
+  background: rgba(251, 191, 36, 0.07);
+  color: #fbbf24;
   font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  line-height: 1;
 }
 
 .time,
 .changedTime {
-  font-size: 1.05rem;
+  font-size: 1.18rem;
   font-weight: 850;
 }
 
@@ -201,7 +207,7 @@
 
 .compact {
   color: #cbd5e1;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   font-weight: 800;
 }
 

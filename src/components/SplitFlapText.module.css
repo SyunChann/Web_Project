@@ -10,14 +10,14 @@
 .flap {
   position: relative;
   flex: 0 0 auto;
-  width: 0.74em;
-  height: 1.16em;
+  width: 0.76em;
+  height: 1.22em;
   overflow: hidden;
   border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 0.1em;
+  border-radius: 0.12em;
   background: #111923;
   box-shadow:
-    0 1px 1px rgba(0, 0, 0, 0.65),
+    0 2px 2px rgba(0, 0, 0, 0.72),
     inset 0 0 0 1px rgba(255, 255, 255, 0.02);
   color: inherit;
   font-family: var(--font-mono);
