@@ -66,13 +66,13 @@ async function HomeDashboard() {
   return (
     <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
       <EditorPickSection />
-      <DashboardSection href="/reviews" icon={<Library size={20} />} label={"\uB9AC\uBDF0"} count={reviews.length} latest={reviews[0]?.title} latestDate={reviews[0]?.createdAt} tone="red" />
-      <DashboardSection href="/watchlist/items" icon={<Bookmark size={20} />} label={"\uAE30\uB300\uC791"} count={watchItems.length} latest={watchItems[0]?.title} latestDate={watchItems[0]?.createdAt} tone="teal" />
-      <DashboardSection href="/merchandise" icon={<ShoppingCart size={20} />} label={"\uC0C1\uD488"} count={merchandise.length} latest={merchandise[0]?.title} latestDate={merchandise[0]?.createdAt} tone="purple" />
-      <DashboardSection href="/restaurants/items" icon={<Utensils size={20} />} label={"\uAD6D\uB0B4 \uB9DB\uC9D1"} count={restaurants.length} latest={restaurants[0]?.title} latestDate={restaurants[0]?.createdAt} tone="orange" />
-      <DashboardSection href="/restaurants/items?scope=overseas" icon={<MapPinned size={20} />} label={"\uD574\uC678 \uB9DB\uC9D1"} count={overseasRestaurants.length} latest={overseasRestaurants[0]?.title} latestDate={overseasRestaurants[0]?.createdAt} tone="blue" />
-      <DashboardSection href="/travel/items" icon={<Plane size={20} />} label={"\uD574\uC678\uC5EC\uD589"} count={travelPosts.length} latest={travelPosts[0]?.travel.tripTitle ?? travelPosts[0]?.travel.title} latestDate={travelPosts[0]?.travel.createdAt} tone="green" />
-      <DashboardSection href="/lck-calendar" icon={<Trophy size={20} />} label="LCK" value="경기 일정" latest="LCK 경기 캘린더" meta="네이버 e스포츠 연동" tone="red" />
+      <DashboardSection href="/reviews" icon={<Library size={20} />} label={"\uB9AC\uBDF0"} latest={reviews[0]?.title} latestDate={reviews[0]?.createdAt} tone="red" />
+      <DashboardSection href="/watchlist/items" icon={<Bookmark size={20} />} label={"\uAE30\uB300\uC791"} latest={watchItems[0]?.title} latestDate={watchItems[0]?.createdAt} tone="teal" />
+      <DashboardSection href="/merchandise" icon={<ShoppingCart size={20} />} label={"\uC0C1\uD488"} latest={merchandise[0]?.title} latestDate={merchandise[0]?.createdAt} tone="purple" />
+      <DashboardSection href="/restaurants/items" icon={<Utensils size={20} />} label={"\uAD6D\uB0B4 \uB9DB\uC9D1"} latest={restaurants[0]?.title} latestDate={restaurants[0]?.createdAt} tone="orange" />
+      <DashboardSection href="/restaurants/items?scope=overseas" icon={<MapPinned size={20} />} label={"\uD574\uC678 \uB9DB\uC9D1"} latest={overseasRestaurants[0]?.title} latestDate={overseasRestaurants[0]?.createdAt} tone="blue" />
+      <DashboardSection href="/travel/items" icon={<Plane size={20} />} label={"\uD574\uC678\uC5EC\uD589"} latest={travelPosts[0]?.travel.tripTitle ?? travelPosts[0]?.travel.title} latestDate={travelPosts[0]?.travel.createdAt} tone="green" />
+      <DashboardSection href="/lck-calendar" icon={<Trophy size={20} />} label="LCK" latest="LCK 경기 캘린더" meta="네이버 e스포츠 연동" tone="red" />
     </section>
   );
 }
@@ -85,7 +85,7 @@ function DashboardSkeleton() {
   return (
     <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3" aria-busy="true">
       <div className="col-span-2 min-h-52 animate-pulse rounded-2xl border border-[#f0d4cf] bg-[#fff7f5] lg:col-span-3" />
-      {Array.from({ length: 4 }, (_, index) => <div key={index} className="min-h-40 animate-pulse rounded-lg border border-[#eee8df] bg-white sm:min-h-44" />)}
+      {Array.from({ length: 7 }, (_, index) => <div key={index} className="min-h-40 animate-pulse rounded-lg border border-[#eee8df] bg-white sm:min-h-44" />)}
     </section>
   );
 }
@@ -130,8 +130,6 @@ function DashboardSection({
   href,
   icon,
   label,
-  count,
-  value,
   latest,
   latestDate,
   meta,
@@ -140,40 +138,40 @@ function DashboardSection({
   href: string;
   icon: ReactNode;
   label: string;
-  count?: number;
-  value?: string;
   latest?: string;
   latestDate?: string;
   meta?: string;
   tone: "red" | "teal" | "orange" | "blue" | "green" | "purple";
 }) {
   const themes = {
-    red: "text-[#be4b49] hover:border-[#be4b49]",
-    teal: "text-[#2f7f7a] hover:border-[#2f7f7a]",
-    orange: "text-[#e57632] hover:border-[#e57632]",
-    blue: "text-[#0284c7] hover:border-[#0284c7]",
-    green: "text-[#4d7c0f] hover:border-[#65a30d]",
-    purple: "text-[#9249be] hover:border-[#9249be]",
+    red: { border: "hover:border-[#be4b49]", icon: "bg-[#fff0ed] text-[#be4b49]", accent: "text-[#be4b49]" },
+    teal: { border: "hover:border-[#2f7f7a]", icon: "bg-[#e8f6f4] text-[#2f7f7a]", accent: "text-[#2f7f7a]" },
+    orange: { border: "hover:border-[#e57632]", icon: "bg-[#fdf2e9] text-[#e57632]", accent: "text-[#c85a17]" },
+    blue: { border: "hover:border-[#0284c7]", icon: "bg-[#e8f5fb] text-[#0284c7]", accent: "text-[#0284c7]" },
+    green: { border: "hover:border-[#65a30d]", icon: "bg-[#f2f8e8] text-[#4d7c0f]", accent: "text-[#4d7c0f]" },
+    purple: { border: "hover:border-[#9249be]", icon: "bg-[#f7edfb] text-[#9249be]", accent: "text-[#9249be]" },
   } as const;
+  const theme = themes[tone];
 
   return (
     <Link
       href={href}
-      className={`group min-h-40 rounded-lg border border-[#ddd6cc] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:min-h-44 sm:p-5 ${themes[tone]}`}
+      className={`group flex min-h-44 flex-col rounded-lg border border-[#ddd6cc] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:min-h-48 sm:p-5 ${theme.border}`}
     >
       <div className="flex items-center justify-between gap-3">
-        <span>{icon}</span>
+        <span className={`flex h-10 w-10 items-center justify-center rounded-xl ${theme.icon}`}>{icon}</span>
         <ArrowRight size={18} className="text-[#8a95a1] transition group-hover:translate-x-0.5" />
       </div>
-      <p className="mt-4 text-sm font-bold sm:mt-6">{label}</p>
-      <p className="mt-1 text-2xl font-black text-[#17202a] sm:text-3xl">{value ?? `${count ?? 0}\uAC1C`}</p>
-      {meta ? <p className="mt-1 text-xs font-bold text-[#8a95a1]">{meta}</p> : null}
-      <div className="mt-3 border-t border-[#eee8df] pt-2 sm:mt-4 sm:pt-3">
-        <p className="text-xs font-bold text-[#8a95a1]">{"\uCD5C\uADFC \uAE30\uB85D"}</p>
-        <p className="mt-1 line-clamp-1 text-sm font-semibold text-[#52616b]">
-          {latest ?? "\uC544\uC9C1 \uAE30\uB85D\uC774 \uC5C6\uC2B5\uB2C8\uB2E4."}
+      <div className="mt-4 flex-1 sm:mt-5">
+        <p className={`text-xs font-black tracking-[0.12em] ${theme.accent}`}>{label}</p>
+        <p className="mt-2 line-clamp-2 text-lg font-black leading-snug text-[#17202a] sm:text-xl">
+          {latest ?? "\uC0C8 \uAE30\uB85D\uC744 \uAE30\uB2E4\uB9AC\uACE0 \uC788\uC5B4\uC694"}
         </p>
-        {latestDate ? <p className="mt-1 text-xs text-[#8a95a1]">{formatDate(latestDate)}</p> : null}
+        {latestDate ? <p className="mt-2 text-xs font-semibold text-[#8a95a1]">최근 업데이트 · {formatDate(latestDate)}</p> : null}
+      </div>
+      <div className="mt-4 flex items-center justify-between gap-3 border-t border-[#eee8df] pt-3 text-xs font-bold">
+        <span className="truncate text-[#8a95a1]">{meta ?? "최근 콘텐츠"}</span>
+        <span className={`shrink-0 ${theme.accent}`}>전체 보기</span>
       </div>
     </Link>
   );
