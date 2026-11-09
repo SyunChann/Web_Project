@@ -41,7 +41,7 @@ export default async function LckCalendarPage() {
             {`2026 Worlds ${formatDate(worldsEvent.startDate)}~${formatDate(worldsEvent.endDate)} · 세부 대진 공개 예정입니다. 공식 일정이 등록되면 이 캘린더에 자동으로 표시됩니다.`}
           </p>
         ) : null}
-        {!sourceAvailable ? <p className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800">공식 일정에 일시적으로 연결할 수 없습니다. 잠시 후 자동으로 다시 확인합니다.</p> : null}
+        {!sourceAvailable ? <p className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800">{matches.length > 0 ? "공식 일정에 일시적으로 연결할 수 없어 마지막 정상 일정을 표시합니다. 잠시 후 자동으로 다시 확인합니다." : "공식 일정에 일시적으로 연결할 수 없습니다. 잠시 후 자동으로 다시 확인합니다."}</p> : null}
         <LckMonthCalendar matches={matches} />
         <section className="mt-6 grid gap-4 sm:grid-cols-2">
           <InfoCard icon={<CalendarDays size={18} />} title="일정 안내" text="경기 대진과 시작 시간은 공식 채널의 변경 사항에 따라 업데이트될 수 있습니다." />

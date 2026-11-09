@@ -7,7 +7,11 @@ const LOL_ESPORTS_PAGES = [
   "https://lolesports.com/ko-KR/leagues/worlds",
 ] as const;
 
-const SCHEDULE_REVALIDATE_SECONDS = 60;
+const SCHEDULE_REVALIDATE_SECONDS = 5 * 60;
+const SOURCE_REQUEST_ATTEMPTS = 2;
+const SOURCE_RETRY_DELAY_MS = 400;
+
+let lastKnownSchedule: LolEsportsSchedule | null = null;
 
 type LolEsportsTeam = { code?: string | null; name?: string | null };
 
@@ -49,6 +53,49 @@ export type LolEsportsSchedule = {
   seasonEvents: EsportsSeasonEvent[];
   sourceAvailable: boolean;
 };
+
+type SourceRequest<T> = {
+  label: string;
+  url: string;
+  timeoutMs: number;
+  headers?: HeadersInit;
+  parse: (response: Response) => Promise<T>;
+};
+
+function wait(delayMs: number) {
+  return new Promise((resolve) => setTimeout(resolve, delayMs));
+}
+
+async function requestSource<T>({
+  label,
+  url,
+  timeoutMs,
+  headers,
+  parse,
+}: SourceRequest<T>): Promise<T> {
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= SOURCE_REQUEST_ATTEMPTS; attempt += 1) {
+    try {
+      const response = await fetch(url, {
+        cache: "no-store",
+        headers,
+        signal: AbortSignal.timeout(timeoutMs),
+      });
+      if (!response.ok) throw new Error(`${label} request failed: ${response.status}`);
+      return await parse(response);
+    } catch (error) {
+      lastError = error;
+      const reason = error instanceof Error ? error.message : String(error);
+      console.warn(`${label} 요청 실패 (${attempt}/${SOURCE_REQUEST_ATTEMPTS}): ${reason}`);
+      if (attempt < SOURCE_REQUEST_ATTEMPTS) {
+        await wait(SOURCE_RETRY_DELAY_MS * attempt);
+      }
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error(`${label} request failed`);
+}
 
 function extractJsonObjects<T>(html: string, typename: string): T[] {
   const needle = `{"__typename":"${typename}"`;
@@ -226,40 +273,68 @@ function toSeasonEvents(htmlPages: string[]): EsportsSeasonEvent[] {
 async function loadLolEsportsSchedule(): Promise<LolEsportsSchedule> {
   const [pageResponses, naverResponses] = await Promise.all([
     Promise.allSettled(
-    LOL_ESPORTS_PAGES.map(async (url) => {
-      const response = await fetch(url, {
-        cache: "no-store",
-        headers: { "User-Agent": "Mozilla/5.0" },
-        signal: AbortSignal.timeout(25_000),
-      });
-      if (!response.ok) throw new Error(`LoL Esports schedule request failed: ${response.status}`);
-      return response.text();
-    }),
+      LOL_ESPORTS_PAGES.map((url) =>
+        requestSource({
+          label: "LoL Esports schedule",
+          url,
+          timeoutMs: 5_000,
+          headers: {
+            Accept: "text/html,application/xhtml+xml",
+            "Accept-Language": "ko-KR,ko;q=0.9,en;q=0.8",
+            "User-Agent": "Mozilla/5.0",
+          },
+          parse: (response) => response.text(),
+        }),
+      ),
     ),
     Promise.allSettled(
-      getNaverMonthUrls().map(async (url) => {
-        const response = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(10_000) });
-        if (!response.ok) throw new Error(`Naver schedule request failed: ${response.status}`);
-        return response.json() as Promise<NaverScheduleResponse>;
-      }),
+      getNaverMonthUrls().map((url) =>
+        requestSource({
+          label: "Naver schedule",
+          url,
+          timeoutMs: 4_000,
+          headers: {
+            Accept: "application/json",
+            Referer: "https://game.naver.com/esports",
+            "User-Agent": "Mozilla/5.0",
+          },
+          parse: (response) => response.json() as Promise<NaverScheduleResponse>,
+        }),
+      ),
     ),
   ]);
   const htmlPages = pageResponses.flatMap((response) => response.status === "fulfilled" ? [response.value] : []);
   const naverSchedules = naverResponses.flatMap((response) => response.status === "fulfilled" ? [response.value] : []);
+  if (htmlPages.length === 0 && naverSchedules.length === 0) {
+    throw new Error("모든 경기 일정 데이터 소스에 연결하지 못했습니다.");
+  }
+
   const currentYear = getKstYear();
-  return {
+  const schedule = {
     matches: mergeMatches(toMatches(htmlPages), toNaverMatches(naverSchedules)).filter((match) => match.date.startsWith(currentYear)),
     seasonEvents: toSeasonEvents(htmlPages).filter((event) => event.startDate.startsWith(currentYear)),
-    sourceAvailable: htmlPages.length > 0 || naverSchedules.length > 0,
+    sourceAvailable: true,
   };
+  lastKnownSchedule = schedule;
+  return schedule;
 }
 
 const getCachedLolEsportsSchedule = unstable_cache(
   loadLolEsportsSchedule,
-  ["lol-esports-schedule-v2"],
+  ["lol-esports-schedule-v3"],
   { revalidate: SCHEDULE_REVALIDATE_SECONDS },
 );
 
 export async function getLolEsportsSchedule(): Promise<LolEsportsSchedule> {
-  return getCachedLolEsportsSchedule();
+  try {
+    const schedule = await getCachedLolEsportsSchedule();
+    lastKnownSchedule = schedule;
+    return schedule;
+  } catch (error) {
+    console.error("경기 일정을 갱신하지 못했습니다.", error);
+    if (lastKnownSchedule) {
+      return { ...lastKnownSchedule, sourceAvailable: false };
+    }
+    return { matches: [], seasonEvents: [], sourceAvailable: false };
+  }
 }
