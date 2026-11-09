@@ -53,7 +53,7 @@ export type DepartureBoardFlight = {
 };
 
 export type DepartureBoardResult =
-  | { state: "ready"; flights: DepartureBoardFlight[]; updatedAt: string }
+  | { state: "ready"; flights: DepartureBoardFlight[]; updatedAt: string; range: "today" | "tomorrow-morning" }
   | { state: "empty"; flights: []; updatedAt: string }
   | {
       state: "missing-key" | "rate-limit" | "authentication" | "bad-request" | "unavailable";
@@ -62,66 +62,39 @@ export type DepartureBoardResult =
       diagnostic?: string;
     };
 
+type DepartureBoardServiceError = {
+  state: "rate-limit" | "authentication" | "bad-request" | "unavailable";
+  flights: [];
+  updatedAt?: string;
+  diagnostic?: string;
+};
+
+type PublicDepartureFetchResult =
+  | { state: "success"; items: PublicDepartureItem[]; updatedAt: string }
+  | DepartureBoardServiceError;
+
 export async function getJapanDepartures(): Promise<DepartureBoardResult> {
   const serviceKey = normalizeServiceKey(process.env.DATA_GO_KR_API_KEY);
   if (!serviceKey) return { state: "missing-key", flights: [] };
 
   const timeWindow = getKoreanTimeWindow();
 
-  const query = new URLSearchParams({
-    serviceKey,
-    type: "json",
-    searchday: timeWindow.date,
-    from_time: timeWindow.apiFromTime,
-    to_time: "2359",
-    airport_code: "",
-    f_id: "",
-    flight_id: "",
-    inqtimechcd: "E",
-    lang: "K",
-    numOfRows: "500",
-    pageNo: "1",
-  });
-
   try {
-    const response = await fetch(`${DEPARTURES_API_URL}?${query}`, {
-      next: { revalidate: 300 },
-      signal: AbortSignal.timeout(12_000),
-    });
+    const todayResult = await fetchDepartureItems(serviceKey, timeWindow.date, timeWindow.apiFromTime, "2359");
+    if (todayResult.state !== "success") return todayResult;
 
-    if (response.status === 429) return { state: "rate-limit", flights: [], diagnostic: "HTTP 429" };
-    if (response.status === 401 || response.status === 403) {
-      return { state: "authentication", flights: [], diagnostic: `HTTP ${response.status}` };
-    }
-    if (!response.ok) {
-      console.error(`[Incheon Airport API] upstream request failed (${response.status}).`);
-      return {
-        state: response.status < 500 ? "bad-request" : "unavailable",
-        flights: [],
-        diagnostic: `HTTP ${response.status}`,
-      };
+    const todayFlights = toJapanFlights(todayResult.items, timeWindow.now, timeWindow.endOfDay);
+    if (todayFlights.length > 0) {
+      return { state: "ready", flights: todayFlights, updatedAt: todayResult.updatedAt, range: "today" };
     }
 
-    const text = await response.text();
-    if (text.trimStart().startsWith("<")) {
-      return mapPublicDataError(readXmlErrorCode(text));
-    }
+    const tomorrowResult = await fetchDepartureItems(serviceKey, timeWindow.tomorrowDate, "0000", "0900");
+    if (tomorrowResult.state !== "success") return tomorrowResult;
 
-    const payload = JSON.parse(text) as PublicDataResponse;
-    const resultCode = String(payload.response?.header?.resultCode ?? "");
-    if (resultCode && resultCode !== "00") return mapPublicDataError(resultCode);
-
-    const updatedAt = response.headers.get("date") ?? new Date().toISOString();
-    const flights = getItems(payload.response?.body?.items)
-      .filter((item) => item.codeshare?.trim().toLowerCase() !== "slave")
-      .filter((item) => JAPAN_AIRPORT_CODES.has(item.airportCode?.trim().toUpperCase() ?? ""))
-      .map(toBoardFlight)
-      .filter((flight) => isWithinTimeWindow(flight, timeWindow.now, timeWindow.endOfDay))
-      .sort((a, b) => getSortTime(a) - getSortTime(b));
-
-    return flights.length > 0
-      ? { state: "ready", flights, updatedAt }
-      : { state: "empty", flights: [], updatedAt };
+    const tomorrowFlights = toJapanFlights(tomorrowResult.items, timeWindow.tomorrowStart, timeWindow.tomorrowEnd);
+    return tomorrowFlights.length > 0
+      ? { state: "ready", flights: tomorrowFlights, updatedAt: tomorrowResult.updatedAt, range: "tomorrow-morning" }
+      : { state: "empty", flights: [], updatedAt: tomorrowResult.updatedAt };
   } catch {
     console.error("[Incheon Airport API] network or response parsing failed.");
     return { state: "unavailable", flights: [] };
@@ -136,13 +109,92 @@ function getKoreanTimeWindow(now = new Date()) {
   const hour = String(koreaTime.getUTCHours()).padStart(2, "0");
   const minute = koreaTime.getUTCMinutes();
   const apiMinute = String(Math.floor(minute / 5) * 5).padStart(2, "0");
+  const tomorrow = new Date(koreaTime.getTime() + 24 * 60 * 60 * 1000);
+  const tomorrowYear = tomorrow.getUTCFullYear();
+  const tomorrowMonth = String(tomorrow.getUTCMonth() + 1).padStart(2, "0");
+  const tomorrowDay = String(tomorrow.getUTCDate()).padStart(2, "0");
+  const tomorrowDate = `${tomorrowYear}${tomorrowMonth}${tomorrowDay}`;
 
   return {
     date: `${year}${month}${day}`,
     apiFromTime: `${hour}${apiMinute}`,
     now: now.getTime(),
     endOfDay: Date.parse(`${year}-${month}-${day}T23:59:59.999+09:00`),
+    tomorrowDate,
+    tomorrowStart: Date.parse(`${tomorrowYear}-${tomorrowMonth}-${tomorrowDay}T00:00:00+09:00`),
+    tomorrowEnd: Date.parse(`${tomorrowYear}-${tomorrowMonth}-${tomorrowDay}T09:00:59.999+09:00`),
   };
+}
+
+async function fetchDepartureItems(
+  serviceKey: string,
+  date: string,
+  fromTime: string,
+  toTime: string,
+): Promise<PublicDepartureFetchResult> {
+  const query = new URLSearchParams({
+    serviceKey,
+    type: "json",
+    searchday: date,
+    from_time: fromTime,
+    to_time: toTime,
+    airport_code: "",
+    f_id: "",
+    flight_id: "",
+    inqtimechcd: "E",
+    lang: "K",
+    numOfRows: "500",
+    pageNo: "1",
+  });
+  const response = await fetch(`${DEPARTURES_API_URL}?${query}`, {
+    next: { revalidate: 300 },
+    signal: AbortSignal.timeout(12_000),
+  });
+
+  if (response.status === 429) return { state: "rate-limit", flights: [], diagnostic: "HTTP 429" };
+  if (response.status === 401 || response.status === 403) {
+    return { state: "authentication", flights: [], diagnostic: `HTTP ${response.status}` };
+  }
+  if (!response.ok) {
+    console.error(`[Incheon Airport API] upstream request failed (${response.status}).`);
+    return {
+      state: response.status < 500 ? "bad-request" : "unavailable",
+      flights: [],
+      diagnostic: `HTTP ${response.status}`,
+    };
+  }
+
+  const text = await response.text();
+  if (text.trimStart().startsWith("<")) {
+    const error = mapPublicDataError(readXmlErrorCode(text));
+    return error.state === "empty"
+      ? { state: "success", items: [], updatedAt: response.headers.get("date") ?? new Date().toISOString() }
+      : error;
+  }
+
+  const payload = JSON.parse(text) as PublicDataResponse;
+  const resultCode = String(payload.response?.header?.resultCode ?? "");
+  if (resultCode && resultCode !== "00") {
+    const error = mapPublicDataError(resultCode);
+    return error.state === "empty"
+      ? { state: "success", items: [], updatedAt: response.headers.get("date") ?? new Date().toISOString() }
+      : error;
+  }
+
+  return {
+    state: "success",
+    items: getItems(payload.response?.body?.items),
+    updatedAt: response.headers.get("date") ?? new Date().toISOString(),
+  };
+}
+
+function toJapanFlights(items: PublicDepartureItem[], start: number, end: number) {
+  return items
+    .filter((item) => item.codeshare?.trim().toLowerCase() !== "slave")
+    .filter((item) => JAPAN_AIRPORT_CODES.has(item.airportCode?.trim().toUpperCase() ?? ""))
+    .map(toBoardFlight)
+    .filter((flight) => isWithinTimeWindow(flight, start, end))
+    .sort((a, b) => getSortTime(a) - getSortTime(b));
 }
 
 function normalizeServiceKey(value?: string) {
@@ -242,7 +294,7 @@ function readXmlErrorCode(xml: string) {
   return xml.match(/<(?:returnReasonCode|resultCode)>\s*([^<]+)\s*<\//i)?.[1]?.trim() ?? "";
 }
 
-function mapPublicDataError(code: string): DepartureBoardResult {
+function mapPublicDataError(code: string): DepartureBoardServiceError | { state: "empty"; flights: []; updatedAt: string } {
   const normalized = code.trim().toUpperCase();
   if (normalized === "03") return { state: "empty", flights: [], updatedAt: new Date().toISOString() };
   if (normalized === "22" || normalized.includes("LIMIT")) {

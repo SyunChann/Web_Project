@@ -42,7 +42,9 @@ export default async function DeparturesPage() {
               <span>JAPAN</span>
             </div>
             <p className={styles.count}>
-              {result.state === "ready" ? `${result.flights.length} FLIGHTS` : "DEPARTURES"}
+              {result.state === "ready"
+                ? `${result.range === "tomorrow-morning" ? "NEXT MORNING · " : ""}${result.flights.length} FLIGHTS`
+                : "DEPARTURES"}
             </p>
           </div>
 
@@ -116,8 +118,8 @@ function BoardCell({ label, className, children }: { label: string; className: s
 function BoardState({ result }: { result: Exclude<DepartureBoardResult, { state: "ready" }> }) {
   const messages = {
     empty: {
-      title: "오늘 남은 일본행 출발편이 없습니다",
-      description: "현재 시각부터 오늘 자정까지 운항 예정인 항공편이 없습니다.",
+      title: "표시할 일본행 출발편이 없습니다",
+      description: "현재 시각부터 내일 오전 9시까지 운항 예정인 항공편이 없습니다.",
     },
     "missing-key": {
       title: "항공편 정보를 준비하고 있습니다",
