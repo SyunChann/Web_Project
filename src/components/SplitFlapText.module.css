@@ -96,6 +96,20 @@
   animation: flapBottom 560ms cubic-bezier(0.45, 0, 0.2, 1) var(--flap-delay) both;
 }
 
+.repeat .flipTop {
+  animation-name: flapTopRepeated;
+  animation-duration: 30s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.repeat .flipBottom {
+  animation-name: flapBottomRepeated;
+  animation-duration: 30s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
 .flap::after {
   content: "";
   position: absolute;
@@ -116,6 +130,16 @@
 @keyframes flapBottom {
   0%, 45% { transform: rotateX(90deg); filter: brightness(0.65); }
   82%, 100% { transform: rotateX(0deg); filter: brightness(1); }
+}
+
+@keyframes flapTopRepeated {
+  0%, 0.25% { transform: rotateX(0deg); filter: brightness(1); }
+  1.7%, 100% { transform: rotateX(-90deg); filter: brightness(0.65); }
+}
+
+@keyframes flapBottomRepeated {
+  0%, 1.45% { transform: rotateX(90deg); filter: brightness(0.65); }
+  2.8%, 100% { transform: rotateX(0deg); filter: brightness(1); }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -5,13 +5,14 @@ type SplitFlapTextProps = {
   value: string;
   className?: string;
   delayMs?: number;
+  repeat?: boolean;
 };
 
 type FlapStyle = CSSProperties & { "--flap-delay": string };
 
-export function SplitFlapText({ value, className = "", delayMs = 0 }: SplitFlapTextProps) {
+export function SplitFlapText({ value, className = "", delayMs = 0, repeat = false }: SplitFlapTextProps) {
   return (
-    <span className={`${styles.text} ${className}`} aria-label={value}>
+    <span className={`${styles.text} ${repeat ? styles.repeat : ""} ${className}`} aria-label={value}>
       {Array.from(value).map((character, index) => {
         if (character === " ") return <span key={`space-${index}`} className={styles.space} aria-hidden="true" />;
 
