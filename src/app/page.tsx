@@ -82,22 +82,22 @@ function DepartureBoardCard() {
   return (
     <Link
       href="/departures"
-      className="departure-menu-card group relative flex min-h-44 flex-col overflow-hidden rounded-lg border border-[#354250] bg-[linear-gradient(135deg,#26313d_0%,#1c2530_100%)] p-4 text-white shadow-sm transition hover:-translate-y-0.5 hover:border-[#68788a] hover:shadow-md sm:min-h-48 sm:p-5"
+      className="departure-menu-card group relative flex min-h-44 flex-col overflow-hidden rounded-lg border border-[#8bc9e1] bg-[linear-gradient(135deg,#eaf8fe_0%,#d4eef9_100%)] p-4 text-[#123e58] shadow-sm transition hover:-translate-y-0.5 hover:border-[#38a3cf] hover:shadow-md sm:min-h-48 sm:p-5"
     >
-      <span className="absolute -right-10 -top-12 h-28 w-28 rounded-full bg-[#e8b65b]/8 blur-2xl" aria-hidden="true" />
+      <span className="absolute -right-10 -top-12 h-28 w-28 rounded-full bg-[#38bdf8]/20 blur-2xl" aria-hidden="true" />
       <div className="relative z-10 flex items-center justify-between gap-3">
-        <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#4a5a6c] bg-[#1b2430] text-[#e8c477]">
+        <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#0878a8] bg-[#0878a8] text-white">
           <PlaneTakeoff size={20} />
         </span>
-        <ArrowRight size={18} className="text-[#8fa0b2] transition group-hover:translate-x-0.5 group-hover:text-[#e8c477]" />
+        <ArrowRight size={18} className="text-[#4b8fac] transition group-hover:translate-x-0.5 group-hover:text-[#05658f]" />
       </div>
       <div className="relative z-10 mt-4 flex-1 sm:mt-5">
-        <p className="text-xl font-black tracking-tight text-[#f3d38d] sm:text-2xl">출발편 전광판</p>
-        <p className="mt-3 text-sm font-bold leading-relaxed text-[#f8fafc] sm:text-base">인천공항 → 일본</p>
+        <p className="text-xl font-black tracking-tight text-[#075985] sm:text-2xl">출발편 전광판</p>
+        <p className="mt-3 text-sm font-bold leading-relaxed text-[#173f56] sm:text-base">인천공항 → 일본</p>
       </div>
-      <div className="relative z-10 mt-4 flex items-center justify-between gap-3 border-t border-[#3d4a58] pt-3 text-xs font-bold">
-        <span className="inline-flex min-w-0 items-center gap-1.5 truncate text-[#9baaba]"><i aria-hidden="true" className="departure-live-dot h-1.5 w-1.5 shrink-0 rounded-full bg-[#7dd3a7]" />인천국제공항공사 공공데이터</span>
-        <span className="shrink-0 text-[#e8c477]">전체 보기</span>
+      <div className="relative z-10 mt-4 flex items-center justify-between gap-3 border-t border-[#9ccfe2] pt-3 text-xs font-bold">
+        <span className="inline-flex min-w-0 items-center gap-1.5 truncate text-[#4c7488]"><i aria-hidden="true" className="departure-live-dot h-1.5 w-1.5 shrink-0 rounded-full bg-[#16a36a]" />인천국제공항공사 공공데이터</span>
+        <span className="shrink-0 text-[#0369a1]">전체 보기</span>
       </div>
     </Link>
   );

@@ -129,12 +129,12 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
       admin: "bg-[#f7fee7] text-[#3f6212]" 
     },
     departures: {
-      brandHover: "hover:border-[#64748b]",
-      icon: "bg-[#111827] group-hover:bg-[#1f2937]",
-      text: "text-[#475569]",
-      controlHover: "hover:border-[#64748b] hover:text-[#334155]",
-      primary: "bg-[#111827] hover:bg-[#1f2937]",
-      admin: "bg-[#fef3c7] text-[#92400e]",
+      brandHover: "hover:border-[#38a3cf]",
+      icon: "bg-[#0878a8] group-hover:bg-[#05658f]",
+      text: "text-[#0878a8]",
+      controlHover: "hover:border-[#38a3cf] hover:text-[#05658f]",
+      primary: "bg-[#0878a8] hover:bg-[#05658f]",
+      admin: "bg-[#e0f2fe] text-[#075985]",
     },
     default: {
       brandHover: "hover:border-[#be4b49]",

@@ -13,9 +13,9 @@
   width: 0.76em;
   height: 1.22em;
   overflow: hidden;
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  border: 1px solid rgba(125, 211, 252, 0.38);
   border-radius: 0.12em;
-  background: #111923;
+  background: #123f5c;
   box-shadow:
     0 2px 2px rgba(0, 0, 0, 0.72),
     inset 0 0 0 1px rgba(255, 255, 255, 0.02);
@@ -52,14 +52,14 @@
 .flipTop {
   top: 0;
   border-bottom: 1px solid rgba(0, 0, 0, 0.9);
-  background: linear-gradient(180deg, #1c2733, #131c26);
+  background: linear-gradient(180deg, #286886, #174b68);
 }
 
 .bottom,
 .flipBottom {
   bottom: 0;
   border-top: 1px solid rgba(71, 85, 105, 0.22);
-  background: linear-gradient(180deg, #0e151e, #18222d);
+  background: linear-gradient(180deg, #113d59, #1e5875);
 }
 
 .glyph {
