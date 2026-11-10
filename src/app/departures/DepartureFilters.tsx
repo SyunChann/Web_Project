@@ -34,6 +34,15 @@ export function DepartureFilters({ destinations, initialNow, header, children }:
   return (
     <BoardTime.Provider value={now}>
       <div className={styles.filters}>
+        <label className={styles.mobileFilter}>
+          <span>목적지</span>
+          <select value={selected} onChange={(event) => setSelected(event.target.value)}>
+            <option value="">전체 목적지 ({destinations.length}편)</option>
+            {options.map((destination) => (
+              <option key={destination.code} value={destination.code}>{destination.name} · {destination.code}</option>
+            ))}
+          </select>
+        </label>
         <div className={styles.filterOptions} role="group" aria-label="목적지 필터">
           <button type="button" aria-pressed={!selected} onClick={() => setSelected("")}>전체</button>
           {options.map((destination) => (
@@ -44,7 +53,10 @@ export function DepartureFilters({ destinations, initialNow, header, children }:
           ))}
         </div>
         <p className={styles.filterSummary} role="status">전체 {destinations.length}편 중 {visibleCount}편 표시</p>
-        <p className={styles.countdownHint}>남은 시간은 변경 시각 우선 · 30초마다 계산 · 운항 상태는 마지막 데이터 갱신 기준</p>
+        <details className={styles.filterHelp}>
+          <summary>시간 안내</summary>
+          <p className={styles.countdownHint}>남은 시간은 변경 시각 우선 · 30초마다 계산 · 운항 상태는 마지막 데이터 갱신 기준</p>
+        </details>
       </div>
       <div role="table" aria-label="출발편 목록">
         {header}
