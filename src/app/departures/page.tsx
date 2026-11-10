@@ -5,6 +5,7 @@ import { AppNav } from "@/components/AppNav";
 import { SplitFlapText } from "@/components/SplitFlapText";
 import { getJapanDepartures, type DepartureBoardFlight, type DepartureBoardResult } from "@/lib/incheonAirport";
 import styles from "./DepartureBoard.module.css";
+import { DepartureCountdown, DepartureFilters } from "./DepartureFilters";
 
 export const metadata: Metadata = {
   title: "출발편 전광판 | 취향 보관소",
@@ -15,6 +16,9 @@ export const dynamic = "force-dynamic";
 
 export default async function DeparturesPage() {
   const result = await getJapanDepartures();
+  // This dynamic server page captures one request-time snapshot for hydration.
+  // eslint-disable-next-line react-hooks/purity
+  const now = Date.now();
 
   return (
     <main className={`${styles.page} min-h-screen px-6 py-8 sm:px-10`}>
@@ -59,7 +63,7 @@ export default async function DeparturesPage() {
             </div>
           ) : null}
 
-          {result.state === "ready" ? <FlightTable flights={result.flights} /> : <BoardState result={result} />}
+          {result.state === "ready" ? <FlightTable flights={result.flights} now={now} /> : <BoardState result={result} />}
         </section>
 
         <footer className={styles.footer}>
@@ -79,10 +83,10 @@ export default async function DeparturesPage() {
   );
 }
 
-function FlightTable({ flights }: { flights: DepartureBoardFlight[] }) {
+function FlightTable({ flights, now }: { flights: DepartureBoardFlight[]; now: number }) {
   return (
-    <div role="table" aria-label="출발편 목록">
-      <div className={styles.header} role="row">
+    <DepartureFilters destinations={flights.map((flight) => ({ code: flight.destinationCode, name: flight.destination }))}
+      initialNow={now} header={<div className={styles.header} role="row">
         <span role="columnheader">항공편</span>
         <span role="columnheader">항공사</span>
         <span role="columnheader">목적지</span>
@@ -91,8 +95,7 @@ function FlightTable({ flights }: { flights: DepartureBoardFlight[] }) {
         <span role="columnheader">터미널</span>
         <span role="columnheader">게이트</span>
         <span role="columnheader">상태</span>
-      </div>
-      <div role="rowgroup">
+      </div>}>
         {flights.map((flight, index) => (
           <div
             key={flight.id}
@@ -109,11 +112,13 @@ function FlightTable({ flights }: { flights: DepartureBoardFlight[] }) {
             <BoardCell label="변경 시간" className={flight.revisedAt ? styles.changedTime : styles.time}><SplitFlapText value={formatKoreanTime(flight.revisedAt)} delayMs={Math.min(index, 8) * 65 + 130} repeat /></BoardCell>
             <BoardCell label="터미널" className={styles.compact}>{flight.terminal}</BoardCell>
             <BoardCell label="게이트" className={styles.compact}>{flight.gate}</BoardCell>
-            <span className={styles.status} role="cell">{flight.status}</span>
+            <span className={styles.statusCell} role="cell">
+              <span className={styles.status}>{flight.status}</span>
+              <DepartureCountdown at={flight.revisedAt ?? flight.scheduledAt} status={flight.statusTone} />
+            </span>
           </div>
         ))}
-      </div>
-    </div>
+    </DepartureFilters>
   );
 }
 

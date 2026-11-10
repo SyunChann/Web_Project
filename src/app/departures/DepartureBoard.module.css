@@ -260,6 +260,69 @@
   white-space: nowrap;
 }
 
+.statusCell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.countdown {
+  color: #315b73;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.filters {
+  padding: 1rem 1.1rem;
+  border-bottom: 1px solid #b8d6e5;
+  background: #f0f9fe;
+}
+
+.filterOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.filterOptions button {
+  padding: 0.5rem 0.7rem;
+  border: 1px solid #a2c9dc;
+  border-radius: 0.4rem;
+  background: #fff;
+  color: #27566f;
+  font-size: 0.86rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.filterOptions button[aria-pressed="true"] {
+  border-color: #0878a8;
+  background: #0878a8;
+  color: #fff;
+}
+
+.filterOptions button:focus-visible {
+  outline: 2px solid #075985;
+  outline-offset: 3px;
+}
+
+.filterSummary {
+  margin-top: 0.75rem;
+  color: #315b73;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.countdownHint {
+  margin-top: 0.3rem;
+  color: #537488;
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
 .scheduled { --status-color: #4f6f82; }
 .delayed { --status-color: #c2410c; }
 .boarding { --status-color: #0369a1; }
