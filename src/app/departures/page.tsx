@@ -26,7 +26,8 @@ export default async function DeparturesPage() {
             <p className={styles.eyebrow}>LIVE DEPARTURES · ICN</p>
             <h1 className={styles.title}>출발편 전광판</h1>
             <p className={styles.description}>
-              인천국제공항에서 일본으로 향하는 출발편입니다. 모든 시각은 한국 표준시(KST)로 표시됩니다.
+              현재 시각 이후 오늘 출발편을 표시하며, 남은 편이 없으면 내일 오전 9시까지 이어서 보여줍니다.
+              모든 시각은 한국 표준시(KST)입니다.
             </p>
           </div>
           <div className={styles.clock}>
@@ -43,10 +44,20 @@ export default async function DeparturesPage() {
             </div>
             <p className={styles.count}>
               {result.state === "ready"
-                ? `${result.range === "tomorrow-morning" ? "NEXT MORNING · " : ""}${result.flights.length} FLIGHTS`
+                ? result.range === "tomorrow-morning"
+                  ? `내일 오전 · ${result.flights.length}편`
+                  : `오늘 남은 ${result.flights.length}편`
                 : "DEPARTURES"}
             </p>
           </div>
+
+          {result.state === "ready" && result.range === "tomorrow-morning" ? (
+            <div className={styles.rangeNotice} role="note">
+              <span className={styles.rangeBadge}>내일</span>
+              <strong>{formatKoreanFlightDate(result.flights[0]?.scheduledAt)} 오전 출발편</strong>
+              <span>오늘 남은 출발편이 없어 00:00부터 09:00까지 표시합니다.</span>
+            </div>
+          ) : null}
 
           {result.state === "ready" ? <FlightTable flights={result.flights} /> : <BoardState result={result} />}
         </section>
@@ -180,6 +191,20 @@ function formatKoreanTime(value?: string) {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
+  }).format(date);
+}
+
+function formatKoreanFlightDate(value?: string) {
+  if (!value) return "다음 날";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "다음 날";
+
+  return new Intl.DateTimeFormat("ko-KR", {
+    timeZone: "Asia/Seoul",
+    month: "long",
+    day: "numeric",
+    weekday: "short",
   }).format(date);
 }
 
