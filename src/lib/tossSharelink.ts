@@ -6,6 +6,7 @@ const BEST_SELLING_CANDIDATE_COUNT = 50;
 const PRODUCT_DETAIL_BATCH_SIZE = 20;
 const LINK_REQUEST_CONCURRENCY = 5;
 const STALE_RETRY_TTL_MS = 5 * 60 * 1000;
+const MAX_DATA_AGE_MS = 24 * 60 * 60 * 1000;
 
 type TossApiResult<T> = {
   resultType: "SUCCESS" | "FAIL";
@@ -16,6 +17,7 @@ type TossApiResult<T> = {
 type ProductDetail = {
   tacaItemId: number;
   displayName: string;
+  thumbnailUrl?: string | null;
   displayPrice: number;
   originalPrice?: number | null;
   discountRate?: number | null;
@@ -42,7 +44,7 @@ export type TossSharelinkContentState =
   | { status: "ready"; products: TossSharelinkProduct[] }
   | { status: "error" };
 
-let productCache: { value: TossSharelinkProduct[]; expiresAt: number } | null = null;
+let productCache: { value: TossSharelinkProduct[]; expiresAt: number; loadedAt: number } | null = null;
 let productLoadPromise: Promise<TossSharelinkProduct[]> | null = null;
 
 function getConfig() {
@@ -111,7 +113,10 @@ async function loadProducts(proxyBaseUrl: string, proxyApiKey: string) {
   );
 
   const candidates = rankedProducts
-    .map((product) => detailsById.get(product.tacaItemId) ?? product)
+    .map((product) => {
+      const detail = detailsById.get(product.tacaItemId);
+      return detail ? { ...product, ...detail, thumbnailUrl: product.thumbnailUrl ?? detail.thumbnailUrl } : product;
+    })
     .filter((product) => !product.isSoldOut);
   const availableProducts: TossSharelinkProduct[] = [];
 
@@ -162,13 +167,14 @@ export async function getTossSharelinkContent(): Promise<TossSharelinkContentSta
   try {
     productLoadPromise ??= loadProducts(config.proxyBaseUrl, config.proxyApiKey);
     const products = await productLoadPromise;
-    productCache = { value: products, expiresAt: Date.now() + CACHE_TTL_MS };
+    const now = Date.now();
+    productCache = { value: products, expiresAt: now + CACHE_TTL_MS, loadedAt: now };
     return { status: "ready", products };
   } catch (error) {
     console.error("토스쇼핑 베스트를 불러오지 못했습니다.", error);
 
-    if (productCache) {
-      productCache.expiresAt = Date.now() + STALE_RETRY_TTL_MS;
+    if (productCache && Date.now() - productCache.loadedAt < MAX_DATA_AGE_MS) {
+      productCache.expiresAt = Math.min(Date.now() + STALE_RETRY_TTL_MS, productCache.loadedAt + MAX_DATA_AGE_MS);
       return { status: "ready", products: productCache.value };
     }
 

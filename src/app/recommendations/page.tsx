@@ -12,6 +12,8 @@ import {
 import type { Metadata } from "next";
 import { AppNav } from "@/components/AppNav";
 import { ContentSectionTabs } from "@/components/ContentSectionTabs";
+import { TossProductImage } from "@/components/TossProductImage";
+import { getTossThumbnailUrl, parseTossProductIds } from "@/lib/tossProductImages";
 import {
   getTossSharelinkContent,
   type TossSharelinkProduct,
@@ -22,13 +24,17 @@ export const metadata: Metadata = {
   description: "토스쇼핑에서 지금 많이 팔리는 베스트셀러 20개를 확인합니다.",
 };
 
-export const revalidate = 3600;
+// Reapply image withdrawal settings on each request; API data retains its own hourly cache.
+export const dynamic = "force-dynamic";
 
 export default async function RecommendationsPage() {
   const sharelink = await getTossSharelinkContent();
   const products = sharelink.status === "ready" ? sharelink.products : [];
   const podiumProducts = products.slice(0, 3);
   const rankedProducts = products.slice(3);
+  const approvedImages = parseTossProductIds(process.env.TOSS_IMAGE_APPROVED_IDS);
+  const blockedImages = parseTossProductIds(process.env.TOSS_IMAGE_BLOCKED_IDS);
+  const imageFor = (product: TossSharelinkProduct) => getTossThumbnailUrl(product, approvedImages, blockedImages);
 
   return (
     <main className="min-h-screen px-4 py-6 sm:px-10 sm:py-8">
@@ -82,7 +88,7 @@ export default async function RecommendationsPage() {
 
               <ol className="mt-5 grid gap-5 lg:grid-cols-3">
                 {podiumProducts.map((product) => (
-                  <TopProductCard key={product.tacaItemId} product={product} />
+                  <TopProductCard key={product.tacaItemId} product={product} imageUrl={imageFor(product)} />
                 ))}
               </ol>
             </section>
@@ -101,7 +107,7 @@ export default async function RecommendationsPage() {
 
                 <ol className="mt-5 grid gap-3 lg:grid-cols-2">
                   {rankedProducts.map((product) => (
-                    <RankedProductRow key={product.tacaItemId} product={product} />
+                    <RankedProductRow key={product.tacaItemId} product={product} imageUrl={imageFor(product)} />
                   ))}
                 </ol>
               </section>
@@ -145,7 +151,7 @@ function Stat({ icon, value, label }: { icon: React.ReactNode; value: string; la
   );
 }
 
-function TopProductCard({ product }: { product: TossSharelinkProduct }) {
+function TopProductCard({ product, imageUrl }: { product: TossSharelinkProduct; imageUrl: string | null }) {
   const insight = getProductInsight(product);
 
   return (
@@ -162,6 +168,7 @@ function TopProductCard({ product }: { product: TossSharelinkProduct }) {
         </span>
       </div>
 
+      <TossProductImage src={imageUrl} name={product.displayName} />
       <div className="relative mt-6 flex-1 sm:mt-8">
         <h3 className="line-clamp-3 break-words text-lg font-black leading-7 text-[#17202a] sm:text-xl">
           {product.displayName}
@@ -179,7 +186,7 @@ function TopProductCard({ product }: { product: TossSharelinkProduct }) {
   );
 }
 
-function RankedProductRow({ product }: { product: TossSharelinkProduct }) {
+function RankedProductRow({ product, imageUrl }: { product: TossSharelinkProduct; imageUrl: string | null }) {
   return (
     <li className="group grid grid-cols-[2.75rem_minmax(0,1fr)] items-start gap-x-3 gap-y-4 rounded-2xl border border-[#e8e4de] bg-white p-4 shadow-sm transition hover:border-[#dfbbb5] hover:shadow-md sm:flex sm:items-center sm:gap-4 sm:p-5">
       <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#f8f5f2] text-base font-black text-[#8f3735] sm:h-12 sm:w-12 sm:text-lg">
@@ -187,6 +194,7 @@ function RankedProductRow({ product }: { product: TossSharelinkProduct }) {
       </span>
 
       <div className="min-w-0 flex-1">
+        <TossProductImage src={imageUrl} name={product.displayName} compact />
         <h3 className="line-clamp-2 break-words text-sm font-black leading-5 text-[#17202a] sm:text-base sm:leading-6">
           {product.displayName}
         </h3>

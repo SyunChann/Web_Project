@@ -246,6 +246,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
         <section className="grid gap-3">
           <p className="text-sm font-semibold text-[#be4b49]">Admin</p>
           <h1 className="text-4xl font-black tracking-tight">초대 관리</h1>
+          <Link href="/admin/toss-images" className="mt-3 inline-flex min-h-11 items-center rounded-md border border-[#d8cfc2] bg-white px-3 py-2 text-sm font-bold text-[#52616b]">토스 상품 이미지 관리</Link>
           <p className="max-w-2xl leading-7 text-[#52616b]">
             초대 코드를 발급하고 가입 URL을 공유합니다. 초대받은 사용자는
             회원가입 후 리뷰와 기대작을 작성할 수 있습니다.
