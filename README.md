@@ -141,6 +141,33 @@ https://your-domain.vercel.app/*
 
 ## Supabase 설정
 
+### 비밀번호 찾기와 변경
+
+- 로그인 화면의 `비밀번호를 잊으셨나요?`에서 `/forgot-password`로 이동해 재설정 메일을 요청합니다.
+- 로그인 후 상단 메뉴(모바일은 계정 메뉴)의 `비밀번호 변경`에서 `/change-password`로 이동합니다. 현재 비밀번호 확인 후 새 비밀번호를 저장합니다.
+- 새 비밀번호는 최소 8자, UTF-8 기준 최대 72바이트입니다. 저장 후 전체 세션 로그아웃을 요청하고 로그인 화면으로 이동합니다. 이미 발급된 access token은 Supabase 정책상 만료 시까지 유효할 수 있습니다.
+- 재설정 링크는 `/auth/recovery`에서 15분 유효한 HttpOnly 쿠키에 보관한 뒤 `/reset-password`로 이동합니다. 새 비밀번호 제출 시에만 Supabase가 일회용 링크를 검증합니다. 실제 링크 만료는 Supabase 설정도 적용됩니다.
+
+배포 전 Supabase Dashboard에서 다음을 확인합니다.
+
+1. `Authentication → URL Configuration`의 **Site URL**을 운영 사이트 주소로 설정합니다. Vercel의 `NEXT_PUBLIC_SITE_URL`도 동일한 origin으로 지정합니다. 미설정 시 코드의 기본 주소는 `https://web-project-omega-ruby-60.vercel.app`입니다.
+2. **Redirect URLs**에 `https://운영도메인/auth/recovery`를 추가합니다. 로컬 테스트는 `NEXT_PUBLIC_SITE_URL=http://localhost:4281`과 `http://localhost:4281/auth/recovery`를 사용합니다. 사용자 입력이나 요청 Host로 메일 리디렉션 주소를 만들지 않습니다.
+3. `Authentication → Email Templates → Reset Password`의 기본 `{{ .ConfirmationURL }}` 링크를 사용할 수 있습니다. 이 PKCE 방식은 메일을 요청한 기기의 같은 브라우저에서 열어야 합니다.
+4. 다른 기기에서도 링크를 열 수 있게 하려면 Reset Password 템플릿의 링크를 아래와 같이 설정합니다. **Site URL을 먼저 정확히 설정해야 합니다.** `{{ .TokenHash }}`는 일회용 인증 정보이므로 외부 분석 링크나 로그에 기록하지 않습니다.
+
+```html
+<h2>비밀번호 재설정</h2>
+<p>아래 버튼을 눌러 새 비밀번호를 설정해 주세요.</p>
+<p><a href="{{ .SiteURL }}/auth/recovery?token_hash={{ .TokenHash }}&amp;type=recovery">새 비밀번호 설정</a></p>
+<p>요청하지 않았다면 이 메일을 무시해 주세요.</p>
+```
+
+5. 실제 사용자에게 발송할 경우 SMTP 설정, 발송 제한, 수신 가능 여부를 확인합니다. Supabase 기본 발송 서비스는 수신 대상과 발송량에 제한이 있으므로 운영용 Custom SMTP를 권장합니다.
+
+수동 검증: 등록된 이메일로 요청 → 메일 링크 열기 → 새 비밀번호 저장 → 기존 비밀번호 로그인 실패/새 비밀번호 로그인 성공을 확인합니다. 만료·재사용 링크, 비밀번호 불일치, 현재 비밀번호 오류, 로그아웃 상태의 변경 화면 접근도 확인합니다. 메일 템플릿과 URL/SMTP 설정은 저장소에서 자동 적용하지 않습니다.
+
+모의 인증 회귀 검사는 `node --test scripts/password-flows.test.mjs`로 실행합니다. 실제 이메일 발송이나 사용자 정보 변경 없이 검증·오류·리디렉션 처리를 확인합니다.
+
 Supabase 프로젝트 생성 후 SQL Editor에서 아래 순서로 실행합니다.
 
 1. `supabase/schema.sql`

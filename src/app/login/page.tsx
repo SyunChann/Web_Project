@@ -7,6 +7,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 type LoginPageProps = {
   searchParams: Promise<{
     error?: string;
+    status?: string;
   }>;
 };
 
@@ -28,7 +29,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     redirect("/reviews");
   }
 
-  const { error } = await searchParams;
+  const { error, status } = await searchParams;
   const message = error
     ? errorMessages[error as keyof typeof errorMessages] ??
       "로그인 중 문제가 발생했습니다."
@@ -56,6 +57,10 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             <p className="mt-5 rounded-md bg-[#fde8e7] px-4 py-3 text-sm font-bold text-[#a73735]">
               {message}
             </p>
+          ) : null}
+
+          {status === "password_reset" || status === "password_changed" ? (
+            <p role="status" className="mt-5 rounded-md bg-[#e4f4f2] px-4 py-3 text-sm font-bold text-[#276a66]">비밀번호가 변경되었습니다. 새 비밀번호로 로그인해 주세요.</p>
           ) : null}
 
           <form action={signIn} className="mt-6 flex flex-col gap-4">
@@ -88,6 +93,10 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               로그인
             </button>
           </form>
+
+          <Link href="/forgot-password" className="mt-4 flex min-h-11 items-center text-sm font-bold text-[#52616b] underline-offset-4 hover:underline">
+            비밀번호를 잊으셨나요?
+          </Link>
 
           <Link
             href="/signup"
