@@ -1,4 +1,5 @@
 export const recoveryCookieName = "password-recovery";
+export const passwordCompletionCookieName = "password-change-complete";
 
 export function validateNewPassword(password: string, confirmation: string) {
   if (password.length < 8) return "weak";

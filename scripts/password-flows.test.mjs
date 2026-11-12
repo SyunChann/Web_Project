@@ -14,7 +14,7 @@ const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 function load(relativePath, mocks = {}) {
   const filename = resolve(scriptDirectory, "..", relativePath);
   const compiled = ts.transpileModule(readFileSync(filename, "utf8"), {
-    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX },
   }).outputText;
   const moduleRecord = { exports: {} };
   const run = vm.runInThisContext(`(function(require,module,exports){${compiled}\n})`, { filename });
@@ -24,7 +24,7 @@ function load(relativePath, mocks = {}) {
 
 const recovery = load("src/lib/passwordRecovery.ts");
 
-function setup({ credential = "token_hash:valid", verificationError = null, updateError = null,
+function setup({ credential = "token_hash:valid", verificationError = null, updateError = null, logoutThrows = false,
   currentError = null, mailError = null, user = { id: "u1", email: "person@example.com" } } = {}) {
   const calls = [];
   const values = new Map(credential ? [[recovery.recoveryCookieName, credential]] : []);
@@ -34,11 +34,11 @@ function setup({ credential = "token_hash:valid", verificationError = null, upda
     async verifyOtp(options) { calls.push(["verify", options]); return { error: verificationError, data: { session: verificationError ? null : {} } }; },
     async exchangeCodeForSession(code) { calls.push(["exchange", code]); return { error: verificationError, data: { session: verificationError ? null : {} } }; },
     async updateUser(options) { calls.push(["update", options]); return { error: updateError }; },
-    async signOut(options) { calls.push(["logout", options]); return { error: null }; },
+    async signOut(options) { calls.push(["logout", options]); if (logoutThrows) throw new Error("network failure"); return { error: null }; },
   };
   const actions = load("src/app/actions/password.ts", {
     "next/navigation": { redirect: (location) => { throw Object.assign(new Error("redirect"), { location }); } },
-    "next/headers": { cookies: async () => ({ get: (name) => values.has(name) ? { value: values.get(name) } : undefined, delete: (name) => values.delete(name) }) },
+    "next/headers": { cookies: async () => ({ get: (name) => values.has(name) ? { value: values.get(name) } : undefined, delete: (name) => values.delete(name), set: (name, value) => values.set(name, value) }) },
     "@/lib/supabase/server": { createSupabaseServerClient: async () => ({ auth }) },
     "@/lib/supabase/config": { supabaseUrl: "https://example.supabase.co", supabaseKey: "test-only" },
     "@/lib/siteUrl": { getSiteUrl: () => "https://site.example" },
@@ -104,10 +104,11 @@ test("expired or reused recovery tokens cannot update a password", async () => {
 for (const credential of ["token_hash:valid", "code:valid"]) {
   test(`verified ${credential.split(":")[0]} updates password and requests global logout`, async () => {
     const { actions, calls, values } = setup({ credential });
-    await redirected(actions.resetPassword(form()), "/login?status=password_reset");
+    await redirected(actions.resetPassword(form()), "/password-complete");
     assert.equal(calls[1][0], "update");
     assert.equal(calls[2][1].scope, "global");
-    assert.equal(values.size, 0);
+    assert.equal(values.has(recovery.recoveryCookieName), false);
+    assert.equal(values.get(recovery.passwordCompletionCookieName), "complete");
   });
 }
 
@@ -132,9 +133,44 @@ test("wrong current password never updates password or replaces session", async 
 
 test("password change reauthenticates before updating and logging out", async () => {
   const { actions, calls } = setup();
-  await redirected(actions.changePassword(form({ current_password: "old-password" })), "/login?status=password_changed");
+  await redirected(actions.changePassword(form({ current_password: "old-password" })), "/password-complete");
   assert.deepEqual(calls.map(([name]) => name), ["reauth", "verifierLogout", "update", "logout"]);
 });
+
+test("successful reset remains successful when logout throws", async () => {
+  const { actions, values } = setup({ logoutThrows: true });
+  await redirected(actions.resetPassword(form()), "/password-complete");
+  assert.equal(values.get(recovery.passwordCompletionCookieName), "complete");
+});
+
+test("repeat submission after success goes to completion instead of expired", async () => {
+  const { actions, values, calls } = setup();
+  await redirected(actions.resetPassword(form()), "/password-complete");
+  const callCount = calls.length;
+  await redirected(actions.resetPassword(form()), "/password-complete");
+  assert.equal(calls.length, callCount);
+  assert.equal(values.has(recovery.recoveryCookieName), false);
+});
+
+test("wrong current password does not set completion state", async () => {
+  const { actions, values } = setup({ currentError: { status: 400 } });
+  await redirected(actions.changePassword(form({ current_password: "incorrect" })), "/change-password?error=current");
+  assert.equal(values.has(recovery.passwordCompletionCookieName), false);
+});
+
+for (const completed of [false, true]) {
+  test(`reset page after credential removal: ${completed ? "completion" : "expired"}`, async () => {
+    const page = load("src/app/reset-password/page.tsx", {
+      "next/navigation": { redirect: (location) => { throw Object.assign(new Error("redirect"), { location }); } },
+      "next/headers": { cookies: async () => ({ get: (name) => completed && name === recovery.passwordCompletionCookieName ? { value: "complete" } : undefined }) },
+      "@/components/PasswordPage": {},
+      "@/components/PasswordForm": {},
+      "@/app/actions/password": {},
+      "@/lib/passwordRecovery": recovery,
+    });
+    await redirected(page.default({ searchParams: Promise.resolve({}) }), completed ? "/password-complete" : "/forgot-password?error=expired");
+  });
+}
 
 test("recovery route stores credentials privately without verifying them on GET", async () => {
   const { NextRequest } = loadDependency("next/server");

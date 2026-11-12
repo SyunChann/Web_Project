@@ -6,7 +6,17 @@ import { createClient } from "@supabase/supabase-js";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { supabaseKey, supabaseUrl } from "@/lib/supabase/config";
 import { getSiteUrl } from "@/lib/siteUrl";
-import { parseRecoveryCredential, recoveryCookieName, validateNewPassword } from "@/lib/passwordRecovery";
+import { parseRecoveryCredential, passwordCompletionCookieName, recoveryCookieName, validateNewPassword } from "@/lib/passwordRecovery";
+
+async function recordPasswordCompletion() {
+  (await cookies()).set(passwordCompletionCookieName, "complete", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 10 * 60,
+  });
+}
 
 export async function requestPasswordReset(form: FormData) {
   const email = String(form.get("email") ?? "").trim();
@@ -27,6 +37,7 @@ export async function requestPasswordReset(form: FormData) {
     failure = "send";
   }
   if (failure) redirect(`/forgot-password?error=${failure}`);
+  (await cookies()).delete(passwordCompletionCookieName);
   redirect("/forgot-password?status=sent");
 }
 
@@ -36,6 +47,7 @@ export async function resetPassword(form: FormData) {
   if (invalid) redirect(`/reset-password?error=${invalid}`);
   const cookieStore = await cookies();
   const credential = parseRecoveryCredential(cookieStore.get(recoveryCookieName)?.value);
+  if (!credential && cookieStore.get(passwordCompletionCookieName)?.value === "complete") redirect("/password-complete");
   if (!credential) redirect("/forgot-password?error=expired");
   const supabase = await createSupabaseServerClient();
   if (!supabase) redirect("/reset-password?error=config");
@@ -49,15 +61,16 @@ export async function resetPassword(form: FormData) {
     else {
       const { error } = await supabase.auth.updateUser({ password });
       if (error) failure = error.code === "same_password" ? "same" : "save";
-      // End recovery authentication even if the password policy rejects the update.
-      await supabase.auth.signOut({ scope: error ? "local" : "global" });
+      // A logout failure cannot undo a successfully saved password.
+      try { await supabase.auth.signOut({ scope: error ? "local" : "global" }); } catch { /* Password result takes precedence. */ }
     }
   } catch {
     failure = "save";
   }
   cookieStore.delete(recoveryCookieName);
   if (failure) redirect(`/forgot-password?error=${failure}`);
-  redirect("/login?status=password_reset");
+  await recordPasswordCompletion();
+  redirect("/password-complete");
 }
 
 export async function changePassword(form: FormData) {
@@ -85,12 +98,15 @@ export async function changePassword(form: FormData) {
       await verifier.auth.signOut({ scope: "local" });
       const { error: updateError } = await supabase.auth.updateUser({ password });
       if (updateError) failure = updateError.code === "same_password" ? "same" : "save";
-      else await supabase.auth.signOut({ scope: "global" });
+      else {
+        try { await supabase.auth.signOut({ scope: "global" }); } catch { /* Password has already changed. */ }
+      }
     }
   } catch {
     failure = "save";
   }
   if (failure) redirect(`/change-password?error=${failure}`);
   (await cookies()).delete(recoveryCookieName);
-  redirect("/login?status=password_changed");
+  await recordPasswordCompletion();
+  redirect("/password-complete");
 }
