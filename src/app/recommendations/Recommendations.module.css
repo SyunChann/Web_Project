@@ -15,7 +15,7 @@
 .featured { display: flex; min-width: 0; flex-direction: column; padding: 1.1rem; border: 1px solid #e0e4e8; border-radius: .9rem; background: #fff; box-shadow: 0 3px 12px #24314105; }
 .cardHeading { display: flex; align-items: center; justify-content: space-between; gap: .5rem; color: #8993a0; font-size: .6rem; font-weight: 800; letter-spacing: .12em; }
 .topRank { color: #be4b49; font-family: var(--font-mono); font-size: 1.35rem; font-weight: 900; letter-spacing: -.06em; }
-.featuredImage { display: grid; height: 13rem; min-width: 0; margin: .75rem 0 1rem; padding: .5rem; place-items: center; }
+.featuredImage { display: block; flex-shrink: 0; height: 13rem; min-height: 0; min-width: 0; margin: .75rem 0 1rem; padding: .5rem; }
 .featuredImage:not(:has(img)), .rowImage:not(:has(img)) { display: none; }
 .featuredBody { flex: 1; min-width: 0; margin-top: .75rem; }
 .featuredBody h3, .rowBody h3 { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; font-size: .95rem; font-weight: 800; line-height: 1.6; overflow-wrap: anywhere; }

@@ -48,7 +48,9 @@ test("original images bypass optimization and retain natural proportions", () =>
   const { TossProductImage } = load("src/components/TossProductImage.tsx");
   const html = renderToStaticMarkup(createElement(TossProductImage, { src: original, name: "상품" }));
   assert.ok(html.includes("original.jpg?signature=keep%2Fthis&amp;size=original"));
-  assert.ok(html.includes("height:auto"));
+  assert.ok(html.includes("object-fit:contain"));
+  assert.ok(html.includes("position:absolute"));
+  assert.ok(html.includes("data-nimg=\"fill\""));
   assert.ok(!html.includes("/_next/image"));
   assert.ok(!html.includes("object-fit:cover"));
   assert.equal(renderToStaticMarkup(createElement(TossProductImage, { src: null, name: "상품" })), "");
