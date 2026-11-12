@@ -3,15 +3,18 @@
 import Image from "next/image";
 import { useState } from "react";
 
-export function TossProductImage({ src, name, compact = false }: {
+export function TossProductImage({ src, name }: {
   src: string | null;
   name: string;
-  compact?: boolean;
 }) {
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
   if (!src || failedSrc === src) return null;
 
-  return <div className={compact ? "relative mb-3 w-24 bg-white sm:w-28" : "relative mt-5 w-full bg-white"}>
+  return <div style={{
+    display: "flex", alignItems: "center", justifyContent: "center",
+    width: "100%", height: "100%", minWidth: 0,
+    background: "#fff",
+  }}>
     <Image
       src={src}
       alt={`${name} 상품 이미지`}
@@ -21,7 +24,7 @@ export function TossProductImage({ src, name, compact = false }: {
       loading="lazy"
       referrerPolicy="no-referrer"
       onError={() => setFailedSrc(src)}
-      style={{ display: "block", width: "100%", height: "auto" }}
+      style={{ display: "block", width: "auto", height: "auto", maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
     />
   </div>;
 }

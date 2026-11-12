@@ -1,0 +1,80 @@
+.shell { width: min(100%, 72rem); margin: auto; color: #202a35; }
+.hero { padding: 1.8rem 0 1.4rem; border-bottom: 1px solid #dce1e7; }
+.heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem; margin-top: 1.5rem; }
+.eyebrow { color: #be4b49; font-size: .7rem; font-weight: 900; letter-spacing: .18em; }
+.heading h1 { margin-top: .5rem; font-size: clamp(1.8rem, 3.4vw, 2.75rem); font-weight: 900; letter-spacing: -.04em; line-height: 1.25; }
+.description { margin-top: .7rem; color: #647184; font-size: .9rem; line-height: 1.7; word-break: keep-all; }
+.update { display: inline-flex; align-items: center; gap: .4rem; flex-shrink: 0; color: #647184; font-size: .75rem; font-weight: 700; }
+.disclosure { display: flex; align-items: baseline; gap: .6rem; margin-top: 1rem; color: #7b6666; font-size: .76rem; line-height: 1.7; }
+.disclosure > span { flex-shrink: 0; padding: .1rem .35rem; border: 1px solid #d6baba; border-radius: .2rem; color: #a54846; font-size: .65rem; font-weight: 900; }
+.section { margin-top: 2.25rem; }
+.sectionHeading { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; margin-bottom: 1rem; }
+.sectionHeading h2 { font-size: 1.25rem; font-weight: 900; letter-spacing: -.025em; }
+.sectionHeading > span { color: #7b8794; font-size: .75rem; }
+.podium { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.1rem; }
+.featured { display: flex; min-width: 0; flex-direction: column; padding: 1.1rem; border: 1px solid #e0e4e8; border-radius: .9rem; background: #fff; box-shadow: 0 3px 12px #24314105; }
+.cardHeading { display: flex; align-items: center; justify-content: space-between; gap: .5rem; color: #8993a0; font-size: .6rem; font-weight: 800; letter-spacing: .12em; }
+.topRank { color: #be4b49; font-family: var(--font-mono); font-size: 1.35rem; font-weight: 900; letter-spacing: -.06em; }
+.featuredImage { display: grid; height: 13rem; min-width: 0; margin: .75rem 0 1rem; padding: .5rem; place-items: center; }
+.featuredImage:not(:has(img)), .rowImage:not(:has(img)) { display: none; }
+.featuredBody { flex: 1; min-width: 0; margin-top: .75rem; }
+.featuredBody h3, .rowBody h3 { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; font-size: .95rem; font-weight: 800; line-height: 1.6; overflow-wrap: anywhere; }
+.featuredBody h3 { min-height: 3.2em; }
+.price { display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem .55rem; margin-top: .7rem; font-variant-numeric: tabular-nums; }
+.price strong { color: #1c2734; font-size: 1.45rem; font-weight: 900; letter-spacing: -.035em; }
+.price small { margin-left: .12rem; font-size: .8rem; }
+.discount { color: #be4b49; font-size: .9rem; font-weight: 900; }
+.price del { color: #8a94a0; font-size: .7rem; }
+.review { display: flex; align-items: center; flex-wrap: wrap; gap: .3rem; margin-top: .45rem; color: #7d8794; font-size: .72rem; }
+.review svg { color: #c18b35; }
+.review strong { color: #52616b; }
+.featuredAction { display: flex; align-items: center; justify-content: space-between; min-height: 44px; margin-top: 1.1rem; padding-top: .8rem; border-top: 1px solid #edf0f3; color: #a94341; font-size: .8rem; font-weight: 900; }
+.ranking { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; }
+.rankRow { display: grid; grid-template-columns: 1.6rem 5rem minmax(0, 1fr) 1.2rem; align-items: center; gap: .8rem; height: 100%; min-height: 7.75rem; padding: 1rem; border: 1px solid #e0e4e8; border-radius: .75rem; background: white; transition: border-color 150ms; }
+.rankRow:hover { border-color: #c89b99; }
+.rankNumber { color: #8b97a5; font-family: var(--font-mono); font-size: .9rem; font-weight: 800; }
+.rowImage { width: 5rem; height: 5rem; }
+.rowBody { min-width: 0; }
+.rowBody h3 { font-size: .85rem; line-height: 1.5; }
+.compactPrice { margin-top: .4rem; gap: .25rem .4rem; }
+.compactPrice strong { font-size: 1.1rem; }
+.compactPrice .discount { font-size: .75rem; }
+.rowArrow { color: #a4aeba; }
+.textRow { grid-template-columns: 1.6rem minmax(0, 1fr) 1.2rem; }
+.rankRow:has(.rowImage:not(:has(img))) { grid-template-columns: 1.6rem minmax(0, 1fr) 1.2rem; }
+.featuredAction:focus-visible, .rankRow:focus-visible { outline: 2px solid #be4b49; outline-offset: 3px; }
+.empty { display: grid; justify-items: center; gap: 1rem; padding: 4rem 1rem; margin-top: 2rem; border: 1px dashed #dce1e7; border-radius: .9rem; background: white; text-align: center; }
+.empty h2 { font-weight: 900; }
+.empty p { color: #647184; font-size: .9rem; }
+.footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .6rem 1rem; padding: 1.5rem 0; margin-top: 2rem; border-top: 1px solid #dce1e7; color: #647184; font-size: .72rem; line-height: 1.7; }
+@media (max-width: 900px) {
+  .heading { align-items: flex-start; flex-direction: column; gap: .8rem; }
+  .ranking { grid-template-columns: minmax(0, 1fr); }
+  .featuredImage { height: 10rem; }
+  .featured { padding: .9rem; }
+}
+@media (max-width: 600px) {
+  .hero { padding-top: 1.25rem; }
+  .heading { margin-top: 1.1rem; }
+  .podium { grid-template-columns: minmax(0, 1fr); gap: .8rem; }
+  .featured { display: grid; grid-template-columns: 6.5rem minmax(0, 1fr); align-items: start; gap: .6rem .9rem; padding: 1rem; }
+  .cardHeading { grid-column: 1 / -1; }
+  .featuredImage { width: 6.5rem; height: 7rem; padding: 0; margin: 0; }
+  .featuredBody { margin: 0; }
+  .featuredBody h3 { min-height: 0; font-size: .9rem; }
+  .featuredAction { grid-column: 1 / -1; margin-top: 0; padding-top: .6rem; }
+  .featured:not(:has(.featuredImage img)) .featuredBody { grid-column: 1 / -1; }
+  .price { margin-top: .4rem; }
+  .price strong { font-size: 1.25rem; }
+  .price del { display: none; }
+  .section { margin-top: 1.6rem; }
+  .sectionHeading h2 { font-size: 1.1rem; }
+  .rankRow { grid-template-columns: 1.3rem 4rem minmax(0, 1fr); gap: .6rem; padding: .85rem .7rem; min-height: 7rem; }
+  .rowImage { width: 4rem; height: 4rem; }
+  .rowArrow { display: none; }
+  .textRow { grid-template-columns: 1.3rem minmax(0, 1fr); }
+  .rankRow:has(.rowImage:not(:has(img))) { grid-template-columns: 1.3rem minmax(0, 1fr); }
+  .compactPrice strong { font-size: 1.05rem; }
+  .rowBody h3 { font-size: .85rem; }
+}
+@media (prefers-reduced-motion: reduce) { .rankRow { transition: none; } }
