@@ -30,18 +30,18 @@ const product = { tacaItemId: 123, thumbnailUrl: original };
 test("ID settings ignore wildcards, invalid IDs and unsafe numbers", () => {
   assert.deepEqual([...images.parseTossProductIds("123, 456,123,*,0,-1,1.5,bad,9007199254740992")], [123, 456]);
 });
-test("unreviewed products do not expose images", () => {
-  assert.equal(images.getTossThumbnailUrl(product, new Set(), new Set()), null);
+test("images display by default without individual approval", () => {
+  assert.equal(images.getTossThumbnailUrl(product, new Set()), original);
 });
-test("withdrawal overrides approval", () => {
-  assert.equal(images.getTossThumbnailUrl(product, new Set([123]), new Set([123])), null);
+test("withdrawal hides the image", () => {
+  assert.equal(images.getTossThumbnailUrl(product, new Set([123])), null);
 });
-test("approved image uses exact original URL without resizing parameters", () => {
-  assert.equal(images.getTossThumbnailUrl(product, new Set([123]), new Set()), original);
+test("default image uses exact original URL without resizing parameters", () => {
+  assert.equal(images.getTossThumbnailUrl(product, new Set()), original);
 });
 test("missing and invalid images fall back to text", () => {
   for (const thumbnailUrl of [null, undefined, "", "not-a-url", "http://example.com/a.jpg", "javascript:alert(1)", "https://user:pass@example.com/a.jpg"]) {
-    assert.equal(images.getTossThumbnailUrl({ ...product, thumbnailUrl }, new Set([123]), new Set()), null);
+    assert.equal(images.getTossThumbnailUrl({ ...product, thumbnailUrl }, new Set()), null);
   }
 });
 test("original images bypass optimization and retain natural proportions", () => {
@@ -91,9 +91,9 @@ test("list thumbnail survives detail enrichment without extra image API calls", 
 test("permission removal still applies to an already cached product", async () => {
   const { service, calls } = setupApi();
   const first = await service.getTossSharelinkContent();
-  assert.equal(images.getTossThumbnailUrl(first.products[0], new Set([123]), new Set()), original);
+  assert.equal(images.getTossThumbnailUrl(first.products[0], new Set()), original);
   const cached = await service.getTossSharelinkContent();
-  assert.equal(images.getTossThumbnailUrl(cached.products[0], new Set([123]), new Set([123])), null);
+  assert.equal(images.getTossThumbnailUrl(cached.products[0], new Set([123])), null);
   assert.equal(calls.length, 3);
 });
 test("upstream outages never extend product data beyond 24 hours", async () => {

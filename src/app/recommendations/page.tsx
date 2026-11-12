@@ -32,9 +32,8 @@ export default async function RecommendationsPage() {
   const products = sharelink.status === "ready" ? sharelink.products : [];
   const podiumProducts = products.slice(0, 3);
   const rankedProducts = products.slice(3);
-  const approvedImages = parseTossProductIds(process.env.TOSS_IMAGE_APPROVED_IDS);
   const blockedImages = parseTossProductIds(process.env.TOSS_IMAGE_BLOCKED_IDS);
-  const imageFor = (product: TossSharelinkProduct) => getTossThumbnailUrl(product, approvedImages, blockedImages);
+  const imageFor = (product: TossSharelinkProduct) => getTossThumbnailUrl(product, blockedImages);
 
   return (
     <main className="min-h-screen px-4 py-6 sm:px-10 sm:py-8">
