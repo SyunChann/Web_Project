@@ -21,7 +21,32 @@ function load({ env = {}, fetch = async () => { throw new Error("unexpected fetc
 const { parseCongestionResponse: parse } = load();
 const lane = { gateId: "DG1_E", terminalId: "P01", waitLength: "15", waitTime: "3", occurtime: "20261116160300" };
 const envelope = (items, code = "00") => JSON.stringify({ response: { header: { resultCode: code }, body: { items } } });
-const { congestionLaneLabel, congestionLevel, congestionDataState } = load({ sourcePath: "src/lib/congestionPresentation.ts" });
+const { congestionLaneLabel, congestionLevel, congestionDataState, congestionOperatingState } = load({ sourcePath: "src/lib/congestionPresentation.ts" });
+
+test("operating hours compare Korean time with opening-inclusive closing-exclusive boundaries", () => {
+  const at = (time) => Date.parse(`2026-11-16T${time}+09:00`);
+  assert.equal(congestionOperatingState("05:00~22:00", at("04:59:59")), "outside");
+  assert.equal(congestionOperatingState("05:00~22:00", at("05:00:00")), "within");
+  assert.equal(congestionOperatingState("05:00~22:00", at("21:59:59")), "within");
+  assert.equal(congestionOperatingState("05:00~22:00", at("22:00:00")), "outside");
+  assert.equal(congestionOperatingState("05:00~22:00", Date.parse("2026-11-16T00:00:00Z")), "within");
+});
+test("explicit 24-hour schedules remain within at both ends of the day", () => {
+  for (const time of ["00:00:00", "05:00:00", "23:59:59"]) {
+    assert.equal(congestionOperatingState("00:00~24:00", Date.parse(`2026-11-16T${time}+09:00`)), "within");
+  }
+});
+test("overnight opening hours span midnight", () => {
+  for (const [time, expected] of [["21:59:00", "outside"], ["22:00:00", "within"], ["23:59:00", "within"], ["00:00:00", "within"], ["04:59:00", "within"], ["05:00:00", "outside"]]) {
+    assert.equal(congestionOperatingState("22:00~05:00", Date.parse(`2026-11-16T${time}+09:00`)), expected);
+  }
+});
+test("missing and ambiguous operating schedules do not imply closure", () => {
+  for (const hours of [undefined, null, "", "invalid", "05:00~05:00", "24:00~05:00", "05:00~24:30"]) {
+    assert.equal(congestionOperatingState(hours, Date.parse("2026-11-16T00:00:00Z")), "unknown");
+  }
+  assert.equal(congestionOperatingState("05:00~22:00", NaN), "unknown");
+});
 
 test("T2 labels combine departure hall number and entrance letter", () => {
   for (const number of [1, 2]) for (const lane of ["A", "B", "C", "D"]) {

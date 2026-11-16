@@ -19,3 +19,17 @@ export function congestionDataState(gate: CongestionGate | undefined, now: numbe
   if (!Number.isFinite(observed) || observed > now + 5 * 60_000) return "undated";
   return now - observed > 10 * 60_000 ? "stale" : "fresh";
 }
+
+export function congestionOperatingState(hours: string | null | undefined, now: number) {
+  if (!hours || !Number.isFinite(now)) return "unknown";
+  const match = hours.match(/^([01]\d|2[0-3]):([0-5]\d)\s*~\s*([01]\d|2[0-3]|24):([0-5]\d)$/);
+  if (!match || (match[3] === "24" && match[4] !== "00")) return "unknown";
+  const start = Number(match[1]) * 60 + Number(match[2]);
+  const end = Number(match[3]) * 60 + Number(match[4]);
+  // Equal times are ambiguous; only an explicit 00:00~24:00 means all day.
+  if (start === end) return "unknown";
+  const koreanTime = new Date(now + 9 * 3_600_000);
+  const minute = koreanTime.getUTCHours() * 60 + koreanTime.getUTCMinutes();
+  const within = start < end ? minute >= start && minute < end : minute >= start || minute < end;
+  return within ? "within" : "outside";
+}

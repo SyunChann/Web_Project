@@ -20,6 +20,8 @@
 .observed { grid-column: 1 / -1; color: #637c8b; font-size: .65rem; text-align: right; }
 .operating { grid-column: 1 / -1; color: #537488; font-size: .68rem; line-height: 1.5; }
 .values .noData { color: #637c8b; font-size: .72rem; }
+.closed { background: #f1f4f6; }
+.closed .values .noData { color: #52616b; font-weight: 800; }
 .values .level { border-radius: .25rem; padding: .12rem .3rem; font-size: .65rem; font-weight: 800; }
 .values .smooth { background: #e2f4ec; color: #166747; }
 .values .normal { background: #e2f1fb; color: #075985; }

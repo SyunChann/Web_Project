@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { AirportTerminal, CongestionResult } from "@/lib/incheonCongestion";
-import { congestionDataState, congestionLaneLabel, congestionLevel } from "@/lib/congestionPresentation";
+import { congestionDataState, congestionLaneLabel, congestionLevel, congestionOperatingState } from "@/lib/congestionPresentation";
 import styles from "./DepartureCongestion.module.css";
 
 const messages: Record<Exclude<CongestionResult["state"], "ready">, string> = {
@@ -16,13 +16,23 @@ const messages: Record<Exclude<CongestionResult["state"], "ready">, string> = {
 
 export function DepartureCongestion({ results, now }: { results: CongestionResult[]; now: number }) {
   const [selected, setSelected] = useState<AirportTerminal>("T1");
+  const [clock, setClock] = useState(now);
   const [pending, startTransition] = useTransition();
   const router = useRouter();
   useEffect(() => {
     const refresh = () => { if (!document.hidden) startTransition(() => router.refresh()); };
+    const updateClock = () => { if (!document.hidden) setClock(Date.now()); };
+    const wake = () => { updateClock(); refresh(); };
     const timer = window.setInterval(refresh, 120_000);
-    return () => window.clearInterval(timer);
+    const clockTimer = window.setInterval(updateClock, 30_000);
+    document.addEventListener("visibilitychange", wake);
+    return () => {
+      window.clearInterval(timer);
+      window.clearInterval(clockTimer);
+      document.removeEventListener("visibilitychange", wake);
+    };
   }, [router]);
+  const currentTime = Math.max(now, clock);
   const result = results.find((entry) => entry.terminal === selected);
   const numbers = selected === "T1" ? [1, 2, 3, 4, 5, 6] : [1, 2];
   const lanes = selected === "T1" ? ["E", "W"] : ["A", "B", "C", "D"];
@@ -43,17 +53,18 @@ export function DepartureCongestion({ results, now }: { results: CongestionResul
         <h3>{number}번 출국장</h3>
         {lanes.map((lane) => {
           const gate = result.gates.find((entry) => entry.number === number && entry.lane === lane);
-          const state = congestionDataState(gate, now);
-          const current = state === "fresh";
+          const state = congestionDataState(gate, currentTime);
+          const operating = congestionOperatingState(gate?.operatingTime, currentTime);
+          const current = state === "fresh" && operating !== "outside";
           const level = current ? congestionLevel(gate?.waitMinutes ?? null) : null;
-          return <div key={lane} className={styles.lane}>
+          return <div key={lane} className={`${styles.lane} ${operating === "outside" ? styles.closed : ""}`}>
             <span className={styles.laneName}>{congestionLaneLabel(selected, number, lane)}</span>
             <div className={styles.values}>
               {current ? <>
                 <strong>{gate?.waitingPeople != null ? `${gate.waitingPeople.toLocaleString("ko-KR")}명` : "인원 미제공"}</strong>
                 <span>{gate?.waitMinutes != null ? `예상 ${gate.waitMinutes}분${gate.waitOver60 ? " 초과" : ""}` : "시간 미제공"}</span>
                 {level ? <span className={`${styles.level} ${styles[level.tone]}`}>{level.label}</span> : null}
-              </> : <span className={styles.noData}>{state === "missing" ? "미운영 또는 정보 없음" : state === "stale" ? "갱신 지연" : "수집 시각 확인 필요"}</span>}
+              </> : <span className={styles.noData}>{operating === "outside" ? "운영시간 기준 미운영" : state === "missing" ? "미운영 또는 정보 없음" : state === "stale" ? "갱신 지연" : "수집 시각 확인 필요"}</span>}
             </div>
             {gate?.operatingTime ? <span className={styles.operating}>안내 운영시간 {gate.operatingTime}</span> : null}
             {gate?.observedAt ? <span className={styles.observed}>{state === "stale" ? "마지막 수집 " : "수집 "}{new Intl.DateTimeFormat("ko-KR", { timeZone: "Asia/Seoul", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(gate.observedAt))}</span> : null}
@@ -62,7 +73,7 @@ export function DepartureCongestion({ results, now }: { results: CongestionResul
       </li>)}
     </ul>}
     <p className={styles.note}>혼잡 기준: 20분 미만 원활 · 20~40분 보통 · 40~60분 혼잡 · 60분 이상 매우혼잡. 예상 시간은 출국장 대기·보안검색·출국심사 시간을 포함합니다.</p>
-    <p className={styles.note}>미운영과 센서·수집 오류 모두 데이터가 없을 수 있습니다. 10분 초과 자료는 수치를 표시하지 않습니다. 안내 운영시간과 현장 운영은 다를 수 있으며, 항공편 날짜와 무관한 현재 현황입니다.</p>
+    <p className={styles.note}>미운영 표시는 안내 운영시간과 현재 한국 시각을 비교한 결과이며 현장 운영과 다를 수 있습니다. 운영시간이 없는 입구는 판단하지 않습니다. 10분 초과 자료와 운영시간 밖의 대기 수치는 표시하지 않습니다.</p>
     <p className={styles.source}>출처 인천국제공항공사 · 공공데이터포털</p>
   </section>;
 }
