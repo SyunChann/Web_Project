@@ -6,16 +6,20 @@ import { SplitFlapText } from "@/components/SplitFlapText";
 import { getJapanDepartures, type DepartureBoardFlight, type DepartureBoardResult } from "@/lib/incheonAirport";
 import styles from "./DepartureBoard.module.css";
 import { DepartureCountdown, DepartureFilters } from "./DepartureFilters";
+import { DepartureCongestion } from "./DepartureCongestion";
+import { getDepartureCongestion } from "@/lib/incheonCongestion";
 
 export const metadata: Metadata = {
-  title: "출발편 전광판 | 취향 보관소",
-  description: "인천공항에서 일본으로 출발하는 항공편 전광판",
+  title: "인천공항 출국 안내 | 취향 보관소",
+  description: "인천공항 T1·T2 출국장 대기 현황과 일본행 출발편 안내",
 };
 
 export const dynamic = "force-dynamic";
 
 export default async function DeparturesPage() {
-  const result = await getJapanDepartures();
+  const [result, t1, t2] = await Promise.all([
+    getJapanDepartures(), getDepartureCongestion("T1"), getDepartureCongestion("T2"),
+  ]);
   // This dynamic server page captures one request-time snapshot for hydration.
   // eslint-disable-next-line react-hooks/purity
   const now = Date.now();
@@ -27,11 +31,10 @@ export default async function DeparturesPage() {
 
         <header className={styles.hero}>
           <div>
-            <p className={styles.eyebrow}>LIVE DEPARTURES · ICN</p>
-            <h1 className={styles.title}>출발편 전광판</h1>
+            <p className={styles.eyebrow}>DEPARTURE GUIDE · ICN</p>
+            <h1 className={styles.title}>인천공항 출국 안내</h1>
             <p className={styles.description}>
-              현재 시각 이후 오늘 출발편을 표시하며, 남은 편이 없으면 내일 오전 9시까지 이어서 보여줍니다.
-              모든 시각은 한국 표준시(KST)입니다.
+              T1·T2 출국장 대기 현황과 일본행 항공편을 한곳에서 확인하세요. 모든 시각은 한국 표준시(KST)입니다.
             </p>
           </div>
           <div className={styles.clock}>
@@ -39,12 +42,14 @@ export default async function DeparturesPage() {
           </div>
         </header>
 
+        <DepartureCongestion results={[t1, t2]} now={now} />
+
         <section className={styles.board} aria-label="인천공항 일본행 출발편">
           <div className={styles.boardTop}>
             <div className={styles.route}>
               <span className={styles.routeCode}>ICN</span>
               <ArrowRight size={17} aria-hidden="true" />
-              <span>JAPAN</span>
+              <h2>일본행 출발편</h2>
             </div>
             <p className={styles.count}>
               {result.state === "ready"
@@ -54,6 +59,8 @@ export default async function DeparturesPage() {
                 : "DEPARTURES"}
             </p>
           </div>
+
+          <p className={styles.flightRange}>현재 시각 이후 오늘 출발편을 표시하며, 남은 편이 없으면 내일 오전 9시까지 이어서 보여줍니다.</p>
 
           {result.state === "ready" && result.range === "tomorrow-morning" ? (
             <div className={styles.rangeNotice} role="note">

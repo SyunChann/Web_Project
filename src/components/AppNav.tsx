@@ -65,7 +65,7 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
     "restaurant-map": "해외 맛집리뷰 지도",
     merchandise: "상품리뷰",
     games: "미니게임",
-    departures: "출발편 전광판",
+    departures: "인천공항 출국 안내",
     "ai-office": "AI Office",
     admin: "관리자",
   };

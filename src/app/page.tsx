@@ -92,8 +92,8 @@ function DepartureBoardCard() {
         <ArrowRight size={18} className="text-[#4b8fac] transition group-hover:translate-x-0.5 group-hover:text-[#05658f]" />
       </div>
       <div className="relative z-10 mt-4 flex-1 sm:mt-5">
-        <p className="text-xl font-black tracking-tight text-[#075985] sm:text-2xl">출발편 전광판</p>
-        <p className="mt-3 text-sm font-bold leading-relaxed text-[#173f56] sm:text-base">인천공항 → 일본</p>
+        <p className="text-xl font-black tracking-tight text-[#075985] sm:text-2xl">인천공항 출국 안내</p>
+        <p className="mt-3 text-sm font-bold leading-relaxed text-[#173f56] sm:text-base">출국장 혼잡도 · 일본행 항공편</p>
       </div>
       <div className="relative z-10 mt-4 flex items-center justify-between gap-3 border-t border-[#9ccfe2] pt-3 text-xs font-bold">
         <span className="inline-flex min-w-0 items-center gap-1.5 truncate text-[#4c7488]"><i aria-hidden="true" className="departure-live-dot h-1.5 w-1.5 shrink-0 rounded-full bg-[#16a36a]" />인천국제공항공사 공공데이터</span>

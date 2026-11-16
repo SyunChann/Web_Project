@@ -139,6 +139,30 @@ https://your-domain.vercel.app/*
 
 비용 안전장치로 Google Cloud Billing에서 월 예산과 알림을 설정하고, API별 일일/분당 할당량을 낮게 잡아두는 것을 권장합니다.
 
+## 인천공항 출국 안내
+
+기존 `/departures` 주소를 유지하며 메인 카드와 메뉴 이름을 `인천공항 출국 안내`로 표시합니다. 상단에는 현재 T1·T2 출국장 대기 현황, 하단에는 기존 일본행 항공편 목록을 제공합니다. 출국장 현황은 항공편 조회 날짜와 무관한 현재 자료입니다.
+
+Vercel 서버 환경변수:
+
+```env
+ICN_CONGESTION_T1_API_KEY=
+ICN_CONGESTION_T2_API_KEY=
+```
+
+일반 인증키의 Encoding/Decoding 값을 모두 처리합니다. 터미널 전용 키가 비어 있으면 기존 `DATA_GO_KR_API_KEY`를 사용합니다. 서비스별 활용 승인은 각각 필요하며 키 값은 브라우저로 전달하지 않습니다.
+
+| 터미널 | 공식 API | 호출 경로 |
+| --- | --- | --- |
+| T1 | [출국장 혼잡도 조회](https://www.data.go.kr/data/15148225/openapi.do) | `/B551177/statusOfDepartureCongestion/getDepartureCongestion` |
+| T2 | [제2여객터미널 출국장 혼잡도 조회](https://www.data.go.kr/data/15161098/openapi.do) | `/B551177/statusOfDepartureCongestionT2/getDepartureCongestionT2` |
+
+요청에는 `serviceKey`, `pageNo=1`, `numOfRows=100`, `type=json`을 사용하며 T1은 `terminalId=P01`도 전달합니다. T2는 별도 API를 사용합니다. 터미널별 독립 요청·8초 제한·120초 서버 캐시를 적용합니다. 화면이 보이는 동안 약 2분마다 페이지를 갱신하며 백그라운드에서는 주기 조회하지 않습니다. 호출 한도는 각 계정의 승인 내역을 확인합니다.
+
+`response.body.items` 배열과 `items.item` 형태를 처리하며, 구역 코드(`gateId`), 대기 인원(`waitLength`), 예상 시간(`waitTime`), 수집 시각(`occurtime`, 한국 시간)을 표시합니다. 인원으로 시간을 환산하거나 임의 혼잡 등급을 만들지 않습니다. 없는 구역이나 값은 미제공으로 표시하고, 0명·0분을 운영 중 또는 운영 종료로 해석하지 않습니다. 수집 후 10분이 넘은 값은 이전 자료로 표시합니다. XML·JSON 인증 오류, 한도 초과, 키 누락과 연결 장애는 터미널별 안내로 대체합니다.
+
+`node --test scripts/incheon-congestion.test.mjs`로 파싱, 키 분리·인코딩, 누락·0·중복·오류 처리와 터미널 장애 분리를 검사합니다. 이 테스트는 모의 응답 기반이며 실제 API가 아닙니다. 실행 환경에 키가 없으면 운영 응답 필드와 수신 데이터는 별도 실조회 확인이 필요합니다. 공식 포털의 공개 요약 명세는 상세 출력 필드를 생략하고 있으므로, 응답이 다르면 활용 가이드와 함께 대조합니다.
+
 ## 토스 상품 썸네일 표시
 
 추천 페이지 TOP 20 카드는 공식 베스트 상품 응답의 `thumbnailUrl`을 사용합니다. 별도 이미지 조회 요청은 없으며 기존 상품 정보 조회·추적 링크 발급 흐름을 유지합니다. 목록 썸네일은 상세 정보 보강 과정에서도 보존합니다.

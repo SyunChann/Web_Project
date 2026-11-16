@@ -100,6 +100,15 @@
   font-weight: 900;
 }
 
+.flightRange {
+  padding: .65rem 1.1rem;
+  border-bottom: 1px solid #b8d6e5;
+  background: #f0f9fe;
+  color: #476b80;
+  font-size: .78rem;
+  line-height: 1.6;
+}
+
 .rangeNotice {
   display: flex;
   align-items: center;
