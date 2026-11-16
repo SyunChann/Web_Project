@@ -5,8 +5,8 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import ts from "typescript";
 
-function load({ env = {}, fetch = async () => { throw new Error("unexpected fetch"); } } = {}) {
-  const filename = fileURLToPath(new URL("../src/lib/incheonCongestion.ts", import.meta.url));
+function load({ env = {}, fetch = async () => { throw new Error("unexpected fetch"); }, sourcePath = "src/lib/incheonCongestion.ts" } = {}) {
+  const filename = fileURLToPath(new URL(`../${sourcePath}`, import.meta.url));
   const source = ts.transpileModule(readFileSync(filename, "utf8"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
   }).outputText;
@@ -21,6 +21,48 @@ function load({ env = {}, fetch = async () => { throw new Error("unexpected fetc
 const { parseCongestionResponse: parse } = load();
 const lane = { gateId: "DG1_E", terminalId: "P01", waitLength: "15", waitTime: "3", occurtime: "20261116160300" };
 const envelope = (items, code = "00") => JSON.stringify({ response: { header: { resultCode: code }, body: { items } } });
+const { congestionLaneLabel, congestionLevel, congestionDataState } = load({ sourcePath: "src/lib/congestionPresentation.ts" });
+
+test("T2 labels combine departure hall number and entrance letter", () => {
+  for (const number of [1, 2]) for (const lane of ["A", "B", "C", "D"]) {
+    assert.equal(congestionLaneLabel("T2", number, lane), `${number}${lane} 입구`);
+  }
+  assert.equal(congestionLaneLabel("T1", 3, "E"), "3번 동편");
+  assert.equal(congestionLaneLabel("T1", 6, "W"), "6번 서편");
+});
+test("T2 60+ retains its greater-than meaning", () => {
+  const gate = parse(envelope([{ ...lane, gateId: "DG1_A", terminalId: "P03", waitTime: "60+" }]), "T2").gates[0];
+  assert.equal(gate.waitMinutes, 60);
+  assert.equal(gate.waitOver60, true);
+  assert.equal(congestionLevel(gate.waitMinutes).label, "매우혼잡");
+  assert.equal(parse(envelope([{ ...lane, waitTime: "60" }]), "T1").gates[0].waitOver60, false);
+});
+test("official operatingTime examples and 24:00 endings are preserved", () => {
+  for (const operatingTime of ["05:00~22:00", "00:00~24:00", "05:00~19:00"]) {
+    assert.equal(parse(envelope([{ ...lane, operatingTime }]), "T1").gates[0].operatingTime, operatingTime);
+  }
+  for (const operatingTime of [null, "", "not-known", "05:90~25:00"]) {
+    assert.equal(parse(envelope([{ ...lane, operatingTime }]), "T1").gates[0].operatingTime, null);
+  }
+});
+test("12-digit guide timestamp examples are supported alongside 14-digit responses", () => {
+  assert.equal(parse(envelope([{ ...lane, occurtime: "202507171649" }]), "T1").gates[0].observedAt, "2025-07-17T16:49:00+09:00");
+});
+test("official congestion thresholds handle all boundary values", () => {
+  for (const [minutes, label] of [[0, "원활"], [19, "원활"], [20, "보통"], [39, "보통"], [40, "혼잡"], [59, "혼잡"], [60, "매우혼잡"]]) {
+    assert.equal(congestionLevel(minutes).label, label);
+  }
+  assert.equal(congestionLevel(null), null);
+});
+test("data freshness distinguishes missing, undated and over-ten-minute records", () => {
+  const gate = parse(envelope([lane]), "T1").gates[0];
+  const observed = Date.parse(gate.observedAt);
+  assert.equal(congestionDataState(gate, observed + 600_000), "fresh");
+  assert.equal(congestionDataState(gate, observed + 600_001), "stale");
+  assert.equal(congestionDataState(undefined, observed), "missing");
+  assert.equal(congestionDataState({ ...gate, observedAt: null }, observed), "undated");
+  assert.equal(congestionDataState(gate, observed - 600_000), "undated");
+});
 
 test("T1 parses per-lane counts, wait time and KST observation", () => {
   const result = parse(envelope([lane]), "T1");

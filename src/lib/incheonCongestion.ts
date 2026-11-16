@@ -4,6 +4,7 @@ export type AirportTerminal = "T1" | "T2";
 export type CongestionGate = {
   id: string; number: number; lane: string;
   waitingPeople: number | null; waitMinutes: number | null; observedAt: string | null;
+  waitOver60: boolean; operatingTime: string | null;
 };
 export type CongestionResult = {
   terminal: AirportTerminal;
@@ -31,9 +32,9 @@ function nonnegative(value: unknown): number | null {
 function observation(value: unknown): string | null {
   if (typeof value !== "string" && typeof value !== "number") return null;
   const raw = String(value).trim();
-  const compact = raw.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(?:\.\d+)?$/);
+  const compact = raw.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(?:(\d{2})(?:\.\d+)?)?$/);
   if (!compact) return null;
-  const [, year, month, day, hour, minute, second] = compact;
+  const [, year, month, day, hour, minute, second = "00"] = compact;
   const iso = `${year}-${month}-${day}T${hour}:${minute}:${second}+09:00`;
   const parsed = new Date(iso);
   if (!Number.isFinite(parsed.getTime())) return null;
@@ -75,7 +76,12 @@ export function parseCongestionResponse(text: string, terminal: AirportTerminal)
     if (row.terminalId && row.terminalId !== (terminal === "T1" ? "P01" : "P03")) continue;
     const gate: CongestionGate = {
       id, number: Number(match[1]), lane: match[2],
-      waitingPeople: nonnegative(row.waitLength), waitMinutes: nonnegative(row.waitTime),
+      waitingPeople: nonnegative(row.waitLength),
+      waitMinutes: String(row.waitTime).trim() === "60+" ? 60 : nonnegative(row.waitTime),
+      waitOver60: String(row.waitTime).trim() === "60+",
+      operatingTime: typeof row.operatingTime === "string"
+        && /^(?:[01]\d|2[0-3]):[0-5]\d\s*~\s*(?:(?:[01]\d|2[0-3]):[0-5]\d|24:00)$/.test(row.operatingTime.trim())
+        ? row.operatingTime.trim() : null,
       observedAt: observation(row.occurtime),
     };
     const previous = gates.get(id);

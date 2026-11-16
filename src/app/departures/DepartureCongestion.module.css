@@ -3,6 +3,7 @@
 .heading h2 { font-size: 1.15rem; font-weight: 900; color: #123e58; }
 .heading p { margin-top: .25rem; color: #537488; font-size: .78rem; line-height: 1.5; }
 .refresh { color: #537488; font-size: .72rem; }
+.locationHint { margin-top: .65rem; color: #537488; font-size: .75rem; line-height: 1.6; }
 .terminals { display: flex; gap: .45rem; margin-top: .9rem; }
 .terminals button { flex: 1; min-height: 44px; padding: .6rem; border: 1px solid #a2c9dc; border-radius: .4rem; background: white; color: #27566f; font-size: .85rem; font-weight: 800; cursor: pointer; }
 .terminals button[aria-pressed="true"] { border-color: #0878a8; background: #0878a8; color: white; }
@@ -17,6 +18,13 @@
 .values strong { color: #123e58; font-size: .95rem; font-weight: 900; }
 .values > span { color: #0878a8; font-size: .76rem; }
 .observed { grid-column: 1 / -1; color: #637c8b; font-size: .65rem; text-align: right; }
+.operating { grid-column: 1 / -1; color: #537488; font-size: .68rem; line-height: 1.5; }
+.values .noData { color: #637c8b; font-size: .72rem; }
+.values .level { border-radius: .25rem; padding: .12rem .3rem; font-size: .65rem; font-weight: 800; }
+.values .smooth { background: #e2f4ec; color: #166747; }
+.values .normal { background: #e2f1fb; color: #075985; }
+.values .busy { background: #fff1d9; color: #9a4b0b; }
+.values .veryBusy { background: #fde6ea; color: #a21b3c; }
 .note { margin-top: .85rem; color: #537488; font-size: .72rem; line-height: 1.65; }
 .source { margin-top: .4rem; color: #637c8b; font-size: .7rem; }
 .message { padding: 1.5rem .5rem; color: #537488; font-size: .9rem; line-height: 1.7; }
