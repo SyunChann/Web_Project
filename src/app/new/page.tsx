@@ -1,4 +1,4 @@
-import { ArrowLeft, Bookmark, Library, MapPinned, Utensils, Plane, ShoppingCart } from "lucide-react";
+import { ArrowLeft, Bookmark, Library, MapPinned, Utensils, Plane, ShoppingCart, Wine } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
@@ -208,6 +208,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
             description="사용한 상품의 리뷰를 기록합니다."
             tone="merchandise"
           />
+          <PostTypeCard href="/drinks/new" icon={<Wine size={20} />} title="술 취향" description="마신 술 리뷰와 궁금한 술, 별점과 맛을 남깁니다." tone="review" />
         </div>
       </section>
     </main>

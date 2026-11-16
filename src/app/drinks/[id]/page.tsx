@@ -1,0 +1,32 @@
+import Image from "next/image";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { AppNav } from "@/components/AppNav";
+import { StarRating } from "@/components/drinks/StarRating";
+import { DeleteDrinkButton } from "@/components/drinks/DeleteDrinkButton";
+import styles from "@/components/drinks/Drinks.module.css";
+import { getDrinkPost, drinkPhotoUrl } from "@/data/drinks";
+import { drinkCategories, drinkKinds } from "@/lib/drinks";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+export const dynamic = "force-dynamic";
+export const metadata = { title: "술 기록 | 취향보관소" };
+export default async function DrinkDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const { post, error } = await getDrinkPost(id);
+  if (!error && !post) notFound();
+  const client = await createSupabaseServerClient();
+  const { data: { user } } = client ? await client.auth.getUser() : { data: { user: null } };
+  return <main className={styles.page}><section className={styles.shell}><AppNav active="drinks" /><article className={styles.article}>
+    <Link href="/drinks" className={styles.back}>← 술 취향 목록</Link>
+    {error || !post ? <p className={styles.notice} role="status">{error}</p> : <>
+      <header className={styles.hero}><div><div className={styles.badges}><span>{drinkCategories[post.category]}</span><span>{drinkKinds[post.kind]}</span></div><h1>{post.name}</h1>
+        <div className={styles.meta}><span>작성자 {post.author_name}</span><time dateTime={post.created_at}>{new Intl.DateTimeFormat("ko-KR", { timeZone: "Asia/Seoul", dateStyle: "long" }).format(new Date(post.created_at))}</time></div>
+      </div>{user?.id === post.author_id ? <div className={styles.actions}><Link className={styles.secondary} href={`/drinks/${id}/edit`}>수정</Link><DeleteDrinkButton id={id} /></div> : null}</header>
+      {post.rating !== null ? <div className="mt-5"><StarRating rating={Number(post.rating)} large /></div> : null}
+      {post.methods.length ? <p className="mt-5"><strong>마신 방법</strong> · {post.methods.join(" · ")}</p> : null}
+      {post.tags.length ? <div className={`${styles.badges} mt-4`} aria-label="맛 태그">{post.tags.map((tag) => <span key={tag}>{tag}</span>)}</div> : null}
+      <div className={styles.body}>{post.body}</div>
+      <div className={styles.gallery}>{post.images.map((path, index) => <Image key={path} src={drinkPhotoUrl(path)} alt={`${post.name} 사진 ${index + 1}`} width={1200} height={1200} unoptimized />)}</div>
+    </>}
+  </article></section></main>;
+}

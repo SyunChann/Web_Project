@@ -14,6 +14,7 @@ import {
   Plane,
   Swords,
   Sparkles,
+  Wine,
 } from "lucide-react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
@@ -34,6 +35,7 @@ type AppNavProps = {
     | "merchandise"
     | "games"
     | "departures"
+    | "drinks"
     | "ai-office"
     | "admin";
 };
@@ -66,6 +68,7 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
     merchandise: "상품리뷰",
     games: "미니게임",
     departures: "인천공항 출국 안내",
+    drinks: "술 취향",
     "ai-office": "AI Office",
     admin: "관리자",
   };
@@ -135,6 +138,10 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
       controlHover: "hover:border-[#38a3cf] hover:text-[#05658f]",
       primary: "bg-[#0878a8] hover:bg-[#05658f]",
       admin: "bg-[#e0f2fe] text-[#075985]",
+    },
+    drinks: {
+      brandHover: "hover:border-[#79364b]", icon: "bg-[#79364b] group-hover:bg-[#622a3c]", text: "text-[#79364b]",
+      controlHover: "hover:border-[#79364b] hover:text-[#79364b]", primary: "bg-[#79364b] hover:bg-[#622a3c]", admin: "bg-[#f6e9ed] text-[#79364b]",
     },
     default: {
       brandHover: "hover:border-[#be4b49]",
@@ -292,13 +299,14 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
               activeClass="bg-[#fff7ed] text-[#b45309]"
               hoverClass="hover:bg-[#fff7ed] hover:text-[#b45309]"
             />
+            <NavMenuLink href="/drinks" active={active === "drinks"} icon={<Wine size={16} />} label="술 취향" activeClass="bg-[#f6e9ed] text-[#79364b]" hoverClass="hover:bg-[#f6e9ed] hover:text-[#79364b]" />
           </div>
         </details>
 
         {user ? (
           <>
             <Link
-              href="/new"
+              href={active === "drinks" ? "/drinks/new" : "/new"}
               className={`inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-bold text-white shadow-sm transition sm:gap-2 sm:px-4 ${theme.primary}`}
             >
               <Plus size={16} />
@@ -358,10 +366,10 @@ function OfficeFloatingLink() {
 }
 
 function MobileBottomNav({ active }: { active: NonNullable<AppNavProps["active"]> }) {
-  const isContentSection = active === "reviews" || active === "watchlist" || active === "merchandise";
+  const isContentSection = active === "reviews" || active === "watchlist" || active === "merchandise" || active === "drinks";
   return <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-[#d8cfc2] bg-white/95 px-1 pb-[max(0.35rem,env(safe-area-inset-bottom))] pt-1 shadow-[0_-4px_16px_rgba(23,32,42,0.08)] backdrop-blur sm:hidden">
     <Link href="/" aria-current={active === "home" ? "page" : undefined} className={mobileNavButton(active === "home")}><Home size={19} /><span>홈</span></Link>
-    <MobileNavGroup label="콘텐츠" icon={<Library size={19} />} active={isContentSection} items={[{ href: "/reviews", label: "콘텐츠 리뷰" }, { href: "/watchlist/items", label: "기대작" }, { href: "/merchandise", label: "상품 리뷰" }]} />
+    <MobileNavGroup label="콘텐츠" icon={<Library size={19} />} active={isContentSection} items={[{ href: "/reviews", label: "콘텐츠 리뷰" }, { href: "/watchlist/items", label: "기대작" }, { href: "/merchandise", label: "상품 리뷰" }, { href: "/drinks", label: "술 취향" }]} />
     <Link href="/recommendations" aria-current={active === "reviews" ? "page" : undefined} className={mobileNavButton(false)}><Sparkles size={19} /><span>에디터픽</span></Link>
     <MobileNavGroup label="경기일정" icon={<CalendarDays size={19} />} active={false} items={[{ href: "/release-calendar", label: "릴리즈 캘린더" }, { href: "/lck-calendar", label: "LCK 경기 일정" }, { href: "/lck-analysis", label: "LCK 밴픽 분석" }]} />
     <MobileNavGroup label="게임" icon={<Swords size={19} />} active={active === "games" || active === "ai-office"} align="right" items={[{ href: "/omok", label: "온라인 오목" }]} />
