@@ -2,7 +2,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { drinkBucket, readDrinkPayload, type DrinkSaveResult } from "@/lib/drinks";
+import { drinkAuthorName, drinkBucket, readDrinkPayload, type DrinkSaveResult } from "@/lib/drinks";
 
 export async function saveDrinkPost(id: string | null, data: FormData): Promise<DrinkSaveResult> {
   const client = await createSupabaseServerClient();
@@ -19,10 +19,9 @@ export async function saveDrinkPost(id: string | null, data: FormData): Promise<
     if (error || !old || old.author_id !== user.id) return { error: "본인이 작성한 글만 수정할 수 있습니다." };
     oldImages = old.images;
   }
-  const displayName = user.user_metadata?.display_name ?? user.user_metadata?.name ?? user.user_metadata?.full_name;
-  const authorName = typeof displayName === "string" && displayName.trim() ? displayName.trim().slice(0, 60) : "술 친구";
+  const authorName = drinkAuthorName(user);
   const result = id
-    ? await client.from("drink_posts").update({ ...payload, updated_at: new Date().toISOString() }).eq("id", id).eq("author_id", user.id).select("id").maybeSingle()
+    ? await client.from("drink_posts").update({ ...payload, author_name: authorName, updated_at: new Date().toISOString() }).eq("id", id).eq("author_id", user.id).select("id").maybeSingle()
     : await client.from("drink_posts").insert({ ...payload, id: postId, author_id: user.id, author_name: authorName }).select("id").single();
   if (result.error || !result.data) return { error: "글을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요." };
   const removed = oldImages.filter((path) => !payload.images.includes(path));

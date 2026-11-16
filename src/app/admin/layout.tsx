@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  title: "관리자 | 취향보관소",
   robots: { index: false, follow: false },
 };
 

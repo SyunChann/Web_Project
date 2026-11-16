@@ -15,6 +15,13 @@ export const maxDrinkPhotos = 5;
 export const maxDrinkPhotoSize = 5 * 1024 * 1024;
 export const drinkImageTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
+export function drinkAuthorName(user: { id: string; email?: string; user_metadata?: Record<string, unknown> }) {
+  const metadata = user.user_metadata;
+  const displayName = [metadata?.display_name, metadata?.name, metadata?.full_name]
+    .find((value): value is string => typeof value === "string" && Boolean(value.trim()));
+  return (displayName?.trim() || user.email?.split("@")[0]?.trim() || `사용자 ${user.id.slice(0, 8)}`).slice(0, 60);
+}
+
 export function readDrinkPayload(data: FormData, userId: string) {
   const name = String(data.get("name") ?? "").trim();
   const body = String(data.get("body") ?? "").trim();

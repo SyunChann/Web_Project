@@ -8,6 +8,12 @@ vm.runInNewContext(ts.transpileModule(readFileSync(new URL("../src/lib/drinks.ts
   compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
 }).outputText, { exports });
 const { readDrinkPayload: parse } = exports;
+test("drink author names prefer nonblank account names and then the email prefix", () => {
+  const author = { id: "12345678-1234", email: "tester@example.com", user_metadata: { display_name: " ", name: "테스터" } };
+  assert.equal(exports.drinkAuthorName(author), "테스터");
+  assert.equal(exports.drinkAuthorName({ ...author, user_metadata: {} }), "tester");
+  assert.equal(exports.drinkAuthorName({ id: author.id }), "사용자 12345678");
+});
 const owner = "12345678-1234-4234-8234-123456789abc";
 const path = `${owner}/abcdefab-1234-4234-8234-abcdefabcdef.jpg`;
 function data(values = {}) {
