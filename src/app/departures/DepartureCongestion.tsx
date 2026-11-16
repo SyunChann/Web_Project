@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import type { AirportTerminal, CongestionResult } from "@/lib/incheonCongestion";
 import { congestionDataState, congestionLaneLabel, congestionLevel, congestionOperatingState } from "@/lib/congestionPresentation";
 import styles from "./DepartureCongestion.module.css";
+import { useDepartureTime, useDepartureRefreshPending } from "./DepartureLive";
+
+const observationFormat = new Intl.DateTimeFormat("ko-KR", { timeZone: "Asia/Seoul", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false });
 
 const messages: Record<Exclude<CongestionResult["state"], "ready">, string> = {
   empty: "현재 제공되는 출국장 정보가 없습니다. 미운영 또는 수집 지연일 수 있습니다.",
@@ -14,25 +16,10 @@ const messages: Record<Exclude<CongestionResult["state"], "ready">, string> = {
   unavailable: "출국장 정보 연결이 원활하지 않습니다. 잠시 후 다시 확인해 주세요.",
 };
 
-export function DepartureCongestion({ results, now }: { results: CongestionResult[]; now: number }) {
+export function DepartureCongestion({ results }: { results: CongestionResult[] }) {
   const [selected, setSelected] = useState<AirportTerminal>("T1");
-  const [clock, setClock] = useState(now);
-  const [pending, startTransition] = useTransition();
-  const router = useRouter();
-  useEffect(() => {
-    const refresh = () => { if (!document.hidden) startTransition(() => router.refresh()); };
-    const updateClock = () => { if (!document.hidden) setClock(Date.now()); };
-    const wake = () => { updateClock(); refresh(); };
-    const timer = window.setInterval(refresh, 120_000);
-    const clockTimer = window.setInterval(updateClock, 30_000);
-    document.addEventListener("visibilitychange", wake);
-    return () => {
-      window.clearInterval(timer);
-      window.clearInterval(clockTimer);
-      document.removeEventListener("visibilitychange", wake);
-    };
-  }, [router]);
-  const currentTime = Math.max(now, clock);
+  const pending = useDepartureRefreshPending();
+  const currentTime = useDepartureTime();
   const result = results.find((entry) => entry.terminal === selected);
   const numbers = selected === "T1" ? [1, 2, 3, 4, 5, 6] : [1, 2];
   const lanes = selected === "T1" ? ["E", "W"] : ["A", "B", "C", "D"];
@@ -67,7 +54,7 @@ export function DepartureCongestion({ results, now }: { results: CongestionResul
               </> : <span className={styles.noData}>{operating === "outside" ? "운영시간 기준 미운영" : state === "missing" ? "미운영 또는 정보 없음" : state === "stale" ? "갱신 지연" : "수집 시각 확인 필요"}</span>}
             </div>
             {gate?.operatingTime ? <span className={styles.operating}>안내 운영시간 {gate.operatingTime}</span> : null}
-            {gate?.observedAt ? <span className={styles.observed}>{state === "stale" ? "마지막 수집 " : "수집 "}{new Intl.DateTimeFormat("ko-KR", { timeZone: "Asia/Seoul", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(gate.observedAt))}</span> : null}
+            {gate?.observedAt ? <span className={styles.observed}>{state === "stale" ? "마지막 수집 " : "수집 "}{observationFormat.format(new Date(gate.observedAt))}</span> : null}
           </div>;
         })}
       </li>)}

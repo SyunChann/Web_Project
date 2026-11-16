@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import { AlertTriangle, ArrowRight, PlaneTakeoff } from "lucide-react";
 import { AppNav } from "@/components/AppNav";
 import { SplitFlapText } from "@/components/SplitFlapText";
@@ -8,6 +8,7 @@ import styles from "./DepartureBoard.module.css";
 import { DepartureCountdown, DepartureFilters } from "./DepartureFilters";
 import { DepartureCongestion } from "./DepartureCongestion";
 import { getDepartureCongestion } from "@/lib/incheonCongestion";
+import { DepartureClock, DepartureLive } from "./DepartureLive";
 
 export const metadata: Metadata = {
   title: "인천공항 출국 안내 | 취향 보관소",
@@ -16,15 +17,13 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function DeparturesPage() {
-  const [result, t1, t2] = await Promise.all([
-    getJapanDepartures(), getDepartureCongestion("T1"), getDepartureCongestion("T2"),
-  ]);
+export default function DeparturesPage() {
   // This dynamic server page captures one request-time snapshot for hydration.
   // eslint-disable-next-line react-hooks/purity
   const now = Date.now();
 
   return (
+    <DepartureLive initialNow={now}>
     <main className={`${styles.page} min-h-screen px-6 py-8 sm:px-10`}>
       <section className={styles.shell}>
         <AppNav active="departures" />
@@ -37,12 +36,37 @@ export default async function DeparturesPage() {
               T1·T2 출국장 대기 현황과 일본행 항공편을 한곳에서 확인하세요. 모든 시각은 한국 표준시(KST)입니다.
             </p>
           </div>
-          <div className={styles.clock}>
-            <SplitFlapText value={`${formatKoreanDateTime(new Date().toISOString())} KST`} delayMs={80} />
+          <div className={styles.clock} aria-label="현재 한국 시각">
+            <DepartureClock />
           </div>
         </header>
 
-        <DepartureCongestion results={[t1, t2]} now={now} />
+        <Suspense fallback={<SectionLoading label="출국장 대기 현황" />}>
+          <CongestionSection />
+        </Suspense>
+        <Suspense fallback={<SectionLoading label="일본행 출발편" />}>
+          <FlightSection />
+        </Suspense>
+      </section>
+    </main>
+    </DepartureLive>
+  );
+}
+
+async function CongestionSection() {
+  const results = await Promise.all([getDepartureCongestion("T1"), getDepartureCongestion("T2")]);
+  return <DepartureCongestion results={results} />;
+}
+
+function SectionLoading({ label }: { label: string }) {
+  return <section className={styles.loading} role="status" aria-busy="true">
+    <h2>{label}</h2><p>최신 정보를 불러오고 있습니다…</p>
+  </section>;
+}
+
+async function FlightSection() {
+  const result = await getJapanDepartures();
+  return <>
 
         <section className={styles.board} aria-label="인천공항 일본행 출발편">
           <div className={styles.boardTop}>
@@ -65,12 +89,12 @@ export default async function DeparturesPage() {
           {result.state === "ready" && result.range === "tomorrow-morning" ? (
             <div className={styles.rangeNotice} role="note">
               <span className={styles.rangeBadge}>내일</span>
-              <strong>{formatKoreanFlightDate(result.flights[0]?.scheduledAt)} 오전 출발편</strong>
+              <strong>{formatKoreanFlightDate(result.flights[0]?.revisedAt ?? result.flights[0]?.scheduledAt)} 오전 출발편</strong>
               <span>오늘 남은 출발편이 없어 00:00부터 09:00까지 표시합니다.</span>
             </div>
           ) : null}
 
-          {result.state === "ready" ? <FlightTable flights={result.flights} now={now} /> : <BoardState result={result} />}
+          {result.state === "ready" ? <FlightTable flights={result.flights} /> : <BoardState result={result} />}
         </section>
 
         <footer className={styles.footer}>
@@ -85,15 +109,13 @@ export default async function DeparturesPage() {
             출처 <strong>인천국제공항공사 · 공공데이터포털</strong>
           </p>
         </footer>
-      </section>
-    </main>
-  );
+  </>;
 }
 
-function FlightTable({ flights, now }: { flights: DepartureBoardFlight[]; now: number }) {
+function FlightTable({ flights }: { flights: DepartureBoardFlight[] }) {
   return (
     <DepartureFilters destinations={flights.map((flight) => ({ code: flight.destinationCode, name: flight.destination }))}
-      initialNow={now} header={<div className={styles.header} role="row">
+      header={<div className={styles.header} role="row">
         <span role="columnheader">항공편</span>
         <span role="columnheader">항공사</span>
         <span role="columnheader">목적지</span>
@@ -107,6 +129,7 @@ function FlightTable({ flights, now }: { flights: DepartureBoardFlight[]; now: n
           <div
             key={flight.id}
             className={`${styles.row} ${styles[flight.statusTone]}`}
+            data-flight-row
             role="row"
           >
             <span className={styles.flightNumber} role="cell"><SplitFlapText value={flight.number} delayMs={Math.min(index, 8) * 65} repeat /></span>

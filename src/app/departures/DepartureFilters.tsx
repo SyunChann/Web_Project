@@ -1,42 +1,53 @@
 "use client";
 
-import { createContext, Fragment, useContext, useEffect, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import styles from "./DepartureBoard.module.css";
-
-const BoardTime = createContext(0);
+import { useDepartureTime } from "./DepartureLive";
 
 type Destination = { code: string; name: string };
 
-export function DepartureFilters({ destinations, initialNow, header, children }: {
+export function DepartureFilters({ destinations, header, children }: {
   destinations: Destination[];
-  initialNow: number;
   header: ReactNode;
   children: ReactNode[];
 }) {
   const [selected, setSelected] = useState("");
-  const [now, setNow] = useState(initialNow);
+  const listRef = useRef<HTMLDivElement>(null);
+  const options = useMemo(() => Array.from(new Map(destinations.map((destination) => [destination.code, destination])).values())
+    .sort((a, b) => a.name.localeCompare(b.name, "ko")), [destinations]);
+  const activeSelection = options.some((option) => option.code === selected) ? selected : "";
+  const visibleCount = destinations.filter((destination) => !activeSelection || destination.code === activeSelection).length;
   useEffect(() => {
-    const update = () => {
-      if (!document.hidden) setNow(Date.now());
-    };
-    const timer = window.setInterval(update, 30_000);
+    const rows = Array.from(listRef.current?.querySelectorAll<HTMLElement>("[data-flight-row]") ?? []);
+    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => rows.forEach((row) => {
+      row.dataset.flipActive = String(row.dataset.flipVisible === "true" && !document.hidden && !motion.matches);
+    });
+    const observer = typeof IntersectionObserver === "undefined" ? null : new IntersectionObserver((entries) => {
+      for (const entry of entries) (entry.target as HTMLElement).dataset.flipVisible = String(entry.isIntersecting);
+      update();
+    });
+    rows.forEach((row) => {
+      row.dataset.flipVisible = String(!observer);
+      observer?.observe(row);
+    });
+    update();
     document.addEventListener("visibilitychange", update);
+    motion.addEventListener("change", update);
     return () => {
-      window.clearInterval(timer);
+      observer?.disconnect();
       document.removeEventListener("visibilitychange", update);
+      motion.removeEventListener("change", update);
+      rows.forEach((row) => { row.dataset.flipActive = "false"; });
     };
-  }, []);
-
-  const options = Array.from(new Map(destinations.map((destination) => [destination.code, destination])).values())
-    .sort((a, b) => a.name.localeCompare(b.name, "ko"));
-  const visibleCount = destinations.filter((destination) => !selected || destination.code === selected).length;
+  }, [children, activeSelection]);
 
   return (
-    <BoardTime.Provider value={now}>
+    <>
       <div className={styles.filters}>
         <label className={styles.mobileFilter}>
           <span>목적지</span>
-          <select value={selected} onChange={(event) => setSelected(event.target.value)}>
+          <select value={activeSelection} onChange={(event) => setSelected(event.target.value)}>
             <option value="">전체 목적지 ({destinations.length}편)</option>
             {options.map((destination) => (
               <option key={destination.code} value={destination.code}>{destination.name} · {destination.code}</option>
@@ -44,9 +55,9 @@ export function DepartureFilters({ destinations, initialNow, header, children }:
           </select>
         </label>
         <div className={styles.filterOptions} role="group" aria-label="목적지 필터">
-          <button type="button" aria-pressed={!selected} onClick={() => setSelected("")}>전체</button>
+          <button type="button" aria-pressed={!activeSelection} onClick={() => setSelected("")}>전체</button>
           {options.map((destination) => (
-            <button key={destination.code} type="button" aria-pressed={selected === destination.code}
+            <button key={destination.code} type="button" aria-pressed={activeSelection === destination.code}
               onClick={() => setSelected(destination.code)}>
               {destination.name} · {destination.code}
             </button>
@@ -60,17 +71,17 @@ export function DepartureFilters({ destinations, initialNow, header, children }:
       </div>
       <div role="table" aria-label="출발편 목록">
         {header}
-        <div role="rowgroup">
-          {children.map((row, index) => !selected || destinations[index].code === selected
-            ? <Fragment key={index}>{row}</Fragment> : null)}
+        <div role="rowgroup" ref={listRef}>
+          {children.map((row, index) => !activeSelection || destinations[index].code === activeSelection
+            ? <Fragment key={`${destinations[index].code}-${index}`}>{row}</Fragment> : null)}
         </div>
       </div>
-    </BoardTime.Provider>
+    </>
   );
 }
 
 export function DepartureCountdown({ at, status }: { at?: string; status: string }) {
-  const now = useContext(BoardTime);
+  const now = useDepartureTime();
   if (status === "canceled" || status === "departed") return null;
   const target = at ? Date.parse(at) : NaN;
   if (!Number.isFinite(target)) return null;

@@ -31,7 +31,7 @@ type PublicDataResponse = {
     };
     body?: {
       items?: PublicDepartureItem[] | { item?: PublicDepartureItem | PublicDepartureItem[] } | "";
-      totalCount?: number;
+      totalCount?: number | string;
     };
   };
 };
@@ -83,7 +83,7 @@ export async function getJapanDepartures(): Promise<DepartureBoardResult> {
     const todayResult = await fetchDepartureItems(serviceKey, timeWindow.date, timeWindow.apiFromTime, "2359");
     if (todayResult.state !== "success") return todayResult;
 
-    const todayFlights = toJapanFlights(todayResult.items, timeWindow.now, timeWindow.endOfDay);
+    const todayFlights = toJapanFlights(todayResult.items, timeWindow.now, timeWindow.endOfDay, timeWindow.date);
     if (todayFlights.length > 0) {
       return { state: "ready", flights: todayFlights, updatedAt: todayResult.updatedAt, range: "today" };
     }
@@ -91,7 +91,7 @@ export async function getJapanDepartures(): Promise<DepartureBoardResult> {
     const tomorrowResult = await fetchDepartureItems(serviceKey, timeWindow.tomorrowDate, "0000", "0900");
     if (tomorrowResult.state !== "success") return tomorrowResult;
 
-    const tomorrowFlights = toJapanFlights(tomorrowResult.items, timeWindow.tomorrowStart, timeWindow.tomorrowEnd);
+    const tomorrowFlights = toJapanFlights(tomorrowResult.items, timeWindow.tomorrowStart, timeWindow.tomorrowEnd, timeWindow.tomorrowDate);
     return tomorrowFlights.length > 0
       ? { state: "ready", flights: tomorrowFlights, updatedAt: tomorrowResult.updatedAt, range: "tomorrow-morning" }
       : { state: "empty", flights: [], updatedAt: tomorrowResult.updatedAt };
@@ -132,6 +132,38 @@ async function fetchDepartureItems(
   fromTime: string,
   toTime: string,
 ): Promise<PublicDepartureFetchResult> {
+  const items: PublicDepartureItem[] = [];
+  const seenPages = new Set<string>();
+  const signal = AbortSignal.timeout(20_000);
+  let updatedAt = "";
+  let expectedCount: number | undefined;
+  // Bound unexpected upstream pagination without ever presenting partial results as complete.
+  for (let page = 1; page <= 20; page++) {
+    const result = await fetchDeparturePage(serviceKey, date, fromTime, toTime, page, signal);
+    if (result.state !== "success") return result;
+    if (result.totalCount !== undefined) {
+      if (expectedCount !== undefined && expectedCount !== result.totalCount) return { state: "unavailable", flights: [] };
+      expectedCount = result.totalCount;
+    }
+    if (!updatedAt) updatedAt = result.updatedAt;
+    const fingerprint = JSON.stringify(result.items);
+    if (result.items.length && seenPages.has(fingerprint)) return { state: "unavailable", flights: [] };
+    seenPages.add(fingerprint);
+    items.push(...result.items);
+    if (expectedCount !== undefined) {
+      if (items.length > expectedCount) return { state: "unavailable", flights: [] };
+      if (items.length === expectedCount) return { state: "success", items, updatedAt };
+      if (!result.items.length) return { state: "unavailable", flights: [] };
+    } else if (result.items.length < 500) {
+      return { state: "success", items, updatedAt };
+    }
+  }
+  return { state: "unavailable", flights: [] };
+}
+
+async function fetchDeparturePage(
+  serviceKey: string, date: string, fromTime: string, toTime: string, page: number, signal: AbortSignal,
+): Promise<(Extract<PublicDepartureFetchResult, { state: "success" }> & { totalCount?: number }) | DepartureBoardServiceError> {
   const query = new URLSearchParams({
     serviceKey,
     type: "json",
@@ -144,11 +176,11 @@ async function fetchDepartureItems(
     inqtimechcd: "E",
     lang: "K",
     numOfRows: "500",
-    pageNo: "1",
+    pageNo: String(page),
   });
   const response = await fetch(`${DEPARTURES_API_URL}?${query}`, {
     next: { revalidate: 300 },
-    signal: AbortSignal.timeout(12_000),
+    signal,
   });
 
   if (response.status === 429) return { state: "rate-limit", flights: [], diagnostic: "HTTP 429" };
@@ -168,31 +200,53 @@ async function fetchDepartureItems(
   if (text.trimStart().startsWith("<")) {
     const error = mapPublicDataError(readXmlErrorCode(text));
     return error.state === "empty"
-      ? { state: "success", items: [], updatedAt: response.headers.get("date") ?? new Date().toISOString() }
+      ? { state: "success", items: [], totalCount: page === 1 ? 0 : undefined, updatedAt: validResponseDate(response.headers.get("date")) }
       : error;
   }
 
-  const payload = JSON.parse(text) as PublicDataResponse;
+  const payload = JSON.parse(text) as PublicDataResponse & {
+    OpenAPI_ServiceResponse?: { cmmMsgHeader?: { returnReasonCode?: string } };
+  };
+  if (!payload || typeof payload !== "object") return { state: "unavailable", flights: [] };
+  const gatewayCode = payload.OpenAPI_ServiceResponse?.cmmMsgHeader?.returnReasonCode;
+  if (gatewayCode) {
+    const error = mapPublicDataError(String(gatewayCode));
+    return error.state === "empty"
+      ? { state: "success", items: [], totalCount: page === 1 ? 0 : undefined, updatedAt: new Date().toISOString() }
+      : error;
+  }
   const resultCode = String(payload.response?.header?.resultCode ?? "");
-  if (resultCode && resultCode !== "00") {
+  if (resultCode !== "00") {
     const error = mapPublicDataError(resultCode);
     return error.state === "empty"
-      ? { state: "success", items: [], updatedAt: response.headers.get("date") ?? new Date().toISOString() }
+      ? { state: "success", items: [], totalCount: page === 1 ? 0 : undefined, updatedAt: validResponseDate(response.headers.get("date")) }
       : error;
   }
 
+  const body = payload.response?.body;
+  if (!body || typeof body !== "object") return { state: "unavailable", flights: [] };
+  const count = body.totalCount;
+  const totalCount = count === undefined ? undefined : Number(count);
+  if (count !== undefined && ((typeof count !== "number" && typeof count !== "string") || String(count).trim() === ""
+    || !Number.isSafeInteger(totalCount) || totalCount! < 0)) return { state: "unavailable", flights: [] };
+  const items = getItems(body.items, totalCount);
+  if (!items || (totalCount === 0 && items.length > 0)) return { state: "unavailable", flights: [] };
   return {
     state: "success",
-    items: getItems(payload.response?.body?.items),
-    updatedAt: response.headers.get("date") ?? new Date().toISOString(),
+    items, totalCount,
+    updatedAt: validResponseDate(response.headers.get("date")),
   };
 }
 
-function toJapanFlights(items: PublicDepartureItem[], start: number, end: number) {
+function validResponseDate(value: string | null) {
+  return value && Number.isFinite(Date.parse(value)) ? new Date(value).toISOString() : new Date().toISOString();
+}
+
+function toJapanFlights(items: PublicDepartureItem[], start: number, end: number, date: string) {
   return items
     .filter((item) => item.codeshare?.trim().toLowerCase() !== "slave")
     .filter((item) => JAPAN_AIRPORT_CODES.has(item.airportCode?.trim().toUpperCase() ?? ""))
-    .map(toBoardFlight)
+    .map((item, index) => toBoardFlight(item, index, date))
     .filter((flight) => isWithinTimeWindow(flight, start, end))
     .sort((a, b) => getSortTime(a) - getSortTime(b));
 }
@@ -208,15 +262,32 @@ function normalizeServiceKey(value?: string) {
   }
 }
 
-function getItems(items?: PublicDepartureItem[] | { item?: PublicDepartureItem | PublicDepartureItem[] } | "") {
-  if (Array.isArray(items)) return items;
-  if (!items || typeof items !== "object" || !("item" in items) || !items.item) return [];
-  return Array.isArray(items.item) ? items.item : [items.item];
+function getItems(items: unknown, totalCount?: number): PublicDepartureItem[] | null {
+  if ((items === "" || items == null) && totalCount === 0) return [];
+  const wrapped = items && typeof items === "object" && "item" in items ? items.item : items;
+  if ((wrapped === "" || wrapped == null) && totalCount === 0) return [];
+  const rows = Array.isArray(wrapped) ? wrapped : wrapped && typeof wrapped === "object" ? [wrapped] : null;
+  if (!rows) return null;
+  for (const row of rows) {
+    if (!row || typeof row !== "object" || Array.isArray(row)) return null;
+    if (!["airline", "flightId", "airport", "airportCode", "terminalid", "remark", "codeshare"].every(
+      (key) => row[key] == null || typeof row[key] === "string")) return null;
+    if (!["scheduleDateTime", "estimatedDateTime", "gatenumber"].every(
+      (key) => row[key] == null || typeof row[key] === "string" || typeof row[key] === "number")) return null;
+    if (!row.flightId || !row.airportCode || row.scheduleDateTime == null || row.scheduleDateTime === "") return null;
+  }
+  return rows;
 }
 
-function toBoardFlight(item: PublicDepartureItem, index: number): DepartureBoardFlight {
-  const scheduledAt = parseKoreanDateTime(item.scheduleDateTime);
-  const estimatedAt = parseKoreanDateTime(item.estimatedDateTime);
+function toBoardFlight(item: PublicDepartureItem, index: number, date: string): DepartureBoardFlight {
+  const scheduledAt = parseKoreanDateTime(item.scheduleDateTime, date);
+  const scheduledDate = scheduledAt?.slice(0, 10).replaceAll("-", "") ?? date;
+  let estimatedAt = parseKoreanDateTime(item.estimatedDateTime, scheduledDate);
+  // A time-only estimate after midnight belongs to the next day for a late-night flight.
+  if (scheduledAt && estimatedAt && isTimeOnly(item.estimatedDateTime)
+    && Date.parse(scheduledAt) - Date.parse(estimatedAt) > 12 * 3_600_000) {
+    estimatedAt = new Date(Date.parse(estimatedAt) + 24 * 3_600_000).toISOString();
+  }
   const status = normalizeStatus(item.remark);
 
   return {
@@ -234,23 +305,27 @@ function toBoardFlight(item: PublicDepartureItem, index: number): DepartureBoard
   };
 }
 
-function parseKoreanDateTime(value?: string | number) {
+function parseKoreanDateTime(value: string | number | undefined, date: string) {
   if (value === undefined || value === null) return undefined;
 
-  const digits = String(value).replace(/\D/g, "");
-  if (digits.length >= 12) {
-    return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)}T${digits.slice(8, 10)}:${digits.slice(10, 12)}:00+09:00`;
-  }
+  const raw = String(value).trim();
+  const time = raw.match(/^(\d{2}):(\d{2})(?::(\d{2}))?$/);
+  const formatted = raw.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2}))?(?:\+09:00)?$/);
+  const compact = typeof value === "number" && Number.isInteger(value) && value >= 0 && value <= 2359
+    ? raw.padStart(4, "0") : raw;
+  const digits = time ? `${date}${time[1]}${time[2]}${time[3] ?? "00"}`
+    : formatted ? formatted.slice(1).map((part) => part ?? "00").join("")
+      : /^\d{4}$/.test(compact) ? `${date}${compact}` : compact;
+  if (!/^(?:\d{12}|\d{14})$/.test(digits)) return undefined;
+  const local = `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)}T${digits.slice(8, 10)}:${digits.slice(10, 12)}:${digits.slice(12, 14) || "00"}`;
+  const parsed = Date.parse(`${local}+09:00`);
+  if (!Number.isFinite(parsed) || new Date(parsed + 9 * 3_600_000).toISOString().slice(0, 19) !== local) return undefined;
+  return `${local}+09:00`;
+}
 
-  if (digits.length === 4) {
-    const today = new Date(Date.now() + 9 * 60 * 60 * 1000);
-    const year = today.getUTCFullYear();
-    const month = String(today.getUTCMonth() + 1).padStart(2, "0");
-    const day = String(today.getUTCDate()).padStart(2, "0");
-    return `${year}-${month}-${day}T${digits.slice(0, 2)}:${digits.slice(2, 4)}:00+09:00`;
-  }
-
-  return undefined;
+function isTimeOnly(value: string | number | undefined) {
+  return typeof value === "number" ? Number.isInteger(value) && value >= 0 && value <= 2359
+    : /^(?:\d{4}|\d{2}:\d{2}(?::\d{2})?)$/.test(value?.trim() ?? "");
 }
 
 function normalizeTerminal(value?: string) {
@@ -297,16 +372,17 @@ function readXmlErrorCode(xml: string) {
 function mapPublicDataError(code: string): DepartureBoardServiceError | { state: "empty"; flights: []; updatedAt: string } {
   const normalized = code.trim().toUpperCase();
   if (normalized === "03") return { state: "empty", flights: [], updatedAt: new Date().toISOString() };
-  if (normalized === "22" || normalized.includes("LIMIT")) {
-    return { state: "rate-limit", flights: [], diagnostic: `OPENAPI ${normalized}` };
+  const diagnostic = /^\d+$/.test(normalized) ? `OPENAPI ${normalized}` : undefined;
+  if (["22", "23"].includes(normalized) || normalized.includes("LIMIT")) {
+    return { state: "rate-limit", flights: [], diagnostic };
   }
   if (["20", "30", "31", "32"].includes(normalized) || normalized.includes("SERVICE_KEY")) {
-    return { state: "authentication", flights: [], diagnostic: `OPENAPI ${normalized}` };
+    return { state: "authentication", flights: [], diagnostic };
   }
   if (["10", "11", "12", "99"].includes(normalized)) {
-    return { state: "bad-request", flights: [], diagnostic: `OPENAPI ${normalized}` };
+    return { state: "bad-request", flights: [], diagnostic };
   }
 
-  console.error(`[Incheon Airport API] public-data error (${normalized || "unknown"}).`);
+  console.error("[Incheon Airport API] invalid public-data response.");
   return { state: "unavailable", flights: [] };
 }

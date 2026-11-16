@@ -95,17 +95,21 @@
 }
 
 .repeat .flipTop {
+  visibility: var(--flap-overlay-visibility, visible);
   animation-name: flapTopRepeated;
   animation-duration: 15s;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
+  animation-play-state: var(--flap-play-state, running);
 }
 
 .repeat .flipBottom {
+  visibility: var(--flap-overlay-visibility, visible);
   animation-name: flapBottomRepeated;
   animation-duration: 15s;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
+  animation-play-state: var(--flap-play-state, running);
 }
 
 .flap::after {

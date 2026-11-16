@@ -32,12 +32,17 @@
 .message { padding: 1.5rem .5rem; color: #537488; font-size: .9rem; line-height: 1.7; }
 @media (max-width: 720px) {
   .panel { padding: .75rem; }
-  .gates { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem; }
-  .gate { padding: .55rem; }
+  .gates { grid-template-columns: minmax(0, 1fr); gap: .6rem; }
+  .gate { padding: .7rem; }
   .heading h2 { font-size: 1rem; }
-  .heading p { font-size: .72rem; }
+  .heading p, .locationHint, .refresh { font-size: .8rem; }
   .terminals button { font-size: .8rem; }
-  .values { gap: .2rem; }
-  .values strong { font-size: .85rem; }
-  .values > span { font-size: .7rem; }
+  .lane { padding: .6rem 0; }
+  .laneName { font-size: .85rem; }
+  .values { gap: .3rem .5rem; }
+  .values strong { font-size: 1rem; }
+  .values > span, .values .noData { font-size: .8rem; }
+  .values .level { font-size: .75rem; }
+  .observed, .operating { font-size: .75rem; }
+  .note, .source { font-size: .78rem; }
 }
