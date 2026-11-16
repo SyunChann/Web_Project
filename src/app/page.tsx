@@ -73,7 +73,7 @@ async function HomeDashboard() {
       <DashboardSection href="/restaurants/items?scope=overseas" icon={<MapPinned size={20} />} label={"\uD574\uC678 \uB9DB\uC9D1"} latest={overseasRestaurants[0]?.title} latestDate={overseasRestaurants[0]?.createdAt} tone="blue" />
       <DashboardSection href="/travel/items" icon={<Plane size={20} />} label={"\uD574\uC678\uC5EC\uD589"} latest={travelPosts[0]?.travel.tripTitle ?? travelPosts[0]?.travel.title} latestDate={travelPosts[0]?.travel.createdAt} tone="green" />
       <DepartureBoardCard />
-      <DashboardSection href="/drinks" icon={<Wine size={20} />} label="술 취향" latest="마신 술 리뷰 · 궁금한 술" meta="위스키 · 사케 · 전통주" tone="red" />
+      <DashboardSection href="/drinks" icon={<Wine size={20} />} label="술 취향" latest="마신 술 리뷰 · 궁금한 술" meta="위스키 · 사케 · 전통주" tone="indigo" />
       <DashboardSection href="/lck-calendar" icon={<Trophy size={20} />} label="LCK" latest="LCK 경기 캘린더" meta="네이버 e스포츠 연동" tone="red" />
     </section>
   );
@@ -168,7 +168,7 @@ function DashboardSection({
   latest?: string;
   latestDate?: string;
   meta?: string;
-  tone: "red" | "teal" | "orange" | "blue" | "green" | "purple";
+  tone: "red" | "teal" | "orange" | "blue" | "green" | "purple" | "indigo";
 }) {
   const themes = {
     red: { border: "hover:border-[#be4b49]", icon: "bg-[#fff0ed] text-[#be4b49]", accent: "text-[#be4b49]" },
@@ -177,6 +177,7 @@ function DashboardSection({
     blue: { border: "hover:border-[#0284c7]", icon: "bg-[#e8f5fb] text-[#0284c7]", accent: "text-[#0284c7]" },
     green: { border: "hover:border-[#65a30d]", icon: "bg-[#f2f8e8] text-[#4d7c0f]", accent: "text-[#4d7c0f]" },
     purple: { border: "hover:border-[#9249be]", icon: "bg-[#f7edfb] text-[#9249be]", accent: "text-[#9249be]" },
+    indigo: { border: "hover:border-[#304d70]", icon: "bg-[#eaf0f6] text-[#304d70]", accent: "text-[#304d70]" },
   } as const;
   const theme = themes[tone];
 

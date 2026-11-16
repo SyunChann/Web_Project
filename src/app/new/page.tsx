@@ -208,7 +208,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
             description="사용한 상품의 리뷰를 기록합니다."
             tone="merchandise"
           />
-          <PostTypeCard href="/drinks/new" icon={<Wine size={20} />} title="술 취향" description="마신 술 리뷰와 궁금한 술, 별점과 맛을 남깁니다." tone="review" />
+          <PostTypeCard href="/drinks/new" icon={<Wine size={20} />} title="술 취향" description="마신 술 리뷰와 궁금한 술, 별점과 맛을 남깁니다." tone="drinks" />
         </div>
       </section>
     </main>
@@ -226,9 +226,10 @@ function PostTypeCard({
   icon: ReactNode;
   title: string;
   description: string;
-  tone: "review" | "watchlist" | "restaurants" | "overseas" | "travel" | "merchandise";
+  tone: "review" | "watchlist" | "restaurants" | "overseas" | "travel" | "merchandise" | "drinks";
 }) {
   const theme = {
+    drinks: { border: "hover:border-[#304d70]", icon: "bg-[#eaf0f6] text-[#304d70]" },
     review: {
       border: "hover:border-[#be4b49]",
       icon: "bg-[#fde8e7] text-[#be4b49]",

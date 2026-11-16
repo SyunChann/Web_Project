@@ -140,8 +140,8 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
       admin: "bg-[#e0f2fe] text-[#075985]",
     },
     drinks: {
-      brandHover: "hover:border-[#79364b]", icon: "bg-[#79364b] group-hover:bg-[#622a3c]", text: "text-[#79364b]",
-      controlHover: "hover:border-[#79364b] hover:text-[#79364b]", primary: "bg-[#79364b] hover:bg-[#622a3c]", admin: "bg-[#f6e9ed] text-[#79364b]",
+      brandHover: "hover:border-[#304d70]", icon: "bg-[#304d70] group-hover:bg-[#253c59]", text: "text-[#304d70]",
+      controlHover: "hover:border-[#304d70] hover:text-[#304d70]", primary: "bg-[#304d70] hover:bg-[#253c59]", admin: "bg-[#eaf0f6] text-[#304d70]",
     },
     default: {
       brandHover: "hover:border-[#be4b49]",
@@ -299,7 +299,7 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
               activeClass="bg-[#fff7ed] text-[#b45309]"
               hoverClass="hover:bg-[#fff7ed] hover:text-[#b45309]"
             />
-            <NavMenuLink href="/drinks" active={active === "drinks"} icon={<Wine size={16} />} label="술 취향" activeClass="bg-[#f6e9ed] text-[#79364b]" hoverClass="hover:bg-[#f6e9ed] hover:text-[#79364b]" />
+            <NavMenuLink href="/drinks" active={active === "drinks"} icon={<Wine size={16} />} label="술 취향" activeClass="bg-[#eaf0f6] text-[#304d70]" hoverClass="hover:bg-[#eaf0f6] hover:text-[#304d70]" />
           </div>
         </details>
 
