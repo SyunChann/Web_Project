@@ -3,7 +3,7 @@
 좋아하는 콘텐츠, 맛집, 여행과 술을 기록하고 나누는 취향 아카이브입니다.
 개인적인 감상부터 여행에 필요한 정보까지 한곳에서 모아볼 수 있도록 만들었습니다.
 
-[사이트 열기](https://web-project-omega-ruby-60.vercel.app)
+[사이트 열기](https://syun-archive.vercel.app)
 
 <p align="center">
   <img src="public/thumbnails/home-preview.png" alt="취향 보관소 메인 화면" width="960" />

@@ -1,4 +1,4 @@
-const fallbackSiteUrl = "https://web-project-omega-ruby-60.vercel.app";
+const fallbackSiteUrl = "https://syun-archive.vercel.app";
 
 export function getSiteUrl() {
   const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();

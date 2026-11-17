@@ -57,8 +57,8 @@ Google Maps 키는 운영·로컬 도메인으로 HTTP 리퍼러를 제한합니
 
 Supabase Authentication 설정:
 
-1. **Site URL**을 운영 주소로 설정하고 `NEXT_PUBLIC_SITE_URL`과 맞춥니다.
-2. **Redirect URLs**에 `https://운영도메인/auth/recovery`를 등록합니다.
+1. **Site URL**과 Vercel의 `NEXT_PUBLIC_SITE_URL`을 `https://syun-archive.vercel.app`으로 설정합니다.
+2. **Redirect URLs**에 `https://syun-archive.vercel.app/auth/recovery`를 등록합니다. 로컬 개발은 `NEXT_PUBLIC_SITE_URL=http://localhost:4281`로 바꾸고 `http://localhost:4281/auth/recovery`도 등록합니다.
 3. 다른 기기에서도 재설정 링크를 열려면 Reset Password 메일에 아래 링크를 사용합니다.
 
 ```html
