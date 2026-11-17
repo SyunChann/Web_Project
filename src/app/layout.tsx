@@ -11,25 +11,39 @@ const mainFont = localFont({
   display: "swap",
 });
 
+const siteTitle = "취향 보관소";
+const siteDescription = "좋아하는 콘텐츠, 맛집, 여행과 술을 기록하는 공간.";
+const shareImage = {
+  url: "/social-preview.png",
+  width: 1731,
+  height: 909,
+  alt: "취향 보관소 — 콘텐츠 · 맛집 · 여행 · 술",
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
-  applicationName: "취향보관소",
-  title: "취향보관소",
-  description: "콘텐츠 리뷰, 기대작, 맛집, 여행과 추천 기록을 모아두는 개인 취향 아카이브",
+  applicationName: siteTitle,
+  title: siteTitle,
+  description: siteDescription,
   verification: {
     google: "By_xqE24eXDuy7_6PZM5pbDTs7UEhke4ussjcWcsx6w",
+    other: {
+      "naver-site-verification": "5397321c629e72b032fa829f420d4d9d8d008193",
+    },
   },
   openGraph: {
     type: "website",
     locale: "ko_KR",
-    siteName: "취향보관소",
-    title: "취향보관소",
-    description: "콘텐츠 리뷰, 기대작, 맛집, 여행과 추천 기록을 모아두는 개인 취향 아카이브",
+    siteName: siteTitle,
+    title: siteTitle,
+    description: siteDescription,
+    images: [shareImage],
   },
   twitter: {
-    card: "summary",
-    title: "취향보관소",
-    description: "콘텐츠 리뷰, 기대작, 맛집, 여행과 추천 기록을 모아두는 개인 취향 아카이브",
+    card: "summary_large_image",
+    title: siteTitle,
+    description: siteDescription,
+    images: [{ url: shareImage.url, alt: shareImage.alt }],
   },
 };
 

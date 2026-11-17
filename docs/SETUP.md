@@ -79,6 +79,10 @@ Supabase Authentication 설정:
 
 ## 검사·배포
 
+카톡 등 링크 미리보기는 `public/social-preview.png`와 `src/app/layout.tsx`의 Open Graph 설정을 사용합니다.
+배포 후 이전 미리보기가 남으면 [카카오 공유 디버거](https://developers.kakao.com/tool/debugger/sharing)에서 캐시를 초기화합니다.
+네이버 소유 확인 태그도 루트 레이아웃에서 관리합니다.
+
 ```bash
 node --test scripts/*.test.mjs
 npx tsc --noEmit
