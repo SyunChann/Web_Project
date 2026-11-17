@@ -1,6 +1,8 @@
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import { ListNavigation } from "@/components/ListNavigation";
 import localFont from "next/font/local";
 import { getSiteUrl } from "@/lib/siteUrl";
 import "./globals.css";
@@ -56,6 +58,7 @@ export default function RootLayout({
     <html lang="ko" className={mainFont.variable}>
       <body>
         {children}
+        <Suspense fallback={null}><ListNavigation /></Suspense>
         <Analytics />
         <SpeedInsights />
       </body>

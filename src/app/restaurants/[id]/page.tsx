@@ -17,6 +17,7 @@ import { notFound } from "next/navigation";
 import { postMetadata } from "@/lib/postMetadata";
 import { deleteRestaurantReview } from "@/app/actions/restaurants";
 import { AppNav } from "@/components/AppNav";
+import { ListBackLink } from "@/components/ListBackLink";
 import { DeleteRestaurantsReviewButton } from "@/components/restaurants/DeleteRestaurantsReviewButton";
 import { ThumbnailImage } from "@/components/ThumbnailImage";
 import {
@@ -123,13 +124,13 @@ export default async function RestaurantsDetailPage({
 
         <article className="mx-auto mt-10 w-full max-w-3xl">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <Link
+            <ListBackLink
               href={listHref}
               className={`inline-flex items-center gap-2 text-sm font-bold transition ${accentText} ${accentHoverText}`}
             >
               <ArrowLeft size={17} />
               {isOverseas ? "해외 맛집 목록" : "맛집 목록"}
-            </Link>
+            </ListBackLink>
 
             {canManageReview ? (
               <div className="flex flex-wrap gap-2">

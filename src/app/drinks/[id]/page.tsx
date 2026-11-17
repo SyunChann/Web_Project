@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppNav } from "@/components/AppNav";
+import { ListBackLink } from "@/components/ListBackLink";
 import { StarRating } from "@/components/drinks/StarRating";
 import { DeleteDrinkButton } from "@/components/drinks/DeleteDrinkButton";
 import styles from "@/components/drinks/Drinks.module.css";
@@ -22,7 +23,7 @@ export default async function DrinkDetailPage({ params }: { params: Promise<{ id
   const client = await createSupabaseServerClient();
   const { data: { user } } = client ? await client.auth.getUser() : { data: { user: null } };
   return <main className={styles.page}><section className={styles.shell}><AppNav active="drinks" /><article className={styles.article}>
-    <Link href="/drinks" className={styles.back}>← 술 취향 목록</Link>
+    <ListBackLink href="/drinks" className={styles.back}>← 술 취향 목록</ListBackLink>
     {error || !post ? <p className={styles.notice} role="status">{error}</p> : <>
       <header className={styles.hero}><div><div className={styles.badges}><span>{drinkCategories[post.category]}</span><span>{drinkKinds[post.kind]}</span></div><h1>{post.name}</h1>
         <div className={styles.meta}><span>작성자 {post.author_name}</span><time dateTime={post.created_at}>{new Intl.DateTimeFormat("ko-KR", { timeZone: "Asia/Seoul", dateStyle: "long" }).format(new Date(post.created_at))}</time></div>

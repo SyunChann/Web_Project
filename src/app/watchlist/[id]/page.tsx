@@ -11,6 +11,7 @@ import { notFound } from "next/navigation";
 import { postMetadata } from "@/lib/postMetadata";
 import { deleteWatchlistItem } from "@/app/actions/watchlist";
 import { AppNav } from "@/components/AppNav";
+import { ListBackLink } from "@/components/ListBackLink";
 import { DeleteWatchlistButton } from "@/components/watchlist/DeleteWatchlistButton";
 import { ThumbnailImage } from "@/components/ThumbnailImage";
 import {
@@ -77,13 +78,13 @@ export default async function WatchlistDetailPage({
         <AppNav active="watchlist" />
         <article className="mx-auto mt-10 w-full max-w-3xl">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <Link
+          <ListBackLink
             href="/watchlist/items"
             className="inline-flex items-center gap-2 text-sm font-bold text-[#2f7f7a]"
           >
             <ArrowLeft size={17} />
             기대작 목록
-          </Link>
+          </ListBackLink>
 
           {canManageItem ? (
             <div className="flex flex-wrap gap-2">

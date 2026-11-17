@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { postMetadata } from "@/lib/postMetadata";
 import { deleteMerchandiseReview } from "@/app/actions/merchandise";
 import { AppNav } from "@/components/AppNav";
+import { ListBackLink } from "@/components/ListBackLink";
 import { DeleteMerchandiseReviewButton } from "@/components/merchandise/DeleteMerchandiseReviewButton";
 import { ThumbnailImage } from "@/components/ThumbnailImage";
 import {
@@ -69,13 +70,13 @@ export default async function MerchandiseReviewDetailPage({
         <AppNav active="merchandise" />
         <article className="mx-auto mt-10 w-full max-w-3xl">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <Link
+          <ListBackLink
             href="/merchandise"
             className="inline-flex items-center gap-2 text-sm font-bold text-[#be4b49]"
           >
             <ArrowLeft size={17} />
             리뷰 목록
-          </Link>
+          </ListBackLink>
 
           {canManageReview ? (
             <div className="flex flex-wrap gap-2">

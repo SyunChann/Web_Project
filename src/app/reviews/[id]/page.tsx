@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { postMetadata } from "@/lib/postMetadata";
 import { deleteReview } from "@/app/actions/reviews";
 import { AppNav } from "@/components/AppNav";
+import { ListBackLink } from "@/components/ListBackLink";
 import { DeleteReviewButton } from "@/components/reviews/DeleteReviewButton";
 import { ThumbnailImage } from "@/components/ThumbnailImage";
 import {
@@ -72,13 +73,13 @@ export default async function ReviewDetailPage({
         <AppNav active="reviews" />
         <article className="mx-auto mt-10 w-full max-w-3xl">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <Link
+          <ListBackLink
             href="/reviews"
             className="inline-flex items-center gap-2 text-sm font-bold text-[#be4b49]"
           >
             <ArrowLeft size={17} />
             리뷰 목록
-          </Link>
+          </ListBackLink>
 
           {canManageReview ? (
             <div className="flex flex-wrap gap-2">

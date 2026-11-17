@@ -14,6 +14,7 @@ import { notFound } from "next/navigation";
 import { postMetadata } from "@/lib/postMetadata";
 import { deleteTravel } from "@/app/actions/travel";
 import { AppNav } from "@/components/AppNav";
+import { ListBackLink } from "@/components/ListBackLink";
 import { DeleteReviewButton } from "@/components/travel/DeleteTravelButtom";
 import { ThumbnailImage } from "@/components/ThumbnailImage";
 import { getTravel, getTravels, sortTravelStops, travelToStop } from "@/data/travel";
@@ -97,10 +98,10 @@ export default async function TravelDetailPage({ params }: TravelDetailPageProps
 
         <article className="mx-auto mt-7 w-full max-w-3xl sm:mt-10">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <Link href="/travel/items" className="inline-flex items-center gap-2 text-sm font-bold text-[#4d7c0f] hover:text-[#3f6212]">
+            <ListBackLink href="/travel/items" className="inline-flex items-center gap-2 text-sm font-bold text-[#4d7c0f] hover:text-[#3f6212]">
               <ArrowLeft size={17} />
               여행리뷰 목록
-            </Link>
+            </ListBackLink>
             {canManageTravel ? (
               <div className="flex flex-wrap gap-2">
                 <Link href={`/travel/${item.id}/map`} className="inline-flex items-center gap-2 rounded-md border border-[#d9efb9] bg-[#f7fee7] px-4 py-2 text-sm font-bold text-[#4d7c0f] shadow-sm transition hover:border-[#65a30d]">
