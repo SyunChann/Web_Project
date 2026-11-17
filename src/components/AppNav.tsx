@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import {
   Bookmark,
   Building2,
-  CalendarDays,
+  PlaneTakeoff,
   ChevronDown,
   Ellipsis,
   Home,
@@ -360,7 +360,7 @@ function MobileBottomNav({ active }: { active: NonNullable<AppNavProps["active"]
     <Link href="/" aria-current={active === "home" ? "page" : undefined} className={mobileNavButton(active === "home")}><Home size={19} /><span>홈</span></Link>
     <MobileNavGroup label="콘텐츠" icon={<Library size={19} />} active={isContentSection} items={[{ href: "/reviews", label: "콘텐츠 리뷰" }, { href: "/watchlist/items", label: "기대작" }, { href: "/merchandise", label: "상품 리뷰" }, { href: "/drinks", label: "술 취향" }]} />
     <Link href="/recommendations" aria-current={active === "reviews" ? "page" : undefined} className={mobileNavButton(false)}><Sparkles size={19} /><span>에디터픽</span></Link>
-    <MobileNavGroup label="경기일정" icon={<CalendarDays size={19} />} active={false} align="right" items={[{ href: "/release-calendar", label: "릴리즈 캘린더" }, { href: "/lck-calendar", label: "LCK 경기 일정" }, { href: "/lck-analysis", label: "LCK 밴픽 분석" }]} />
+    <Link href="/departures" aria-current={active === "departures" ? "page" : undefined} className={mobileNavButton(active === "departures")}><PlaneTakeoff size={19} /><span>출국안내</span></Link>
   </div>;
 }
 
