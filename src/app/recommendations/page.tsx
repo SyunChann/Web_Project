@@ -20,7 +20,7 @@ export default async function RecommendationsPage() {
   const imageFor = (product: TossSharelinkProduct) => getTossThumbnailUrl(product, blocked);
   return <main className="min-h-screen px-4 py-6 sm:px-10 sm:py-8">
     <section className={styles.shell}>
-      <AppNav active="reviews" showAuth={false} />
+      <AppNav active="recommendations" showAuth={false} />
       <header className={styles.hero}>
         <ContentSectionTabs active="recommendations" />
         <div className={styles.heading}>
