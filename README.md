@@ -5,7 +5,7 @@
 [사이트 열기](https://web-project-omega-ruby-60.vercel.app)
 
 <p align="center">
-  <img src="public/thumbnails/Screenshot%202026-07-17%20at%2005.25.51.png" alt="취향 보관소 메인 화면" width="960" />
+  <img src="public/thumbnails/home-preview.png" alt="취향 보관소 메인 화면" width="960" />
 </p>
 
 ## 주요 기능
