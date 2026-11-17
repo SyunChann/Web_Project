@@ -3,7 +3,7 @@ begin;
 create table if not exists public.drink_posts (
   id uuid primary key default gen_random_uuid(),
   name text not null check (char_length(btrim(name)) between 1 and 100),
-  category text not null check (category in ('whisky','sake','traditional','other')),
+  category text not null check (category in ('whisky','sake','traditional','beer','other')),
   kind text not null check (kind in ('review','curious')),
   rating numeric(2,1),
   body text not null check (char_length(btrim(body)) between 1 and 10000),

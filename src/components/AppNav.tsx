@@ -12,7 +12,6 @@ import {
   Plus,
   Utensils,
   Plane,
-  Swords,
   Sparkles,
   Wine,
 } from "lucide-react";
@@ -33,7 +32,6 @@ type AppNavProps = {
     | "travel"
     | "restaurant-map"
     | "merchandise"
-    | "games"
     | "departures"
     | "drinks"
     | "ai-office"
@@ -66,7 +64,6 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
     travel: "해외여행",
     "restaurant-map": "해외 맛집리뷰 지도",
     merchandise: "상품리뷰",
-    games: "미니게임",
     departures: "인천공항 출국 안내",
     drinks: "술 취향",
     "ai-office": "AI Office",
@@ -291,14 +288,6 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
               activeClass="bg-[#f7fee7] text-[#3f6212]" 
               hoverClass="hover:bg-[#f7fee7] hover:text-[#4d7c0f]" 
             />
-            <NavMenuLink
-              href="/omok"
-              active={active === "games"}
-              icon={<Swords size={16} />}
-              label="미니게임"
-              activeClass="bg-[#fff7ed] text-[#b45309]"
-              hoverClass="hover:bg-[#fff7ed] hover:text-[#b45309]"
-            />
             <NavMenuLink href="/drinks" active={active === "drinks"} icon={<Wine size={16} />} label="술 취향" activeClass="bg-[#eaf0f6] text-[#304d70]" hoverClass="hover:bg-[#eaf0f6] hover:text-[#304d70]" />
           </div>
         </details>
@@ -367,12 +356,11 @@ function OfficeFloatingLink() {
 
 function MobileBottomNav({ active }: { active: NonNullable<AppNavProps["active"]> }) {
   const isContentSection = active === "reviews" || active === "watchlist" || active === "merchandise" || active === "drinks";
-  return <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-[#d8cfc2] bg-white/95 px-1 pb-[max(0.35rem,env(safe-area-inset-bottom))] pt-1 shadow-[0_-4px_16px_rgba(23,32,42,0.08)] backdrop-blur sm:hidden">
+  return <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-[#d8cfc2] bg-white/95 px-1 pb-[max(0.35rem,env(safe-area-inset-bottom))] pt-1 shadow-[0_-4px_16px_rgba(23,32,42,0.08)] backdrop-blur sm:hidden">
     <Link href="/" aria-current={active === "home" ? "page" : undefined} className={mobileNavButton(active === "home")}><Home size={19} /><span>홈</span></Link>
     <MobileNavGroup label="콘텐츠" icon={<Library size={19} />} active={isContentSection} items={[{ href: "/reviews", label: "콘텐츠 리뷰" }, { href: "/watchlist/items", label: "기대작" }, { href: "/merchandise", label: "상품 리뷰" }, { href: "/drinks", label: "술 취향" }]} />
     <Link href="/recommendations" aria-current={active === "reviews" ? "page" : undefined} className={mobileNavButton(false)}><Sparkles size={19} /><span>에디터픽</span></Link>
-    <MobileNavGroup label="경기일정" icon={<CalendarDays size={19} />} active={false} items={[{ href: "/release-calendar", label: "릴리즈 캘린더" }, { href: "/lck-calendar", label: "LCK 경기 일정" }, { href: "/lck-analysis", label: "LCK 밴픽 분석" }]} />
-    <MobileNavGroup label="게임" icon={<Swords size={19} />} active={active === "games" || active === "ai-office"} align="right" items={[{ href: "/omok", label: "온라인 오목" }]} />
+    <MobileNavGroup label="경기일정" icon={<CalendarDays size={19} />} active={false} align="right" items={[{ href: "/release-calendar", label: "릴리즈 캘린더" }, { href: "/lck-calendar", label: "LCK 경기 일정" }, { href: "/lck-analysis", label: "LCK 밴픽 분석" }]} />
   </div>;
 }
 

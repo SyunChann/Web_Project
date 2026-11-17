@@ -9,7 +9,7 @@ import { getDrinkPosts, drinkPhotoUrl } from "@/data/drinks";
 import { drinkCategories, drinkKinds } from "@/lib/drinks";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "술 취향 | 취향보관소", description: "위스키·사케·전통주, 마신 술의 리뷰와 궁금한 술을 모읍니다." };
+export const metadata: Metadata = { title: "술 취향 | 취향보관소", description: "위스키·사케·전통주·맥주, 마신 술의 리뷰와 궁금한 술을 모읍니다." };
 type Filters = { q?: string; category?: string; kind?: string; page?: string };
 export default async function DrinksPage({ searchParams }: { searchParams: Promise<Filters> }) {
   const { posts, count, error, filters } = await getDrinkPosts(await searchParams);

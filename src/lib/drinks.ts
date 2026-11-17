@@ -1,4 +1,4 @@
-export const drinkCategories = { whisky: "위스키", sake: "사케", traditional: "전통주", other: "기타" } as const;
+export const drinkCategories = { whisky: "위스키", sake: "사케", traditional: "전통주", beer: "맥주", other: "기타" } as const;
 export const drinkKinds = { review: "마신 술 리뷰", curious: "궁금한 술" } as const;
 export const drinkingMethods = ["스트레이트", "온더록", "하이볼", "물 타서", "차갑게", "상온", "따뜻하게", "기타"] as const;
 export const tasteTags = ["달콤함", "드라이함", "과일향", "꽃향", "곡물향", "견과류", "바닐라", "스모키", "오크향", "산뜻함", "묵직함", "깔끔함", "부드러움", "산미", "긴 여운"] as const;
