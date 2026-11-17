@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { ListNavigation } from "@/components/ListNavigation";
 import localFont from "next/font/local";
 import { getSiteUrl } from "@/lib/siteUrl";
+import { siteName as siteTitle, siteDescription } from "@/lib/siteIdentity";
 import "./globals.css";
 
 const mainFont = localFont({
@@ -13,8 +14,6 @@ const mainFont = localFont({
   display: "swap",
 });
 
-const siteTitle = "취향 보관소";
-const siteDescription = "좋아하는 콘텐츠, 맛집, 여행과 술을 기록하는 공간.";
 const shareImage = {
   url: "/share/home-v3",
   width: 1200,

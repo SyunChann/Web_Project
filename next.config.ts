@@ -4,6 +4,14 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseHost = supabaseUrl ? new URL(supabaseUrl).hostname : undefined;
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [{
+      source: "/:path*",
+      has: [{ type: "host", value: "web-project-omega-ruby-60.vercel.app" }],
+      destination: "https://syun-archive.vercel.app/:path*",
+      permanent: true,
+    }];
+  },
   async headers() {
     return [
       {

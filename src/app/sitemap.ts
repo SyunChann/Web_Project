@@ -17,6 +17,8 @@ const publicRoutes = [
   { path: "/restaurants/map/overseas", changeFrequency: "weekly", priority: 0.6 },
   { path: "/travel/items", changeFrequency: "weekly", priority: 0.8 },
   { path: "/travel/map", changeFrequency: "weekly", priority: 0.6 },
+  { path: "/drinks", changeFrequency: "weekly", priority: 0.8 },
+  { path: "/departures", changeFrequency: "daily", priority: 0.6 },
   { path: "/release-calendar", changeFrequency: "daily", priority: 0.7 },
   { path: "/lck-calendar", changeFrequency: "daily", priority: 0.7 },
   { path: "/lck-analysis", changeFrequency: "weekly", priority: 0.6 },

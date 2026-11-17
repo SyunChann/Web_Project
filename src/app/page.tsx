@@ -5,6 +5,15 @@ import { AppNav } from "@/components/AppNav";
 import { ExchangeRateCard, ExchangeRateCardSkeleton } from "@/components/ExchangeRateCard";
 import { StatusToast } from "@/components/StatusToast";
 import { getHomeSummary } from "@/data/homeSummary";
+import type { Metadata } from "next";
+import { homeSearchTitle, siteDescription, siteName, websiteStructuredData } from "@/lib/siteIdentity";
+
+export const metadata: Metadata = {
+  title: homeSearchTitle,
+  description: siteDescription,
+  alternates: { canonical: "/" },
+  openGraph: { type: "website", locale: "ko_KR", siteName, title: siteName, description: siteDescription, url: "/", images: [{ url: "/share/home-v3", width: 1200, height: 630, alt: "취향 보관소 — 콘텐츠 · 맛집 · 여행 · 술" }] },
+};
 
 type HomeProps = {
   searchParams?: Promise<{ status?: string }>;
@@ -19,6 +28,7 @@ export default async function Home({ searchParams }: HomeProps) {
       : "";
   return (
     <main className="min-h-screen px-6 py-8 sm:px-10">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteStructuredData()).replace(/</g, "\\u003c") }} />
       {statusMessage ? <StatusToast key={statusMessage} message={statusMessage} /> : null}
       <section className="mx-auto flex w-full max-w-6xl flex-col gap-8 sm:gap-10">
         <Suspense fallback={<HomeNavFallback />}>
@@ -27,12 +37,12 @@ export default async function Home({ searchParams }: HomeProps) {
 
         <header className="flex flex-col gap-5 pt-2 sm:pt-6 lg:flex-row lg:items-end lg:justify-between lg:gap-8">
           <div className="max-w-3xl">
-            <p className="text-sm font-bold text-[#be4b49]">ARCHIVE HOME</p>
+            <p className="text-sm font-bold text-[#be4b49]">{siteName}</p>
             <h1 className="mt-3 text-3xl font-black leading-tight text-[#17202a] sm:text-5xl">
               {"\uB0B4 \uAE30\uB85D\uC744 \uD55C\uB208\uC5D0 \uBD05\uB2C8\uB2E4"}
             </h1>
             <p className="mt-4 max-w-2xl leading-7 text-[#52616b]">
-              {"\uCF58\uD150\uCE20, \uB9DB\uC9D1, \uD574\uC678\uC5EC\uD589, LCK\uC758 \uCD5C\uC2E0 \uAE30\uB85D\uC744 \uD55C \uACF3\uC5D0\uC11C \uD655\uC778\uD558\uC138\uC694."}
+              콘텐츠 리뷰와 맛집·여행·술 기록을 한곳에서 확인하세요.
             </p>
           </div>
           <Suspense fallback={<ExchangeRateCardSkeleton />}>
