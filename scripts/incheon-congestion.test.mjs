@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import ts from "typescript";
 
-function load({ env = {}, fetch = async () => { throw new Error("unexpected fetch"); }, sourcePath = "src/lib/incheonCongestion.ts" } = {}) {
+function load({ env = {}, fetch = async () => { throw new Error("unexpected fetch"); }, sourcePath = "src/lib/incheonCongestion.ts", now = () => Date.parse("2026-11-16T16:04:00+09:00") } = {}) {
   const filename = fileURLToPath(new URL(`../${sourcePath}`, import.meta.url));
   const source = ts.transpileModule(readFileSync(filename, "utf8"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
@@ -14,6 +14,7 @@ function load({ env = {}, fetch = async () => { throw new Error("unexpected fetc
   vm.runInNewContext(source, {
     module: moduleRecord, exports: moduleRecord.exports,
     require: () => ({}), URLSearchParams, AbortSignal, fetch, process: { env },
+    Date: class extends Date { static now() { return now(); } },
   }, { filename });
   return moduleRecord.exports;
 }
@@ -176,4 +177,71 @@ test("T1 outage does not prevent T2 from returning data", async () => {
 test("HTTP rate limiting is handled without parsing or leaking upstream details", async () => {
   const service = load({ env: { DATA_GO_KR_API_KEY: "test" }, fetch: async () => ({ ok: false, status: 429 }) });
   assert.equal((await service.getDepartureCongestion("T2")).state, "rate-limit");
+});
+
+test("initial stale cache is checked against one uncached response before returning", async () => {
+  const calls = [];
+  const service = load({ env: { DATA_GO_KR_API_KEY: "test" }, fetch: async (_, options) => {
+    calls.push(options);
+    return { ok: true, text: async () => envelope([{ ...lane, occurtime: options.cache === "no-store" ? "20261116160400" : "20261116150000" }]) };
+  } });
+  const result = await service.getDepartureCongestion("T1");
+  assert.equal(result.gates[0].observedAt, "2026-11-16T16:04:00+09:00");
+  assert.equal(calls.length, 2);
+  assert.equal(calls[0].next.revalidate, 120);
+  assert.equal(calls[1].cache, "no-store");
+  assert.equal(calls[1].next, undefined);
+});
+test("fresh and mixed-age data do not cause additional upstream calls", async () => {
+  const calls = [];
+  const service = load({ env: { DATA_GO_KR_API_KEY: "test" }, fetch: async (_, options) => {
+    calls.push(options);
+    return { ok: true, text: async () => envelope([lane, { ...lane, gateId: "DG2_E", occurtime: "20261116140000" }]) };
+  } });
+  assert.equal((await service.getDepartureCongestion("T1")).state, "ready");
+  assert.equal(calls.length, 1);
+});
+test("exactly ten-minute-old observations do not trigger a fresh check", async () => {
+  let calls = 0;
+  const service = load({ env: { DATA_GO_KR_API_KEY: "test" }, fetch: async () => {
+    calls++;
+    return { ok: true, text: async () => envelope([{ ...lane, occurtime: "20261116155400" }]) };
+  } });
+  await service.getDepartureCongestion("T1");
+  assert.equal(calls, 1);
+});
+test("concurrent and repeated stale reads share a bounded fresh check", async () => {
+  let freshCalls = 0;
+  const service = load({ env: { DATA_GO_KR_API_KEY: "test" }, fetch: async (_, options) => {
+    if (options.cache === "no-store") freshCalls++;
+    return { ok: true, text: async () => envelope([{ ...lane, occurtime: "20261116140000" }]) };
+  } });
+  const results = await Promise.all([service.getDepartureCongestion("T1"), service.getDepartureCongestion("T1")]);
+  await service.getDepartureCongestion("T1");
+  assert.equal(freshCalls, 1);
+  assert.equal(results[0].gates[0].observedAt, "2026-11-16T14:00:00+09:00");
+});
+test("fresh checks keep T1 and T2 independent and preserve quota errors", async () => {
+  const service = load({ env: { DATA_GO_KR_API_KEY: "test" }, fetch: async (url, options) => {
+    if (url.includes("CongestionT2")) return { ok: true, text: async () => envelope([{ ...lane, gateId: "DG1_A", terminalId: "P03" }]) };
+    return options.cache === "no-store" ? { ok: false, status: 429 }
+      : { ok: true, text: async () => envelope([{ ...lane, occurtime: "20261116140000" }]) };
+  } });
+  const [t1, t2] = await Promise.all([service.getDepartureCongestion("T1"), service.getDepartureCongestion("T2")]);
+  assert.equal(t1.state, "rate-limit");
+  assert.equal(t2.state, "ready");
+});
+test("a fresh check expires after two minutes rather than retaining its result indefinitely", async () => {
+  let now = Date.parse("2026-11-16T16:04:00+09:00");
+  let freshCalls = 0;
+  const service = load({ env: { DATA_GO_KR_API_KEY: "test" }, now: () => now, fetch: async (_, options) => {
+    if (options.cache === "no-store") freshCalls++;
+    return { ok: true, text: async () => envelope([{ ...lane, occurtime: options.cache === "no-store"
+      ? freshCalls === 1 ? "20261116160400" : "20261116160600" : "20261116140000" }]) };
+  } });
+  await service.getDepartureCongestion("T1");
+  now += 120_001;
+  const result = await service.getDepartureCongestion("T1");
+  assert.equal(freshCalls, 2);
+  assert.equal(result.gates[0].observedAt, "2026-11-16T16:06:00+09:00");
 });

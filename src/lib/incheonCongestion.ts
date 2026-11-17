@@ -18,6 +18,27 @@ const endpoints = {
   T2: "statusOfDepartureCongestionT2/getDepartureCongestionT2",
 };
 
+const freshChecks = new Map<string, { expiresAt: number; result: Promise<CongestionResult> }>();
+
+function hasOnlyOldObservations(result: CongestionResult, now: number) {
+  if (result.state !== "ready") return false;
+  const latest = Math.max(...result.gates.map((gate) => Date.parse(gate.observedAt ?? "")).filter(Number.isFinite));
+  return Number.isFinite(latest) && now - latest > 10 * 60_000;
+}
+
+async function fetchCongestion(url: string, terminal: AirportTerminal, fresh = false): Promise<CongestionResult> {
+  try {
+    const response = await fetch(url, {
+      ...(fresh ? { cache: "no-store" as const } : { next: { revalidate: 120 } }),
+      signal: AbortSignal.timeout(8_000),
+    });
+    if (!response.ok) return failure(terminal, String(response.status));
+    return parseCongestionResponse(await response.text(), terminal);
+  } catch {
+    return { terminal, state: "unavailable", gates: [] };
+  }
+}
+
 function record(value: unknown): Record<string, unknown> | null {
   return value !== null && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
 }
@@ -97,13 +118,17 @@ export async function getDepartureCongestion(terminal: AirportTerminal): Promise
   try { key = decodeURIComponent(key); } catch { /* Accept the raw general key too. */ }
   const query = new URLSearchParams({ serviceKey: key, pageNo: "1", numOfRows: "100", type: "json" });
   if (terminal === "T1") query.set("terminalId", "P01");
-  try {
-    const response = await fetch(`https://apis.data.go.kr/B551177/${endpoints[terminal]}?${query}`, {
-      next: { revalidate: 120 }, signal: AbortSignal.timeout(8_000),
-    });
-    if (!response.ok) return failure(terminal, String(response.status));
-    return parseCongestionResponse(await response.text(), terminal);
-  } catch {
-    return { terminal, state: "unavailable", gates: [] };
-  }
+  const url = `https://apis.data.go.kr/B551177/${endpoints[terminal]}?${query}`;
+  const result = await fetchCongestion(url, terminal);
+  if (!hasOnlyOldObservations(result, Date.now())) return result;
+
+  // Next's revalidation can return an old cached response before refreshing it.
+  // Resolve one uncached read before showing stale data on the initial page.
+  const now = Date.now();
+  for (const [entry, check] of freshChecks) if (check.expiresAt <= now) freshChecks.delete(entry);
+  const checked = freshChecks.get(url);
+  if (checked) return checked.result;
+  const latest = fetchCongestion(url, terminal, true);
+  freshChecks.set(url, { expiresAt: now + 120_000, result: latest });
+  return latest;
 }
