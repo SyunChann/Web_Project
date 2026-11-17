@@ -1,5 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { createSupabasePublicClient } from "@/lib/supabase/public";
+import { fetchContentPage, type ContentPageOptions } from "@/data/contentPage";
 
 export type Travel = {
   id: string;
@@ -304,6 +305,11 @@ export const getTravel = unstable_cache(
     revalidate: 60,
   },
 );
+
+export const getTravelPostsPage = unstable_cache(async (options: ContentPageOptions) => {
+  const result = await fetchContentPage<TravelRow & { place_count: number }>("travel", options);
+  return { ...result, items: result.rows.map((row) => ({ travel: mapTravelRow(row), placeCount: row.place_count })), rows: undefined };
+}, ["travel-page-v1"], { revalidate: 60, tags: ["travel"] });
 
 function sortByCreatedAtDesc(a: Travel, b: Travel) {
   return (

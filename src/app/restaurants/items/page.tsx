@@ -3,11 +3,11 @@ import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { RestaurantScopeTabs } from "@/components/RestaurantScopeTabs";
 import { ThumbnailImage } from "@/components/ThumbnailImage";
+import Pagination from "@/components/Pagination";
 import {
   categoryLabel,
   categoryTheme,
-  getRestaurantsReviews,
-  sortRestaurantsReviews,
+  getRestaurantsPage,
   type RestaurantsReview,
   type ReviewSort,
 } from "@/data/restaurants";
@@ -18,6 +18,7 @@ type RestaurantsReviewsPageProps = {
     sort?: string | string[];
     category?: string | string[];
     scope?: string | string[];
+    page?: string | string[];
   }>;
 };
 
@@ -69,14 +70,8 @@ export default async function RestaurantsReviewsPage({
   const badgeClass = isOverseas
     ? "bg-[#e0f2fe] text-[#075985]"
     : "";
-  const restaurantsReviews = sortRestaurantsReviews(
-    filterReviews(
-      await getRestaurantsReviews(activeScope),
-      activeQuery,
-      activeCategory,
-    ),
-    activeSort,
-  );
+  const result = await getRestaurantsPage({ query: activeQuery, scope: activeScope, category: activeCategory, sort: activeSort, page: Number(params?.page) });
+  const { items: restaurantsReviews, count, page: currentPage } = result;
   const isFiltered = Boolean(activeQuery) || activeCategory !== "all";
 
   return (
@@ -217,12 +212,12 @@ export default async function RestaurantsReviewsPage({
 
           <p className="mt-4 text-sm font-semibold text-[#6b7280]">
             {isFiltered
-              ? `검색 결과 ${restaurantsReviews.length}개`
-              : `전체 ${restaurantsReviews.length}개`}
+              ? `검색 결과 ${count}개`
+              : `전체 ${count}개`}
           </p>
         </section>
 
-        {restaurantsReviews.length > 0 ? (
+        {result.error ? <p role="status" className="rounded-lg bg-white p-6">{result.error}</p> : restaurantsReviews.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-3">
             {restaurantsReviews.map((review, index) => {
               const theme = categoryTheme(review.category);
@@ -295,6 +290,7 @@ export default async function RestaurantsReviewsPage({
             </p>
           </div>
         )}
+        <div className="mt-10"><Pagination currentPage={currentPage} totalPages={Math.ceil(count / 9)} theme={isOverseas ? "blue" : "red"} getHref={(page) => buildReviewsHref({ query: activeQuery, category: activeCategory, sort: activeSort, scope: activeScope, page })} /></div>
       </section>
     </main>
   );
@@ -340,52 +336,21 @@ function parseSearchValue(value: string | string[] | undefined) {
   return searchValue?.trim() ?? "";
 }
 
-function filterReviews(
-  reviews: RestaurantsReview[],
-  query: string,
-  category: ReviewCategoryFilter,
-) {
-  const normalizedQuery = query.toLowerCase();
-
-  return reviews.filter((review) => {
-    const matchesCategory = category === "all" || review.category === category;
-
-    if (!matchesCategory) {
-      return false;
-    }
-
-    if (!normalizedQuery) {
-      return true;
-    }
-
-    return [
-      review.title,
-      review.storeName,
-      categoryLabel(review.category),
-      review.address,
-      review.summary,
-      review.review,
-      review.companion,
-    ]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase()
-      .includes(normalizedQuery);
-  });
-}
-
 function buildReviewsHref({
   query,
   category,
   sort,
   scope,
+  page = 1,
 }: {
   query: string;
   category: ReviewCategoryFilter;
   sort: ReviewSort;
   scope: RestaurantsReview["scope"];
+  page?: number;
 }) {
   const params = new URLSearchParams();
+  if (page > 1) params.set("page", String(page));
   const trimmedQuery = query.trim();
 
   if (trimmedQuery) {

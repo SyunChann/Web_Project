@@ -4,11 +4,7 @@ import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { ExchangeRateCard, ExchangeRateCardSkeleton } from "@/components/ExchangeRateCard";
 import { StatusToast } from "@/components/StatusToast";
-import { getRestaurantsReviews } from "@/data/restaurants";
-import { getReviews } from "@/data/reviews";
-import { getTravels, groupTravelPosts } from "@/data/travel";
-import { getWatchItems } from "@/data/watchlist";
-import { getMerchandiseReviews } from "@/data/merchandise";
+import { getHomeSummary } from "@/data/homeSummary";
 
 type HomeProps = {
   searchParams?: Promise<{ status?: string }>;
@@ -53,25 +49,17 @@ export default async function Home({ searchParams }: HomeProps) {
 }
 
 async function HomeDashboard() {
-  const [reviews, watchItems, restaurants, overseasRestaurants, travels, merchandise] = await Promise.all([
-    getReviews(),
-    getWatchItems(),
-    getRestaurantsReviews(),
-    getRestaurantsReviews("overseas"),
-    getTravels(),
-    getMerchandiseReviews(),
-  ]);
-  const travelPosts = groupTravelPosts(travels);
+  const summary = await getHomeSummary();
 
   return (
     <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
       <EditorPickSection />
-      <DashboardSection href="/reviews" icon={<Library size={20} />} label={"\uB9AC\uBDF0"} latest={reviews[0]?.title} latestDate={reviews[0]?.createdAt} tone="red" />
-      <DashboardSection href="/watchlist/items" icon={<Bookmark size={20} />} label={"\uAE30\uB300\uC791"} latest={watchItems[0]?.title} latestDate={watchItems[0]?.createdAt} tone="teal" />
-      <DashboardSection href="/merchandise" icon={<ShoppingCart size={20} />} label={"\uC0C1\uD488"} latest={merchandise[0]?.title} latestDate={merchandise[0]?.createdAt} tone="purple" />
-      <DashboardSection href="/restaurants/items" icon={<Utensils size={20} />} label={"\uAD6D\uB0B4 \uB9DB\uC9D1"} latest={restaurants[0]?.title} latestDate={restaurants[0]?.createdAt} tone="orange" />
-      <DashboardSection href="/restaurants/items?scope=overseas" icon={<MapPinned size={20} />} label={"\uD574\uC678 \uB9DB\uC9D1"} latest={overseasRestaurants[0]?.title} latestDate={overseasRestaurants[0]?.createdAt} tone="blue" />
-      <DashboardSection href="/travel/items" icon={<Plane size={20} />} label={"\uD574\uC678\uC5EC\uD589"} latest={travelPosts[0]?.travel.tripTitle ?? travelPosts[0]?.travel.title} latestDate={travelPosts[0]?.travel.createdAt} tone="green" />
+      <DashboardSection href="/reviews" icon={<Library size={20} />} label={"\uB9AC\uBDF0"} latest={summary.reviews?.title} latestDate={summary.reviews?.createdAt} tone="red" />
+      <DashboardSection href="/watchlist/items" icon={<Bookmark size={20} />} label={"\uAE30\uB300\uC791"} latest={summary.watchlist?.title} latestDate={summary.watchlist?.createdAt} tone="teal" />
+      <DashboardSection href="/merchandise" icon={<ShoppingCart size={20} />} label={"\uC0C1\uD488"} latest={summary.merchandise?.title} latestDate={summary.merchandise?.createdAt} tone="purple" />
+      <DashboardSection href="/restaurants/items" icon={<Utensils size={20} />} label={"\uAD6D\uB0B4 \uB9DB\uC9D1"} latest={summary.domestic?.title} latestDate={summary.domestic?.createdAt} tone="orange" />
+      <DashboardSection href="/restaurants/items?scope=overseas" icon={<MapPinned size={20} />} label={"\uD574\uC678 \uB9DB\uC9D1"} latest={summary.overseas?.title} latestDate={summary.overseas?.createdAt} tone="blue" />
+      <DashboardSection href="/travel/items" icon={<Plane size={20} />} label={"\uD574\uC678\uC5EC\uD589"} latest={summary.travel?.title} latestDate={summary.travel?.createdAt} tone="green" />
       <DepartureBoardCard />
       <DashboardSection href="/drinks" icon={<Wine size={20} />} label="술 취향" latest="마신 술 리뷰 · 궁금한 술" meta="위스키 · 사케 · 전통주 · 맥주" tone="indigo" />
       <DashboardSection href="/lck-calendar" icon={<Trophy size={20} />} label="LCK" latest="LCK 경기 캘린더" meta="네이버 e스포츠 연동" tone="red" />

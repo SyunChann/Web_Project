@@ -2,12 +2,11 @@ import { Search, Star, X } from "lucide-react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { ThumbnailImage } from "@/components/ThumbnailImage";
+import Pagination from "@/components/Pagination";
 import {
   categoryLabel,
   categoryTheme,
-  getTravels,
-  groupTravelPosts,
-  sortTravels,
+  getTravelPostsPage,
   type Travel,
   type ReviewSort,
 } from "@/data/travel";
@@ -61,24 +60,9 @@ export default async function TravelsPage({
   const softActive = "border-[#65a30d] bg-[#f7fee7] text-[#3f6212]";
   const softHover = "hover:border-[#65a30d] hover:text-[#4d7c0f]";
   const badgeClass = "bg-[#f7fee7] text-[#3f6212]";
-  const travels = sortTravels(
-    filterReviews(
-      await getTravels(activeScope),
-      activeQuery,
-      activeCategory,
-    ),
-    activeSort,
-  );
+  const result = await getTravelPostsPage({ query: activeQuery, scope: activeScope, category: activeCategory, sort: activeSort, page: Number(params?.page) });
   const isFiltered = Boolean(activeQuery) || activeCategory !== "all";
-  const travelPosts = groupTravelPosts(travels);
-
-const currentPage = Number(params?.page) || 1;
-  const itemsPerPage = 9;
-  // 전체 travels 배열에서 현재 페이지에 보여줄 9개만 잘라냅니다.
-  const paginatedTravelPosts = travelPosts.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const { items: paginatedTravelPosts, count, page: currentPage } = result;
 
   return (
     <main className="min-h-screen px-4 py-5 sm:px-10 sm:py-8">
@@ -208,12 +192,12 @@ const currentPage = Number(params?.page) || 1;
 
           <p className="mt-4 text-sm font-semibold text-[#6b7280]">
             {isFiltered
-              ? `검색 결과 ${travelPosts.length}개`
-              : `전체 ${travelPosts.length}개`}
+              ? `검색 결과 ${count}개`
+              : `전체 ${count}개`}
           </p>
         </section>
 
-        {travelPosts.length > 0 ? (
+        {result.error ? <p role="status" className="rounded-lg bg-white p-6">{result.error}</p> : paginatedTravelPosts.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-3">
             {paginatedTravelPosts.map(({ travel: review, placeCount }, index) => {
               const theme = categoryTheme(review.category);
@@ -282,6 +266,7 @@ const currentPage = Number(params?.page) || 1;
             </p>
           </div>
         )}
+        <div className="mt-10"><Pagination currentPage={currentPage} totalPages={Math.ceil(count / 9)} theme="green" getHref={(page) => buildReviewsHref({ query: activeQuery, category: activeCategory, sort: activeSort, scope: activeScope, page })} /></div>
       </section>
     </main>
   );
@@ -309,52 +294,21 @@ function parseSearchValue(value: string | string[] | undefined) {
   return searchValue?.trim() ?? "";
 }
 
-function filterReviews(
-  reviews: Travel[],
-  query: string,
-  category: ReviewCategoryFilter,
-) {
-  const normalizedQuery = query.toLowerCase();
-
-  return reviews.filter((review) => {
-    const matchesCategory = category === "all" || review.category === category;
-
-    if (!matchesCategory) {
-      return false;
-    }
-
-    if (!normalizedQuery) {
-      return true;
-    }
-
-    return [
-      review.title,
-      review.storeName,
-      review.tripTitle,
-      categoryLabel(review.category),
-      review.address,
-      review.summary,
-      review.review,
-    ]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase()
-      .includes(normalizedQuery);
-  });
-}
-
 function buildReviewsHref({
   query,
   category,
   sort,
   scope,
+  page = 1,
 }: {
   query: string;
   category: ReviewCategoryFilter;
   sort: ReviewSort;
   scope: Travel["scope"];
+  page?: number;
 }) {
   const params = new URLSearchParams();
+  if (page > 1) params.set("page", String(page));
   const trimmedQuery = query.trim();
 
   if (trimmedQuery) {

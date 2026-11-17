@@ -32,7 +32,7 @@ export default async function DrinkDetailPage({ params }: { params: Promise<{ id
       {post.methods.length ? <p className="mt-5"><strong>마신 방법</strong> · {post.methods.join(" · ")}</p> : null}
       {post.tags.length ? <div className={`${styles.badges} mt-4`} aria-label="맛 태그">{post.tags.map((tag) => <span key={tag}>{tag}</span>)}</div> : null}
       <div className={styles.body}>{post.body}</div>
-      <div className={styles.gallery}>{post.images.map((path, index) => <Image key={path} src={drinkPhotoUrl(path)} alt={`${post.name} 사진 ${index + 1}`} width={1200} height={1200} unoptimized />)}</div>
+      <div className={styles.gallery}>{post.images.map((path, index) => <Image key={path} src={drinkPhotoUrl(path)} alt={`${post.name} 사진 ${index + 1}`} width={1920} height={1920} sizes="(max-width:768px) calc(100vw - 3rem), 768px" unoptimized={path.endsWith(".gif")} />)}</div>
     </>}
   </article></section></main>;
 }

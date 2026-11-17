@@ -1,5 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { createSupabasePublicClient } from "@/lib/supabase/public";
+import { fetchContentPage, type ContentPageOptions } from "@/data/contentPage";
 
 export type WatchItem = {
   id: string;
@@ -178,6 +179,11 @@ export const getWatchItem = unstable_cache(
     revalidate: 60,
   },
 );
+
+export const getWatchItemsPage = unstable_cache(async (options: ContentPageOptions) => {
+  const result = await fetchContentPage<WatchItemRow>("watchlist", options);
+  return { ...result, items: result.rows.map(mapWatchItemRow), rows: undefined };
+}, ["watchlist-page-v1"], { revalidate: 60, tags: ["watchlist"] });
 
 export function watchStatusLabel(status: WatchItem["status"]) {
   const labels = {

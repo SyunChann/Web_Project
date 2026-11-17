@@ -11,13 +11,16 @@ export function useLocalDraft<T>(key: string, value: T, dirty: boolean, revision
   const blocked = useRef(true);
   const finished = useRef(false);
   const queue = useRef<Promise<unknown>>(Promise.resolve());
+  const lastQueued = useRef<T | undefined>(undefined);
   useEffect(() => { latest.current = { value, dirty, revision }; }, [value, dirty, revision]);
 
   useEffect(() => {
     let alive = true;
-    draftStorage<T>(key, "read").then((saved) => {
+    draftStorage<T>(key, "read").then(async (saved) => {
       if (!alive) return;
       const usable = saved && saved.revision === revision && Date.now() - saved.savedAt < 30 * 86400_000;
+      if (saved && !usable) await draftStorage(key, "delete");
+      if (!alive) return;
       if (usable) setDraft(saved);
       blocked.current = Boolean(usable);
       setStatus(usable ? "이 브라우저에 작성 중인 기록이 있습니다." : "글과 사진을 이 브라우저에 자동 저장합니다.");
@@ -27,11 +30,15 @@ export function useLocalDraft<T>(key: string, value: T, dirty: boolean, revision
   }, [key, revision]);
 
   const save = useCallback(() => {
-    if (blocked.current || finished.current || !latest.current.dirty) return;
+    if (blocked.current || finished.current || !latest.current.dirty || lastQueued.current === latest.current.value) return;
     const snapshot = { value: latest.current.value, revision: latest.current.revision, savedAt: Date.now() };
+    lastQueued.current = snapshot.value;
     queue.current = queue.current.catch(() => {}).then(() => draftStorage(key, "write", snapshot)).then(() => {
       if (!finished.current) setStatus(`임시 저장됨 · ${new Intl.DateTimeFormat("ko-KR", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Seoul" }).format(snapshot.savedAt)}`);
-    }).catch(() => setStatus("임시 저장 공간이 부족하거나 사용할 수 없습니다. 창을 닫기 전에 글을 등록해 주세요."));
+    }).catch(() => {
+      if (lastQueued.current === snapshot.value) lastQueued.current = undefined;
+      setStatus("임시 저장 공간이 부족하거나 사용할 수 없습니다. 창을 닫기 전에 글을 등록해 주세요.");
+    });
   }, [key]);
 
   useEffect(() => {

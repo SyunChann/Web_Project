@@ -33,7 +33,7 @@ export default async function DrinksPage({ searchParams }: { searchParams: Promi
     {filters.rating || filters.tag ? <p className={styles.hint}>별점·맛 필터는 마신 술 리뷰에 적용됩니다.{filters.kind === "curious" ? " 궁금한 술을 보려면 별점·맛 필터를 해제해 주세요." : ""}</p> : null}
     {error ? <p role="status" className={styles.notice}>{error}</p> : posts.length ? <div className={styles.grid}>
       {posts.map((post) => <Link key={post.id} href={`/drinks/${post.id}`} className={styles.card}>
-        <div className={styles.cardImage}>{post.images[0] ? <Image src={drinkPhotoUrl(post.images[0])} alt={`${post.name} 대표 사진`} fill sizes="(max-width:480px) 100vw, (max-width:800px) 50vw, 33vw" unoptimized /> : <Wine size={48} strokeWidth={1.2} aria-hidden="true" />}</div>
+        <div className={styles.cardImage}>{post.images[0] ? <Image src={drinkPhotoUrl(post.images[0])} alt={`${post.name} 대표 사진`} fill sizes="(max-width:480px) calc(100vw - 3rem), (max-width:800px) 50vw, 384px" unoptimized={post.images[0].endsWith(".gif")} /> : <Wine size={48} strokeWidth={1.2} aria-hidden="true" />}</div>
         <div className={styles.cardBody}><div className={styles.badges}><span>{drinkCategories[post.category]}</span><span>{drinkKinds[post.kind]}</span></div>
           <h2>{post.name}</h2>{post.rating !== null ? <StarRating rating={Number(post.rating)} /> : <span className={styles.hint}>마셔보고 싶은 술</span>}
           <p className={styles.excerpt}>{post.body}</p>

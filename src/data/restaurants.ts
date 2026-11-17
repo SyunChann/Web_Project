@@ -1,5 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { createSupabasePublicClient } from "@/lib/supabase/public";
+import { fetchContentPage, type ContentPageOptions } from "@/data/contentPage";
 
 export type RestaurantsReview = {
   id: string;
@@ -195,6 +196,11 @@ export const getRestaurantsReview = unstable_cache(
     revalidate: 60,
   },
 );
+
+export const getRestaurantsPage = unstable_cache(async (options: ContentPageOptions) => {
+  const result = await fetchContentPage<RestaurantsReviewRow>("restaurants", options);
+  return { ...result, items: result.rows.map(mapRestaurantsReviewRow), rows: undefined };
+}, ["restaurants-page-v1"], { revalidate: 60, tags: ["restaurants"] });
 
 function sortByCreatedAtDesc(a: RestaurantsReview, b: RestaurantsReview) {
   return (

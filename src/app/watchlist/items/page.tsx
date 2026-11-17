@@ -4,12 +4,11 @@ import { AppNav } from "@/components/AppNav";
 import { ContentSectionTabs } from "@/components/ContentSectionTabs";
 import { ThumbnailImage } from "@/components/ThumbnailImage";
 import {
-  getWatchItems,
+  getWatchItemsPage,
   watchStatusLabel,
   watchStatusTheme,
   type WatchItem,
 } from "@/data/watchlist";
-import { typeLabel } from "@/data/reviews";
 import Pagination from "@/components/Pagination";
 
 export const metadata = {
@@ -53,18 +52,10 @@ export default async function WatchlistItemsPage({
   const params = await searchParams;
   const activeQuery = parseSearchValue(params?.q);
   const activeStatus = parseStatus(params?.status);
-  const items = filterWatchItems(await getWatchItems(), activeQuery, activeStatus);
   const isFiltered = Boolean(activeQuery) || activeStatus !== "all";
-
-  const currentPage = Number(params?.page) || 1;
-  const allFilteredItems = filterWatchItems(await getWatchItems(), activeQuery, activeStatus);
-
-  const itemsPerPage = 9;
-  const totalPages = Math.ceil(allFilteredItems.length / itemsPerPage);
-  const paginatedItems = allFilteredItems.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const result = await getWatchItemsPage({ query: activeQuery, status: activeStatus, page: Number(params?.page) });
+  const { items: paginatedItems, count, page: currentPage } = result;
+  const totalPages = Math.ceil(count / 9);
   
   return (
     <main className="min-h-screen">
@@ -149,11 +140,11 @@ export default async function WatchlistItemsPage({
           </div>
 
           <p className="mt-4 text-sm font-semibold text-[#6b7280]">
-            {isFiltered ? `검색 결과 ${items.length}개` : `전체 ${items.length}개`}
+            {isFiltered ? `검색 결과 ${count}개` : `전체 ${count}개`}
           </p>
         </section>
 
-        {paginatedItems.length > 0 ? (
+        {result.error ? <p role="status" className="rounded-lg bg-white p-6">{result.error}</p> : paginatedItems.length > 0 ? (
           <>
             <div className="grid gap-4 md:grid-cols-3">
               {paginatedItems.map((item) => (
@@ -254,38 +245,6 @@ function parseSearchValue(value: string | string[] | undefined) {
   const searchValue = Array.isArray(value) ? value[0] : value;
 
   return searchValue?.trim() ?? "";
-}
-
-function filterWatchItems(
-  items: WatchItem[],
-  query: string,
-  status: WatchStatusFilter,
-) {
-  const normalizedQuery = query.toLowerCase();
-
-  return items.filter((item) => {
-    const matchesStatus = status === "all" || item.status === status;
-
-    if (!matchesStatus) {
-      return false;
-    }
-
-    if (!normalizedQuery) {
-      return true;
-    }
-
-    return [
-      item.title,
-      typeLabel(item.type),
-      watchStatusLabel(item.status),
-      item.releaseLabel,
-      item.reason,
-      ...item.genre,
-    ]
-      .join(" ")
-      .toLowerCase()
-      .includes(normalizedQuery);
-  });
 }
 
 function buildWatchlistHref({
