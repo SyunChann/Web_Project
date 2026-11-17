@@ -79,9 +79,12 @@ Supabase Authentication 설정:
 
 ## 검사·배포
 
-카톡 등 링크 미리보기는 `public/social-preview-v2.png`와 `src/app/layout.tsx`의 Open Graph 설정을 사용합니다.
+기본 공유 이미지는 `/share/home-v3`에서 사이트의 실제 WOFF 폰트로 생성합니다. Open Graph 설정은 `src/app/layout.tsx`에서 관리합니다.
+개별 글은 글 제목·설명·대표 사진을 공유하며, 사진이 없으면 기본 이미지를 사용합니다.
 배포 후 이전 미리보기가 남으면 [카카오 공유 디버거](https://developers.kakao.com/tool/debugger/sharing)에서 캐시를 초기화합니다.
 네이버 소유 확인 태그도 루트 레이아웃에서 관리합니다.
+
+술 기록 작성 중에는 글·사진·대표 사진 선택을 계정·글별로 IndexedDB에 임시 저장합니다. 같은 브라우저에서 30일 이내 복구할 수 있으며, 등록에 성공하면 삭제합니다. 저장 공간이 부족하거나 차단된 경우 안내를 표시합니다.
 
 ```bash
 node --test scripts/*.test.mjs

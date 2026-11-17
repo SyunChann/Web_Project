@@ -1,6 +1,7 @@
 import { ArrowLeft, ArrowRight, Calendar, Pencil, Star } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { postMetadata } from "@/lib/postMetadata";
 import { deleteMerchandiseReview } from "@/app/actions/merchandise";
 import { AppNav } from "@/components/AppNav";
 import { DeleteMerchandiseReviewButton } from "@/components/merchandise/DeleteMerchandiseReviewButton";
@@ -34,10 +35,7 @@ export async function generateMetadata({ params }: ReviewDetailPageProps) {
   const { id } = await params;
   const review = await getMerchandiseReview(id);
 
-  return {
-    title: review ? `${review.title} | 취향보관소` : "리뷰 없음",
-    description: review?.summary ?? "리뷰를 찾을 수 없습니다.",
-  };
+  return postMetadata({ title: review?.title ?? "상품 리뷰 없음", description: review?.summary, path: `/merchandise/${id}`, image: review?.thumbnail, imageAlt: review?.thumbnailAlt });
 }
 
 export default async function MerchandiseReviewDetailPage({

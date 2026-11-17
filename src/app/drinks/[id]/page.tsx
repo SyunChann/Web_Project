@@ -8,8 +8,13 @@ import styles from "@/components/drinks/Drinks.module.css";
 import { getDrinkPost, drinkPhotoUrl } from "@/data/drinks";
 import { drinkCategories, drinkKinds } from "@/lib/drinks";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { postMetadata } from "@/lib/postMetadata";
 export const dynamic = "force-dynamic";
-export const metadata = { title: "술 기록 | 취향보관소" };
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const { post } = await getDrinkPost(id);
+  return postMetadata({ title: post?.name ?? "술 기록", description: post?.body, path: `/drinks/${id}`, image: post?.images[0] ? drinkPhotoUrl(post.images[0]) : undefined });
+}
 export default async function DrinkDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const { post, error } = await getDrinkPost(id);

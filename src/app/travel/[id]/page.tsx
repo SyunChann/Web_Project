@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { postMetadata } from "@/lib/postMetadata";
 import { deleteTravel } from "@/app/actions/travel";
 import { AppNav } from "@/components/AppNav";
 import { DeleteReviewButton } from "@/components/travel/DeleteTravelButtom";
@@ -34,10 +35,7 @@ export async function generateMetadata({ params }: TravelDetailPageProps) {
   const { id } = await params;
   const item = await getTravel(id);
 
-  return {
-    title: item ? `${item.tripTitle ?? item.title} | 해외여행` : "여행 기록 없음",
-    description: item?.summary ?? "여행 기록을 찾을 수 없습니다.",
-  };
+  return postMetadata({ title: item?.tripTitle ?? item?.title ?? "여행 기록 없음", description: item?.summary, path: `/travel/${id}`, image: item?.thumbnail, imageAlt: item?.thumbnailAlt });
 }
 
 export default async function TravelDetailPage({ params }: TravelDetailPageProps) {

@@ -15,6 +15,18 @@ export const maxDrinkPhotos = 5;
 export const maxDrinkPhotoSize = 5 * 1024 * 1024;
 export const drinkImageTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
+export type DrinkFilterParams = { q?: string; category?: string; kind?: string; page?: string; rating?: string; tag?: string };
+export function readDrinkFilters(params: DrinkFilterParams) {
+  const q = (typeof params.q === "string" ? params.q : "").trim().slice(0, 80);
+  const category = typeof params.category === "string" && Object.hasOwn(drinkCategories, params.category) ? params.category : "";
+  const kind = typeof params.kind === "string" && Object.hasOwn(drinkKinds, params.kind) ? params.kind : "";
+  const value = typeof params.rating === "string" ? Number(params.rating) : NaN;
+  const rating = value >= .5 && value <= 5 && Number.isInteger(value * 2) ? String(value) : "";
+  const tag = typeof params.tag === "string" && (tasteTags as readonly string[]).includes(params.tag) ? params.tag : "";
+  const page = Math.max(1, Math.min(10000, Math.floor(Number(params.page) || 1)));
+  return { q, category, kind, rating, tag, page };
+}
+
 export function drinkAuthorName(user: { id: string; email?: string; user_metadata?: Record<string, unknown> }) {
   const metadata = user.user_metadata;
   const displayName = [metadata?.display_name, metadata?.name, metadata?.full_name]

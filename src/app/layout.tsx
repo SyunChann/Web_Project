@@ -14,9 +14,9 @@ const mainFont = localFont({
 const siteTitle = "취향 보관소";
 const siteDescription = "좋아하는 콘텐츠, 맛집, 여행과 술을 기록하는 공간.";
 const shareImage = {
-  url: "/social-preview-v2.png",
-  width: 1729,
-  height: 910,
+  url: "/share/home-v3",
+  width: 1200,
+  height: 630,
   alt: "취향 보관소 — 콘텐츠 · 맛집 · 여행 · 술",
 };
 

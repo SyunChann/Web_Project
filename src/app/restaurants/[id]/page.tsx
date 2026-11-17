@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { postMetadata } from "@/lib/postMetadata";
 import { deleteRestaurantReview } from "@/app/actions/restaurants";
 import { AppNav } from "@/components/AppNav";
 import { DeleteRestaurantsReviewButton } from "@/components/restaurants/DeleteRestaurantsReviewButton";
@@ -66,11 +67,7 @@ export async function generateMetadata({ params }: RestaurantDetailPageProps) {
   const item = await getRestaurantsReview(id);
   const title = item?.scope === "overseas" ? item.storeName : item?.title;
 
-  return {
-    title: title ? `${title} | 취향보관소` : "맛집 없음",
-    description:
-      item?.summary ?? item?.review.slice(0, 100) ?? "맛집 기록을 찾을 수 없습니다.",
-  };
+  return postMetadata({ title: title ?? "맛집 없음", description: item?.summary || item?.review, path: `/restaurants/${id}`, image: item?.thumbnail, imageAlt: item?.thumbnailAlt });
 }
 
 export default async function RestaurantsDetailPage({

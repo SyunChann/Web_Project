@@ -8,7 +8,7 @@ import styles from "./DepartureBoard.module.css";
 import { DepartureCountdown, DepartureFilters } from "./DepartureFilters";
 import { DepartureCongestion } from "./DepartureCongestion";
 import { getDepartureCongestion } from "@/lib/incheonCongestion";
-import { DepartureClock, DepartureLive } from "./DepartureLive";
+import { DepartureClock, DepartureLive, DepartureRefresh } from "./DepartureLive";
 
 export const metadata: Metadata = {
   title: "인천공항 출국 안내 | 취향 보관소",
@@ -41,6 +41,7 @@ export default function DeparturesPage() {
           </div>
         </header>
 
+        <DepartureRefresh />
         <Suspense fallback={<SectionLoading label="출국장 대기 현황" />}>
           <CongestionSection />
         </Suspense>
@@ -185,7 +186,7 @@ function BoardState({ result }: { result: Exclude<DepartureBoardResult, { state:
     },
     unavailable: {
       title: "출발편 정보를 불러오지 못했습니다",
-      description: "공공데이터포털 연결이 원활하지 않습니다. 잠시 뒤 페이지를 새로고침해 주세요.",
+      description: "공공데이터포털 연결이 원활하지 않습니다. 위의 다시 확인 버튼으로 재시도해 주세요.",
     },
   } as const;
   const message = messages[result.state];

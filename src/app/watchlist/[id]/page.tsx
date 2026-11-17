@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { postMetadata } from "@/lib/postMetadata";
 import { deleteWatchlistItem } from "@/app/actions/watchlist";
 import { AppNav } from "@/components/AppNav";
 import { DeleteWatchlistButton } from "@/components/watchlist/DeleteWatchlistButton";
@@ -42,9 +43,7 @@ export async function generateMetadata({ params }: WatchlistDetailPageProps) {
   const { id } = await params;
   const item = await getWatchItem(id);
 
-  return {
-    title: item ? `${item.title} | 여행리뷰` : "여행리뷰 없음",
-  };
+  return postMetadata({ title: item?.title ?? "기대작 없음", description: item?.reason, path: `/watchlist/${id}`, image: item?.thumbnail, imageAlt: item?.thumbnailAlt });
 }
 
 export default async function WatchlistDetailPage({
