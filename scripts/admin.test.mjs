@@ -75,9 +75,9 @@ test("admin overview renders newer services, exact counts and owner-aware action
   assert.ok(html.includes("관리자 위스키 수정") && html.includes("다른 회원의 사케 보기"));
   assert.ok(!html.includes("다른 회원의 사케 수정") && !html.includes("fixture-secret-marker"));
 });
-test("invite and content errors remain local to their sections", async () => {
-  const invite = await renderAdminFixture("invite-error");
-  assert.ok(invite.html.includes("초대 조회 실패") && invite.html.includes("콘텐츠 관리"));
+test("invitation management is retired and content errors remain local", async () => {
+  const overview = await renderAdminFixture();
+  assert.ok(!overview.html.includes("초대 코드") && !overview.calls.includes("invite_codes"));
   const content = await renderAdminFixture("content-error");
-  assert.ok(content.html.includes("기대작 정보를 불러오지 못했습니다") && content.html.includes("초대 코드 생성"));
+  assert.ok(content.html.includes("기대작 정보를 불러오지 못했습니다") && content.html.includes("서비스·연동"));
 });

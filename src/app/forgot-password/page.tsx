@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PasswordPage } from "@/components/PasswordPage";
 import { PasswordSubmit } from "@/components/PasswordForm";
 import { requestPasswordReset } from "@/app/actions/password";
+import { Captcha } from "@/components/auth/Captcha";
 
 export const metadata: Metadata = { title: "비밀번호 찾기 | 취향보관소", robots: { index: false, follow: false } };
 
@@ -15,6 +16,7 @@ export default async function ForgotPasswordPage({ searchParams }: {
       <label className="grid gap-2 text-sm font-bold">가입 이메일
         <input className="w-full rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none focus:border-[#be4b49]" type="email" name="email" autoComplete="email" maxLength={254} required />
       </label>
+      <Captcha siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY} />
       <PasswordSubmit label="재설정 메일 보내기" />
     </form>
   </PasswordPage>;

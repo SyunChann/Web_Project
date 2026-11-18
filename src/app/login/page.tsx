@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { signIn } from "./actions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { Captcha } from "@/components/auth/Captcha";
 
 type LoginPageProps = {
   searchParams: Promise<{
@@ -16,7 +17,9 @@ const errorMessages = {
   config: "Supabase 환경변수가 설정되지 않았습니다.",
   invalid: "이메일 또는 비밀번호가 올바르지 않습니다.",
   confirm_email:
-    "이메일 인증 후 다시 로그인해 주세요. 로그인하면 초대 코드가 사용 처리됩니다.",
+    "이메일 인증을 완료한 뒤 로그인해 주세요. 회원가입 화면에서 인증 메일을 다시 요청할 수 있습니다.",
+  limited: "로그인 요청이 많습니다. 잠시 후 다시 시도해 주세요.",
+  captcha: "자동 가입 방지 인증을 다시 완료해 주세요.",
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
@@ -50,7 +53,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <p className="text-sm font-semibold text-[#be4b49]">Login</p>
           <h1 className="mt-3 text-3xl font-bold">로그인</h1>
           <p className="mt-4 leading-7 text-[#52616b]">
-            초대받은 사용자는 로그인 후 리뷰와 기대작을 작성할 수 있습니다.
+            로그인하고 나만의 취향을 기록해 보세요.
           </p>
 
           {message ? (
@@ -58,6 +61,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               {message}
             </p>
           ) : null}
+
+          {status === "confirmed" ? <p role="status" className="mt-5 rounded-md bg-[#e4f4f2] p-4 text-sm leading-7 text-[#276a66]">이메일 인증이 완료되었습니다. 이메일과 비밀번호로 로그인해 주세요.</p> : null}
+          {status === "withdrawn" ? <p role="status" className="mt-5 rounded-md bg-[#e4f4f2] p-4 text-sm leading-7 text-[#276a66]">회원 탈퇴가 완료되었습니다.</p> : null}
 
           {status === "password_reset" || status === "password_changed" ? (
             <p role="status" className="mt-5 rounded-md bg-[#e4f4f2] px-4 py-3 text-sm font-bold text-[#276a66]">비밀번호가 변경되었습니다. 새 비밀번호로 로그인해 주세요.</p>
@@ -86,6 +92,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               />
             </label>
 
+            <Captcha siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY} />
             <button
               type="submit"
               className="mt-2 rounded-md bg-[#be4b49] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#a83f3d]"
@@ -102,7 +109,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             href="/signup"
             className="mt-5 inline-flex text-sm font-bold text-[#be4b49] underline-offset-4 hover:underline"
           >
-            초대 코드로 회원가입
+            회원가입
           </Link>
         </div>
       </section>

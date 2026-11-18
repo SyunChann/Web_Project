@@ -27,6 +27,7 @@ export async function requestPasswordReset(form: FormData) {
   try {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${getSiteUrl()}/auth/recovery`,
+      captchaToken: String(form.get("captcha_token") ?? "") || undefined,
     });
     if (error) {
       // Do not disclose whether an address belongs to an account.
@@ -92,7 +93,7 @@ export async function changePassword(form: FormData) {
     const verifier = createClient(supabaseUrl, supabaseKey, {
       auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
     });
-    const { data, error } = await verifier.auth.signInWithPassword({ email: user.email, password: current });
+    const { data, error } = await verifier.auth.signInWithPassword({ email: user.email, password: current, options: { captchaToken: String(form.get("captcha_token") ?? "") || undefined } });
     if (error || data.user?.id !== user.id) failure = error?.status === 429 ? "limited" : "current";
     else {
       await verifier.auth.signOut({ scope: "local" });

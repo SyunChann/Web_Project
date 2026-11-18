@@ -1,10 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
-import {
-  getPendingInviteCodeFromMetadata,
-  pendingInviteCookieName,
-  pendingInviteMetadataKey,
-} from "@/lib/pendingInvite";
 import { supabaseKey, supabaseUrl } from "./config";
 
 export async function updateSession(request: NextRequest) {
@@ -51,11 +46,8 @@ export async function updateSession(request: NextRequest) {
     });
   };
 
-  let user = null;
-
   try {
     const {
-      data: { user: sessionUser },
       error,
     } = await supabase.auth.getUser();
 
@@ -64,30 +56,12 @@ export async function updateSession(request: NextRequest) {
       return response;
     }
 
-    user = sessionUser;
   } catch {
     clearInvalidAuthCookies();
     return response;
   }
 
-  const pendingInviteCode =
-    request.cookies.get(pendingInviteCookieName)?.value ||
-    getPendingInviteCodeFromMetadata(user?.user_metadata);
-
-  if (user && pendingInviteCode) {
-    const { error } = await supabase.rpc("claim_invite_code", {
-      invite_code: pendingInviteCode,
-    });
-
-    if (!error) {
-      response.cookies.delete(pendingInviteCookieName);
-      await supabase.auth.updateUser({
-        data: {
-          [pendingInviteMetadataKey]: null,
-        },
-      });
-    }
-  }
+  if (request.cookies.has("pending_invite_code")) response.cookies.delete("pending_invite_code");
 
   return response;
 }

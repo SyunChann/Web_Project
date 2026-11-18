@@ -178,7 +178,7 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
               <Ellipsis size={20} />
             </summary>
             <div className="absolute right-0 z-30 mt-2 flex w-36 flex-col gap-1 rounded-lg border border-[#d8cfc2] bg-white p-2 shadow-lg">
-              <Link href="/change-password" className="rounded-md px-3 py-2.5 text-sm font-bold text-[#52616b] hover:bg-[#f7f3ed]">비밀번호 변경</Link>
+              <Link href="/account" className="rounded-md px-3 py-2.5 text-sm font-bold text-[#52616b] hover:bg-[#f7f3ed]">내 계정</Link>
               {isAdmin ? (
                 <Link
                   href="/admin"
@@ -238,7 +238,7 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
             />
           </summary>
           <div className="absolute left-0 z-30 mt-2 w-52 overflow-hidden rounded-lg border border-[#d8cfc2] bg-white p-2 shadow-lg sm:right-0 sm:left-auto">
-            {user ? <Link href="/change-password" className="flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-bold text-[#52616b] hover:bg-[#f7f3ed]">비밀번호 변경</Link> : null}
+            {user ? <Link href="/account" className="flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-bold text-[#52616b] hover:bg-[#f7f3ed]">내 계정</Link> : null}
             <NavMenuLink
               href="/reviews"
               active={isContentSection}
@@ -319,6 +319,7 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
                 작성자
               </span>
             )}
+            <Link href="/account" className="rounded-md border border-[#d8cfc2] bg-white px-3 py-2 text-sm font-bold text-[#52616b] shadow-sm">내 계정</Link>
             <LogoutButton />
           </>
         ) : (

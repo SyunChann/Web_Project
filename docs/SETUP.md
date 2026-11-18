@@ -13,6 +13,8 @@
 | 사이트 주소 | `NEXT_PUBLIC_SITE_URL` |
 | 관리자 | `ADMIN_EMAILS` — 이메일을 쉼표로 구분 |
 | 관리자 API 운영 기록 | `SUPABASE_SERVICE_ROLE_KEY` — 서버 전용, 브라우저에 공개 금지 |
+| 자동 가입 방지 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` — 선택, 비밀키는 Supabase Auth에 등록 |
+| 공개 문의 이메일 | `PUBLIC_CONTACT_EMAIL` — 미설정 시 업무용 Gmail 사용 |
 | 지도·장소 검색 | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`, `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID` |
 | 공식 환율 | `KOREAEXIM_API_KEY` — 미설정·오류 시 ECB 기준 데이터 사용 |
 | 항공편 | `DATA_GO_KR_API_KEY` |
@@ -40,6 +42,7 @@ Google Maps 키는 운영·로컬 도메인으로 HTTP 리퍼러를 제한합니
 | 술 게시판·사진 저장소 | [add-drinks.sql](../supabase/add-drinks.sql) |
 | 가격 관심 목록 | [add-price-watchlists.sql](../supabase/add-price-watchlists.sql) |
 | 외부 API 운영 현황 | [add-api-monitoring.sql](../supabase/add-api-monitoring.sql) |
+| 공개 회원가입·닉네임 | [open-registration.sql](../supabase/open-registration.sql) — 기존 기능 SQL 적용 후 실행 |
 
 기존 프로젝트 보완용 SQL:
 
@@ -57,7 +60,8 @@ Google Maps 키는 운영·로컬 도메인으로 HTTP 리퍼러를 제한합니
 
 ## 로그인·비밀번호
 
-- 가입: 관리자가 발급한 초대 링크를 사용합니다.
+- 가입: 이메일·비밀번호·닉네임을 입력하고 이메일 인증을 완료합니다. 초대 코드는 폐기했으며 기존 이력만 DB에 보관합니다.
+- 내 계정: `/account`에서 닉네임·비밀번호 변경과 탈퇴를 지원합니다. 닉네임은 대소문자를 구분하지 않고 중복을 막으며 기존 글에도 변경을 반영합니다.
 - 비밀번호 찾기: `/forgot-password`에서 메일을 요청합니다.
 - 비밀번호 변경: 로그인 후 `/change-password`를 사용합니다.
 
@@ -73,6 +77,23 @@ Supabase Authentication 설정:
 
 기본 `{{ .ConfirmationURL }}` 방식은 요청한 브라우저에서 열어야 합니다.
 운영 메일은 SMTP와 발송 제한을 확인합니다.
+
+**회원가입 인증**: Supabase의 이메일 가입과 **Confirm email**을 켭니다. Redirect URLs에 `https://syun-archive.vercel.app/auth/confirm`을 추가합니다. Confirm sign up 메일은 다음 링크를 권장합니다. 로컬 테스트는 `http://localhost:4281/auth/confirm`도 등록합니다.
+
+완성된 메일 본문은 [confirm-signup.html](../supabase/templates/confirm-signup.html)을 사용합니다. SMTP·메일 템플릿·URL 설정은 Supabase 대시보드에서 변경하며 SQL만으로 적용되지 않습니다.
+
+```html
+<a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=email">이메일 인증하기</a>
+```
+
+메일 링크를 열면 비밀 토큰을 HttpOnly 쿠키로 옮겨 주소에서 지우고, 화면의 인증 버튼을 누를 때만 사용합니다. 보안 메일 스캐너가 GET으로 링크를 열어도 인증을 소비하지 않습니다. 가입·재발송 실패는 발송 성공으로 안내하지 않습니다. 같은 브라우저는 60초 후 재요청할 수 있고 서버·발송 업체의 한도도 함께 적용됩니다.
+
+**Gmail SMTP**: 별도 서버나 개인 도메인 없이 `smtp.gmail.com`, 포트 `465`, 사용자명·발신 주소는 Gmail 전체 주소, 비밀번호는 Google 2단계 인증 후 발급한 앱 비밀번호를 Supabase SMTP 설정에 직접 입력합니다. Vercel이나 저장소에는 SMTP 비밀번호를 넣지 않습니다. Gmail의 발송 제한과 Supabase Authentication → Rate Limits의 프로젝트 이메일 한도가 함께 적용됩니다. 가입 인증·재발송·비밀번호 찾기는 프로젝트 발송 한도를 공유합니다.
+
+**CAPTCHA 선택 설정**: Cloudflare Turnstile에 운영 도메인을 등록하고 사이트 키를 Vercel의 `NEXT_PUBLIC_TURNSTILE_SITE_KEY`에, 비밀키를 Supabase Auth → Attack Protection의 CAPTCHA 설정에 등록합니다. 두 설정을 함께 완료한 뒤 활성화합니다. 가입·재발송·로그인·비밀번호 찾기·현재 비밀번호 확인에 토큰을 전달합니다. 설정하지 않았다면 CAPTCHA가 적용됐다고 표시하지 않습니다.
+
+공개 회원가입 SQL은 이메일 미인증·익명·탈퇴·차단 계정의 쓰기를 제한하고 기존 작성자 소유권과 관리자 규칙을 유지합니다. [권한 검증 SQL](../supabase/test-open-registration.sql)은 임시 계정으로 확인하고 모두 롤백하며 메일은 보내지 않습니다. 기존 회원에게는 이용 가능한 닉네임을 부여하고 중복만 조정합니다.
+탈퇴는 현재 비밀번호와 ‘탈퇴’ 문구를 확인한 후 서버 전용 키로 처리합니다. 계정·프로필·가격 관심 목록은 삭제하고 공개 글·첨부 사진은 작성자를 ‘탈퇴한 회원’으로 바꿔 유지합니다. 미사용 술 사진은 정리합니다. 삭제를 원하는 글·사진은 탈퇴 전에 직접 정리하도록 안내합니다. 관리자 계정의 셀프 탈퇴는 지원하지 않습니다.
 
 ## 공항·추천 상품
 

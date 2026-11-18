@@ -2,6 +2,7 @@
 
 import { useFormStatus } from "react-dom";
 import { useState } from "react";
+import { Captcha } from "./auth/Captcha";
 
 const passwordInputClass = "w-full min-w-0 rounded-md border border-[#d8cfc2] bg-[#fbfaf7] px-4 py-3 text-base font-normal outline-none focus:border-[#be4b49]";
 
@@ -24,6 +25,7 @@ export function PasswordForm({ action, currentRequired = false }: {
     <label className="flex min-h-11 items-center gap-2 text-sm text-[#52616b]">
       <input type="checkbox" checked={visible} onChange={(event) => setVisible(event.target.checked)} />비밀번호 표시
     </label>
+    {currentRequired ? <Captcha siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY} /> : null}
     <PasswordSubmit label="새 비밀번호 저장" />
   </form>;
 }

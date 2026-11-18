@@ -1,147 +1,56 @@
 "use server";
-
-import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { notifyDiscord } from "@/lib/discord";
+import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import {
-  getPendingInviteCookieOptions,
-  normalizeInviteCode,
-  pendingInviteCookieName,
-  pendingInviteMetadataKey,
-} from "@/lib/pendingInvite";
-
-function signupRedirect(error: string, inviteCode?: string): never {
-  const params = new URLSearchParams({ error });
-
-  if (inviteCode) {
-    params.set("invite", inviteCode);
-  }
-
-  redirect(`/signup?${params.toString()}`);
+import { getSiteUrl } from "@/lib/siteUrl";
+import { validEmail, validNickname, signupError, consentVersion } from "@/lib/membership";
+async function cooldown() {
+  const store = await cookies();
+  if (Date.now() - Number(store.get("signup_mail_requested")?.value ?? 0) < 60000) return false;
+  store.set("signup_mail_requested", String(Date.now()), { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: 60 });
+  return true;
 }
-
-function getSignupErrorCode(errorMessage: string) {
-  const message = errorMessage.toLowerCase();
-
-  if (
-    message.includes("already registered") ||
-    message.includes("already exists") ||
-    message.includes("user already")
-  ) {
-    return "email_exists";
-  }
-
-  if (
-    message.includes("rate limit") ||
-    message.includes("security purposes") ||
-    message.includes("after")
-  ) {
-    return "signup_limited";
-  }
-
-  return "signup_failed";
-}
-
-export async function signUpWithInvite(formData: FormData) {
-  const displayName = String(formData.get("display_name") ?? "").trim();
-  const email = String(formData.get("email") ?? "").trim();
-  const password = String(formData.get("password") ?? "");
-  const inviteCode = normalizeInviteCode(
-    String(formData.get("invite_code") ?? ""),
-  );
-
-  if (!displayName || !email || !password || !inviteCode) {
-    signupRedirect("missing", inviteCode);
-  }
-
-  if (displayName.length > 10) {
-    signupRedirect("name_too_long", inviteCode);
-  }
-
-  if (password.length < 6) {
-    signupRedirect("weak_password", inviteCode);
-  }
-
+export async function signUp(form: FormData) {
+  const nickname = String(form.get("nickname") ?? "").trim(), email = String(form.get("email") ?? "").trim();
+  const password = String(form.get("password") ?? "");
+  if (!validNickname(nickname)) redirect("/signup?error=nickname");
+  if (!validEmail(email)) redirect("/signup?error=email");
+  if (password.length < 8 || new TextEncoder().encode(password).length > 72) redirect("/signup?error=password");
+  if (password !== String(form.get("confirm_password") ?? "")) redirect("/signup?error=mismatch");
+  if (form.get("terms") !== "on" || form.get("privacy") !== "on") redirect("/signup?error=consent");
+  const captchaToken = String(form.get("captcha_token") ?? "");
+  if (process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && !captchaToken) redirect("/signup?error=captcha");
   const supabase = await createSupabaseServerClient();
-
-  if (!supabase) {
-    signupRedirect("config", inviteCode);
-  }
-
-  const { data: isValidInvite, error: validateError } = await supabase.rpc(
-    "validate_invite_code",
-    {
-      invite_code: inviteCode,
-    },
-  );
-
-  if (validateError || !isValidInvite) {
-    signupRedirect("invalid_invite", inviteCode);
-  }
-
-  const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        display_name: displayName,
-        [pendingInviteMetadataKey]: inviteCode,
-      },
-    },
-  });
-
-  if (signUpError) {
-    console.error("[signup] failed", signUpError.message);
-    const errorCode = getSignupErrorCode(signUpError.message);
-
-    if (errorCode === "signup_limited") {
-      const cookieStore = await cookies();
-
-      cookieStore.set(
-        pendingInviteCookieName,
-        inviteCode,
-        getPendingInviteCookieOptions(),
-      );
-
-      redirect(`/signup?status=confirm_email&invite=${inviteCode}`);
-    }
-
-    signupRedirect(errorCode, inviteCode);
-  }
-
-  const cookieStore = await cookies();
-
-  cookieStore.set(
-    pendingInviteCookieName,
-    inviteCode,
-    getPendingInviteCookieOptions(),
-  );
-
-  if (!signUpData.session) {
-    await notifyDiscord({
-      title: "회원가입 요청",
-      description: "초대 회원가입 인증 메일이 요청되었습니다.",
-      color: 0x2a9d90,
-    });
-
-    redirect(`/signup?status=confirm_email&invite=${inviteCode}`);
-  }
-
-  const { error: claimError } = await supabase.rpc("claim_invite_code", {
-    invite_code: inviteCode,
-  });
-
-  if (claimError) {
-    signupRedirect("claim_failed", inviteCode);
-  }
-
-  cookieStore.delete(pendingInviteCookieName);
-  await supabase.auth.updateUser({
-    data: {
-      [pendingInviteMetadataKey]: null,
-    },
-  });
-
-  redirect("/?status=login");
+  if (!supabase) redirect("/signup?error=config");
+  const available = await supabase.rpc("nickname_available_v1", { p_nickname: nickname });
+  if (available.error) redirect("/signup?error=unavailable");
+  if (!available.data) redirect("/signup?error=taken");
+  if (!await cooldown()) redirect("/signup?error=limited");
+  let failure: string | null = null;
+  try {
+    const { data, error } = await supabase.auth.signUp({ email, password, options: {
+      emailRedirectTo: `${getSiteUrl()}/auth/confirm`, captchaToken: captchaToken || undefined,
+      data: { nickname, display_name: nickname, terms_version: consentVersion, privacy_version: consentVersion },
+    } });
+    if (error) failure = signupError(error);
+    if (data.session) await supabase.auth.signOut({ scope: "local" });
+  } catch { failure = "send"; }
+  if (failure) redirect(`/signup?error=${failure}`);
+  redirect("/signup?status=confirm_email");
+}
+export async function resendSignupEmail(form: FormData) {
+  const email = String(form.get("email") ?? "").trim();
+  if (!validEmail(email)) redirect("/signup?error=email");
+  const captchaToken = String(form.get("captcha_token") ?? "");
+  if (process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && !captchaToken) redirect("/signup?error=captcha");
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) redirect("/signup?error=config");
+  if (!await cooldown()) redirect("/signup?error=limited");
+  let failure: string | null = null;
+  try {
+    const { error } = await supabase.auth.resend({ type: "signup", email, options: { emailRedirectTo: `${getSiteUrl()}/auth/confirm`, captchaToken: captchaToken || undefined } });
+    if (error && !["user_not_found", "email_exists"].includes(error.code ?? "")) failure = signupError(error);
+  } catch { failure = "send"; }
+  if (failure) redirect(`/signup?error=${failure}`);
+  redirect("/signup?status=resent");
 }
