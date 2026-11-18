@@ -1,4 +1,6 @@
 import "server-only";
+import { observeApi } from "@/lib/apiMonitoring";
+import { resultObservation } from "@/lib/apiMonitoringModel";
 
 export type AirportTerminal = "T1" | "T2";
 export type CongestionGate = {
@@ -34,8 +36,9 @@ async function fetchCongestion(url: string, terminal: AirportTerminal, fresh = f
     });
     if (!response.ok) return failure(terminal, String(response.status));
     return parseCongestionResponse(await response.text(), terminal);
-  } catch {
-    return { terminal, state: "unavailable", gates: [] };
+  } catch (error) {
+    const name = error && typeof error === "object" && "name" in error ? error.name : "";
+    return { terminal, state: "unavailable", gates: [], diagnostic: name === "TimeoutError" || name === "AbortError" ? "TIMEOUT" : "NETWORK" };
   }
 }
 
@@ -112,6 +115,14 @@ export function parseCongestionResponse(text: string, terminal: AirportTerminal)
 }
 
 export async function getDepartureCongestion(terminal: AirportTerminal): Promise<CongestionResult> {
+  return observeApi(terminal === "T1" ? "icn-t1" : "icn-t2", () => loadDepartureCongestion(terminal), (result) => {
+    const base = resultObservation(result);
+    if (!base || result.state !== "ready") return base;
+    const latest = Math.max(...result.gates.map((gate) => Date.parse(gate.observedAt ?? "")).filter(Number.isFinite));
+    return { state: Number.isFinite(latest) && Date.now() - latest > 600000 ? "stale" : "ok", sourceUpdatedAt: Number.isFinite(latest) ? new Date(latest).toISOString() : null };
+  });
+}
+async function loadDepartureCongestion(terminal: AirportTerminal): Promise<CongestionResult> {
   const dedicatedKey = terminal === "T1" ? process.env.ICN_CONGESTION_T1_API_KEY : process.env.ICN_CONGESTION_T2_API_KEY;
   let key = (dedicatedKey?.trim() || process.env.DATA_GO_KR_API_KEY)?.trim().replace(/^(["'])(.*)\1$/, "$2").trim() ?? "";
   if (!key) return { terminal, state: "missing-key", gates: [] };

@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { Suspense } from "react";
 import { ArrowUpRight, FileWarning, ImageOff, KeyRound, MapPin, Pencil, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -11,6 +12,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getAdminContent } from "@/data/admin";
 import { adminContentMeta as contentMeta, adminContentIssues, type AdminContentKind, type AdminContentRow } from "@/lib/adminContent";
 import { AdminServices } from "@/components/admin/AdminServices";
+import { AdminApiStatus } from "@/components/admin/AdminApiStatus";
 
 type AdminPageProps = {
   searchParams: Promise<{
@@ -169,7 +171,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           <p className="text-sm font-semibold text-[#be4b49]">Admin</p>
           <h1 className="text-3xl font-black tracking-tight sm:text-4xl">관리자 홈</h1>
           <nav aria-label="관리자 섹션" className="flex flex-wrap gap-2">
-            {[["#content", "콘텐츠"], ["#services", "서비스·연동"], ["#invites", "초대 관리"]].map(([href, label]) => <Link key={href} href={href} className="inline-flex min-h-11 items-center rounded-md border border-[#d8cfc2] bg-white px-3 py-2 text-sm font-bold text-[#52616b]">{label}</Link>)}
+            {[["#content", "콘텐츠"], ["#api-status", "외부 API 현황"], ["#services", "서비스·연동"], ["#invites", "초대 관리"]].map(([href, label]) => <Link key={href} href={href} className="inline-flex min-h-11 items-center rounded-md border border-[#d8cfc2] bg-white px-3 py-2 text-sm font-bold text-[#52616b]">{label}</Link>)}
           </nav>
           <p className="max-w-2xl leading-7 text-[#52616b]">
             콘텐츠 현황과 최근 글, 서비스 연동 설정, 초대 코드를 한곳에서 관리합니다.
@@ -240,6 +242,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           </div>
         </section>
 
+        <Suspense fallback={<section id="api-status" role="status" className="rounded-lg border bg-white p-5">외부 API 운영 기록을 불러오고 있습니다…</section>}><AdminApiStatus user={user} now={currentTime} /></Suspense>
         <AdminServices />
 
         {createdUrl ? (

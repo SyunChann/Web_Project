@@ -17,7 +17,7 @@ function load(path, overrides = {}, mocks = {}) {
   const moduleRecord = { exports: {} };
   vm.runInNewContext(compiled, {
     module: moduleRecord, exports: moduleRecord.exports,
-    require: (name) => name === "server-only" ? {} : name in mocks ? mocks[name] : loadDependency(name),
+    require: (name) => name === "server-only" ? {} : name in mocks ? mocks[name] : name === "@/lib/apiMonitoring" ? { observeApi: (_service, operation) => operation() } : name === "@/lib/apiMonitoringModel" ? load("src/lib/apiMonitoringModel.ts", overrides) : loadDependency(name),
     URL, URLSearchParams, AbortSignal, console, process, ...overrides,
   }, { filename });
   return moduleRecord.exports;

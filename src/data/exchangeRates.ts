@@ -1,3 +1,6 @@
+import { observeApi } from "@/lib/apiMonitoring";
+import { ApiRequestError, httpObservation } from "@/lib/apiMonitoringModel";
+
 export type ExchangeRatePoint = {
   date: string;
   value: number;
@@ -86,10 +89,10 @@ async function fetchFrankfurterRates(base: ExchangeRate["code"], from: string, t
     signal: AbortSignal.timeout(5_000),
   });
 
-  if (!response.ok) throw new Error(`Exchange rate request failed: ${response.status}`);
+  if (!response.ok) throw new ApiRequestError(httpObservation(response.status).state, response.status);
 
   const rows = (await response.json()) as FrankfurterRate[];
-  if (!Array.isArray(rows)) throw new Error("Unexpected exchange rate response");
+  if (!Array.isArray(rows)) throw new ApiRequestError("invalid-response");
   return rows;
 }
 
@@ -156,16 +159,21 @@ async function fetchKoreaEximRates(date: string, authKey: string) {
     signal: AbortSignal.timeout(5_000),
   });
 
-  if (!response.ok) throw new Error(`Korea Exim rate request failed: ${response.status}`);
+  if (!response.ok) throw new ApiRequestError(httpObservation(response.status).state, response.status);
 
   const rows = (await response.json()) as KoreaEximRate[];
-  if (!Array.isArray(rows)) throw new Error("Unexpected Korea Exim rate response");
+  if (!Array.isArray(rows)) throw new ApiRequestError("invalid-response");
+  if (rows.some((row) => row.result === 3)) throw new ApiRequestError("authentication");
+  if (rows.some((row) => row.result === 4)) throw new ApiRequestError("rate-limit");
   return rows;
 }
 
 async function getKoreaEximSnapshot(): Promise<ExchangeRateSnapshot | null> {
   const authKey = process.env.KOREAEXIM_API_KEY?.trim();
   if (!authKey) return null;
+  return observeApi("exchange-koreaexim", () => loadKoreaEximSnapshot(authKey), (snapshot) => ({ state: snapshot ? "ok" : "empty" }));
+}
+async function loadKoreaEximSnapshot(authKey: string): Promise<ExchangeRateSnapshot | null> {
 
   const dates = getRecentSeoulDates(16);
   const results = await Promise.allSettled(
@@ -177,7 +185,11 @@ async function getKoreaEximSnapshot(): Promise<ExchangeRateSnapshot | null> {
     buildKoreaEximRate(days, "USD", "$", 1, "USD"),
   ].filter((rate): rate is ExchangeRate => rate !== null);
 
-  if (rates.length !== 2) return null;
+  if (rates.length !== 2) {
+    const failed = results.find((result) => result.status === "rejected");
+    if (failed?.status === "rejected") throw failed.reason;
+    return null;
+  }
 
   const date = rates.map((rate) => rate.points.at(-1)!.date).sort().at(0);
   return date
@@ -186,6 +198,9 @@ async function getKoreaEximSnapshot(): Promise<ExchangeRateSnapshot | null> {
 }
 
 async function getFrankfurterSnapshot(): Promise<ExchangeRateSnapshot | null> {
+  return observeApi("exchange-ecb", loadFrankfurterSnapshot, (snapshot) => ({ state: snapshot ? "ok" : "empty" }));
+}
+async function loadFrankfurterSnapshot(): Promise<ExchangeRateSnapshot | null> {
   const today = new Date();
   const from = new Date(today);
   from.setUTCDate(from.getUTCDate() - 10);

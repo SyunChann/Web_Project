@@ -1,4 +1,6 @@
 import "server-only";
+import { observeApi } from "@/lib/apiMonitoring";
+import { resultObservation } from "@/lib/apiMonitoringModel";
 
 const DEPARTURES_API_URL =
   "https://apis.data.go.kr/B551177/StatusOfPassengerFlightsDeOdp/getPassengerDeparturesDeOdp";
@@ -74,6 +76,9 @@ type PublicDepartureFetchResult =
   | DepartureBoardServiceError;
 
 export async function getJapanDepartures(): Promise<DepartureBoardResult> {
+  return observeApi("icn-flights", loadJapanDepartures, resultObservation);
+}
+async function loadJapanDepartures(): Promise<DepartureBoardResult> {
   const serviceKey = normalizeServiceKey(process.env.DATA_GO_KR_API_KEY);
   if (!serviceKey) return { state: "missing-key", flights: [] };
 
@@ -95,9 +100,10 @@ export async function getJapanDepartures(): Promise<DepartureBoardResult> {
     return tomorrowFlights.length > 0
       ? { state: "ready", flights: tomorrowFlights, updatedAt: tomorrowResult.updatedAt, range: "tomorrow-morning" }
       : { state: "empty", flights: [], updatedAt: tomorrowResult.updatedAt };
-  } catch {
+  } catch (error) {
     console.error("[Incheon Airport API] network or response parsing failed.");
-    return { state: "unavailable", flights: [] };
+    const name = error && typeof error === "object" && "name" in error ? error.name : "";
+    return { state: "unavailable", flights: [], diagnostic: name === "TimeoutError" || name === "AbortError" ? "TIMEOUT" : name === "SyntaxError" ? "PARSE" : "NETWORK" };
   }
 }
 

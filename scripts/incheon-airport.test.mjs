@@ -27,7 +27,7 @@ function service(handler, env = { DATA_GO_KR_API_KEY: "mock-key" }) {
   const exports = {};
   const calls = [];
   vm.runInNewContext(source, {
-    exports, require: () => ({}), process: { env }, URLSearchParams, AbortSignal, Date: FixedDate,
+    exports, require: () => ({ observeApi: (_service, operation) => operation() }), process: { env }, URLSearchParams, AbortSignal, Date: FixedDate,
     console: { error() {} }, fetch: async (url, options) => {
       const query = new URL(url).searchParams;
       calls.push({ query, options });

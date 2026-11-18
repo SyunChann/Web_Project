@@ -1,3 +1,6 @@
+import { observeApi } from "@/lib/apiMonitoring";
+import { ApiRequestError, httpObservation } from "@/lib/apiMonitoringModel";
+
 export type AniListQuarter = 1 | 2 | 3 | 4;
 
 export type AniListAnimeRelease = {
@@ -95,6 +98,7 @@ export async function getAniListQuarterReleases(
   quarter: AniListQuarter,
 ): Promise<AniListAnimeRelease[]> {
   try {
+    return await observeApi("anilist", async () => {
     const response = await fetch(anilistEndpoint, {
       method: "POST",
       headers: {
@@ -109,13 +113,15 @@ export async function getAniListQuarterReleases(
         },
       }),
       next: { revalidate: 60 * 60 * 6 },
+      signal: AbortSignal.timeout(8000),
     });
 
     if (!response.ok) {
-      return [];
+      throw new ApiRequestError(httpObservation(response.status).state, response.status);
     }
 
     const payload = (await response.json()) as AniListResponse;
+    if (!Array.isArray(payload.data?.Page?.media)) throw new ApiRequestError("invalid-response");
     const allowedMonths = new Set(quarterMonths[quarter]);
 
     return (payload.data?.Page?.media ?? [])
@@ -148,6 +154,7 @@ export async function getAniListQuarterReleases(
 
         return leftDate - rightDate || left.title.localeCompare(right.title);
       });
+    }, (items) => ({ state: items.length ? "ok" : "empty" }));
   } catch {
     return [];
   }

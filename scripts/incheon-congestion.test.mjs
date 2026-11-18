@@ -13,7 +13,7 @@ function load({ env = {}, fetch = async () => { throw new Error("unexpected fetc
   const moduleRecord = { exports: {} };
   vm.runInNewContext(source, {
     module: moduleRecord, exports: moduleRecord.exports,
-    require: () => ({}), URLSearchParams, AbortSignal, fetch, process: { env },
+    require: () => ({ observeApi: (_service, operation) => operation() }), URLSearchParams, AbortSignal, fetch, process: { env },
     Date: class extends Date { static now() { return now(); } },
   }, { filename });
   return moduleRecord.exports;

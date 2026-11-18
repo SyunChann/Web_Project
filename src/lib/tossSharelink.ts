@@ -1,4 +1,6 @@
 import "server-only";
+import { observeApi } from "@/lib/apiMonitoring";
+import { ApiRequestError, httpObservation } from "@/lib/apiMonitoringModel";
 
 const CACHE_TTL_MS = 60 * 60 * 1000;
 const DISPLAY_PRODUCT_COUNT = 20;
@@ -74,12 +76,7 @@ async function callProxy<T>(
 
   const payload = (await response.json()) as TossApiResult<T>;
   if (!response.ok || payload.resultType !== "SUCCESS" || !payload.success) {
-    throw new Error(
-      payload.error?.errorCode ||
-        payload.error?.reason ||
-        payload.error?.message ||
-        `토스 프록시 호출 실패: ${response.status}`,
-    );
+    throw new ApiRequestError(response.ok ? "invalid-response" : httpObservation(response.status).state, response.status);
   }
   return payload.success;
 }
@@ -165,7 +162,7 @@ export async function getTossSharelinkContent(): Promise<TossSharelinkContentSta
   }
 
   try {
-    productLoadPromise ??= loadProducts(config.proxyBaseUrl, config.proxyApiKey);
+    productLoadPromise ??= observeApi("toss", () => loadProducts(config.proxyBaseUrl, config.proxyApiKey));
     const products = await productLoadPromise;
     const now = Date.now();
     productCache = { value: products, expiresAt: now + CACHE_TTL_MS, loadedAt: now };

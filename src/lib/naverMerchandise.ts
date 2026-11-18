@@ -1,4 +1,6 @@
 "use server";
+import { observeApi } from "@/lib/apiMonitoring";
+import { ApiRequestError, httpObservation } from "@/lib/apiMonitoringModel";
 
 export type NaverProductItem = {
   productId: string;
@@ -24,6 +26,7 @@ export async function searchNaverProducts(query: string): Promise<NaverProductIt
   }
 
   try {
+    return await observeApi("naver-shopping", async () => {
     const response = await fetch(
       `https://openapi.naver.com/v1/search/shop.json?query=${encodeURIComponent(query)}&display=5&sort=sim`,
       {
@@ -33,15 +36,18 @@ export async function searchNaverProducts(query: string): Promise<NaverProductIt
         },
         // 1시간(3600초) 동안 동일한 검색어 결과는 캐싱하여 무료 한도 아끼기
         next: { revalidate: 3600 },
+        signal: AbortSignal.timeout(8000),
       }
     );
 
     if (!response.ok) {
-      throw new Error(`네이버 API 통신 오류: ${response.status}`);
+      throw new ApiRequestError(httpObservation(response.status).state, response.status);
     }
 
     const data = await response.json();
-    return data.items || [];
+    if (!Array.isArray(data.items)) throw new ApiRequestError("invalid-response");
+    return data.items as NaverProductItem[];
+    }, (items) => ({ state: items.length ? "ok" : "empty" }));
   } catch (error) {
     console.error("상품 검색 실패:", error);
     return [];

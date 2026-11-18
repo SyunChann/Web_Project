@@ -12,6 +12,7 @@
 | 로그인·DB·사진 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` |
 | 사이트 주소 | `NEXT_PUBLIC_SITE_URL` |
 | 관리자 | `ADMIN_EMAILS` — 이메일을 쉼표로 구분 |
+| 관리자 API 운영 기록 | `SUPABASE_SERVICE_ROLE_KEY` — 서버 전용, 브라우저에 공개 금지 |
 | 지도·장소 검색 | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`, `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID` |
 | 공식 환율 | `KOREAEXIM_API_KEY` — 미설정·오류 시 ECB 기준 데이터 사용 |
 | 항공편 | `DATA_GO_KR_API_KEY` |
@@ -38,6 +39,7 @@ Google Maps 키는 운영·로컬 도메인으로 HTTP 리퍼러를 제한합니
 | 여행 방문시간·동선 | [add-travel-visited-time.sql](../supabase/add-travel-visited-time.sql) |
 | 술 게시판·사진 저장소 | [add-drinks.sql](../supabase/add-drinks.sql) |
 | 가격 관심 목록 | [add-price-watchlists.sql](../supabase/add-price-watchlists.sql) |
+| 외부 API 운영 현황 | [add-api-monitoring.sql](../supabase/add-api-monitoring.sql) |
 
 기존 프로젝트 보완용 SQL:
 
@@ -48,6 +50,10 @@ Google Maps 키는 운영·로컬 도메인으로 HTTP 리퍼러를 제한합니
 관리자 이메일은 앱의 `ADMIN_EMAILS`와 DB 권한 정책에 동일하게 지정합니다.
 글과 사진은 공개 조회가 가능하며, 술 글은 관리자도 본인 글만 수정·삭제할 수 있습니다.
 술 사진은 최대 5장, 장당 5MB를 지원합니다.
+
+관리자의 **외부 API 운영 현황**은 서비스 이용 중 관측한 최근 상태·성공·오류·조회 소요를 표시합니다. 관리자 화면을 열거나 새로고침해도 외부 API를 추가 호출하지 않습니다. 조회 소요에는 캐시·파싱·재시도가 포함되며, 제공 업체의 순수 응답 시간이나 호출량을 뜻하지 않습니다.
+운영 기록은 응답 후 저장하고, 같은 상태는 서버 인스턴스별 1분 간격으로 제한합니다. 서비스별 최신 한 행만 유지하며 URL·검색어·사용자 정보·응답 본문은 저장하지 않습니다. 오래 조회하지 않은 연동은 장애 대신 ‘최근 조회 없음’으로 표시합니다. 브라우저에서 사용하는 지도는 기록 대상에서 제외합니다.
+기록 테이블과 저장 함수는 일반 회원·비로그인 접근을 차단합니다. 서버에서 관리자 권한을 확인한 뒤 조회하며, 키 누락·저장 장애는 기존 콘텐츠 조회를 중단하지 않습니다. [회귀 검증 SQL](../supabase/test-api-monitoring.sql)은 임시 자료로 검증한 뒤 롤백합니다.
 
 ## 로그인·비밀번호
 

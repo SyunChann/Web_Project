@@ -1,4 +1,6 @@
 import { unstable_cache } from "next/cache";
+import { observeApi } from "@/lib/apiMonitoring";
+import { ApiRequestError, httpObservation, batchObservation } from "@/lib/apiMonitoringModel";
 import type { EsportsSeasonEvent, LckMatch } from "@/data/lck";
 
 const LOL_ESPORTS_PAGES = [
@@ -82,7 +84,7 @@ async function requestSource<T>({
         headers,
         signal: AbortSignal.timeout(timeoutMs),
       });
-      if (!response.ok) throw new Error(`${label} request failed: ${response.status}`);
+      if (!response.ok) throw new ApiRequestError(httpObservation(response.status).state, response.status);
       return await parse(response);
     } catch (error) {
       lastError = error;
@@ -272,7 +274,7 @@ function toSeasonEvents(htmlPages: string[]): EsportsSeasonEvent[] {
 
 async function loadLolEsportsSchedule(): Promise<LolEsportsSchedule> {
   const [pageResponses, naverResponses] = await Promise.all([
-    Promise.allSettled(
+    observeApi("lck-official", () => Promise.allSettled(
       LOL_ESPORTS_PAGES.map((url) =>
         requestSource({
           label: "LoL Esports schedule",
@@ -286,8 +288,8 @@ async function loadLolEsportsSchedule(): Promise<LolEsportsSchedule> {
           parse: (response) => response.text(),
         }),
       ),
-    ),
-    Promise.allSettled(
+    ), batchObservation),
+    observeApi("lck-naver", () => Promise.allSettled(
       getNaverMonthUrls().map((url) =>
         requestSource({
           label: "Naver schedule",
@@ -301,7 +303,7 @@ async function loadLolEsportsSchedule(): Promise<LolEsportsSchedule> {
           parse: (response) => response.json() as Promise<NaverScheduleResponse>,
         }),
       ),
-    ),
+    ), batchObservation),
   ]);
   const htmlPages = pageResponses.flatMap((response) => response.status === "fulfilled" ? [response.value] : []);
   const naverSchedules = naverResponses.flatMap((response) => response.status === "fulfilled" ? [response.value] : []);

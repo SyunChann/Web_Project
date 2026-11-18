@@ -25,6 +25,7 @@ export async function renderAdminFixture(scenario = "normal") {
     }; return query;
   } };
   const modules = {
+    react: React,
     "react/jsx-runtime": jsxRuntime,
     "next/link": { default: ({ href, children, ...props }) => React.createElement("a", { href, ...props }, children) },
     "next/headers": { headers: async () => new Headers({ host: "localhost:4281" }) },
@@ -33,6 +34,7 @@ export async function renderAdminFixture(scenario = "normal") {
     "@/components/AppNav": { AppNav: () => React.createElement("nav", null, "관리자 메뉴") },
     "@/components/ConfirmSubmitButton": { ConfirmSubmitButton: ({ triggerLabel }) => React.createElement("button", { type: "submit" }, triggerLabel) },
     "@/components/CopyButton": { CopyButton: ({ label }) => React.createElement("button", { type: "button" }, label) },
+    "@/components/admin/AdminApiStatus": { AdminApiStatus: () => React.createElement("section", { id: "api-status" }, "외부 API 운영 현황") },
     "./actions": { createInviteCode: async () => {}, revokeInviteCode: async () => {} },
     "@/lib/admin": { getAdminConfiguration: () => ({ emails: [user?.email], source: "environment" }), isAdminUser: () => scenario !== "member" },
     "@/lib/supabase/server": { createSupabaseServerClient: async () => client },
