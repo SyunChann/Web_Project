@@ -22,6 +22,9 @@
 .docs :global(.swagger-ui .responses-inner),
 .docs :global(.swagger-ui .highlight-code) { overflow-x: auto; }
 .docs :global(.swagger-ui select), .docs :global(.swagger-ui input) { max-width: 100%; }
+.docs :global(.swagger-ui .renderedMarkdown p) { margin: 0 0 12px; line-height: 1.75; }
+.docs :global(.swagger-ui .renderedMarkdown ul) { margin: 0 0 16px; padding-left: 22px; list-style: disc; }
+.docs :global(.swagger-ui .renderedMarkdown li) { margin-bottom: 6px; line-height: 1.75; }
 @media (max-width: 639px) {
   .docs :global(.swagger-ui .wrapper) { padding: 0 12px; }
   .docs :global(.swagger-ui .opblock-summary-path) { font-size: 13px; }
