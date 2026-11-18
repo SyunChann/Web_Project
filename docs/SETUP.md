@@ -99,6 +99,8 @@ Supabase Authentication 설정:
 
 ## 공항·추천 상품
 
+메인의 공식 환율은 `https://oapi.koreaexim.go.kr/site/program/financial/exchangeJSON`으로 요청하며 `searchdate`는 `YYYYMMDD` 형식입니다. 기존 `www.koreaexim.go.kr` 홈페이지 호스트를 API 호출에 사용하지 않습니다. 키는 서버에서만 사용하고 조회 실패 시 ECB 환율을 유지합니다.
+
 - 공항 API는 항공편·T1 혼잡도·T2 혼잡도별 활용 승인이 필요합니다. 인증키는 서버에서만 사용합니다.
 - 혼잡도 자료가 10분 넘게 오래되면 대기 수치를 숨깁니다. 미운영 표시는 안내 운영시간 기준입니다.
 - 첫 조회가 오래된 혼잡도 캐시이면 캐시를 우회해 한 번 더 확인합니다. 추가 확인은 서버 인스턴스 내에서 2분간 공유하며, 원본도 오래됐으면 갱신 지연 안내를 유지합니다.

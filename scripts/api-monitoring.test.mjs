@@ -130,3 +130,37 @@ test("official exchange authentication failures preserve the ECB fallback and re
   } });
   const result = await getExchangeRateSnapshot(); assert.equal(result.source, "frankfurter"); assert.equal(observations.find((x) => x.service === "exchange-koreaexim").state, "authentication"); assert.equal(observations.find((x) => x.service === "exchange-ecb").state, "ok");
 });
+test("official exchange uses the API host and compact dates, preserving currency units and source priority", async () => {
+  const h = harness(); let requests = 0;
+  const { getExchangeRateSnapshot } = h.load("src/data/exchangeRates.ts", {}, { fetch: async raw => {
+    const url = new URL(raw); requests++;
+    assert.equal(url.origin, "https://oapi.koreaexim.go.kr");
+    assert.equal(url.pathname, "/site/program/financial/exchangeJSON");
+    assert.match(url.searchParams.get("searchdate"), /^\d{8}$/);
+    assert.equal(url.searchParams.get("authkey"), "upstream-fixture-key");
+    assert.equal(url.searchParams.get("data"), "AP01");
+    return { ok: true, json: async () => [
+      { result: 1, cur_unit: "JPY(100)", deal_bas_r: "900.50" },
+      { result: 1, cur_unit: "USD", deal_bas_r: "1,400.25" },
+    ] };
+  } });
+  const result = await getExchangeRateSnapshot();
+  assert.ok(requests > 0); assert.equal(result.source, "koreaexim");
+  assert.equal(result.rates.find(rate => rate.code === "JPY").value, 900.5);
+  assert.equal(result.rates.find(rate => rate.code === "USD").value, 1400.25);
+  assert.equal(result.rates[0].points.length, 7); assert.match(result.date, /^\d{4}-\d{2}-\d{2}$/);
+  await h.afters.shift()(); assert.equal(h.writes[0].p_events.length, 1);
+  assert.equal(h.writes[0].p_events[0].service, "exchange-koreaexim"); assert.equal(h.writes[0].p_events[0].state, "ok");
+});
+test("official exchange connection failures still serve ECB and preserve the real failure state", async () => {
+  const h = harness();
+  const { getExchangeRateSnapshot } = h.load("src/data/exchangeRates.ts", {}, { fetch: async raw => {
+    const url = new URL(raw);
+    if (url.hostname === "oapi.koreaexim.go.kr") throw new TypeError("fetch failed");
+    return { ok: true, json: async () => [{ date: "2026-11-17", base: url.searchParams.get("base"), quote: "KRW", rate: 10 }] };
+  } });
+  assert.equal((await getExchangeRateSnapshot()).source, "frankfurter");
+  await h.afters.shift()();
+  assert.equal(h.writes[0].p_events.find(event => event.service === "exchange-koreaexim").state, "network-error");
+  assert.equal(h.writes[0].p_events.find(event => event.service === "exchange-ecb").state, "ok");
+});

@@ -41,7 +41,7 @@ type DatedKoreaEximRates = {
 };
 
 const frankfurterEndpoint = "https://api.frankfurter.dev/v2/rates";
-const koreaEximEndpoint = "https://www.koreaexim.go.kr/site/program/financial/exchangeJSON";
+const koreaEximEndpoint = "https://oapi.koreaexim.go.kr/site/program/financial/exchangeJSON";
 
 function formatDate(date: Date) {
   return date.toISOString().slice(0, 10);
@@ -151,7 +151,7 @@ function getRecentSeoulDates(length: number) {
 async function fetchKoreaEximRates(date: string, authKey: string) {
   const searchParams = new URLSearchParams({
     authkey: authKey,
-    searchdate: date,
+    searchdate: date.replaceAll("-", ""),
     data: "AP01",
   });
   const response = await fetch(`${koreaEximEndpoint}?${searchParams}`, {
