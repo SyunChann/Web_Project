@@ -43,6 +43,15 @@ html.dark {
 .theme-toggle-sun, .dark .theme-toggle-moon { display: none; }
 .dark .theme-toggle-sun { display: block; }
 
+/* Keep admin link states together; important utilities override unlayered dark styles. */
+.app-nav-admin { border-color: #d8b568; background: #fff1c7; color: #4a2c00; }
+.app-nav-admin:hover { border-color: #c8922f; background: #f4d58f; }
+.app-nav-admin[aria-current="page"] { border-color: #d49a35; background: #f3d9a4; color: #17202a; }
+html.dark .app-nav-admin { border-color: #76613a; background: #302b20; color: #f5d48a; }
+html.dark .app-nav-admin:hover { border-color: #a18449; background: #423722; }
+html.dark .app-nav-admin[aria-current="page"] { border-color: #c5a05e; background: #5b4524; color: #fff0c7; }
+.app-nav-admin:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

@@ -307,11 +307,8 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
             {isAdmin ? (
               <Link
                 href="/admin"
-                className={`rounded-md border px-2.5 py-2 text-sm font-bold shadow-sm transition sm:px-3 ${
-                  active === "admin"
-                    ? "border-[#d49a35] bg-[#f3d9a4] text-[#17202a]"
-                    : "border-[#d8b568] bg-[#fff1c7] !text-[#4a2c00] hover:border-[#c8922f] hover:bg-[#f4d58f]"
-                }`}
+                aria-current={active === "admin" ? "page" : undefined}
+                className="app-nav-admin rounded-md border px-2.5 py-2 text-sm font-bold shadow-sm transition sm:px-3"
               >
                 관리자
               </Link>
