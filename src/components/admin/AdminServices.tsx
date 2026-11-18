@@ -1,7 +1,8 @@
 import "server-only";
 import Link from "next/link";
 
-export function AdminServices() {
+export function AdminServices({ headingLevel = "h2" }: { headingLevel?: "h1" | "h2" } = {}) {
+  const Heading = headingLevel;
   const configured = (name: string) => Boolean(process.env[name]?.trim());
   const generalKey = configured("DATA_GO_KR_API_KEY");
   const services = [
@@ -22,7 +23,7 @@ export function AdminServices() {
     ["/account", "내 계정", "닉네임·비밀번호 관리"],
   ];
   return <section id="services" className="grid scroll-mt-6 gap-5">
-    <div><h2 className="text-2xl font-black">서비스·연동 관리</h2><p className="mt-2 text-sm leading-6 text-[#64748b]">키 값은 표시하지 않습니다. 등록 상태는 현재 서버 환경변수 기준이며, 인증 승인·호출 한도·실시간 연결 상태를 뜻하지 않습니다.</p></div>
+    <div><Heading className={headingLevel === "h1" ? "text-3xl font-black tracking-tight sm:text-4xl" : "text-2xl font-black"}>서비스·연동 관리</Heading><p className="mt-2 text-sm leading-6 text-[#64748b]">키 값은 표시하지 않습니다. 등록 상태는 현재 서버 환경변수 기준이며, 인증 승인·호출 한도·실시간 연결 상태를 뜻하지 않습니다.</p></div>
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{services.map((service) => <Link key={service.title} href={service.href} className="rounded-lg border border-[#d8cfc2] bg-white p-4 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-bold">{service.title}</h3><span className={`rounded px-2 py-1 text-xs font-bold ${service.ready ? "bg-[#e4f4f2] text-[#2f7f7a]" : "bg-[#fff4da] text-[#9a5a13]"}`}>{service.ready ? "환경변수 등록" : "설정 필요"}</span></div><p className="mt-2 text-xs leading-6 text-[#64748b]">{service.note}</p>
     </Link>)}</div>

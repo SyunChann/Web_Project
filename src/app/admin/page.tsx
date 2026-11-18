@@ -1,14 +1,11 @@
-import { Suspense } from "react";
 import { ArrowUpRight, FileWarning, ImageOff, KeyRound, MapPin, Pencil, ShieldCheck } from "lucide-react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { AppNav } from "@/components/AppNav";
-import { getAdminConfiguration, isAdminUser } from "@/lib/admin";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getAdminConfiguration } from "@/lib/admin";
+import { requireAdminSession } from "@/lib/adminSession";
 import { getAdminContent } from "@/data/admin";
 import { adminContentMeta as contentMeta, adminContentIssues, type AdminContentKind, type AdminContentRow } from "@/lib/adminContent";
-import { AdminServices } from "@/components/admin/AdminServices";
-import { AdminApiStatus } from "@/components/admin/AdminApiStatus";
+import { AdminSectionNav } from "@/components/admin/AdminSectionNav";
 
 function formatShortDate(value: string) {
   return new Intl.DateTimeFormat("ko-KR", { timeZone: "Asia/Seoul", month: "short", day: "numeric" }).format(new Date(value));
@@ -27,22 +24,7 @@ function formatDate(value: string) {
 }
 
 export default async function AdminPage() {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  if (!isAdminUser(user)) {
-    redirect("/");
-  }
-
-  if (!supabase) {
-    redirect("/login?error=config");
-  }
+  const { supabase, user } = await requireAdminSession();
 
   const adminConfiguration = getAdminConfiguration();
   const currentTime = new Date().getTime();
@@ -61,11 +43,9 @@ export default async function AdminPage() {
         <section className="grid gap-3">
           <p className="text-sm font-semibold text-[#be4b49]">Admin</p>
           <h1 className="text-3xl font-black tracking-tight sm:text-4xl">관리자 홈</h1>
-          <nav aria-label="관리자 섹션" className="flex flex-wrap gap-2">
-            {[["#content", "콘텐츠"], ["#api-status", "외부 API 현황"], ["#services", "서비스·연동"]].map(([href, label]) => <Link key={href} href={href} className="inline-flex min-h-11 items-center rounded-md border border-[#d8cfc2] bg-white px-3 py-2 text-sm font-bold text-[#52616b]">{label}</Link>)}
-          </nav>
+          <AdminSectionNav active="content" />
           <p className="max-w-2xl leading-7 text-[#52616b]">
-            콘텐츠 현황과 최근 글, 서비스 연동 상태를 확인합니다.
+            콘텐츠 현황과 최근 글을 관리합니다.
             <span className="mt-1 block text-xs">조회 {formatDate(new Date(currentTime).toISOString())} KST · 콘텐츠 건수는 기록 단위입니다.</span>
           </p>
         </section>
@@ -132,9 +112,6 @@ export default async function AdminPage() {
             </section>
           </div>
         </section>
-
-        <Suspense fallback={<section id="api-status" role="status" className="rounded-lg border bg-white p-5">외부 API 운영 기록을 불러오고 있습니다…</section>}><AdminApiStatus user={user} now={currentTime} /></Suspense>
-        <AdminServices />
 
       </div>
     </main>

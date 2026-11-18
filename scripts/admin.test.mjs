@@ -65,15 +65,32 @@ test("one failed table remains unknown without hiding other categories", async (
   assert.equal(failed.count, null); assert.equal(failed.error, true);
   assert.equal(results.find(result => result.kind === "review").count, 2400);
 });
-test("admin route rejects anonymous visitors and non-admin members", async () => {
-  await assert.rejects(() => renderAdminFixture("anonymous"), /REDIRECT:\/login/);
-  await assert.rejects(() => renderAdminFixture("member"), /REDIRECT:\/$/);
+test("every admin destination rejects anonymous visitors and non-admin members", async () => {
+  for (const route of ["content", "api-status", "services"]) {
+    await assert.rejects(() => renderAdminFixture("anonymous", route), /REDIRECT:\/login/);
+    await assert.rejects(() => renderAdminFixture("member", route), /REDIRECT:\/$/);
+  }
 });
 test("admin overview renders newer services, exact counts and owner-aware actions without keys", async () => {
   const { html } = await renderAdminFixture();
-  assert.ok(html.includes("관리자 홈") && html.includes("2400") && html.includes("인천공항 출국 안내"));
+  assert.ok(html.includes("관리자 홈") && html.includes("2400") && html.includes('href="/admin/api-status"') && html.includes('href="/admin/services"'));
   assert.ok(html.includes("관리자 위스키 수정") && html.includes("다른 회원의 사케 보기"));
   assert.ok(!html.includes("다른 회원의 사케 수정") && !html.includes("fixture-secret-marker"));
+});
+test("admin destinations isolate content queries, API records and configuration views", async () => {
+  const home = await renderAdminFixture();
+  assert.ok(home.calls.includes("drink_posts") && !home.calls.includes("api_service_health"));
+  assert.ok(!home.html.includes('id="api-status"') && !home.html.includes('id="services"'));
+  const api = await renderAdminFixture("normal", "api-status");
+  assert.deepEqual(api.calls, ["api_service_health"]);
+  assert.ok(api.html.includes("외부 API 운영 현황") && !api.html.includes('id="content"') && !api.html.includes('id="services"'));
+  const services = await renderAdminFixture("normal", "services");
+  assert.deepEqual(services.calls, []);
+  assert.ok(services.html.includes("서비스·연동 관리") && services.html.includes("인천공항 출국 안내") && !services.html.includes('id="api-status"'));
+  for (const [result, current] of [[home, "/admin"], [api, "/admin/api-status"], [services, "/admin/services"]]) {
+    assert.ok(result.html.includes(`href="${current}" aria-current="page"`));
+    assert.ok(!result.html.includes("fixture-secret-marker"));
+  }
 });
 test("invitation management is retired and content errors remain local", async () => {
   const overview = await renderAdminFixture();

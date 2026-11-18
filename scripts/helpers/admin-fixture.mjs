@@ -5,7 +5,7 @@ import React from "react";
 import * as jsxRuntime from "react/jsx-runtime";
 import { renderToStaticMarkup } from "react-dom/server";
 
-export async function renderAdminFixture(scenario = "normal") {
+export async function renderAdminFixture(scenario = "normal", route = "content") {
   const calls = [];
   const owner = "owner";
   const user = scenario === "anonymous" ? null : { id: owner, email: "admin-fixture@example.com" };
@@ -27,14 +27,14 @@ export async function renderAdminFixture(scenario = "normal") {
   const modules = {
     react: React,
     "react/jsx-runtime": jsxRuntime,
-    "next/link": { default: ({ href, children, ...props }) => React.createElement("a", { href, ...props }, children) },
+    "next/link": { default: ({ href, children, ...props }) => { delete props.prefetch; return React.createElement("a", { href, ...props }, children); } },
     "next/headers": { headers: async () => new Headers({ host: "localhost:4281" }) },
     "next/navigation": { redirect: (href) => { throw new Error(`REDIRECT:${href}`); } },
     "lucide-react": new Proxy({}, { get: () => () => React.createElement("svg", { "aria-hidden": true, width: 16, height: 16 }) }),
     "@/components/AppNav": { AppNav: () => React.createElement("nav", null, "관리자 메뉴") },
     "@/components/ConfirmSubmitButton": { ConfirmSubmitButton: ({ triggerLabel }) => React.createElement("button", { type: "submit" }, triggerLabel) },
     "@/components/CopyButton": { CopyButton: ({ label }) => React.createElement("button", { type: "button" }, label) },
-    "@/components/admin/AdminApiStatus": { AdminApiStatus: () => React.createElement("section", { id: "api-status" }, "외부 API 운영 현황") },
+    "@/components/admin/AdminApiStatus": { AdminApiStatus: () => { calls.push("api_service_health"); return React.createElement("section", { id: "api-status" }, "외부 API 운영 현황"); } },
     "./actions": { createInviteCode: async () => {}, revokeInviteCode: async () => {} },
     "@/lib/admin": { getAdminConfiguration: () => ({ emails: [user?.email], source: "environment" }), isAdminUser: () => scenario !== "member" },
     "@/lib/supabase/server": { createSupabaseServerClient: async () => client },
@@ -48,7 +48,9 @@ export async function renderAdminFixture(scenario = "normal") {
   }
   modules["@/lib/adminContent"] = load("src/lib/adminContent.ts");
   modules["@/data/admin"] = load("src/data/admin.ts");
+  modules["@/lib/adminSession"] = load("src/lib/adminSession.ts");
+  modules["@/components/admin/AdminSectionNav"] = load("src/components/admin/AdminSectionNav.tsx");
   modules["@/components/admin/AdminServices"] = load("src/components/admin/AdminServices.tsx");
-  const page = load("src/app/admin/page.tsx").default;
+  const page = load(route === "content" ? "src/app/admin/page.tsx" : `src/app/admin/${route}/page.tsx`).default;
   return { html: renderToStaticMarkup(await page({ searchParams: Promise.resolve({}) })), calls };
 }
