@@ -81,6 +81,7 @@ Supabase Authentication 설정:
 **회원가입 인증**: Supabase의 이메일 가입과 **Confirm email**을 켭니다. Redirect URLs에 `https://syun-archive.vercel.app/auth/confirm`을 추가합니다. Confirm sign up 메일은 다음 링크를 권장합니다. 로컬 테스트는 `http://localhost:4281/auth/confirm`도 등록합니다.
 
 완성된 메일 본문은 [confirm-signup.html](../supabase/templates/confirm-signup.html)을 사용합니다. SMTP·메일 템플릿·URL 설정은 Supabase 대시보드에서 변경하며 SQL만으로 적용되지 않습니다.
+메일 템플릿은 이메일 앱 호환성을 위해 표와 인라인 스타일을 사용합니다. Confirm sign up의 HTML 본문 전체를 교체하고 저장합니다. 코드 푸시만으로 Supabase에 저장된 메일 본문이 바뀌지는 않으며, 변경 후 새로 발송한 메일로 확인합니다.
 
 ```html
 <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=email">이메일 인증하기</a>
