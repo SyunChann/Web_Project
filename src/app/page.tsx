@@ -119,7 +119,7 @@ function EditorPickSection() {
   return (
     <Link
       href="/recommendations"
-      className="group relative col-span-2 min-h-52 overflow-hidden rounded-2xl border border-[#e9b9b2] bg-[linear-gradient(125deg,#fff2ef_0%,#fffaf7_56%,#f6f1ff_100%)] p-5 shadow-[0_12px_35px_rgba(190,75,73,0.12)] transition hover:-translate-y-0.5 hover:border-[#be4b49] hover:shadow-[0_16px_42px_rgba(190,75,73,0.18)] sm:p-7 lg:col-span-3"
+      className="editor-pick-card group relative col-span-2 min-h-52 overflow-hidden rounded-2xl border border-[#e9b9b2] bg-[linear-gradient(125deg,#fff2ef_0%,#fffaf7_56%,#f6f1ff_100%)] p-5 shadow-[0_12px_35px_rgba(190,75,73,0.12)] transition hover:-translate-y-0.5 hover:border-[#be4b49] hover:shadow-[0_16px_42px_rgba(190,75,73,0.18)] sm:p-7 lg:col-span-3"
     >
       <span className="absolute -right-12 -top-16 h-44 w-44 rounded-full bg-[#f6c9c2]/50 blur-2xl transition group-hover:scale-110" aria-hidden="true" />
       <span className="absolute -bottom-20 right-24 h-40 w-40 rounded-full bg-[#d8cafa]/45 blur-3xl" aria-hidden="true" />

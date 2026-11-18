@@ -18,6 +18,7 @@ import {
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import { LogoutButton } from "@/components/LogoutButton";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { isAdminUser } from "@/lib/admin";
 import { getSupabaseServerSession } from "@/lib/supabase/session";
 
@@ -165,6 +166,8 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
           </span>
         </Link>
 
+        <div className="flex items-center gap-2">
+        <ThemeToggle />
         {user ? (
           <details className="group relative">
             <summary
@@ -195,6 +198,7 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
             <LogIn size={19} />
           </Link>
         )}
+        </div>
       </div>
 
       <Link
@@ -290,6 +294,7 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
           </div>
         </details>
 
+        <ThemeToggle />
         {user ? (
           <>
             <Link

@@ -3,6 +3,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ListNavigation } from "@/components/ListNavigation";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import localFont from "next/font/local";
 import { getSiteUrl } from "@/lib/siteUrl";
 import { siteName as siteTitle, siteDescription } from "@/lib/siteIdentity";
@@ -54,10 +55,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={mainFont.variable}>
+    <html lang="ko" className={mainFont.variable} suppressHydrationWarning>
       <body>
-        {children}
-        <Suspense fallback={null}><ListNavigation /></Suspense>
+        <ThemeProvider>
+          {children}
+          <Suspense fallback={null}><ListNavigation /></Suspense>
+        </ThemeProvider>
         <Analytics />
         <SpeedInsights />
       </body>

@@ -1,11 +1,11 @@
 .docs {
   min-width: 0;
   padding: 8px 0;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--theme-line-e2e8f0, #e2e8f0);
   border-radius: 12px;
-  background: white;
+  background: var(--surface);
 }
-.docs :global(.swagger-ui) { font-family: inherit; color: #17212b; }
+.docs :global(.swagger-ui) { font-family: inherit; color: var(--theme-text-17212b, #17212b); }
 .docs :global(.swagger-ui .info) { margin: 20px 0; }
 .docs :global(.swagger-ui .info .title) { font-size: 24px; }
 .docs :global(.swagger-ui .info .title),
@@ -25,6 +25,15 @@
 .docs :global(.swagger-ui .renderedMarkdown p) { margin: 0 0 12px; line-height: 1.75; }
 .docs :global(.swagger-ui .renderedMarkdown ul) { margin: 0 0 16px; padding-left: 22px; list-style: disc; }
 .docs :global(.swagger-ui .renderedMarkdown li) { margin-bottom: 6px; line-height: 1.75; }
+:global(html.dark) .docs :global(.swagger-ui :is(.info .title, .opblock-tag, .opblock-summary-description, .opblock-description-wrapper p, .renderedMarkdown, .parameter__name, .parameter__type, .parameter__in, .response-col_status, .response-col_description, .tab li, .model, .model-title, .responses-inner h4, .responses-inner h5, label, table)) { color: var(--foreground); }
+:global(html.dark) .docs :global(.swagger-ui :is(input, select, textarea, .opblock-section-header)) { background: var(--surface-muted); color: var(--foreground); border-color: var(--line); }
+:global(html.dark) .docs :global(.swagger-ui .scheme-container) { background: var(--surface); box-shadow: none; }
+:global(html.dark) .docs :global(.swagger-ui .btn) { color: var(--foreground); }
+:global(html.dark) .docs :global(.swagger-ui :is(.info p, .info li, .renderedMarkdown p, .renderedMarkdown li, .renderedMarkdown code, .opblock-summary-path, .opblock-summary-path a, .opblock-summary-path span, .opblock-section-header h4, table thead tr th)) { color: var(--foreground); }
+:global(html.dark) .docs :global(.swagger-ui .response-col_links),
+:global(html.dark) .docs :global(.swagger-ui .response-col_links i) { color: var(--muted); }
+:global(html.dark) .docs :global(.swagger-ui .response-control-media-type__accept-message) { color: #86efac; }
+:global(html.dark) .docs :global(.swagger-ui svg) { fill: var(--foreground); }
 @media (max-width: 639px) {
   .docs :global(.swagger-ui .wrapper) { padding: 0 12px; }
   .docs :global(.swagger-ui .opblock-summary-path) { font-size: 13px; }

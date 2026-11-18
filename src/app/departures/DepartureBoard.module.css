@@ -2,8 +2,8 @@
   min-height: 100vh;
   background:
     radial-gradient(circle at 86% 4%, rgba(56, 189, 248, 0.22), transparent 26rem),
-    linear-gradient(180deg, #edf8fd 0%, #dceef6 100%);
-  color: #123e58;
+    linear-gradient(180deg, var(--theme-bg-edf8fd, #edf8fd) 0%, var(--theme-bg-dceef6, #dceef6) 100%);
+  color: var(--theme-text-123e58, #123e58);
 }
 
 .shell {
@@ -23,7 +23,7 @@
 }
 
 .eyebrow {
-  color: #0878a8;
+  color: var(--theme-text-0878a8, #0878a8);
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 800;
@@ -36,13 +36,13 @@
   font-weight: 950;
   line-height: 1;
   letter-spacing: -0.05em;
-  color: #0b3553;
+  color: var(--theme-text-0b3553, #0b3553);
 }
 
 .description {
   max-width: 38rem;
   margin-top: 0.85rem;
-  color: #476b80;
+  color: var(--theme-text-476b80, #476b80);
   font-size: 0.95rem;
   font-weight: 650;
   line-height: 1.7;
@@ -51,10 +51,10 @@
 .clock {
   flex: 0 0 auto;
   padding: 0.8rem 1rem;
-  border: 1px solid #8fc5da;
+  border: 1px solid var(--theme-line-8fc5da, #8fc5da);
   border-radius: 0.4rem;
-  background: rgba(255, 255, 255, 0.86);
-  color: #fbbf24;
+  background: rgb(var(--surface-rgb) / 0.86);
+  color: var(--theme-text-fbbf24, #fbbf24);
   font-family: var(--font-mono);
   font-size: clamp(1.1rem, 2vw, 1.5rem);
   font-weight: 800;
@@ -64,9 +64,9 @@
 
 .board {
   overflow: hidden;
-  border: 1px solid #8dbbd1;
+  border: 1px solid var(--theme-line-8dbbd1, #8dbbd1);
   border-radius: 0.65rem;
-  background: #f8fcfe;
+  background: var(--theme-bg-f8fcfe, #f8fcfe);
   box-shadow: 0 24px 60px rgba(20, 83, 116, 0.18);
 }
 
@@ -89,7 +89,7 @@
 }
 
 .routeCode {
-  color: #fbbf24;
+  color: var(--theme-text-fbbf24, #fbbf24);
   font-family: var(--font-mono);
   font-size: 1.15rem;
 }
@@ -102,9 +102,9 @@
 
 .flightRange {
   padding: .65rem 1.1rem;
-  border-bottom: 1px solid #b8d6e5;
-  background: #f0f9fe;
-  color: #476b80;
+  border-bottom: 1px solid var(--theme-line-b8d6e5, #b8d6e5);
+  background: var(--theme-bg-f0f9fe, #f0f9fe);
+  color: var(--theme-text-476b80, #476b80);
   font-size: .78rem;
   line-height: 1.6;
 }
@@ -114,15 +114,15 @@
   align-items: center;
   gap: 0.65rem;
   padding: 0.8rem 1.1rem;
-  border-bottom: 1px solid #b9d9e8;
-  background: #fff8db;
-  color: #49677a;
+  border-bottom: 1px solid var(--theme-line-b9d9e8, #b9d9e8);
+  background: var(--theme-bg-fff8db, #fff8db);
+  color: var(--theme-text-49677a, #49677a);
   font-size: 0.86rem;
   font-weight: 700;
 }
 
 .rangeNotice strong {
-  color: #173f56;
+  color: var(--theme-text-173f56, #173f56);
   font-size: 0.92rem;
   font-weight: 900;
 }
@@ -132,7 +132,7 @@
   padding: 0.22rem 0.48rem;
   border-radius: 0.25rem;
   background: #fbbf24;
-  color: #111827;
+  color: var(--theme-text-111827, #111827);
   font-size: 0.78rem;
   font-weight: 950;
 }
@@ -152,19 +152,19 @@
 .loading {
   min-height: 12rem;
   padding: 1.25rem;
-  border: 1px solid #8dbbd1;
+  border: 1px solid var(--theme-line-8dbbd1, #8dbbd1);
   border-radius: .65rem;
-  background: #f8fcfe;
-  color: #315b73;
+  background: var(--theme-bg-f8fcfe, #f8fcfe);
+  color: var(--theme-text-315b73, #315b73);
 }
 .loading h2 { font-size: 1.1rem; font-weight: 900; }
 .loading p { margin-top: .75rem; font-size: .9rem; }
 
 .header {
   padding: 0.8rem 1.1rem;
-  border-bottom: 1px solid #b8d6e5;
-  background: #dceff8;
-  color: #315b73;
+  border-bottom: 1px solid var(--theme-line-b8d6e5, #b8d6e5);
+  background: var(--theme-bg-dceff8, #dceff8);
+  color: var(--theme-text-315b73, #315b73);
   font-family: var(--font-main), Arial, Helvetica, sans-serif;
   font-size: 0.72rem;
   font-weight: 800;
@@ -175,12 +175,12 @@
   position: relative;
   min-height: 5.75rem;
   padding: 0.95rem 1.1rem;
-  border-bottom: 1px solid #c8dfe9;
-  background: #f8fcfe;
+  border-bottom: 1px solid var(--theme-line-c8dfe9, #c8dfe9);
+  background: var(--theme-bg-f8fcfe, #f8fcfe);
 }
 
 .row:nth-child(even) {
-  background: #edf7fc;
+  background: var(--theme-bg-edf7fc, #edf7fc);
 }
 
 .row:last-child {
@@ -211,7 +211,7 @@
 
 .airline {
   overflow: hidden;
-  color: #294f66;
+  color: var(--theme-text-294f66, #294f66);
   font-size: 1rem;
   font-weight: 700;
   text-overflow: ellipsis;
@@ -229,7 +229,7 @@
   font-weight: 900;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #123e58;
+  color: var(--theme-text-123e58, #123e58);
 }
 
 .destinationCode {
@@ -237,10 +237,10 @@
   width: fit-content;
   margin-top: 0.38rem;
   padding: 0.18rem 0.42rem;
-  border: 1px solid #4aafd3;
+  border: 1px solid var(--theme-line-4aafd3, #4aafd3);
   border-radius: 0.25rem;
-  background: #e0f4fc;
-  color: #036b9b;
+  background: var(--theme-bg-e0f4fc, #e0f4fc);
+  color: var(--theme-text-036b9b, #036b9b);
   font-family: var(--font-mono);
   font-size: 1rem;
   font-weight: 900;
@@ -259,11 +259,11 @@
 }
 
 .changedTime {
-  color: #fbbf24;
+  color: var(--theme-text-fbbf24, #fbbf24);
 }
 
 .compact {
-  color: #244c64;
+  color: var(--theme-text-244c64, #244c64);
   font-family: var(--font-main), Arial, Helvetica, sans-serif;
   font-size: 1.05rem;
   font-weight: 800;
@@ -292,7 +292,7 @@
 }
 
 .countdown {
-  color: #315b73;
+  color: var(--theme-text-315b73, #315b73);
   font-size: 0.78rem;
   font-weight: 800;
   line-height: 1.5;
@@ -301,8 +301,8 @@
 
 .filters {
   padding: 1rem 1.1rem;
-  border-bottom: 1px solid #b8d6e5;
-  background: #f0f9fe;
+  border-bottom: 1px solid var(--theme-line-b8d6e5, #b8d6e5);
+  background: var(--theme-bg-f0f9fe, #f0f9fe);
 }
 
 .mobileFilter {
@@ -311,7 +311,7 @@
 
 .filterHelp {
   margin-top: 0.4rem;
-  color: #537488;
+  color: var(--theme-text-537488, #537488);
   font-size: 0.8rem;
 }
 
@@ -329,10 +329,10 @@
 
 .filterOptions button {
   padding: 0.5rem 0.7rem;
-  border: 1px solid #a2c9dc;
+  border: 1px solid var(--theme-line-a2c9dc, #a2c9dc);
   border-radius: 0.4rem;
-  background: #fff;
-  color: #27566f;
+  background: var(--theme-bg-ffffff, #fff);
+  color: var(--theme-text-27566f, #27566f);
   font-size: 0.86rem;
   font-weight: 800;
   cursor: pointer;
@@ -351,14 +351,14 @@
 
 .filterSummary {
   margin-top: 0.75rem;
-  color: #315b73;
+  color: var(--theme-text-315b73, #315b73);
   font-size: 0.86rem;
   font-weight: 800;
 }
 
 .countdownHint {
   margin-top: 0.3rem;
-  color: #537488;
+  color: var(--theme-text-537488, #537488);
   font-size: 0.78rem;
   line-height: 1.6;
 }
@@ -368,6 +368,12 @@
 .boarding { --status-color: #0369a1; }
 .departed { --status-color: #15803d; }
 .canceled { --status-color: #be123c; }
+
+:global(html.dark) .scheduled { --status-color: #b4c7d5; }
+:global(html.dark) .delayed { --status-color: #fdba74; }
+:global(html.dark) .boarding { --status-color: #7dd3fc; }
+:global(html.dark) .departed { --status-color: #86efac; }
+:global(html.dark) .canceled { --status-color: #fda4af; }
 
 .mobileLabel {
   display: none;
@@ -387,10 +393,10 @@
   height: 3.5rem;
   margin: 0 auto 1rem;
   place-items: center;
-  border: 1px solid #91c2d8;
+  border: 1px solid var(--theme-line-91c2d8, #91c2d8);
   border-radius: 50%;
-  background: #e0f4fc;
-  color: #0878a8;
+  background: var(--theme-bg-e0f4fc, #e0f4fc);
+  color: var(--theme-text-0878a8, #0878a8);
 }
 
 .emptyTitle {
@@ -401,7 +407,7 @@
 .emptyDescription {
   max-width: 28rem;
   margin-top: 0.55rem;
-  color: #537488;
+  color: var(--theme-text-537488, #537488);
   font-size: 0.88rem;
   font-weight: 600;
   line-height: 1.65;
@@ -411,9 +417,9 @@
   width: fit-content;
   margin: 0.85rem auto 0;
   padding: 0.3rem 0.55rem;
-  border: 1px solid #b7d5e3;
+  border: 1px solid var(--theme-line-b7d5e3, #b7d5e3);
   border-radius: 0.3rem;
-  color: #537488;
+  color: var(--theme-text-537488, #537488);
   font-family: var(--font-mono);
   font-size: 0.68rem;
   font-weight: 700;
@@ -425,13 +431,13 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem 1.5rem;
-  color: #527387;
+  color: var(--theme-text-527387, #527387);
   font-size: 0.74rem;
   font-weight: 700;
 }
 
 .footer strong {
-  color: #244c64;
+  color: var(--theme-text-244c64, #244c64);
 }
 
 .legend {
@@ -491,10 +497,10 @@
     min-width: 0;
     min-height: 44px;
     padding: 0.55rem;
-    border: 1px solid #8dbbd1;
+    border: 1px solid var(--theme-line-8dbbd1, #8dbbd1);
     border-radius: 0.4rem;
-    background: white;
-    color: #123e58;
+    background: var(--surface);
+    color: var(--theme-text-123e58, #123e58);
     font: inherit;
     font-size: 16px;
   }
@@ -612,7 +618,7 @@
 
   .mobileLabel {
     display: block;
-    color: #537488;
+    color: var(--theme-text-537488, #537488);
     font-family: var(--font-main), Arial, Helvetica, sans-serif;
     font-size: 0.65rem;
     font-weight: 800;

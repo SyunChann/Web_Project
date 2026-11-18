@@ -1,0 +1,373 @@
+/* Theme tokens for existing fixed palettes. New UI should use --surface, --foreground, --muted and --line. */
+html.dark .editor-pick-card { background-image: linear-gradient(125deg, #2c252c, #212630 56%, #28233b); }
+html.dark :is(.bg-gradient-to-r, .bg-gradient-to-br) {
+  --tw-gradient-from: #263443;
+  --tw-gradient-via: #22303e;
+  --tw-gradient-to: #19242f;
+}
+html.dark {
+  --theme-bg-d2d5db: #2b2f36;
+  --theme-bg-dceef6: #1b2b32;
+  --theme-bg-dceff8: #1b2a32;
+  --theme-bg-e0f4fc: #1b2b32;
+  --theme-bg-e2f1fb: #1b2932;
+  --theme-bg-e2f4ec: #1b3228;
+  --theme-bg-eaf0f6: #1b2632;
+  --theme-bg-edf7fc: #1b2a32;
+  --theme-bg-edf8fd: #1b2b32;
+  --theme-bg-eef1f4: #1e262e;
+  --theme-bg-eef3f8: #1b2632;
+  --theme-bg-f0f9fe: #1b2a32;
+  --theme-bg-f1f4f6: #1e282f;
+  --theme-bg-f2ede6: #32281b;
+  --theme-bg-f4f0eb: #31271b;
+  --theme-bg-f8fcfe: #1b2a32;
+  --theme-bg-faf8f4: var(--background);
+  --theme-bg-fde6ea: #321b1f;
+  --theme-bg-fff0f2: #321b1e;
+  --theme-bg-fff1d9: #32291b;
+  --theme-bg-fff8db: #322d1b;
+  --theme-bg-ffffff: var(--surface);
+  --theme-line-4aafd3: var(--line);
+  --theme-line-8dbbd1: var(--line);
+  --theme-line-8fc5da: var(--line);
+  --theme-line-91c2d8: var(--line);
+  --theme-line-a2c9dc: var(--line);
+  --theme-line-b7d5e3: var(--line);
+  --theme-line-b8d6e5: var(--line);
+  --theme-line-b9d9e8: var(--line);
+  --theme-line-c89b99: var(--line);
+  --theme-line-c8dfe9: var(--line);
+  --theme-line-ccd7e2: var(--line);
+  --theme-line-d2d5db: var(--line);
+  --theme-line-d4dde6: var(--line);
+  --theme-line-d5d8df: var(--line);
+  --theme-line-d6baba: var(--line);
+  --theme-line-d8dfe5: var(--line);
+  --theme-line-d9dce1: var(--line);
+  --theme-line-d9dfe5: var(--line);
+  --theme-line-dce1e7: var(--line);
+  --theme-line-dfe2e8: var(--line);
+  --theme-line-dff3e5: var(--line);
+  --theme-line-e0e2e6: var(--line);
+  --theme-line-e0e4e8: var(--line);
+  --theme-line-e2e8f0: var(--line);
+  --theme-line-e6eff4: var(--line);
+  --theme-line-edf0f3: var(--line);
+  --theme-text-036b9b: #96d2ee;
+  --theme-text-075985: #96cfee;
+  --theme-text-0878a8: #96d3ee;
+  --theme-text-0b3553: var(--foreground);
+  --theme-text-111827: var(--foreground);
+  --theme-text-123e58: var(--foreground);
+  --theme-text-166747: #9ae9ca;
+  --theme-text-17212b: var(--foreground);
+  --theme-text-173f56: var(--foreground);
+  --theme-text-1c2029: var(--foreground);
+  --theme-text-1c2734: var(--foreground);
+  --theme-text-202a35: var(--foreground);
+  --theme-text-24262d: var(--foreground);
+  --theme-text-244c64: #a5c9df;
+  --theme-text-27566f: #a4cbdf;
+  --theme-text-283747: var(--foreground);
+  --theme-text-294f66: #a8c8dc;
+  --theme-text-304d70: #a9c0da;
+  --theme-text-315b73: #a9c9da;
+  --theme-text-3c4654: #b8c0cc;
+  --theme-text-476b80: #b0c6d3;
+  --theme-text-49677a: #b2c5d1;
+  --theme-text-52616b: var(--muted);
+  --theme-text-527387: #b3c5d1;
+  --theme-text-537488: #b3c5d1;
+  --theme-text-596979: #b8c2cb;
+  --theme-text-626b79: var(--muted);
+  --theme-text-6357a0: #b6b0d4;
+  --theme-text-637c8b: #b8c4cc;
+  --theme-text-647184: var(--muted);
+  --theme-text-647282: var(--muted);
+  --theme-text-70757f: var(--muted);
+  --theme-text-7b6666: var(--muted);
+  --theme-text-7b8794: var(--muted);
+  --theme-text-7d8490: var(--muted);
+  --theme-text-7d8794: var(--muted);
+  --theme-text-8993a0: var(--muted);
+  --theme-text-8a94a0: var(--muted);
+  --theme-text-8b919f: var(--muted);
+  --theme-text-8b97a5: var(--muted);
+  --theme-text-9a4b0b: #eebd96;
+  --theme-text-9a907c: var(--muted);
+  --theme-text-9b2842: #e69eae;
+  --theme-text-a21b3c: #ee96ab;
+  --theme-text-a4aeba: var(--muted);
+  --theme-text-a54846: #dbaaa9;
+  --theme-text-a94341: #dda8a7;
+  --theme-text-b17a25: #eaca9a;
+  --theme-text-be4b49: #dfa6a5;
+  --theme-text-c18b35: #e5ca9f;
+  --theme-text-fbbf24: #eed596;
+}
+
+/* Existing Tailwind color utilities retain their light appearance. */
+html.dark [class~="border-[#d8cfc2]"],
+html.dark [class~="border-[#ddd6cc]"],
+html.dark [class~="border-[#cbe8e4]"],
+html.dark [class~="border-[#f0ddbd]"],
+html.dark [class~="divide-[#e7eeed]"] > :not(:last-child),
+html.dark [class~="divide-[#f0e5d5]"] > :not(:last-child),
+html.dark [class~="hover:border-[#8fc9c4]"]:hover,
+html.dark [class~="border-[#e2c17f]"],
+html.dark [class~="border-[#cbd6e6]"],
+html.dark [class~="border-[#efb3b7]"],
+html.dark [class~="border-[#d8cafa]"],
+html.dark [class~="border-[#dce4f0]"],
+html.dark [class~="border-[#cfc5b8]"],
+html.dark [class~="border-[#8bc9e1]"],
+html.dark [class~="border-[#9ccfe2]"],
+html.dark [class~="border-[#f0d4cf]"],
+html.dark [class~="border-[#eee8df]"],
+html.dark [class~="border-[#e9b9b2]"],
+html.dark [class~="border-[#eadcc7]"],
+html.dark [class~="border-[#bae6fd]"],
+html.dark [class~="border-[#fdddba]"],
+html.dark [class~="border-[#e7dfd6]"],
+html.dark [class~="border-[#d9efb9]"],
+html.dark [class~="border-[#e5e7eb]"],
+html.dark [class~="border-[#e8f1fa]"],
+html.dark [class~="border-[#d7e7e4]"],
+html.dark [class~="border-[#c8dedb]"],
+html.dark [class~="border-[#d8b568]"],
+html.dark [class~="border-[#e4c8bf]"],
+html.dark [class~="border-[#dfb2a8]"],
+html.dark [class~="border-[#f0f9ff]"],
+html.dark [class~="divide-[#eee8df]"] > :not(:last-child),
+html.dark [class~="border-[#ded4c7]"],
+html.dark [class~="border-[#f0c9c6]"],
+html.dark [class~="border-[#f0cfce]"],
+html.dark [class~="border-[#c8d7e3]"],
+html.dark [class~="border-[#e3e9f2]"],
+html.dark [class~="border-[#a9bce1]"],
+html.dark [class~="border-[#ccd6e6]"],
+html.dark [class~="border-[#e7edf5]"],
+html.dark [class~="border-[#edf1f6]"],
+html.dark [class~="border-[#cdd9ee]"],
+html.dark [class~="border-[#d6deea]"],
+html.dark [class~="divide-[#dce4f0]"] > :not(:last-child),
+html.dark [class~="border-[#f1bec0]"],
+html.dark [class~="border-[#d7deea]"],
+html.dark [class~="divide-[#eee5dc]"] > :not(:last-child),
+html.dark [class~="border-[#f1c9c6]"],
+html.dark [class~="border-[#cce5a4]"],
+html.dark [class~="divide-[#e8f5d5]"] > :not(:last-child) { border-color: var(--line) !important; }
+html.dark [class~="text-[#64748b]"] { color: #b8c0cc !important; }
+html.dark [class~="bg-[#fde8e7]"] { background-color: #321c1b !important; }
+html.dark [class~="text-[#a73735]"] { color: #e2a3a2 !important; }
+html.dark [class~="bg-[#e4f4f2]"] { background-color: #1b322f !important; }
+html.dark [class~="text-[#276a66]"] { color: #a6dedb !important; }
+html.dark [class~="bg-[#fff4da]"],
+html.dark [class~="bg-[#fffdf8]"],
+html.dark [class~="hover:bg-[#fff4da]"]:hover { background-color: #322b1b !important; }
+html.dark [class~="text-[#52616b]"],
+html.dark [class~="text-[#3f4a54]"],
+html.dark [class~="text-[#8a95a1]"],
+html.dark [class~="text-[#625875]"],
+html.dark [class~="text-[#7a6f63]"],
+html.dark [class~="text-[#6b7280]"],
+html.dark [class~="placeholder:text-[#8a95a1]"]::placeholder,
+html.dark [class~="text-[#7a8490]"],
+html.dark [class~="text-[#8c9ba5]"],
+html.dark [class~="text-[#706a63]"],
+html.dark [class~="text-[#9aa3aa]"],
+html.dark [class~="text-[#9b8f82]"],
+html.dark [class~="text-[#718096]"],
+html.dark [class~="text-[#7b8798]"],
+html.dark [class~="text-[#8793a5]"] { color: var(--muted) !important; }
+html.dark [class~="text-[#be4b49]"],
+html.dark [class~="hover:text-[#be4b49]"]:hover,
+html.dark .group:hover [class~="group-hover:text-[#be4b49]"] { color: #dfa6a5 !important; }
+html.dark [class~="text-[#17212b]"],
+html.dark [class~="text-[#17202a]"],
+html.dark [class~="text-[#13233d]"],
+html.dark [class~="text-[#241a3d]"],
+html.dark [class~="text-[#1f2933]"],
+html.dark [class~="text-[#123e58]"],
+html.dark [class~="text-[#173f56]"],
+html.dark [class~="hover:text-[#3f6212]"]:hover,
+html.dark [class~="text-[#3f6212]"],
+html.dark [class~="text-[#5c3b09]"],
+html.dark [class~="!text-[#4a2c00]"],
+html.dark [class~="text-[#172033]"],
+html.dark [class~="text-[#365314]"] { color: var(--foreground) !important; }
+html.dark [class~="bg-[#f4fbfa]"],
+html.dark [class~="bg-[#e8f6f4]"],
+html.dark [class~="bg-[#eefaf8]"],
+html.dark [class~="hover:bg-[#eefaf8]"]:hover { background-color: #1b322e !important; }
+html.dark [class~="text-[#2f7f7a]"],
+html.dark [class~="hover:text-[#2f7f7a]"]:hover,
+html.dark .group:hover [class~="group-hover:text-[#2f7f7a]"] { color: #a6deda !important; }
+html.dark [class~="text-[#8b7460]"] { color: #cdc1b7 !important; }
+html.dark [class~="bg-[#fff8ec]"],
+html.dark [class~="bg-[#f7f4ef]"],
+html.dark [class~="hover:bg-[#f7f3ed]"]:hover,
+html.dark [class~="bg-[#f7f3ed]"],
+html.dark [class~="disabled:bg-[#f7f2ea]"]:disabled,
+html.dark [class~="bg-[#f5efe6]"] { background-color: #32291b !important; }
+html.dark [class~="text-[#9a5a13]"] { color: #eec496 !important; }
+html.dark [class~="text-[#b45309]"] { color: #eebc96 !important; }
+html.dark [class~="text-[#94a3b8]"] { color: #b5c0ce !important; }
+html.dark [class~="bg-[#eef1ed]"] { background-color: #242b21 !important; }
+html.dark [class~="bg-[#fbfaf7]"],
+html.dark [class~="bg-[#f8f6f0]"],
+html.dark [class~="hover:bg-[#fbfaf7]"]:hover,
+html.dark [class~="bg-[#fffbf0]"] { background-color: #322c1b !important; }
+html.dark [class~="text-[#e32732]"],
+html.dark [class~="hover:text-[#e32732]"]:hover { color: #ee969b !important; }
+html.dark [class~="text-[#334155]"] { color: #b2bfd1 !important; }
+html.dark [class~="bg-[#fff5f5]"],
+html.dark [class~="bg-[#fff0f0]"],
+html.dark [class~="hover:bg-[#fff0f0]"]:hover,
+html.dark [class~="bg-[#fff7f7]"] { background-color: #321b1b !important; }
+html.dark [class~="text-[#a81420]"] { color: #ee969d !important; }
+html.dark [class~="hover:bg-[#ffe8e9]"]:hover { background-color: #321b1c !important; }
+html.dark [class~="text-[#c21d28]"] { color: #ee969c !important; }
+html.dark [class~="bg-[#f2edff]"] { background-color: #211b32 !important; }
+html.dark [class~="text-[#6842b8]"] { color: #b8a5df !important; }
+html.dark [class~="bg-[#f8f5ff]"] { background-color: #221b32 !important; }
+html.dark [class~="text-[#4f3b78]"] { color: #bbadd7 !important; }
+html.dark [class~="text-[#7657bb]"] { color: #b8a8dc !important; }
+html.dark [class~="text-[#8f49be]"],
+html.dark [class~="hover:text-[#8f49be]"]:hover { color: #c7a5df !important; }
+html.dark [class~="bg-[#f3e6d8]"] { background-color: #3f3122 !important; }
+html.dark [class~="text-[#8a3b2f]"] { color: #e0aca4 !important; }
+html.dark [class~="text-[#6d470c]"] { color: #eecb96 !important; }
+html.dark [class~="text-[#4f5fb8]"] { color: #a8b0dc !important; }
+html.dark [class~="text-[#a33f3c]"],
+html.dark [class~="text-[#8f3735]"] { color: #dea7a6 !important; }
+html.dark [class~="text-[#9249be]"],
+html.dark [class~="hover:text-[#9249be]"]:hover,
+html.dark [class~="text-[#9349be]"] { color: #c9a5df !important; }
+html.dark [class~="text-[#a349be]"] { color: #d1a5df !important; }
+html.dark [class~="hover:text-[#7649be]"]:hover { color: #bba5df !important; }
+html.dark [class~="bg-[#faf5ff]"] { background-color: #261b32 !important; }
+html.dark [class~="text-[#8049be]"] { color: #c0a5df !important; }
+html.dark [class~="hover:text-[#8949be]"]:hover { color: #c5a5df !important; }
+html.dark [class~="text-[#9b4a43]"] { color: #daadaa !important; }
+html.dark [class~="bg-[#eaf0f6]"],
+html.dark [class~="hover:bg-[#eaf0f6]"]:hover,
+html.dark [class~="bg-[#f1f5f9]"] { background-color: #1b2632 !important; }
+html.dark [class~="text-[#304d70]"],
+html.dark [class~="hover:text-[#304d70]"]:hover { color: #a9c0da !important; }
+html.dark [class~="bg-[#fdf2e9]"],
+html.dark [class~="hover:bg-[#fdf2e9]"]:hover { background-color: #32251b !important; }
+html.dark [class~="text-[#e57632]"],
+html.dark [class~="text-[#c85a17]"],
+html.dark [class~="hover:text-[#e57632]"]:hover,
+html.dark .group:hover [class~="group-hover:text-[#e57632]"] { color: #eeb796 !important; }
+html.dark [class~="bg-[#e0f2fe]"],
+html.dark [class~="bg-[#f0f9ff]"],
+html.dark [class~="hover:bg-[#e0f2fe]"]:hover,
+html.dark [class~="hover:bg-[#f0f9ff]"]:hover { background-color: #1b2932 !important; }
+html.dark [class~="text-[#0284c7]"],
+html.dark [class~="hover:text-[#0284c7]"]:hover,
+html.dark .group:hover [class~="group-hover:text-[#0284c7]"] { color: #96d0ee !important; }
+html.dark [class~="bg-[#f7fee7]"],
+html.dark [class~="hover:bg-[#f7fee7]"]:hover { background-color: #2b321b !important; }
+html.dark [class~="text-[#4d7c0f]"],
+html.dark [class~="hover:text-[#4d7c0f]"]:hover { color: #c8ee96 !important; }
+html.dark [class~="bg-[#f5e7fe]"] { background-color: #291b32 !important; }
+html.dark [class~="text-[#A841DB]"] { color: #d098ec !important; }
+html.dark [class~="text-[#4b8fac]"] { color: #aacbda !important; }
+html.dark .group:hover [class~="group-hover:text-[#05658f]"],
+html.dark [class~="text-[#0878a8]"],
+html.dark [class~="hover:text-[#05658f]"]:hover { color: #96d3ee !important; }
+html.dark [class~="text-[#075985]"],
+html.dark [class~="text-[#0369a1]"],
+html.dark [class~="hover:text-[#0369a1]"]:hover { color: #96cfee !important; }
+html.dark [class~="text-[#4c7488]"] { color: #b0c8d3 !important; }
+html.dark [class~="bg-[#fff7f5]"],
+html.dark [class~="bg-[#fff0ed]"],
+html.dark [class~="hover:bg-[#fff7f5]"]:hover,
+html.dark [class~="bg-[#fff5f3]"],
+html.dark [class~="hover:bg-[#fff5f3]"]:hover { background-color: #321f1b !important; }
+html.dark [class~="bg-[#f6c9c2]/50"] { background-color: color-mix(in srgb, #3f2622 50%, transparent) !important; }
+html.dark [class~="bg-[#d8cafa]/45"] { background-color: color-mix(in srgb, #2a223f 45%, transparent) !important; }
+html.dark [class~="bg-[#e8f5fb]"] { background-color: #1b2a32 !important; }
+html.dark [class~="bg-[#f2f8e8]"],
+html.dark [class~="bg-[#fbfff5]"],
+html.dark [class~="hover:bg-[#fbfff5]"]:hover { background-color: #29321b !important; }
+html.dark [class~="bg-[#f7edfb]"] { background-color: #2b1b32 !important; }
+html.dark [class~="hover:text-[#a83f3d]"]:hover { color: #dea6a5 !important; }
+html.dark [class~="text-[#235f58]"] { color: #a6ded7 !important; }
+html.dark [class~="text-[#65a30d]"] { color: #c9ee96 !important; }
+html.dark [class~="text-[#5ca1e6]"] { color: #96c2ee !important; }
+html.dark [class~="text-[#4584c4]"] { color: #a2c2e2 !important; }
+html.dark [class~="bg-[#f7fcfb]"],
+html.dark [class~="hover:bg-[#eef8f6]"]:hover { background-color: #1b322d !important; }
+html.dark [class~="text-[#38a39b]"] { color: #a4e0db !important; }
+html.dark [class~="hover:text-[#a749be]"]:hover { color: #d3a5df !important; }
+html.dark [class~="bg-[#edf2ef]"] { background-color: #202c25 !important; }
+html.dark [class~="text-[#2f6f5e]"] { color: #a9dbcd !important; }
+html.dark [class~="bg-[#f3d9a4]"] { background-color: #3f3522 !important; }
+html.dark [class~="bg-[#fff1c7]"] { background-color: #3f3822 !important; }
+html.dark [class~="hover:bg-[#f4d58f]"]:hover { background-color: #3f3622 !important; }
+html.dark [class~="bg-[#fffaf7]"] { background-color: #32231b !important; }
+html.dark [class~="text-[#8f403e]"] { color: #daabaa !important; }
+html.dark [class~="bg-[#fff1ef]"] { background-color: #321e1b !important; }
+html.dark [class~="hover:bg-[#fbf5f2]"]:hover { background-color: #32221b !important; }
+html.dark [class~="hover:text-[#9b3d3b]"]:hover,
+html.dark [class~="text-[#9b3d3b]"] { color: #dda7a6 !important; }
+html.dark [class~="hover:text-[#216864]"]:hover,
+html.dark [class~="text-[#216864]"] { color: #a2e2de !important; }
+html.dark [class~="hover:bg-[#eff6ff]"]:hover,
+html.dark [class~="bg-[#eef2f7]"],
+html.dark [class~="bg-[#f3f6fa]"],
+html.dark [class~="bg-[#f8fbff]"] { background-color: #1b2532 !important; }
+html.dark [class~="hover:text-[#1d4ed8]"]:hover { color: #96adee !important; }
+html.dark [class~="hover:bg-[#fbf5ee]"]:hover,
+html.dark [class~="focus:bg-[#fbf5ee]"]:focus { background-color: #32271b !important; }
+html.dark [class~="bg-[#f7f8fa]"] { background-color: #1d232f !important; }
+html.dark [class~="text-[#4657b8]"],
+html.dark [class~="hover:text-[#4657b8]"]:hover { color: #a6afdd !important; }
+html.dark [class~="text-[#247053]"] { color: #a2e1c9 !important; }
+html.dark [class~="bg-[#eee4d8]"] { background-color: #3f3222 !important; }
+html.dark [class~="text-[#8a5a2b]"] { color: #e2c1a2 !important; }
+html.dark [class~="text-[#905512]"] { color: #eec596 !important; }
+html.dark [class~="bg-[#eef0f3]"] { background-color: #20252d !important; }
+html.dark [class~="hover:bg-[#eef4ff]"]:hover { background-color: #1b2332 !important; }
+html.dark [class~="text-[#087443]"] { color: #96eec6 !important; }
+html.dark [class~="text-[#c43c46]"] { color: #e3a1a6 !important; }
+html.dark [class~="text-[#526fa8]"] { color: #adbbd7 !important; }
+html.dark [class~="bg-[#f8faff]"] { background-color: #1b2132 !important; }
+html.dark [class~="text-[#253b67]"] { color: #a5b8df !important; }
+html.dark [class~="bg-[#f5f8ff]"],
+html.dark [class~="bg-[#fbfcfe]"] { background-color: #1b2232 !important; }
+html.dark [class~="text-[#445c89]"] { color: #adbcd6 !important; }
+html.dark [class~="bg-[#eef2ff]"] { background-color: #1b2032 !important; }
+html.dark [class~="text-[#4338ca]"] { color: #a49ee5 !important; }
+html.dark [class~="bg-[#ecfdf3]"] { background-color: #1b3224 !important; }
+html.dark [class~="text-[#475569]"] { color: #b6c0ce !important; }
+html.dark [class~="text-[#3b4d67]"] { color: #b1bfd2 !important; }
+html.dark [class~="bg-[#f0fdfa]"] { background-color: #1b322c !important; }
+html.dark [class~="bg-[#ccfbf1]"] { background-color: #223f39 !important; }
+html.dark [class~="text-[#0f766e]"] { color: #96eee7 !important; }
+html.dark [class~="text-[#2563b8]"] { color: #99bbeb !important; }
+html.dark [class~="bg-[#fffafb]"] { background-color: #321b1f !important; }
+html.dark [class~="bg-[#f5f7fa]"] { background-color: #1b2432 !important; }
+html.dark [class~="bg-[#eee5dc]"] { background-color: #3f3022 !important; }
+html.dark [class~="bg-[#ecfccb]"] { background-color: #353f22 !important; }
+html.dark [class~="bg-[#f2f3ff]"],
+html.dark [class~="hover:bg-[#f4f5ff]"]:hover { background-color: #1b1d32 !important; }
+html.dark [class~="text-[#364576]"] { color: #abb6d9 !important; }
+html.dark [class~="text-[#7580ad]"] { color: #b2b8d1 !important; }
+
+html.dark [class~="bg-white"] { background-color: var(--surface) !important; }
+html.dark [class~="bg-white/95"], html.dark [class~="bg-white/90"], html.dark [class~="bg-white/85"], html.dark [class~="bg-white/80"], html.dark [class~="bg-white/70"], html.dark [class~="bg-white/60"] { background-color: rgb(var(--surface-rgb) / .94) !important; }
+html.dark [class~="hover:bg-white"]:hover { background-color: var(--surface-muted) !important; }
+html.dark [class~="bg-red-50"], html.dark [class~="bg-amber-50"] { background-color: #352a29 !important; }
+html.dark [class~="text-red-800"], html.dark [class~="text-amber-800"] { color: #ffbbb0 !important; }
+html.dark [class~="border-red-200"], html.dark [class~="border-amber-200"] { border-color: #77534d !important; }
+html.dark [class~="text-gray-600"], html.dark [class~="text-gray-400"] { color: var(--muted) !important; }
+html.dark [class~="text-blue-600"] { color: #93c5fd !important; }
+html.dark [class~="text-green-600"] { color: #86efac !important; }
+html.dark .departure-menu-card { background-image: linear-gradient(135deg, #162d3e, #1b3d50); }
+html.dark [data-travel-theme] [class~="text-[#0284c7]"], html.dark [data-travel-theme] [class~="text-[#5ca1e6]"], html.dark [data-travel-theme] [class~="text-[#4584c4]"] { color: #b8d78c !important; }
+html.dark [data-travel-theme] [class~="bg-[#e0f2fe]"], html.dark [data-travel-theme] [class~="bg-[#e8f1fa]"], html.dark [data-travel-theme] [class~="bg-[#f0f9ff]"] { background-color: #263222 !important; }

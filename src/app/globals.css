@@ -1,9 +1,47 @@
 @import "tailwindcss";
+@import "./theme.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
   --background: #f4f6f8;
   --foreground: #1f2933;
+  --surface: #ffffff;
+  --surface-rgb: 255 255 255;
+  --surface-muted: #fbfaf7;
+  --line: #d8cfc2;
+  --muted: #52616b;
 }
+
+html.dark {
+  color-scheme: dark;
+  --background: #101820;
+  --foreground: #e7edf4;
+  --surface: #19242f;
+  --surface-rgb: 25 36 47;
+  --surface-muted: #202e3b;
+  --line: #3b4b5c;
+  --muted: #b4c2d0;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--foreground);
+  box-shadow: 0 1px 2px #0000000d;
+  cursor: pointer;
+}
+.theme-toggle:hover { background: var(--surface-muted); }
+.theme-toggle:focus-visible { outline: 2px solid #be4b49; outline-offset: 3px; }
+.theme-toggle-sun, .dark .theme-toggle-moon { display: none; }
+.dark .theme-toggle-sun { display: block; }
 
 @theme inline {
   --color-background: var(--background);

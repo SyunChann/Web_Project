@@ -112,6 +112,8 @@ Supabase Authentication 설정:
 
 ## 검사·배포
 
+테마는 `next-themes`로 관리합니다. 기본은 라이트 모드이며, 우측 상단 버튼으로 전환한 선택을 브라우저의 `archive-theme`에 저장합니다. 별도 환경변수·DB 설정은 없습니다. 공통 색상은 `src/app/globals.css`, 기존 화면의 다크 팔레트는 `src/app/theme.css`에서 관리합니다. 새 UI는 `--surface`·`--foreground`·`--muted`·`--line` 변수를 사용하고, 사진·지도·공유 이미지에는 테마 반전 필터를 적용하지 않습니다.
+
 관리자 → **API 문서**(`/admin/api-docs`)에서 내부 JSON API를 Swagger로 확인합니다. 명세 JSON(`/api/admin/openapi`)도 관리자 세션으로 보호하며 새 환경변수는 필요하지 않습니다. 현재는 애니 신작 GET만 실행할 수 있고 닉네임 POST는 문서만 제공합니다. Server Actions·서버 직접 조회·Storage SDK는 별도 안내하며 문서용 API를 추가하지 않습니다. Swagger는 관리자 문서에서만 로드하고 외부 명세 검증 서버를 사용하지 않습니다.
 새 Route Handler를 추가하면 `src/lib/internalOpenApi.ts`도 갱신합니다. `scripts/openapi.test.mjs`가 명세 유효성·경로 누락·권한·실행 범위를 검사합니다. 명세 제공용 `/api/admin/openapi`는 업무 API 목록에서 제외합니다.
 
