@@ -4,7 +4,8 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
-    open-pull-requests-limit: 1
+    # 일반 버전 업데이트 PR만 중지함. 보안 업데이트 PR 제한에는 영향 없음.
+    open-pull-requests-limit: 0
     groups:
       npm-dependencies:
         patterns:
@@ -14,7 +15,7 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
-    open-pull-requests-limit: 1
+    open-pull-requests-limit: 0
     groups:
       github-actions:
         patterns:
