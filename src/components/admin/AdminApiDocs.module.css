@@ -1,0 +1,43 @@
+.docs {
+  min-width: 0;
+  padding: 8px 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: white;
+}
+.docs :global(.swagger-ui) { font-family: inherit; color: #17212b; }
+.docs :global(.swagger-ui .info) { margin: 20px 0; }
+.docs :global(.swagger-ui .info .title) { font-size: 24px; }
+.docs :global(.swagger-ui .info .title),
+.docs :global(.swagger-ui .opblock-tag),
+.docs :global(.swagger-ui .btn),
+.docs :global(.swagger-ui .parameter__name) { font-family: inherit; }
+.docs :global(.swagger-ui .info p),
+.docs :global(.swagger-ui .opblock-description-wrapper p),
+.docs :global(.swagger-ui .opblock-summary-description) { font-family: inherit; line-height: 1.7; }
+.docs :global(.swagger-ui .opblock-summary-path) { min-width: 0; overflow-wrap: anywhere; }
+.docs :global(.swagger-ui .opblock-summary-control) { min-width: 0; flex-wrap: wrap; gap: 8px; }
+.docs :global(.swagger-ui .opblock-summary-description) { flex-basis: 180px; }
+.docs :global(.swagger-ui .table-container),
+.docs :global(.swagger-ui .responses-inner),
+.docs :global(.swagger-ui .highlight-code) { overflow-x: auto; }
+.docs :global(.swagger-ui select), .docs :global(.swagger-ui input) { max-width: 100%; }
+@media (max-width: 639px) {
+  .docs :global(.swagger-ui .wrapper) { padding: 0 12px; }
+  .docs :global(.swagger-ui .opblock-summary-path) { font-size: 13px; }
+  .docs :global(.swagger-ui .opblock-summary-description) { flex-basis: 100%; }
+  .docs :global(.swagger-ui .opblock-body .table-container) { padding: 12px; }
+  .docs :global(.swagger-ui .responses-table thead) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .docs :global(.swagger-ui .responses-table tbody tr),
+  .docs :global(.swagger-ui .responses-table tbody td) { display: block; width: 100%; }
+  .docs :global(.swagger-ui .responses-table .response-col_status) { padding-bottom: 8px; font-weight: 700; }
+  .docs :global(.swagger-ui .responses-table .response-col_status::before) { content: "HTTP "; }
+  .docs :global(.swagger-ui .responses-table .response-col_links) { display: none; }
+  .docs :global(.swagger-ui .responses-table pre) { white-space: pre; overflow-x: auto; word-break: normal; overflow-wrap: normal; }
+}

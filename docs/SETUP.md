@@ -112,6 +112,9 @@ Supabase Authentication 설정:
 
 ## 검사·배포
 
+관리자 → **API 문서**(`/admin/api-docs`)에서 내부 JSON API를 Swagger로 확인합니다. 명세 JSON(`/api/admin/openapi`)도 관리자 세션으로 보호하며 새 환경변수는 필요하지 않습니다. 현재는 애니 신작 GET만 실행할 수 있고 닉네임 POST는 문서만 제공합니다. Server Actions·서버 직접 조회·Storage SDK는 별도 안내하며 문서용 API를 추가하지 않습니다. Swagger는 관리자 문서에서만 로드하고 외부 명세 검증 서버를 사용하지 않습니다.
+새 Route Handler를 추가하면 `src/lib/internalOpenApi.ts`도 갱신합니다. `scripts/openapi.test.mjs`가 명세 유효성·경로 누락·권한·실행 범위를 검사합니다. 명세 제공용 `/api/admin/openapi`는 업무 API 목록에서 제외합니다.
+
 기본 공유 이미지는 `/share/home-v3`에서 사이트의 실제 WOFF 폰트로 생성합니다. Open Graph 설정은 `src/app/layout.tsx`에서 관리합니다.
 개별 글은 글 제목·설명·대표 사진을 공유하며, 사진이 없으면 기본 이미지를 사용합니다.
 배포 후 이전 미리보기가 남으면 [카카오 공유 디버거](https://developers.kakao.com/tool/debugger/sharing)에서 캐시를 초기화합니다.

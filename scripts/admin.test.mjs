@@ -66,7 +66,7 @@ test("one failed table remains unknown without hiding other categories", async (
   assert.equal(results.find(result => result.kind === "review").count, 2400);
 });
 test("every admin destination rejects anonymous visitors and non-admin members", async () => {
-  for (const route of ["content", "api-status", "services"]) {
+  for (const route of ["content", "api-status", "services", "api-docs"]) {
     await assert.rejects(() => renderAdminFixture("anonymous", route), /REDIRECT:\/login/);
     await assert.rejects(() => renderAdminFixture("member", route), /REDIRECT:\/$/);
   }
@@ -87,7 +87,10 @@ test("admin destinations isolate content queries, API records and configuration 
   const services = await renderAdminFixture("normal", "services");
   assert.deepEqual(services.calls, []);
   assert.ok(services.html.includes("서비스·연동 관리") && services.html.includes("인천공항 출국 안내") && !services.html.includes('id="api-status"'));
-  for (const [result, current] of [[home, "/admin"], [api, "/admin/api-status"], [services, "/admin/services"]]) {
+  const docs = await renderAdminFixture("normal", "api-docs");
+  assert.deepEqual(docs.calls, []);
+  assert.ok(docs.html.includes("Swagger UI") && docs.html.includes("OpenAPI JSON 보기"));
+  for (const [result, current] of [[home, "/admin"], [api, "/admin/api-status"], [services, "/admin/services"], [docs, "/admin/api-docs"]]) {
     assert.ok(result.html.includes(`href="${current}" aria-current="page"`));
     assert.ok(!result.html.includes("fixture-secret-marker"));
   }

@@ -35,6 +35,7 @@ export async function renderAdminFixture(scenario = "normal", route = "content")
     "@/components/ConfirmSubmitButton": { ConfirmSubmitButton: ({ triggerLabel }) => React.createElement("button", { type: "submit" }, triggerLabel) },
     "@/components/CopyButton": { CopyButton: ({ label }) => React.createElement("button", { type: "button" }, label) },
     "@/components/admin/AdminApiStatus": { AdminApiStatus: () => { calls.push("api_service_health"); return React.createElement("section", { id: "api-status" }, "외부 API 운영 현황"); } },
+    "@/components/admin/AdminApiDocs": { AdminApiDocs: () => React.createElement("section", { id: "api-docs" }, "Swagger UI") },
     "./actions": { createInviteCode: async () => {}, revokeInviteCode: async () => {} },
     "@/lib/admin": { getAdminConfiguration: () => ({ emails: [user?.email], source: "environment" }), isAdminUser: () => scenario !== "member" },
     "@/lib/supabase/server": { createSupabaseServerClient: async () => client },
