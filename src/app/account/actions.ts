@@ -11,7 +11,7 @@ export async function changeNickname(form: FormData) {
   const { data: { user } } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
   if (!supabase || !user) redirect("/login");
   const nickname = String(form.get("nickname") ?? "").trim();
-  if (!validNickname(nickname)) redirect("/account?error=nickname");
+  if (!validNickname(nickname, isAdminUser(user))) redirect("/account?error=nickname");
   const { error } = await supabase.rpc("change_nickname_v1", { p_nickname: nickname });
   if (error) redirect(`/account?error=${error.code === "23505" ? "taken" : "save"}`);
   // Refresh metadata for forms that also use the Auth display name.

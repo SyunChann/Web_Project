@@ -82,6 +82,15 @@ test("nickname change is authenticated and reports atomic database conflicts", a
   const guest = harness({ user: null }); await redirected(guest.load("src/app/account/actions.ts").changeNickname(form()), "/login"); assert.equal(guest.calls.length, 0);
   const taken = harness({ rpcError: { code: "23505" } }); await redirected(taken.load("src/app/account/actions.ts").changeNickname(form()), "/account?error=taken");
 });
+test("only an authenticated administrator may request an operator nickname", async () => {
+  const member = harness(); await redirected(member.load("src/app/account/actions.ts").changeNickname(form({ nickname: "관리자", is_admin: "true" })), "/account?error=nickname"); assert.equal(member.calls.length, 0);
+  const admin = harness({ admin: true }); await redirected(admin.load("src/app/account/actions.ts").changeNickname(form({ nickname: "관리자" })), "/account?status=saved"); assert.equal(admin.calls[0][0], "change_nickname_v1");
+  assert.equal(admin.model.validNickname("탈퇴한회원", true), false);
+  assert.equal(admin.model.validNickname("<관리자>", true), false);
+});
+test("signup cannot use operator names even when a logged-in administrator submits it", async () => {
+  const h = harness({ admin: true }); await redirected(h.load("src/app/signup/actions.ts").signUp(form({ nickname: "관리자" })), "/signup?error=nickname"); assert.equal(h.calls.length, 0);
+});
 test("withdrawal rejects guests/admins and forged password identities before using a privileged key", async () => {
   for (const [opts, target] of [[{ user: null }, "/login"], [{ admin: true }, "/account?error=admin"], [{ passwordUser: { id: "other" }, env: { SUPABASE_SERVICE_ROLE_KEY: "private-marker" } }, "/account?error=current"]]) {
     const h = harness(opts); await redirected(h.load("src/app/account/actions.ts").withdrawAccount(form({ current_password: "password", withdraw_confirm: "탈퇴", user_id: "other" })), target);

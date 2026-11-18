@@ -2,7 +2,7 @@ import "server-only";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import { getApiHealth } from "@/lib/apiMonitoring";
-import { apiServices, apiStateLabels, apiHealthPresentation, type ApiService } from "@/lib/apiMonitoringModel";
+import { apiServices, apiStateLabels, apiHealthPresentation, serviceConfigured, type ApiService } from "@/lib/apiMonitoringModel";
 import { AdminApiRefresh } from "./AdminApiRefresh";
 
 const tones: Record<string, string> = { green: "bg-[#e4f4f2] text-[#216864]", amber: "bg-[#fff4da] text-[#905512]", red: "bg-[#fde8e7] text-[#a73735]", gray: "bg-[#eef0f3] text-[#52616b]" };
@@ -21,6 +21,7 @@ export async function AdminApiStatus({ user, now }: { user: User; now: number })
         const status = apiHealthPresentation(id, row, now);
         return <article key={id} className="min-w-0 rounded-lg border border-[#d8cfc2] bg-white p-4 shadow-sm">
           <div className="flex flex-wrap items-start justify-between gap-2"><div><h3 className="font-bold text-[#17202a]">{service.name}</h3><p className="mt-1 text-xs text-[#64748b]">{service.provider}</p></div><span className={`rounded px-2 py-1 text-xs font-bold ${tones[status.tone]}`}>{status.label}</span></div>
+          {id === "exchange-koreaexim" ? <p className="mt-3 rounded-md bg-[#f7f8fa] p-2 text-xs leading-6 text-[#64748b]">{serviceConfigured(id) ? "한국수출입은행을 우선 조회합니다. 조회에 실패하거나 제공 데이터가 없으면 ECB 환율로 대체합니다." : <>서버의 <code>KOREAEXIM_API_KEY</code>가 미등록 상태입니다. 메인 환율은 ECB로 조회하며, 정상 여부는 ‘ECB 환율’ 카드에서 확인할 수 있습니다.</>}</p> : null}
           <dl className="mt-4 grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-2 text-sm">
             <dt className="text-[#64748b]">최근 확인</dt><dd className="text-right font-semibold">{time(row?.checked_at)}</dd>
             <dt className="text-[#64748b]">마지막 성공</dt><dd className="text-right font-semibold">{time(row?.last_success_at)}</dd>

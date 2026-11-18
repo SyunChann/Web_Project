@@ -1,6 +1,10 @@
 export const consentVersion = "2026-11-18";
 export function validEmail(value: string) { return value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value); }
-export function validNickname(value: string) { return /^[가-힣A-Za-z0-9_-]{2,16}$/.test(value) && !["admin", "administrator", "관리자", "운영자", "탈퇴한회원"].includes(value.toLowerCase()); }
+export function validNickname(value: string, allowOperatorName = false) {
+  const name = value.toLowerCase();
+  return /^[가-힣A-Za-z0-9_-]{2,16}$/.test(value) && name !== "탈퇴한회원"
+    && (allowOperatorName || !["admin", "administrator", "관리자", "운영자"].includes(name));
+}
 export function signupError(error: { status?: number; code?: string }) {
   if (error.status === 429 || ["over_email_send_rate_limit", "over_request_rate_limit"].includes(error.code ?? "")) return "limited";
   if (error.code === "email_address_not_authorized") return "sender";

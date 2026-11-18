@@ -16,7 +16,7 @@ export function AdminServices() {
     ["/departures", "인천공항 출국 안내", "출국장 혼잡도·일본행 항공편"],
     ["/recommendations", "추천 콘텐츠", "토스 상품과 에디터 픽"],
     ["/admin/toss-images", "토스 이미지 관리", "노출 중단 상품과 이미지 상태"],
-    ["/release-calendar", "릴리즈 캘린더", "작품 공개 일정"],
+    ["/release-calendar", "애니 신작 캘린더", "분기별 애니메이션 공개 일정"],
     ["/lck-calendar", "LCK 경기 일정", "경기 일정과 결과"],
     ["/lck-analysis", "LCK 밴픽 분석", "대회 밴픽 자료"],
     ["/account", "내 계정", "닉네임·비밀번호 관리"],

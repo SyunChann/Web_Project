@@ -72,8 +72,12 @@ create or replace function private.change_nickname(p_nickname text) returns void
 declare member_id uuid:=auth.uid(); t text;
 begin
   if not private.is_member() then raise exception 'not authorized' using errcode='42501'; end if;
+  if p_nickname is null or p_nickname !~ '^[가-힣A-Za-z0-9_-]{2,16}$' or lower(p_nickname)='탈퇴한회원'
+    or (lower(p_nickname) in ('admin','administrator','관리자','운영자') and not public.is_admin())
+    then raise exception 'nickname not allowed' using errcode='22023'; end if;
   if exists(select 1 from public.member_profiles where user_id=member_id and nickname=p_nickname) then return; end if;
-  if not public.nickname_available_v1(p_nickname) then raise exception 'nickname unavailable' using errcode='23505'; end if;
+  if exists(select 1 from public.member_profiles where lower(nickname)=lower(p_nickname) and user_id<>member_id)
+    then raise exception 'nickname unavailable' using errcode='23505'; end if;
   update public.member_profiles set nickname=p_nickname where user_id=member_id;
   if not found then raise exception 'profile missing'; end if;
   update auth.users set raw_user_meta_data=coalesce(raw_user_meta_data,'{}')||jsonb_build_object('nickname',p_nickname,'display_name',p_nickname) where auth.users.id=member_id;

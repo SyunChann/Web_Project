@@ -3,7 +3,7 @@ export const apiServices = {
   "icn-t1": { name: "T1 출국장 혼잡도", provider: "공공데이터포털", href: "/departures", idleMinutes: 15 },
   "icn-t2": { name: "T2 출국장 혼잡도", provider: "공공데이터포털", href: "/departures", idleMinutes: 15 },
   "exchange-koreaexim": { name: "한국수출입은행 환율", provider: "한국수출입은행", href: "/", idleMinutes: 1440 },
-  "exchange-ecb": { name: "보조 환율", provider: "Frankfurter · ECB", href: "/", idleMinutes: 1440 },
+  "exchange-ecb": { name: "ECB 환율", provider: "Frankfurter · ECB", href: "/", idleMinutes: 1440 },
   toss: { name: "토스 추천 상품", provider: "토스 쉐어링크 프록시", href: "/recommendations", idleMinutes: 1440 },
   "naver-shopping": { name: "네이버 상품 검색", provider: "네이버", href: "/new?type=merchandise", idleMinutes: 1440 },
   "lck-official": { name: "LCK 공식 일정", provider: "LoL Esports", href: "/lck-calendar", idleMinutes: 1440 },
@@ -60,7 +60,9 @@ export function normalizeApiEvent(service: ApiService, observation: ApiObservati
 }
 export const apiStateLabels: Record<ApiState, string> = { ok: "정상", empty: "정상 · 결과 없음", partial: "일부 요청 실패", stale: "자료 갱신 지연", authentication: "인증 실패", "rate-limit": "호출 한도 초과", timeout: "응답 시간 초과", "invalid-response": "응답 형식 오류", "upstream-error": "제공기관 응답 오류", "network-error": "연결 오류" };
 export function apiHealthPresentation(service: ApiService, row: ApiHealthRow | undefined, now: number) {
-  if (!serviceConfigured(service)) return { label: "API 설정 필요", tone: "amber" };
+  if (!serviceConfigured(service)) return service === "exchange-koreaexim"
+    ? { label: "선택 연동 미설정", tone: "gray" }
+    : { label: "API 설정 필요", tone: "amber" };
   if (!row) return { label: "확인 기록 없음", tone: "gray" };
   if (now - Date.parse(row.checked_at) > apiServices[service].idleMinutes * 60000) return { label: "최근 조회 없음", tone: "gray" };
   if ((service === "icn-t1" || service === "icn-t2") && row.source_updated_at && now - Date.parse(row.source_updated_at) > 600000) return { label: "자료 갱신 지연", tone: "amber" };

@@ -15,7 +15,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
   if (!supabase || !user) redirect("/login");
   const { data: profile, error: profileError } = await supabase.from("member_profiles").select("nickname").eq("user_id", user.id).maybeSingle();
   const { error, status } = await searchParams;
-  const errors: Record<string, string> = { ...membershipErrors, save: "계정 정보를 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.", current: "현재 비밀번호를 확인해 주세요.", admin: "관리자 계정은 여기서 탈퇴할 수 없습니다.", confirm: "현재 비밀번호와 확인 문구 ‘탈퇴’를 입력해 주세요." };
+  const errors: Record<string, string> = { ...membershipErrors, nickname: isAdminUser(user) ? "닉네임은 한글·영문·숫자·_·- 조합으로 2~16자 입력해 주세요. 탈퇴 전용 이름은 사용할 수 없습니다." : membershipErrors.nickname, save: "계정 정보를 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.", current: "현재 비밀번호를 확인해 주세요.", admin: "관리자 계정은 여기서 탈퇴할 수 없습니다.", confirm: "현재 비밀번호와 확인 문구 ‘탈퇴’를 입력해 주세요." };
   return <main className="min-h-screen px-4 py-6 pb-28 sm:px-10"><div className="mx-auto max-w-6xl"><AppNav /><section className="mx-auto mt-8 grid max-w-lg gap-5"><h1 className="text-3xl font-bold">내 계정</h1><p className="break-all text-sm text-[#64748b]">{user.email}</p>
     {error ? <p role="alert" className="rounded-md bg-[#fde8e7] p-4 text-sm leading-7 text-[#a73735]">{errors[error] ?? errors.save}</p> : null}
     {status === "saved" ? <p role="status" className="rounded-md bg-[#e4f4f2] p-4 text-sm text-[#276a66]">닉네임을 변경했습니다. 기존 글의 작성자 표시에도 반영됩니다.</p> : null}

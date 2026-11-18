@@ -54,6 +54,22 @@ test("no traffic is neutral; stale source data is a separate warning", () => {
   assert.equal(model.apiHealthPresentation("icn-t1", { ...row, checked_at: new Date(instant - 20 * 60000).toISOString() }, instant).label, "최근 조회 없음");
   assert.equal(model.apiHealthPresentation("anilist", undefined, instant).label, "확인 기록 없음");
 });
+test("optional official exchange setup is neutral without masking required provider configuration", () => {
+  const { model } = harness({ env: { KOREAEXIM_API_KEY: "", DATA_GO_KR_API_KEY: "" } });
+  assert.equal(model.apiHealthPresentation("exchange-koreaexim", undefined, instant).label, "선택 연동 미설정");
+  assert.equal(model.apiHealthPresentation("exchange-koreaexim", undefined, instant).tone, "gray");
+  assert.equal(model.apiHealthPresentation("icn-flights", undefined, instant).label, "API 설정 필요");
+});
+test("homepage exchange lookup records ECB reads when the optional official key is absent", async () => {
+  const h = harness({ env: { KOREAEXIM_API_KEY: "" } }); const urls = [];
+  const { getExchangeRateSnapshot } = h.load("src/data/exchangeRates.ts", {}, { fetch: async url => {
+    urls.push(url); const base = new URL(url).searchParams.get("base");
+    return { ok: true, json: async () => [{ date: "2026-11-17", base, quote: "KRW", rate: 10 }] };
+  } });
+  assert.equal((await getExchangeRateSnapshot()).source, "frankfurter");
+  assert.ok(urls.length > 0 && urls.every(url => !url.includes("koreaexim")));
+  await h.afters.shift()(); assert.equal(h.writes[0].p_events.length, 1); assert.equal(h.writes[0].p_events[0].service, "exchange-ecb");
+});
 test("responses return before persistence; repeated state is throttled and batched", async () => {
   const h = harness();
   assert.equal(await h.core.observeApi("anilist", async () => "ok"), "ok");
