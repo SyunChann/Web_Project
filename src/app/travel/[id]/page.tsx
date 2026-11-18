@@ -19,7 +19,7 @@ import { DeleteReviewButton } from "@/components/travel/DeleteTravelButtom";
 import { ThumbnailImage } from "@/components/ThumbnailImage";
 import { getTravel, getTravels, sortTravelStops, travelToStop } from "@/data/travel";
 import { canManageContent } from "@/lib/contentPermissions";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServerSession } from "@/lib/supabase/session";
 import { getAirportCode } from "@/lib/airports";
 
 type TravelDetailPageProps = {
@@ -45,10 +45,7 @@ export default async function TravelDetailPage({ params }: TravelDetailPageProps
 
   if (!item) notFound();
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const { user } = await getSupabaseServerSession();
   const canManageTravel = canManageContent(user, item.authorId);
   const deleteAction = deleteTravel.bind(null, item.id);
   const legacyTravelItems = item.itinerary.length || !item.tripTitle

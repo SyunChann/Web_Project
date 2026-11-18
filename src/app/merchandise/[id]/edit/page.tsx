@@ -5,7 +5,7 @@ import { updateMerchandiseReview } from "@/app/actions/merchandise";
 import { MerchandiseReviewForm } from "@/components/merchandise/MerchandiseForm";
 import { getMerchandiseReview } from "@/data/merchandise";
 import { canManageContent } from "@/lib/contentPermissions";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServerSession } from "@/lib/supabase/session";
 
 type EditReviewPageProps = {
   params: Promise<{
@@ -14,10 +14,7 @@ type EditReviewPageProps = {
 };
 
 export default async function EditReviewPage({ params }: EditReviewPageProps) {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const { user } = await getSupabaseServerSession();
 
   if (!user) {
     redirect("/login");

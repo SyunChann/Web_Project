@@ -3,13 +3,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createMerchandiseReview } from "@/app/actions/merchandise";
 import { MerchandiseReviewForm } from "@/components/merchandise/MerchandiseForm";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServerSession } from "@/lib/supabase/session";
 
 export default async function NewReviewPage() {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const { user } = await getSupabaseServerSession();
 
   if (!user) {
     redirect("/login");

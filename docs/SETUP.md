@@ -43,6 +43,7 @@ Google Maps 키는 운영·로컬 도메인으로 HTTP 리퍼러를 제한합니
 | 가격 관심 목록 | [add-price-watchlists.sql](../supabase/add-price-watchlists.sql) |
 | 외부 API 운영 현황 | [add-api-monitoring.sql](../supabase/add-api-monitoring.sql) |
 | 공개 회원가입·닉네임 | [open-registration.sql](../supabase/open-registration.sql) — 기존 기능 SQL 적용 후 실행 |
+| 술 목록 미리보기 | [optimize-drink-lists.sql](../supabase/optimize-drink-lists.sql) — 술 게시판 SQL 적용 후 실행 |
 
 기존 프로젝트 보완용 SQL:
 
@@ -121,6 +122,9 @@ Supabase Authentication 설정:
 
 새 DB에는 `supabase/optimize-content-lists.sql`도 실행합니다. 기존 RLS를 따르는 읽기 전용 RPC로 기대작·맛집·여행을 9개씩 조회하며, 여행 묶음은 페이지를 나누기 전에 계산합니다. `supabase/test-content-list-pages.sql`은 임시 테이블로 검색·묶음·페이지를 검증한 뒤 롤백합니다.
 메인 카드는 최신 제목·날짜만 조회합니다. 술 사진은 Next.js 이미지 최적화로 화면 크기에 맞게 제공하며 GIF는 원본을 유지합니다.
+술 목록은 읽기 전용 RPC로 본문 180자·대표 사진 한 장·맛 태그 최대 3개만 24개씩 조회합니다. 필터별 공개 결과를 60초 캐시하고 글 작성·수정·삭제, 닉네임 변경과 탈퇴 시 즉시 만료시킵니다. 조회 실패는 캐시하지 않으며 상세 페이지에서는 전체 본문과 사진을 유지합니다. [검증 SQL](../supabase/test-drink-list-previews.sql)은 긴 본문·검색·필터·정렬·페이지 나누기와 호출자 RLS를 확인한 뒤 롤백합니다.
+술 페이지의 제목·필터와 목록은 별도 Suspense 영역으로 표시합니다. 목록이나 로그인 조회가 늦어도 제목·필터가 먼저 나타납니다.
+서버 화면의 사용자 확인은 React `cache`로 한 렌더 요청 안에서만 공유합니다. 인증 정보는 공용 캐시나 모듈 전역에 저장하지 않으며 Server Actions는 새 클라이언트로 사용자 정보를 확인합니다. `src/proxy.ts`는 세션 쿠키 갱신만 담당하고, 저장된 세션의 사용자 값을 권한 판단에 사용하지 않습니다. 실제 사용자·관리자 권한은 서버의 `getUser()`와 기존 DB RLS로 확인합니다. 쿠키 갱신 응답에는 비공개 캐시 헤더를 전달합니다.
 
 목록에서 글을 열면 필터·페이지 주소와 선택한 카드 위치를 탭별로 24시간 기억합니다. 글의 목록 버튼과 브라우저 뒤로가기로 복원하며, 공유 URL에는 복원 정보를 붙이지 않습니다. 저장소가 차단되면 현재 탭의 메모리로 동작합니다.
 

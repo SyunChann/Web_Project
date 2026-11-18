@@ -21,16 +21,13 @@ test("drink filters normalize half-star minimums, allowed tags and bounded pages
 });
 test("drink data query combines filters before pagination and retains exact total", async () => {
   const calls = [];
-  const query = {};
-  for (const method of ["select", "order", "eq", "gte", "contains", "ilike"]) query[method] = (...args) => { calls.push([method, ...args]); return query; };
-  query.range = async (...args) => { calls.push(["range", ...args]); return { data: [], count: 35, error: null }; };
-  const data = load("../src/data/drinks.ts", (name) => name === "react" ? { cache: (fn) => fn } : name.endsWith("/public") ? { createSupabasePublicClient: () => ({ from: () => query }) } : name === "@/lib/drinks" ? drinks : {});
+  const data = load("../src/data/drinks.ts", (name) => name === "react" ? { cache: (fn) => fn } : name === "next/cache" ? { unstable_cache: fn => fn }
+    : name.endsWith("/public") ? { createSupabasePublicClient: () => ({ rpc: async (fn, args) => { calls.push([fn, args]); return { data: { items: [], total_count: 35 }, error: null }; } }) } : name === "@/lib/drinks" ? drinks : {});
   const result = await data.getDrinkPosts({ rating: "4", tag: "스모키", category: "whisky", q: "100%_", page: "2" });
   assert.equal(result.count, 35);
-  assert.ok(calls.some(([fn, field, value]) => fn === "gte" && field === "rating" && value === 4));
-  assert.ok(calls.some(([fn, field, values]) => fn === "contains" && field === "tags" && values[0] === "스모키"));
-  assert.ok(calls.some(([fn, field, value]) => fn === "ilike" && field === "name" && value === "%100\\%\\_%"));
-  assert.equal(calls.at(-1).join(","), "range,24,47");
+  assert.equal(calls[0][0], "drink_list_page_v1");
+  assert.equal(calls[0][1].p_rating, 4); assert.equal(calls[0][1].p_tag, "스모키");
+  assert.equal(calls[0][1].p_query, "100%_"); assert.equal(calls[0][1].p_page, 2);
 });
 const { postMetadata, defaultShareImage } = load("../src/lib/postMetadata.ts", () => ({ getSiteUrl: () => "https://syun-archive.vercel.app" }));
 test("post sharing uses each post title, summary, canonical link and original photo", () => {

@@ -4,7 +4,7 @@ import { AppNav } from "@/components/AppNav";
 import { RestaurantsReviewForm } from "@/components/restaurants/RestaurantReviewForm";
 import { getRestaurantsReview } from "@/data/restaurants";
 import { canManageContent } from "@/lib/contentPermissions";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServerSession } from "@/lib/supabase/session";
 
 type RestaurantEditPageProps = {
   params: Promise<{
@@ -33,10 +33,7 @@ export default async function RestaurantEditPage({
   }
 
   // 2. Supabase 유저 및 수정 권한 체크
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const { user } = await getSupabaseServerSession();
 
   const canManageReview = canManageContent(user, item.authorId);
 

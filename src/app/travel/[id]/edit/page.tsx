@@ -6,7 +6,7 @@ import { AppNav } from "@/components/AppNav";
 import { TravelForm } from "@/components/travel/TravelForm";
 import { getTravel, getTravels, sortTravelStops, travelToStop } from "@/data/travel";
 import { canManageContent } from "@/lib/contentPermissions";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServerSession } from "@/lib/supabase/session";
 
 type TravelEditPageProps = { params: Promise<{ id: string }> };
 
@@ -16,10 +16,7 @@ export default async function TravelEditPage({ params }: TravelEditPageProps) {
 
   if (!item) notFound();
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const { user } = await getSupabaseServerSession();
 
   if (!canManageContent(user, item.authorId)) redirect(`/travel/${item.id}`);
 

@@ -38,6 +38,7 @@ export async function renderAdminFixture(scenario = "normal", route = "content")
     "./actions": { createInviteCode: async () => {}, revokeInviteCode: async () => {} },
     "@/lib/admin": { getAdminConfiguration: () => ({ emails: [user?.email], source: "environment" }), isAdminUser: () => scenario !== "member" },
     "@/lib/supabase/server": { createSupabaseServerClient: async () => client },
+    "@/lib/supabase/session": { getSupabaseServerSession: async () => ({ supabase: client, user }) },
   };
   function load(path) {
     const exports = {};

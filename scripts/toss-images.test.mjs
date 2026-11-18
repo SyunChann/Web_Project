@@ -118,9 +118,7 @@ for (const loggedIn of [false, true]) {
       },
       "@/components/CopyButton": {},
       "@/lib/admin": { isAdminUser: () => false },
-      "@/lib/supabase/server": { createSupabaseServerClient: async () => ({ auth: {
-        getUser: async () => ({ data: { user: loggedIn ? { id: "regular-user" } : null } }),
-      } }) },
+      "@/lib/supabase/session": { getSupabaseServerSession: async () => ({ user: loggedIn ? { id: "regular-user" } : null }) },
       "@/lib/tossSharelink": { getTossSharelinkContent: () => { requested = true; } },
       "@/lib/tossProductImages": images,
     });

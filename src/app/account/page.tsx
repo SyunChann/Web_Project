@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AppNav } from "@/components/AppNav";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServerSession } from "@/lib/supabase/session";
 import { isAdminUser } from "@/lib/admin";
 import { membershipErrors } from "@/lib/membership";
 import { Captcha } from "@/components/auth/Captcha";
@@ -10,8 +10,7 @@ import { changeNickname, withdrawAccount } from "./actions";
 export const metadata: Metadata = { title: "내 계정 | 취향보관소", robots: { index: false, follow: false } };
 const field = "w-full rounded-md border border-[#d8cfc2] bg-white px-3 py-3 text-base";
 export default async function AccountPage({ searchParams }: { searchParams: Promise<{ error?: string; status?: string }> }) {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const { supabase, user } = await getSupabaseServerSession();
   if (!supabase || !user) redirect("/login");
   const { data: profile, error: profileError } = await supabase.from("member_profiles").select("nickname").eq("user_id", user.id).maybeSingle();
   const { error, status } = await searchParams;

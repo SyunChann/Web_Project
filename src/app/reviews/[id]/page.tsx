@@ -16,7 +16,7 @@ import {
   type Review,
 } from "@/data/reviews";
 import { canManageContent } from "@/lib/contentPermissions";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServerSession } from "@/lib/supabase/session";
 import { getYouTubeEmbedUrl } from "@/lib/supabase/utils";
 
 type ReviewDetailPageProps = {
@@ -50,10 +50,7 @@ export default async function ReviewDetailPage({
     notFound();
   }
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const { user } = await getSupabaseServerSession();
   const theme = typeTheme(review.type);
   const deleteAction = deleteReview.bind(null, review.id);
   const canManageReview = canManageContent(user, review.authorId);

@@ -23,7 +23,7 @@ import {
 } from "@/data/watchlist";
 import { typeLabel, typeTheme } from "@/data/reviews";
 import { canManageContent } from "@/lib/contentPermissions";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServerSession } from "@/lib/supabase/session";
 import { getYouTubeEmbedUrl } from "@/lib/supabase/utils";
 
 type WatchlistDetailPageProps = {
@@ -57,10 +57,7 @@ export default async function WatchlistDetailPage({
     notFound();
   }
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const { user } = await getSupabaseServerSession();
   const theme = typeTheme(item.type);
   const deleteAction = deleteWatchlistItem.bind(null, item.id);
   const canManageItem = canManageContent(user, item.authorId);

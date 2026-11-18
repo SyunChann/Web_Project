@@ -6,6 +6,9 @@ export async function updateSession(request: NextRequest) {
   if (!supabaseUrl || !supabaseKey) {
     return NextResponse.next({ request });
   }
+  if (!request.cookies.getAll().some(({ name }) => /^sb-.+-auth-token(?:\.\d+)?$/.test(name))) {
+    return NextResponse.next({ request });
+  }
 
   let response = NextResponse.next({ request });
 
@@ -14,7 +17,7 @@ export async function updateSession(request: NextRequest) {
       getAll() {
         return request.cookies.getAll();
       },
-      setAll(cookiesToSet) {
+      setAll(cookiesToSet, cacheHeaders) {
         cookiesToSet.forEach(({ name, value }) => {
           request.cookies.set(name, value);
         });
@@ -24,6 +27,7 @@ export async function updateSession(request: NextRequest) {
         cookiesToSet.forEach(({ name, value, options }) => {
           response.cookies.set(name, value, options);
         });
+        Object.entries(cacheHeaders).forEach(([name, value]) => response.headers.set(name, value));
       },
     },
   });
@@ -31,7 +35,7 @@ export async function updateSession(request: NextRequest) {
   const clearInvalidAuthCookies = () => {
     const authCookieNames = request.cookies
       .getAll()
-      .filter(({ name }) => name.startsWith("sb-"))
+      .filter(({ name }) => /^sb-.+-auth-token(?:\.\d+)?$/.test(name))
       .map(({ name }) => name);
 
     authCookieNames.forEach((name) => request.cookies.delete(name));
@@ -44,12 +48,13 @@ export async function updateSession(request: NextRequest) {
         path: "/",
       });
     });
+    response.headers.set("Cache-Control", "private, no-store");
   };
 
   try {
-    const {
-      error,
-    } = await supabase.auth.getUser();
+    // Only refresh/persist cookies here. Never use getSession().user for identity.
+    // Server components and actions validate identity with getUser(); DB writes use RLS.
+    const { error } = await supabase.auth.getSession();
 
     if (error) {
       clearInvalidAuthCookies();

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AppNav } from "@/components/AppNav";
 import { AiOfficeWorld } from "@/components/ai-office/AiOfficeWorld";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServerSession } from "@/lib/supabase/session";
 
 export const metadata: Metadata = {
   title: "AI Office | 취향보관소",
@@ -11,10 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AiOfficePage() {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const { user } = await getSupabaseServerSession();
 
   if (!user) {
     redirect("/login");

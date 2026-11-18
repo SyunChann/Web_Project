@@ -5,7 +5,7 @@ import { updateWatchlistItem } from "@/app/actions/watchlist";
 import { WatchlistForm } from "@/components/watchlist/WatchlistForm";
 import { getWatchItem } from "@/data/watchlist";
 import { canManageContent } from "@/lib/contentPermissions";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServerSession } from "@/lib/supabase/session";
 
 type EditWatchlistPageProps = {
   params: Promise<{
@@ -16,10 +16,7 @@ type EditWatchlistPageProps = {
 export default async function EditWatchlistPage({
   params,
 }: EditWatchlistPageProps) {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const { user } = await getSupabaseServerSession();
 
   if (!user) {
     redirect("/login");

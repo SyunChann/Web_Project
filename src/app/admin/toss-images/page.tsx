@@ -2,15 +2,14 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { CopyButton } from "@/components/CopyButton";
 import { isAdminUser } from "@/lib/admin";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServerSession } from "@/lib/supabase/session";
 import { getTossSharelinkContent } from "@/lib/tossSharelink";
 import { getTossThumbnailUrl, parseTossProductIds } from "@/lib/tossProductImages";
 
 export const dynamic = "force-dynamic";
 
 export default async function TossImagesAdminPage() {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const { user } = await getSupabaseServerSession();
   if (!user) redirect("/login");
   if (!isAdminUser(user)) notFound();
 

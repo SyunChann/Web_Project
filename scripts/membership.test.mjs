@@ -18,7 +18,7 @@ function harness(options = {}) {
   };
   const client = { auth, rpc: async (name, args) => { calls.push([name, args]); return { data: options.available !== false, error: options.rpcError }; } };
   const modules = {
-    "next/navigation": { redirect }, "next/cache": { revalidatePath() {} },
+    "next/navigation": { redirect }, "next/cache": { revalidatePath() {}, updateTag() {} },
     "next/headers": { cookies: async () => ({ get: name => values.has(name) ? { value: values.get(name) } : undefined, set: (name, value) => values.set(name, value), delete: name => values.delete(name) }) },
     "@/lib/supabase/server": { createSupabaseServerClient: async () => client },
     "@/lib/siteUrl": { getSiteUrl: () => "https://site.example" },

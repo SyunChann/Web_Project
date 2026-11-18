@@ -9,6 +9,7 @@ export type DrinkPost = {
   body: string; methods: string[]; tags: string[]; images: string[];
   author_id: string | null; author_name: string; created_at: string; updated_at: string;
 };
+export type DrinkPostPreview = Pick<DrinkPost, "id" | "name" | "category" | "kind" | "rating" | "tags" | "author_name" | "created_at"> & { excerpt: string; image: string | null };
 export type DrinkSaveResult = { error?: string; id?: string };
 export const drinkBucket = "drink-photos";
 export const maxDrinkPhotos = 5;

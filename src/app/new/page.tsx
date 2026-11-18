@@ -10,7 +10,7 @@ import { OverseasRestaurantsReviewForm } from "@/components/restaurants/overseas
 import { ReviewForm } from "@/components/reviews/ReviewForm";
 import { TravelForm } from "@/components/travel/TravelForm"
 import { WatchlistForm } from "@/components/watchlist/WatchlistForm";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServerSession } from "@/lib/supabase/session";
 import { createTravel } from "../actions/travel";
 import { MerchandiseReviewForm } from "@/components/merchandise/MerchandiseForm";
 import { createMerchandiseReview } from "@/app/actions/merchandise";
@@ -28,10 +28,7 @@ export const metadata = {
 };
 
 export default async function NewPostPage({ searchParams }: NewPostPageProps) {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const { user } = await getSupabaseServerSession();
 
   if (!user) {
     redirect("/login");

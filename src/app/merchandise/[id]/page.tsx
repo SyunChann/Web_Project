@@ -16,7 +16,7 @@ import {
   type MerchandiseReview,
 } from "@/data/merchandise";
 import { canManageContent } from "@/lib/contentPermissions";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServerSession } from "@/lib/supabase/session";
 
 type ReviewDetailPageProps = {
   params: Promise<{
@@ -49,10 +49,7 @@ export default async function MerchandiseReviewDetailPage({
     notFound();
   }
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const { user } = await getSupabaseServerSession();
   const theme = categoryTheme(review.category);
   const deleteAction = deleteMerchandiseReview.bind(null, review.id);
   const canManageReview = canManageContent(user, review.authorId);

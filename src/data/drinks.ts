@@ -1,32 +1,39 @@
 import "server-only";
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { createSupabasePublicClient } from "@/lib/supabase/public";
 import { supabaseUrl } from "@/lib/supabase/config";
-import { drinkBucket, type DrinkPost, readDrinkFilters, type DrinkFilterParams } from "@/lib/drinks";
+import { drinkBucket, type DrinkPost, type DrinkPostPreview, readDrinkFilters, type DrinkFilterParams } from "@/lib/drinks";
 
 export function drinkPhotoUrl(path: string) {
   return `${supabaseUrl}/storage/v1/object/public/${drinkBucket}/${path.split("/").map(encodeURIComponent).join("/")}`;
 }
 export function drinkDataError(code?: string) {
-  return ["42P01", "PGRST205"].includes(code ?? "")
+  return ["42P01", "PGRST205", "PGRST202"].includes(code ?? "")
     ? "술 취향 게시판을 준비 중입니다. 잠시 후 다시 방문해 주세요."
     : "술 기록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.";
 }
-export async function getDrinkPosts(params: DrinkFilterParams) {
+const getCachedDrinkPreviews = unstable_cache(async (filters: ReturnType<typeof readDrinkFilters>) => {
   const client = createSupabasePublicClient();
-  const filters = readDrinkFilters(params);
   const { q, category, kind, rating, tag, page } = filters;
-  if (!client) return { posts: [] as DrinkPost[], count: 0, error: drinkDataError(), filters };
-  let query = client.from("drink_posts").select("*", { count: "exact" }).order("created_at", { ascending: false }).order("id");
-  if (category) query = query.eq("category", category);
-  if (kind) query = query.eq("kind", kind);
-  if (rating) query = query.gte("rating", Number(rating));
-  if (tag) query = query.contains("tags", [tag]);
-  if (q) query = query.ilike("name", `%${q.replace(/[\\%_]/g, "\\$&")}%`);
+  if (!client) throw Error("public client unavailable");
+  const { data, error } = await client.rpc("drink_list_page_v1", {
+    p_query: q, p_category: category, p_kind: kind, p_rating: rating ? Number(rating) : null, p_tag: tag, p_page: page,
+  });
+  if (error) throw error;
+  const payload = data as { items?: DrinkPostPreview[]; total_count?: number } | null;
+  if (!payload || !Array.isArray(payload.items) || !Number.isFinite(payload.total_count)) throw Error("invalid list response");
+  return { posts: payload.items, count: payload.total_count! };
+}, ["drink-previews-v1"], { revalidate: 60, tags: ["drinks"] });
+
+export async function getDrinkPosts(params: DrinkFilterParams) {
+  const filters = readDrinkFilters(params);
   try {
-    const { data, count, error } = await query.range((page - 1) * 24, page * 24 - 1);
-    return { posts: (data ?? []) as DrinkPost[], count: count ?? 0, error: error ? drinkDataError(error.code) : null, filters };
-  } catch { return { posts: [] as DrinkPost[], count: 0, error: drinkDataError(), filters }; }
+    return { ...await getCachedDrinkPreviews(filters), error: null, filters };
+  } catch (error) {
+    const code = error && typeof error === "object" && "code" in error ? String(error.code) : undefined;
+    return { posts: [] as DrinkPostPreview[], count: 0, error: drinkDataError(code), filters };
+  }
 }
 export const getDrinkPost = cache(async (id: string) => {
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return { post: null, error: null };

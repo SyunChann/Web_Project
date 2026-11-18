@@ -1,6 +1,6 @@
 "use server";
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { createClient } from "@supabase/supabase-js";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { supabaseUrl, supabaseKey } from "@/lib/supabase/config";
@@ -14,6 +14,7 @@ export async function changeNickname(form: FormData) {
   if (!validNickname(nickname, isAdminUser(user))) redirect("/account?error=nickname");
   const { error } = await supabase.rpc("change_nickname_v1", { p_nickname: nickname });
   if (error) redirect(`/account?error=${error.code === "23505" ? "taken" : "save"}`);
+  updateTag("drinks");
   // Refresh metadata for forms that also use the Auth display name.
   await supabase.auth.refreshSession();
   revalidatePath("/", "layout");
@@ -57,6 +58,7 @@ export async function withdrawAccount(form: FormData) {
     }
   } catch { failure = "save"; }
   if (failure) redirect(`/account?error=${failure}`);
+  updateTag("drinks");
   revalidatePath("/", "layout");
   redirect("/login?status=withdrawn");
 }

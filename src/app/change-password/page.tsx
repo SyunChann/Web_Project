@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { passwordCompletionCookieName } from "@/lib/passwordRecovery";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServerSession } from "@/lib/supabase/session";
 import { PasswordPage } from "@/components/PasswordPage";
 import { PasswordForm } from "@/components/PasswordForm";
 import { changePassword } from "@/app/actions/password";
@@ -11,8 +11,7 @@ import { changePassword } from "@/app/actions/password";
 export const metadata: Metadata = { title: "비밀번호 변경 | 취향보관소", robots: { index: false, follow: false } };
 
 export default async function ChangePasswordPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const { user } = await getSupabaseServerSession();
   if (!user) {
     if ((await cookies()).get(passwordCompletionCookieName)?.value === "complete") redirect("/password-complete");
     redirect("/login");

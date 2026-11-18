@@ -19,7 +19,7 @@ import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import { LogoutButton } from "@/components/LogoutButton";
 import { isAdminUser } from "@/lib/admin";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServerSession } from "@/lib/supabase/session";
 
 type AppNavProps = {
   showAuth?: boolean;
@@ -40,15 +40,11 @@ type AppNavProps = {
 };
 
 export async function AppNav({ active = "home", showAuth = true }: AppNavProps) {
-  const supabase = showAuth ? await createSupabaseServerClient() : null;
   let user: User | null = null;
 
-  if (supabase) {
+  if (showAuth) {
     try {
-      const {
-        data: { user: sessionUser },
-      } = await supabase.auth.getUser();
-      user = sessionUser;
+      user = (await getSupabaseServerSession()).user;
     } catch {
       // A stale browser token must not prevent public pages from rendering.
     }

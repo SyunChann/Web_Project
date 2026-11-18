@@ -29,7 +29,7 @@ import {
   type RestaurantsReview,
 } from "@/data/restaurants";
 import { canManageContent } from "@/lib/contentPermissions";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServerSession } from "@/lib/supabase/session";
 
 type RestaurantDetailPageProps = {
   params: Promise<{
@@ -81,10 +81,7 @@ export default async function RestaurantsDetailPage({
     notFound();
   }
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const { user } = await getSupabaseServerSession();
 
   const isOverseas = item.scope === "overseas";
   const theme = categoryTheme(item.category);

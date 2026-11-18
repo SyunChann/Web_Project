@@ -8,7 +8,7 @@ import { DeleteDrinkButton } from "@/components/drinks/DeleteDrinkButton";
 import styles from "@/components/drinks/Drinks.module.css";
 import { getDrinkPost, drinkPhotoUrl } from "@/data/drinks";
 import { drinkCategories, drinkKinds } from "@/lib/drinks";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServerSession } from "@/lib/supabase/session";
 import { postMetadata } from "@/lib/postMetadata";
 export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
@@ -20,8 +20,7 @@ export default async function DrinkDetailPage({ params }: { params: Promise<{ id
   const { id } = await params;
   const { post, error } = await getDrinkPost(id);
   if (!error && !post) notFound();
-  const client = await createSupabaseServerClient();
-  const { data: { user } } = client ? await client.auth.getUser() : { data: { user: null } };
+  const { user } = await getSupabaseServerSession();
   return <main className={styles.page}><section className={styles.shell}><AppNav active="drinks" /><article className={styles.article}>
     <ListBackLink href="/drinks" className={styles.back}>← 술 취향 목록</ListBackLink>
     {error || !post ? <p className={styles.notice} role="status">{error}</p> : <>

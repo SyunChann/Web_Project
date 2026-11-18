@@ -2,12 +2,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { signUp, resendSignupEmail } from "./actions";
 import { SignupForm } from "@/components/SignupForm";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServerSession } from "@/lib/supabase/session";
 import { membershipErrors } from "@/lib/membership";
 import { cookies } from "next/headers";
 export default async function SignupPage({ searchParams }: { searchParams: Promise<{ error?: string; status?: string }> }) {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const { user } = await getSupabaseServerSession();
   if (user) redirect("/account");
   const { error, status } = await searchParams;
   const confirming = status === "confirm_email" || status === "resent" || error === "expired";

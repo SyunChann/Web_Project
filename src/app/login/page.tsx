@@ -2,7 +2,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { signIn } from "./actions";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseServerSession } from "@/lib/supabase/session";
 import { Captcha } from "@/components/auth/Captcha";
 
 type LoginPageProps = {
@@ -23,10 +23,7 @@ const errorMessages = {
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const { user } = await getSupabaseServerSession();
 
   if (user) {
     redirect("/reviews");
