@@ -1,9 +1,13 @@
 <!-- Supabase Confirm sign up: paste this entire fragment into the HTML body editor. -->
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f5f6f8" style="width:100%;border-collapse:collapse;background-color:#f5f6f8;">
+<div lang="ko" style="display:none;max-height:0;overflow:hidden;font-size:1px;line-height:1px;color:#f5f6f8;mso-hide:all;">이메일을 인증하고 나만의 취향 기록을 시작해 보세요.</div>
+<table lang="ko" role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f5f6f8" style="width:100%;border-collapse:collapse;background-color:#f5f6f8;">
   <tr>
     <td align="center" style="padding:32px 12px;">
       <!--[if mso]><table role="presentation" width="480" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="width:100%;max-width:480px;border:1px solid #e3ddd5;border-collapse:separate;border-spacing:0;border-radius:12px;background-color:#ffffff;">
+        <tr>
+          <td height="4" bgcolor="#be4b49" style="height:4px;font-size:0;line-height:4px;border-radius:12px 12px 0 0;background-color:#be4b49;">&nbsp;</td>
+        </tr>
         <tr>
           <td style="padding:28px 24px 0;font-family:'Malgun Gothic','Apple SD Gothic Neo',Arial,sans-serif;font-size:14px;font-weight:700;line-height:22px;color:#be4b49;">
             취향보관소
@@ -11,13 +15,18 @@
         </tr>
         <tr>
           <td style="padding:16px 24px 0;font-family:'Malgun Gothic','Apple SD Gothic Neo',Arial,sans-serif;font-size:24px;font-weight:700;line-height:34px;letter-spacing:-0.5px;color:#17202a;word-break:keep-all;">
-            이메일을 인증해 주세요
+            취향보관소에 오신 것을<br />환영해요
           </td>
         </tr>
         <tr>
           <td style="padding:16px 24px 0;font-family:'Malgun Gothic','Apple SD Gothic Neo',Arial,sans-serif;font-size:15px;line-height:26px;color:#52616b;word-break:keep-all;">
-            아래 버튼을 눌러 인증을 진행해 주세요.<br />
-            인증을 마치면 나만의 취향을 기록할 수 있어요.
+            좋아하는 콘텐츠부터 맛집, 여행, 술까지.<br />
+            이메일을 인증하고 나만의 취향을 기록해 보세요.
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:14px 24px 0;font-family:'Malgun Gothic','Apple SD Gothic Neo',Arial,sans-serif;font-size:15px;line-height:26px;color:#52616b;word-break:keep-all;">
+            아래 버튼을 눌러 회원가입을 완료해 주세요.
           </td>
         </tr>
         <tr>
@@ -25,7 +34,7 @@
             <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;border-spacing:0;">
               <tr>
                 <td align="center" height="48" bgcolor="#be4b49" style="height:48px;border-radius:6px;background-color:#be4b49;mso-padding-alt:0 22px;">
-                  <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=email" style="display:block;padding:0 22px;font-family:'Malgun Gothic','Apple SD Gothic Neo',Arial,sans-serif;font-size:15px;font-weight:700;line-height:48px;mso-line-height-rule:exactly;color:#ffffff;text-decoration:none;">이메일 인증하기</a>
+                  <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=email" style="display:block;padding:0 22px;font-family:'Malgun Gothic','Apple SD Gothic Neo',Arial,sans-serif;font-size:15px;font-weight:700;line-height:48px;mso-line-height-rule:exactly;color:#ffffff;text-decoration:none;">이메일 인증하고 시작하기</a>
                 </td>
               </tr>
             </table>

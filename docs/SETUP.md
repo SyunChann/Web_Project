@@ -88,6 +88,7 @@ Reset Password의 제목은 `[취향보관소] 비밀번호 재설정 안내`, H
 **회원가입 인증**: Supabase의 이메일 가입과 **Confirm email**을 켭니다. Redirect URLs에 `https://syun-archive.vercel.app/auth/confirm`을 추가합니다. Confirm sign up 메일은 다음 링크를 권장합니다. 로컬 테스트는 `http://localhost:4281/auth/confirm`도 등록합니다.
 
 완성된 메일 본문은 [confirm-signup.html](../supabase/templates/confirm-signup.html)을 사용합니다. SMTP·메일 템플릿·URL 설정은 Supabase 대시보드에서 변경하며 SQL만으로 적용되지 않습니다.
+Confirm sign up의 제목은 `[취향보관소] 환영합니다! 이메일을 인증해 주세요`를 권장합니다. 본문은 재설정 메일과 같은 카드형 디자인에 환영 문구와 인증 버튼을 포함합니다.
 메일 템플릿은 이메일 앱 호환성을 위해 표와 인라인 스타일을 사용합니다. Confirm sign up의 HTML 본문 전체를 교체하고 저장합니다. 코드 푸시만으로 Supabase에 저장된 메일 본문이 바뀌지는 않으며, 변경 후 새로 발송한 메일로 확인합니다.
 
 ```html
