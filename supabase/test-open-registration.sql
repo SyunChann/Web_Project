@@ -18,7 +18,7 @@ do $$ begin
   if not public.nickname_available_v1('새이름_테스트') then raise exception 'availability failed'; end if;
   begin perform count(*) from public.member_profiles; raise exception 'profile exposed'; exception when insufficient_privilege then null; end;
   begin perform public.close_member_account_v1(current_setting('test.member_a')::uuid); raise exception 'delete exposed'; exception when insufficient_privilege then null; end;
-  begin perform public.validate_invite_code('TEST'); raise exception 'invites still enabled'; exception when insufficient_privilege then null; end;
+  begin perform public.validate_invite_code('TEST'); raise exception 'invites still enabled'; exception when insufficient_privilege or undefined_function then null; end;
 end $$;
 reset role;
 select set_config('request.jwt.claims',jsonb_build_object('sub',current_setting('test.member_a'),'role','authenticated')::text,true);

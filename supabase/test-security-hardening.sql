@@ -9,9 +9,11 @@ begin
   if to_regprocedure('public.prevent_multiple_active_omok_rooms()') is not null then
     raise exception 'retired trigger function remains';
   end if;
-  if has_table_privilege('anon','public.omok_rooms','select')
-    or has_table_privilege('authenticated','public.omok_rooms','select') then
-    raise exception 'retired game data remains accessible';
+  if to_regclass('public.omok_rooms') is not null then
+    if has_table_privilege('anon','public.omok_rooms','select')
+      or has_table_privilege('authenticated','public.omok_rooms','select') then
+      raise exception 'retired game data remains accessible';
+    end if;
   end if;
 end $$;
 

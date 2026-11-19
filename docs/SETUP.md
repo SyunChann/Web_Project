@@ -50,6 +50,7 @@ Google Maps 키는 운영·로컬 도메인으로 HTTP 리퍼러를 제한합니
 - [맥주 종류 추가](../supabase/add-drink-beer-category.sql)
 - [기본 술 작성자명 보정](../supabase/fix-drink-author-names.sql)
 - [미니게임 접근·실시간 연동 종료](../supabase/retire-mini-games.sql) — 기존 대국 기록은 보관.
+- [미사용 테이블 정리](../supabase/retire-unused-tables.sql) — 초기화·기능·공개 회원가입 SQL 적용 후 마지막에 실행. [보관·검증 안내](./DATABASE-CLEANUP.md).
 
 관리자 이메일은 앱의 `ADMIN_EMAILS`와 DB 권한 정책에 동일하게 지정합니다.
 글과 사진은 공개 조회가 가능하며, 술 글은 관리자도 본인 글만 수정·삭제할 수 있습니다.
