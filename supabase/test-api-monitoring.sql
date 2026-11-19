@@ -2,8 +2,11 @@
 begin;
 create temp table qa_api_health (like public.api_service_health including all);
 do $copy$ begin
-  execute replace(replace(pg_get_functiondef('public.record_api_observations_v1(jsonb)'::regprocedure),
-    'public.record_api_observations_v1','pg_temp.qa_record_observations'),'public.api_service_health','pg_temp.qa_api_health');
+  if to_regclass('public.api_service_observations') is not null then
+    execute 'create temp table qa_api_observations (like public.api_service_observations including all)';
+  end if;
+  execute replace(replace(replace(pg_get_functiondef('public.record_api_observations_v1(jsonb)'::regprocedure),
+    'public.record_api_observations_v1','pg_temp.qa_record_observations'),'public.api_service_health','pg_temp.qa_api_health'),'public.api_service_observations','pg_temp.qa_api_observations');
 end; $copy$;
 do $test$
 declare t timestamptz := now()-interval '1 minute'; h record;

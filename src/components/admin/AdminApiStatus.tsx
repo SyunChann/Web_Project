@@ -1,9 +1,10 @@
 import "server-only";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
-import { getApiHealth } from "@/lib/apiMonitoring";
+import { getApiHealth, getApiStatistics } from "@/lib/apiMonitoring";
 import { apiServices, apiStateLabels, apiHealthPresentation, serviceConfigured, type ApiService } from "@/lib/apiMonitoringModel";
 import { AdminApiRefresh } from "./AdminApiRefresh";
+import { AdminApiStatistics } from "./AdminApiStatistics";
 
 const tones: Record<string, string> = { green: "bg-[#e4f4f2] text-[#216864]", amber: "bg-[#fff4da] text-[#905512]", red: "bg-[#fde8e7] text-[#a73735]", gray: "bg-[#eef0f3] text-[#52616b]" };
 function time(value?: string | null) {
@@ -11,11 +12,12 @@ function time(value?: string | null) {
 }
 export async function AdminApiStatus({ user, now, headingLevel = "h2" }: { user: User; now: number; headingLevel?: "h1" | "h2" }) {
   const Heading = headingLevel;
-  const result = await getApiHealth(user);
+  const [result, statistics] = await Promise.all([getApiHealth(user), getApiStatistics(user)]);
   if (result.state === "forbidden") return null;
   return <section id="api-status" className="grid scroll-mt-6 gap-4">
     <header className="flex flex-wrap items-end justify-between gap-3"><div><Heading className={headingLevel === "h1" ? "text-3xl font-black tracking-tight sm:text-4xl" : "text-2xl font-black"}>외부 API 운영 현황</Heading><p className="mt-2 text-sm leading-6 text-[#64748b]">서비스에서 사용한 조회 결과를 확인합니다. 모든 시각은 한국 시간(KST)입니다.</p></div><AdminApiRefresh /></header>
     {result.state === "unconfigured" ? <div role="status" className="rounded-lg border border-[#f0ddbd] bg-[#fff8ec] p-4 text-sm leading-7 text-[#905512]"><strong>기록 저장 설정 필요</strong><p>Vercel에 서버 전용 <code>SUPABASE_SERVICE_ROLE_KEY</code>를 등록한 뒤 재배포해 주세요. 키 값은 화면이나 브라우저에 전달하지 않습니다. 설정 전에는 기록을 저장하지 않습니다.</p></div> : result.state === "unavailable" ? <p role="status" className="rounded-lg border border-[#f0ddbd] bg-[#fff8ec] p-4 text-sm text-[#905512]">운영 기록을 불러오지 못했습니다. 서버 전용 키와 모니터링 DB 설정을 확인해 주세요. 다른 관리 기능은 계속 이용할 수 있습니다.</p> : null}
+    {statistics.state === "ready" ? <AdminApiStatistics data={statistics.data} /> : statistics.state === "unavailable" ? <p role="status" className="rounded-lg border border-[#f0ddbd] bg-[#fff8ec] p-4 text-sm leading-7 text-[#905512]">7일 운영 통계를 불러오지 못했습니다. 운영 이력 DB 설정과 서버 연결을 확인해 주세요. 아래 최신 운영 현황은 별도로 표시합니다.</p> : null}
     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
       {(Object.entries(apiServices) as [ApiService, typeof apiServices[ApiService]][]).map(([id, service]) => {
         const row = result.rows.find((r) => r.service === id);

@@ -17,7 +17,10 @@ function harness(options = {}) {
     "next/server": { after: (fn) => { if (options.afterError) throw Error("no request"); afters.push(fn); } },
     "@/lib/admin": { isAdminUser: (user) => user?.email === "admin@example.com" },
     "@supabase/supabase-js": { createClient: () => { clients++; return {
-      rpc: async (name, args) => { writes.push({ name, ...args }); return { error: options.writeError ? { message: "private-fixture-marker" } : null }; },
+      rpc: async (name, args) => {
+        if (name === "get_api_operation_stats_v1") { reads++; return { data: options.statistics ?? null, error: options.readError ? {} : null }; }
+        writes.push({ name, ...args }); return { error: options.writeError ? { message: "private-fixture-marker" } : null };
+      },
       from: () => ({ select: () => ({ limit: async () => { reads++; return { data: options.rows ?? [], error: options.readError ? {} : null }; } }) }),
     }; } },
   };
@@ -28,6 +31,7 @@ function harness(options = {}) {
     return exports;
   }
   const model = load("src/lib/apiMonitoringModel.ts"); modules["@/lib/apiMonitoringModel"] = model;
+  modules["@/lib/apiStatisticsModel"] = load("src/lib/apiStatisticsModel.ts");
   const core = load("src/lib/apiMonitoring.ts"); modules["@/lib/apiMonitoring"] = core;
   return { core, model, env, afters, writes, warnings, load, setTime: (time) => { now = time; }, stats: () => ({ clients, reads }) };
 }
@@ -109,12 +113,32 @@ test("admin read is protected before client creation and never probes external p
   await missing.core.observeApi("anilist", async () => true); assert.equal(missing.afters.length, 0);
   assert.equal((await harness({ readError: true }).core.getApiHealth(admin)).state, "unavailable");
 });
+test("historical statistics deny guests before client creation and read only the private aggregate RPC", async () => {
+  const data = { window_start: "2026-11-12T15:00:00Z", window_end: "2026-11-18T10:00:00Z", first_observation_at: null, daily: [], incidents: [], private_field: "private-fixture-marker" };
+  const h = harness({ statistics: data });
+  assert.equal((await h.core.getApiStatistics(null)).state, "forbidden");
+  assert.equal((await h.core.getApiStatistics({ email: "member@example.com" })).state, "forbidden");
+  assert.equal(h.stats().clients, 0);
+  const result = await h.core.getApiStatistics(admin);
+  assert.equal(result.state, "ready"); assert.equal(h.stats().reads, 1); assert.equal(h.writes.length, 0); assert.equal(h.afters.length, 0);
+  assert.ok(!JSON.stringify(result).includes("private-fixture-marker"));
+  assert.equal((await harness({ readError: true }).core.getApiStatistics(admin)).state, "unavailable");
+  assert.equal((await harness({ statistics: {} }).core.getApiStatistics(admin)).state, "unavailable");
+  assert.equal((await harness({ env: { SUPABASE_SERVICE_ROLE_KEY: "" } }).core.getApiStatistics(admin)).state, "unconfigured");
+});
+test("old congestion source timestamps become stale observations without changing other services", () => {
+  const { model } = harness();
+  const observation = { state: "ok", sourceUpdatedAt: new Date(instant - 11 * 60000).toISOString() };
+  assert.equal(model.normalizeApiEvent("icn-t1", observation, 100, instant).state, "stale");
+  assert.equal(model.normalizeApiEvent("icn-t2", { ...observation, state: "authentication" }, 100, instant).state, "authentication");
+  assert.equal(model.normalizeApiEvent("exchange-ecb", observation, 100, instant).state, "ok");
+});
 test("admin panel renders safe configuration guidance without service key values", async () => {
   const h = harness();
   const { AdminApiStatus } = h.load("src/components/admin/AdminApiStatus.tsx", {
     "react/jsx-runtime": jsx, "next/link": { default: ({ href, children, ...props }) => React.createElement("a", { href, ...props }, children) },
     "./AdminApiRefresh": { AdminApiRefresh: () => React.createElement("button", null, "기록 새로고침") },
-    "@/lib/apiMonitoring": { getApiHealth: async () => ({ state: "unconfigured", rows: [] }) },
+    "@/lib/apiMonitoring": { getApiHealth: async () => ({ state: "unconfigured", rows: [] }), getApiStatistics: async () => ({ state: "unconfigured", data: null }) },
   });
   const html = renderToStaticMarkup(await AdminApiStatus({ user: admin, now: instant }));
   assert.ok(html.includes("외부 API 운영 현황") && html.includes("기록 저장 설정 필요") && html.includes("SUPABASE_SERVICE_ROLE_KEY"));

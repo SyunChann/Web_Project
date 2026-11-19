@@ -54,7 +54,8 @@ export function serviceConfigured(service: ApiService) {
 export function normalizeApiEvent(service: ApiService, observation: ApiObservation, duration: number, now = Date.now()): ApiEvent | null {
   if (!Object.hasOwn(apiServices, service) || !(apiStates as readonly string[]).includes(observation.state)) return null;
   const sourceTime = observation.sourceUpdatedAt ? Date.parse(observation.sourceUpdatedAt) : NaN;
-  return { service, state: observation.state, checked_at: new Date(now).toISOString(), duration_ms: Math.max(0, Math.min(300000, Math.round(Number.isFinite(duration) ? duration : 0))),
+  const delayed = (service === "icn-t1" || service === "icn-t2") && ["ok", "empty"].includes(observation.state) && Number.isFinite(sourceTime) && now - sourceTime > 600000;
+  return { service, state: delayed ? "stale" : observation.state, checked_at: new Date(now).toISOString(), duration_ms: Math.max(0, Math.min(300000, Math.round(Number.isFinite(duration) ? duration : 0))),
     http_status: Number.isInteger(observation.httpStatus) && observation.httpStatus! >= 100 && observation.httpStatus! <= 599 ? observation.httpStatus! : null,
     source_updated_at: Number.isFinite(sourceTime) && sourceTime <= now + 300000 ? new Date(sourceTime).toISOString() : null };
 }

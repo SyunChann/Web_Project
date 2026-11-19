@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { isAdminUser } from "@/lib/admin";
 import type { User } from "@supabase/supabase-js";
 import { failureObservation, monitoringConfigured, normalizeApiEvent, type ApiService, type ApiObservation, type ApiEvent, type ApiHealthRow } from "@/lib/apiMonitoringModel";
+import { parseApiStatistics, type ApiStatisticsResult } from "@/lib/apiStatisticsModel";
 
 const pending = new Map<string, ApiEvent>();
 const lastQueued = new Map<ApiService, { at: number; state: string; checkedAt: number }>();
@@ -64,4 +65,14 @@ export async function getApiHealth(user: User | null) {
     const { data, error } = await db.from("api_service_health").select("service,state,checked_at,duration_ms,http_status,source_updated_at,last_success_at,last_error_at,last_error_state").limit(10);
     return { state: error ? "unavailable" as const : "ready" as const, rows: (error ? [] : data ?? []) as ApiHealthRow[] };
   } catch { return { state: "unavailable" as const, rows: [] as ApiHealthRow[] }; }
+}
+
+export async function getApiStatistics(user: User | null): Promise<ApiStatisticsResult> {
+  if (!isAdminUser(user)) return { state: "forbidden", data: null };
+  if (!monitoringConfigured()) return { state: "unconfigured", data: null };
+  try {
+    const { data, error } = await client()!.rpc("get_api_operation_stats_v1");
+    const parsed = error ? null : parseApiStatistics(data);
+    return parsed ? { state: "ready", data: parsed } : { state: "unavailable", data: null };
+  } catch { return { state: "unavailable", data: null }; }
 }
