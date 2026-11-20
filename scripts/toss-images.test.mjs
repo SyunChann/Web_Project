@@ -123,6 +123,7 @@ for (const loggedIn of [false, true]) {
       "@/lib/tossProductImages": images,
     });
     await assert.rejects(page.default(), new RegExp(loggedIn ? "admin-required" : "login-required"));
+    await assert.rejects(page.default({ searchParams: Promise.resolve({ source: "fashion", category: "700" }) }), new RegExp(loggedIn ? "admin-required" : "login-required"));
     assert.equal(requested, false);
   });
 }

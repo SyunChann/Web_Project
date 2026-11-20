@@ -12,6 +12,7 @@ const publicRoutes = [
   { path: "/watchlist/items", changeFrequency: "weekly", priority: 0.8 },
   { path: "/merchandise", changeFrequency: "weekly", priority: 0.8 },
   { path: "/recommendations", changeFrequency: "weekly", priority: 0.9 },
+  { path: "/recommendations/fashion", changeFrequency: "daily", priority: 0.7 },
   { path: "/restaurants/items", changeFrequency: "weekly", priority: 0.8 },
   { path: "/restaurants/map/domestic", changeFrequency: "weekly", priority: 0.6 },
   { path: "/restaurants/map/overseas", changeFrequency: "weekly", priority: 0.6 },

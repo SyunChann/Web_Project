@@ -3,22 +3,38 @@ import { notFound, redirect } from "next/navigation";
 import { CopyButton } from "@/components/CopyButton";
 import { isAdminUser } from "@/lib/admin";
 import { getSupabaseServerSession } from "@/lib/supabase/session";
-import { getTossSharelinkContent } from "@/lib/tossSharelink";
+import { getTossSharelinkContent, getTossFashionContent } from "@/lib/tossSharelink";
 import { getTossThumbnailUrl, parseTossProductIds } from "@/lib/tossProductImages";
 
 export const dynamic = "force-dynamic";
 
-export default async function TossImagesAdminPage() {
+export default async function TossImagesAdminPage({ searchParams }: {
+  searchParams?: Promise<{ source?: string; category?: string }>;
+} = {}) {
   const { user } = await getSupabaseServerSession();
   if (!user) redirect("/login");
   if (!isAdminUser(user)) notFound();
 
-  const result = await getTossSharelinkContent();
+  const params = await searchParams;
+  const fashion = params?.source === "fashion";
+  const fashionResult = fashion ? await getTossFashionContent(params?.category) : null;
+  const result = fashionResult ?? await getTossSharelinkContent();
   const blocked = parseTossProductIds(process.env.TOSS_IMAGE_BLOCKED_IDS);
   return <main className="min-h-screen px-4 py-6 sm:px-10">
     <section className="mx-auto grid max-w-4xl gap-5">
       <Link href="/admin" className="text-sm font-bold text-[#be4b49]">← 관리자 화면</Link>
       <h1 className="text-2xl font-black">토스 상품 이미지 관리</h1>
+      <nav aria-label="관리할 상품 분류" className="flex gap-3 text-sm font-bold">
+        <Link href="/admin/toss-images" prefetch={false} aria-current={!fashion ? "page" : undefined} className={!fashion ? "underline" : ""}>전체 베스트</Link>
+        <Link href="/admin/toss-images?source=fashion" prefetch={false} aria-current={fashion ? "page" : undefined} className={fashion ? "underline" : ""}>패션</Link>
+      </nav>
+      {fashionResult && fashionResult.categories.length > 1 ? <form action="/admin/toss-images" method="get" className="flex flex-wrap items-center gap-2 text-sm">
+        <input type="hidden" name="source" value="fashion" />
+        <label htmlFor="admin-fashion-category">패션 분류</label>
+        <select id="admin-fashion-category" name="category" defaultValue={fashionResult.selectedCategory?.categoryId} className="min-h-11 max-w-full rounded-md border border-[var(--line)] bg-[var(--surface)] px-3 text-[var(--foreground)]">
+          {fashionResult.categories.map((category) => <option value={category.categoryId} key={category.categoryId}>{category.displayName}</option>)}
+        </select><button type="submit" className="min-h-11 rounded-md border border-[var(--line)] bg-[var(--surface)] px-3 text-[var(--foreground)]">보기</button>
+      </form> : null}
       <div className="rounded-xl border border-[#ddd6cc] bg-white p-5 text-sm leading-7 text-[#52616b]">
         <p>이미지가 있는 상품은 자동으로 표시됩니다. 사용 금지 표시나 셀러의 삭제 요청을 확인한 상품만 차단 목록에 등록해 주세요.</p>
         <p className="mt-2 break-all"><strong>TOSS_IMAGE_BLOCKED_IDS</strong>: 이미지를 표시하지 않을 상품 ID 목록</p>

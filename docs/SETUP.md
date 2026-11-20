@@ -53,6 +53,19 @@ Google Maps 키는 운영·로컬 도메인으로 HTTP 리퍼러를 제한합니
 - [미사용 테이블 정리](../supabase/retire-unused-tables.sql) — 초기화·기능·공개 회원가입 SQL 적용 후 마지막에 실행. [보관·검증 안내](./DATABASE-CLEANUP.md).
 
 관리자 이메일은 앱의 `ADMIN_EMAILS`와 DB 권한 정책에 동일하게 지정합니다.
+추천 상품의 **전체 베스트 / 패션** 메뉴에서 `/recommendations/fashion`으로 이동합니다. 패션은 API의 카테고리 트리와 카테고리별 베스트를 사용하며, 상품명 키워드나 전체 베스트 목록으로 대체하지 않습니다. 분류별 상품 캐시는 전체 베스트와 분리하고 최대 16개를 보관합니다. 전체 베스트는 1시간, 패션 상품은 다음 KST 오전 9시까지, 카테고리 트리는 6시간 캐시하며 장애 시에도 마지막 정상 자료를 24시간 넘겨 사용하지 않습니다.
+
+패션 조회를 위해 기존 토스 프록시에 다음 전달 경로가 필요합니다. 인증·토큰 발급은 기존 방식을 유지하며 응답의 `success.categories`, `success.category`, `success.items`를 그대로 전달해야 합니다.
+
+| 프록시 경로 | 토스 공식 API 경로 |
+| --- | --- |
+| `GET /v1/categories` | `GET /openapi/categories` |
+| `GET /v1/products/best-categories/{categoryId}?size=50` | `GET /openapi/products/best-categories/{categoryId}?size=50` |
+
+카테고리 ID는 API 응답에서 찾으며 문서 예시 번호를 고정하지 않습니다. 이 실행 환경에는 프록시 환경변수·서버 코드가 없어 위 경로의 실제 지원 여부는 확인하지 못했습니다. 지원하지 않으면 패션 페이지는 오류 안내를 표시하며 일반 상품을 대신 노출하지 않습니다. 별도 프록시 수정이 필요한 경우 운영 서버의 라우팅을 먼저 확인합니다. [공식 카테고리 안내](https://sharelink-docs.toss.im/developers/open-api/api/categories) · [카테고리 베스트 안내](https://sharelink-docs.toss.im/developers/open-api/api/products).
+
+관리자 → 토스 이미지 관리에서도 **패션**과 하위 분류를 조회할 수 있습니다. `TOSS_IMAGE_BLOCKED_IDS`는 두 페이지에 동일하게 적용하고 원본 이미지 URL·광고 표시·발급된 쉐어링크 사용을 유지합니다. 프런트엔드 환경변수나 DB 추가는 없습니다.
+
 글과 사진은 공개 조회가 가능하며, 술 글은 관리자도 본인 글만 수정·삭제할 수 있습니다.
 술 사진은 최대 5장, 장당 5MB를 지원합니다.
 

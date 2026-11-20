@@ -4,6 +4,14 @@
 .eyebrow { color: var(--theme-text-be4b49, #be4b49); font-size: .7rem; font-weight: 900; letter-spacing: .18em; }
 .heading h1 { margin-top: .5rem; font-size: clamp(1.8rem, 3.4vw, 2.75rem); font-weight: 900; letter-spacing: -.04em; line-height: 1.25; }
 .description { margin-top: .7rem; color: var(--theme-text-647184, #647184); font-size: .9rem; line-height: 1.7; word-break: keep-all; }
+.shoppingTabs { display: flex; gap: .35rem; margin-top: 1.5rem; }
+.shoppingTabs a { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; padding: .6rem 1rem; border: 1px solid var(--line); border-radius: .6rem; background: var(--surface); font-size: .85rem; font-weight: 800; color: var(--muted); }
+.shoppingTabs a[aria-current="page"] { background: var(--foreground); border-color: var(--foreground); color: var(--surface); }
+.shoppingTabs a:focus-visible { outline: 2px solid var(--foreground); outline-offset: 3px; }
+.categoryFilter { display: flex; align-items: center; gap: .6rem; padding: 1rem 0 .25rem; font-size: .85rem; color: var(--foreground); }
+.categoryFilter label { flex-shrink: 0; font-weight: 800; }
+.categoryFilter select { min-width: 0; min-height: 44px; width: min(100%, 15rem); padding: .5rem .7rem; border: 1px solid var(--line); border-radius: .5rem; background: var(--surface); color: var(--foreground); }
+.categoryFilter button { min-height: 44px; flex-shrink: 0; padding: .5rem 1rem; border: 1px solid var(--line); border-radius: .5rem; background: var(--surface); color: var(--foreground); font-weight: 800; }
 .update { display: inline-flex; align-items: center; gap: .4rem; flex-shrink: 0; color: var(--theme-text-647184, #647184); font-size: .75rem; font-weight: 700; }
 .disclosure { display: flex; align-items: baseline; gap: .6rem; margin-top: 1rem; color: var(--theme-text-7b6666, #7b6666); font-size: .76rem; line-height: 1.7; }
 .disclosure > span { flex-shrink: 0; padding: .1rem .35rem; border: 1px solid var(--theme-line-d6baba, #d6baba); border-radius: .2rem; color: var(--theme-text-a54846, #a54846); font-size: .65rem; font-weight: 900; }
