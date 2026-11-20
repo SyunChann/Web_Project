@@ -62,7 +62,11 @@ Google Maps 키는 운영·로컬 도메인으로 HTTP 리퍼러를 제한합니
 | `GET /v1/categories` | `GET /openapi/categories` |
 | `GET /v1/products/best-categories/{categoryId}?size=50` | `GET /openapi/products/best-categories/{categoryId}?size=50` |
 
-카테고리 ID는 API 응답에서 찾으며 문서 예시 번호를 고정하지 않습니다. 이 실행 환경에는 프록시 환경변수·서버 코드가 없어 위 경로의 실제 지원 여부는 확인하지 못했습니다. 지원하지 않으면 패션 페이지는 오류 안내를 표시하며 일반 상품을 대신 노출하지 않습니다. 별도 프록시 수정이 필요한 경우 운영 서버의 라우팅을 먼저 확인합니다. [공식 카테고리 안내](https://sharelink-docs.toss.im/developers/open-api/api/categories) · [카테고리 베스트 안내](https://sharelink-docs.toss.im/developers/open-api/api/products).
+카테고리 ID는 API 응답에서 찾으며 문서 예시 번호를 고정하지 않습니다. 지원하지 않으면 패션 페이지는 오류 안내를 표시하며 일반 상품을 대신 노출하지 않습니다. [공식 카테고리 안내](https://sharelink-docs.toss.im/developers/open-api/api/categories) · [카테고리 베스트 안내](https://sharelink-docs.toss.im/developers/open-api/api/products).
+
+운영 서버에서 공유받은 코드에는 위 두 경로가 없습니다. `scripts/patch-toss-fashion-proxy.cjs`는 확인한 Express 구조에만 두 경로를 추가하는 설치 도구입니다. 서버에서 검토한 파일을 `sudo node patch-toss-fashion-proxy.cjs /opt/toss-sharelink-proxy/server.js`로 실행합니다. 원본을 권한 600으로 백업하고 문법 검사 후 파일을 교체하며 `toss-sharelink-proxy.service`만 재시작합니다. 실패하면 원본을 복구합니다. 기존 인증 미들웨어·토스 요청 함수를 재사용하며 키 값을 출력하지 않습니다.
+
+카테고리 목록은 6시간, 순위는 다음 오전 9시(KST)까지 성공 응답만 캐시합니다. 설치 뒤 로컬 인증 차단과 패션 상품 응답을 확인합니다. 포트·키를 자동으로 찾지 못하면 종료 코드 2로 검증 미완료를 알리므로 실제 사이트에서 확인해야 합니다. 도구의 로컬 테스트 통과와 운영 서버 적용·토스 권한 확인은 별개입니다.
 
 관리자 → 토스 이미지 관리에서도 **패션**과 하위 분류를 조회할 수 있습니다. `TOSS_IMAGE_BLOCKED_IDS`는 두 페이지에 동일하게 적용하고 원본 이미지 URL·광고 표시·발급된 쉐어링크 사용을 유지합니다. 프런트엔드 환경변수나 DB 추가는 없습니다.
 
