@@ -14,6 +14,7 @@ import {
   Plane,
   Sparkles,
   Wine,
+  Banknote,
 } from "lucide-react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
@@ -35,6 +36,7 @@ type AppNavProps = {
     | "restaurant-map"
     | "merchandise"
     | "departures"
+    | "exchange-rates"
     | "drinks"
     | "ai-office"
     | "admin";
@@ -64,6 +66,7 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
     "restaurant-map": "해외 맛집리뷰 지도",
     merchandise: "상품리뷰",
     departures: "인천공항 출국 안내",
+    "exchange-rates": "환율 안내",
     drinks: "술 취향",
     "ai-office": "AI Office",
     admin: "관리자",
@@ -291,6 +294,7 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
               hoverClass="hover:bg-[#f7fee7] hover:text-[#4d7c0f]" 
             />
             <NavMenuLink href="/drinks" active={active === "drinks"} icon={<Wine size={16} />} label="술 취향" activeClass="bg-[#eaf0f6] text-[#304d70]" hoverClass="hover:bg-[#eaf0f6] hover:text-[#304d70]" />
+            <NavMenuLink href="/exchange-rates" active={active === "exchange-rates"} icon={<Banknote size={16} />} label="환율 안내" activeClass="bg-[#e4f4f2] text-[#2f7f7a]" hoverClass="hover:bg-[#e4f4f2] hover:text-[#2f7f7a]" />
           </div>
         </details>
 

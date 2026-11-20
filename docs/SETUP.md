@@ -148,6 +148,8 @@ npm run build
 ```
 
 main 푸시 후 Vercel 자동 배포를 사용합니다.
+메인 환율 카드는 달러·엔화만 표시하며 클릭하면 `/exchange-rates`에서 제공되는 전체 통화·최근 최대 7회 고시 그래프·양방향 계산기를 확인합니다. 통화 선택·검색·금액 변경은 브라우저에서 처리하며 별도 API 호출이나 DB 변경이 없습니다. 엔화·루피아의 100단위 고시는 계산할 때 1단위로 환산합니다.
+한국수출입은행은 기존 날짜별 전체 응답의 6시간 캐시를 재사용합니다. 장애·미설정 시 ECB 제공 자료를 `base=KRW&providers=ecb`로 한 번 조회하고 역환산하며 1시간 캐시합니다. 상세 페이지는 대체 출처와 고시일을 표시하고, 양쪽 조회가 모두 실패하면 계산기 대신 재시도 안내를 표시합니다. 별도 환경변수 추가는 없습니다.
 보안 패치·DB 보완 내용과 Supabase에서 확인할 항목은 [보안 점검 안내](./SECURITY-MAINTENANCE.md)를 참고합니다.
 GitHub Actions의 빌드 검사는 `.github/workflows/build-check.yml`에서 관리합니다.
 빌드 알림을 사용하면 Repository Secret에 `DISCORD_BUILD_WEBHOOK_URL`도 등록합니다.

@@ -32,6 +32,7 @@ function harness(options = {}) {
   }
   const model = load("src/lib/apiMonitoringModel.ts"); modules["@/lib/apiMonitoringModel"] = model;
   modules["@/lib/apiStatisticsModel"] = load("src/lib/apiStatisticsModel.ts");
+  modules["@/lib/exchangeRateModel"] = load("src/lib/exchangeRateModel.ts");
   const core = load("src/lib/apiMonitoring.ts"); modules["@/lib/apiMonitoring"] = core;
   return { core, model, env, afters, writes, warnings, load, setTime: (time) => { now = time; }, stats: () => ({ clients, reads }) };
 }
@@ -68,7 +69,7 @@ test("homepage exchange lookup records ECB reads when the optional official key 
   const h = harness({ env: { KOREAEXIM_API_KEY: "" } }); const urls = [];
   const { getExchangeRateSnapshot } = h.load("src/data/exchangeRates.ts", {}, { fetch: async url => {
     urls.push(url); const base = new URL(url).searchParams.get("base");
-    return { ok: true, json: async () => [{ date: "2026-11-17", base, quote: "KRW", rate: 10 }] };
+    return { ok: true, json: async () => [{ date: "2026-11-17", base, quote: "JPY", rate: 0.1 }, { date: "2026-11-17", base, quote: "USD", rate: 0.001 }] };
   } });
   assert.equal((await getExchangeRateSnapshot()).source, "frankfurter");
   assert.ok(urls.length > 0 && urls.every(url => !url.includes("koreaexim")));
@@ -150,7 +151,7 @@ test("official exchange authentication failures preserve the ECB fallback and re
     try { const value = await operation(); observations.push({ service, ...classify(value) }); return value; } catch (error) { observations.push({ service, ...h.model.failureObservation(error) }); throw error; }
   } } }, { fetch: async (url) => {
     if (url.includes("koreaexim")) return { ok: true, json: async () => [{ result: 3 }] };
-    const base = new URL(url).searchParams.get("base"); return { ok: true, json: async () => [{ date: "2026-11-17", base, quote: "KRW", rate: 10 }] };
+    const base = new URL(url).searchParams.get("base"); return { ok: true, json: async () => [{ date: "2026-11-17", base, quote: "JPY", rate: 0.1 }, { date: "2026-11-17", base, quote: "USD", rate: 0.001 }] };
   } });
   const result = await getExchangeRateSnapshot(); assert.equal(result.source, "frankfurter"); assert.equal(observations.find((x) => x.service === "exchange-koreaexim").state, "authentication"); assert.equal(observations.find((x) => x.service === "exchange-ecb").state, "ok");
 });
@@ -181,7 +182,7 @@ test("official exchange connection failures still serve ECB and preserve the rea
   const { getExchangeRateSnapshot } = h.load("src/data/exchangeRates.ts", {}, { fetch: async raw => {
     const url = new URL(raw);
     if (url.hostname === "oapi.koreaexim.go.kr") throw new TypeError("fetch failed");
-    return { ok: true, json: async () => [{ date: "2026-11-17", base: url.searchParams.get("base"), quote: "KRW", rate: 10 }] };
+    return { ok: true, json: async () => [{ date: "2026-11-17", base: "KRW", quote: "JPY", rate: 0.1 }, { date: "2026-11-17", base: "KRW", quote: "USD", rate: 0.001 }] };
   } });
   assert.equal((await getExchangeRateSnapshot()).source, "frankfurter");
   await h.afters.shift()();
