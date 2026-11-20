@@ -111,9 +111,17 @@ async function callProxy<T>(
     signal: AbortSignal.timeout(10_000),
   });
 
-  const payload = (await response.json()) as TossApiResult<T>;
-  if (!response.ok || payload.resultType !== "SUCCESS" || !payload.success) {
-    throw new ApiRequestError(response.ok ? "invalid-response" : httpObservation(response.status).state, response.status);
+  // 경로가 없을 때 프록시는 JSON 대신 HTML을 보낼 수 있습니다.
+  // 본문 파싱보다 HTTP 상태를 먼저 확인해 404/인증 오류를 보존합니다.
+  if (!response.ok) throw new ApiRequestError(httpObservation(response.status).state, response.status);
+  let payload: TossApiResult<T> | null;
+  try {
+    payload = (await response.json()) as TossApiResult<T> | null;
+  } catch {
+    throw new ApiRequestError("invalid-response", response.status);
+  }
+  if (!payload || typeof payload !== "object" || payload.resultType !== "SUCCESS" || !payload.success) {
+    throw new ApiRequestError("invalid-response", response.status);
   }
   return payload.success;
 }

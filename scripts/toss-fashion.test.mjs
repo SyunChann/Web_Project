@@ -24,17 +24,21 @@ const tree = [{ categoryId: 20, displayName: "식품", children: [{ categoryId: 
 const product = (id) => ({ tacaItemId: id, displayName: id < 1000 ? "패션 의류" : "식품 상품", displayPrice: 20000, isSoldOut: false, thumbnailUrl: `https://images.example.com/${id}.png?original=1` });
 function harness(options = {}) {
   let now = 1_800_000_000_000;
-  const flags = { ...options }, calls = [];
+  const flags = { ...options }, calls = [], observations = [];
   class Clock extends Date { static now() { return now; } }
   const model = load("src/lib/apiMonitoringModel.ts");
   const api = load("src/lib/tossSharelink.ts", {
     "@/lib/apiMonitoringModel": model,
-    "@/lib/apiMonitoring": { observeApi: async (_, operation) => operation() },
+    "@/lib/apiMonitoring": { observeApi: async (_, operation) => {
+      try { return await operation(); } catch (error) { observations.push(model.failureObservation(error)); throw error; }
+    } },
   }, { Date: Clock, process: { env: options.unconfigured ? {} : { TOSS_PROXY_BASE_URL: "https://proxy.invalid", TOSS_PROXY_API_KEY: "private-fixture-key" } }, fetch: async (raw, init) => {
     const url = new URL(raw); calls.push(url.pathname);
     if (flags.outage) throw Error("fixture outage");
     let success;
     if (url.pathname === "/v1/categories") {
+      if (flags.nonJsonError) return { ok: false, status: flags.nonJsonError, json: async () => { throw SyntaxError("private-response-marker"); } };
+      if (flags.invalidJson) return { ok: true, status: 200, json: async () => { throw SyntaxError("private-response-marker"); } };
       if (flags.categoriesUnsupported) return { ok: false, status: 404, json: async () => ({ resultType: "FAIL" }) };
       success = { categories: flags.noFashion ? tree.slice(0, 1) : tree };
     } else if (url.pathname.includes("best-categories")) {
@@ -46,8 +50,25 @@ function harness(options = {}) {
     else throw Error(`Unexpected path ${url.pathname}`);
     return { ok: true, json: async () => ({ resultType: "SUCCESS", success }) };
   } });
-  return { api, calls, flags, advance: (ms) => { now += ms; } };
+  return { api, calls, flags, observations, advance: (ms) => { now += ms; } };
 }
+
+test("HTML error responses retain their HTTP status without parsing or exposing proxy response bodies", async () => {
+  for (const status of [404, 401, 403, 429, 503]) {
+    const { api, observations } = harness({ nonJsonError: status });
+    const result = await api.getTossFashionContent();
+    assert.equal(result.status, "error");
+    assert.equal(observations[0].httpStatus, status);
+    assert.equal(observations[0].state, status === 401 || status === 403 ? "authentication" : status === 429 ? "rate-limit" : "upstream-error");
+    assert.ok(!JSON.stringify({ result, observations }).includes("private-response-marker"));
+  }
+});
+test("malformed JSON in a successful response is recorded as HTTP 200 invalid-response", async () => {
+  const { api, observations } = harness({ invalidJson: true });
+  assert.equal((await api.getTossFashionContent()).status, "error");
+  assert.equal(observations[0].httpStatus, 200);
+  assert.equal(observations[0].state, "invalid-response");
+});
 
 test("fashion discovery uses category trees, rejects food lookalikes and does not hardcode example category IDs", () => {
   const { api } = harness();
