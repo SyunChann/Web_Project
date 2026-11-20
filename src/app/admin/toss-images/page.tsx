@@ -32,7 +32,7 @@ export default async function TossImagesAdminPage({ searchParams }: {
         <input type="hidden" name="source" value="fashion" />
         <label htmlFor="admin-fashion-category">패션 분류</label>
         <select id="admin-fashion-category" name="category" defaultValue={fashionResult.selectedCategory?.categoryId} className="min-h-11 max-w-full rounded-md border border-[var(--line)] bg-[var(--surface)] px-3 text-[var(--foreground)]">
-          {fashionResult.categories.map((category) => <option value={category.categoryId} key={category.categoryId}>{category.displayName}</option>)}
+          {fashionResult.categories.map((category) => <option value={category.categoryId} key={category.categoryId}>{category.label}</option>)}
         </select><button type="submit" className="min-h-11 rounded-md border border-[var(--line)] bg-[var(--surface)] px-3 text-[var(--foreground)]">보기</button>
       </form> : null}
       <div className="rounded-xl border border-[#ddd6cc] bg-white p-5 text-sm leading-7 text-[#52616b]">

@@ -51,8 +51,8 @@ type ProductCache = { value: TossSharelinkProduct[]; expiresAt: number; loadedAt
 const productCaches = new Map<string, ProductCache>();
 const productLoads = new Map<string, Promise<TossSharelinkProduct[]>>();
 const MAX_PRODUCT_CACHES = 16;
-export type TossFashionCategory = { categoryId: number; displayName: string };
-type CategoryNode = TossFashionCategory & { children?: CategoryNode[] };
+export type TossFashionCategory = { categoryId: number; displayName: string; label: string };
+type CategoryNode = { categoryId: number; displayName: string; children?: CategoryNode[] };
 export type TossFashionContentState = TossSharelinkContentState & {
   categories: TossFashionCategory[];
   selectedCategory?: TossFashionCategory;
@@ -62,27 +62,37 @@ let fashionCategoriesLoad: Promise<TossFashionCategory[]> | null = null;
 
 // 상품명 대신 토스가 제공하는 카테고리 트리만 사용합니다.
 export function getFashionCategories(nodes: CategoryNode[]): TossFashionCategory[] {
-  const names = new Set(["패션", "남성패션", "여성패션", "남성의류", "여성의류", "패션잡화", "신발", "가방", "주얼리", "쥬얼리", "시계", "유아동패션"]);
+  const rootNames = ["패션", "남성패션", "여성패션", "유아동패션"];
+  const normalize = (name: string) => name.replace(/[\s/·&-]/g, "");
+  const roots: CategoryNode[] = [];
   const result: TossFashionCategory[] = [];
   const seen = new Set<number>();
   const valid = (node: CategoryNode) => node && Number.isSafeInteger(node.categoryId) && node.categoryId > 0 && typeof node.displayName === "string";
-  function add(node: CategoryNode) {
+  function add(node: CategoryNode, label: string) {
     if (!valid(node) || seen.has(node.categoryId)) return;
     seen.add(node.categoryId);
-    result.push({ categoryId: node.categoryId, displayName: node.displayName });
+    result.push({ categoryId: node.categoryId, displayName: node.displayName, label });
   }
   function visit(list: CategoryNode[], depth: number) {
     if (depth > 5 || !Array.isArray(list)) return;
     for (const node of list) {
       if (!valid(node)) continue;
-      const name = node.displayName.replace(/[\s/·&-]/g, "");
-      if (names.has(name)) {
-        add(node);
-        if (Array.isArray(node.children)) node.children.forEach(add);
-      } else visit(node.children ?? [], depth + 1);
+      // 동일 이름의 반려동물 의류나 생활용 시계를 사람의 패션과 섞지 않습니다.
+      if (/반려|애완|강아지|고양이|펫/.test(node.displayName)) continue;
+      if (rootNames.includes(normalize(node.displayName))) roots.push(node);
+      visit(node.children ?? [], depth + 1);
     }
   }
   visit(nodes, 1);
+  roots.sort((a, b) => rootNames.indexOf(normalize(a.displayName)) - rootNames.indexOf(normalize(b.displayName)));
+  for (const root of roots) {
+    add(root, root.displayName);
+    if (Array.isArray(root.children)) {
+      for (const child of root.children) {
+        if (valid(child)) add(child, rootNames.includes(normalize(child.displayName)) ? child.displayName : `${root.displayName} > ${child.displayName}`);
+      }
+    }
+  }
   return result;
 }
 

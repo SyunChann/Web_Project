@@ -80,7 +80,7 @@ export function TossShoppingPage({ result, fashion = false, categoryName, childr
             })}
           </ol>
         </section> : null}
-      </> : loading ? <div className={styles.empty} role="status"><Clock3 size={28} aria-hidden="true" /><h2>인기 상품을 불러오는 중입니다</h2><p>상품 정보와 연결 링크를 확인하고 있습니다.</p></div> : <div className={styles.empty} role="status"><ShoppingBag size={32} aria-hidden="true" /><h2>{fashion ? result.status === "ready" ? "현재 제공되는 패션 상품이 없습니다" : "패션 상품을 불러오지 못했습니다" : "베스트셀러를 불러오지 못했습니다"}</h2><p>{fashion && result.status === "ready" ? "다른 분류를 선택하거나 나중에 다시 확인해 주세요." : "잠시 후 다시 확인해 주세요."}</p></div>}
+      </> : loading ? <div className={styles.empty} role="status"><Clock3 size={28} aria-hidden="true" /><h2>인기 상품을 불러오는 중입니다</h2><p>상품 정보와 연결 링크를 확인하고 있습니다.</p></div> : <div className={styles.empty} role="status"><ShoppingBag size={32} aria-hidden="true" /><h2>{fashion ? result.status === "ready" ? "현재 이 분류에서 제공되는 인기 상품이 없습니다" : "패션 상품을 불러오지 못했습니다" : "베스트셀러를 불러오지 못했습니다"}</h2><p>{fashion && result.status === "ready" ? "다른 분류를 선택하거나 다음 순위 갱신 후 다시 확인해 주세요." : "잠시 후 다시 확인해 주세요."}</p></div>}
       <footer className={styles.footer}><span>{fashion ? `${categoryName ?? "패션"} 카테고리의 인기순으로 표시합니다. 원본 순위는 매일 오전 9시(KST)에 갱신됩니다.` : "순위는 토스쇼핑 베스트셀러 API 기준입니다."}</span><span>가격·재고·할인 조건은 이동한 상품 화면에서 최종 확인해 주세요.</span></footer>
     </section>
   </main>;

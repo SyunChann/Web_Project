@@ -23,11 +23,11 @@ async function FashionContent({ searchParams }: FashionPageProps) {
   const params = await searchParams;
   const requested = Array.isArray(params?.category) ? params.category[0] : params?.category;
   const result = await getTossFashionContent(requested);
-  return <TossShoppingPage result={result} fashion categoryName={result.selectedCategory?.displayName}>
+  return <TossShoppingPage result={result} fashion categoryName={result.selectedCategory?.label}>
     {result.categories.length > 1 ? <Form action="/recommendations/fashion" className={styles.categoryFilter}>
       <label htmlFor="fashion-category">패션 분류</label>
       <select id="fashion-category" name="category" defaultValue={result.selectedCategory?.categoryId}>
-        {result.categories.map((category) => <option key={category.categoryId} value={category.categoryId}>{category.displayName === "패션" ? "전체 패션" : category.displayName}</option>)}
+        {result.categories.map((category) => <option key={category.categoryId} value={category.categoryId}>{category.label === "패션" ? "전체 패션" : category.label}</option>)}
       </select>
       <button type="submit">보기</button>
     </Form> : null}

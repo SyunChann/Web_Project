@@ -38,7 +38,10 @@ test("diagnosis uses exactly the same category selection as the website", () => 
   const source = ts.transpileModule(fs.readFileSync("src/lib/tossSharelink.ts", "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText;
   const exports = {};
   vm.runInNewContext(source, { exports, require: () => ({}), Map, Set });
-  const malformedTree = [...tree, { categoryId: -1, displayName: "패션" }, { categoryId: 10, displayName: "패션" }];
+  const malformedTree = [...tree, { categoryId: -1, displayName: "패션" }, { categoryId: 10, displayName: "패션" },
+    { categoryId: 20, displayName: "반려동물", children: [{ categoryId: 21, displayName: "패션" }] },
+    { categoryId: 30, displayName: "시계", children: [{ categoryId: 31, displayName: "벽시계" }] },
+    { categoryId: 40, displayName: "남성패션", children: [{ categoryId: 41, displayName: "가방" }] }];
   assert.equal(JSON.stringify(fashionCategories(malformedTree)), JSON.stringify(exports.getFashionCategories(malformedTree)));
 });
 

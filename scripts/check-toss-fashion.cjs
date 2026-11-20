@@ -5,25 +5,35 @@ const fs = require("node:fs");
 const { execFileSync } = require("node:child_process");
 
 function fashionCategories(nodes) {
-  const names = new Set(["패션", "남성패션", "여성패션", "남성의류", "여성의류", "패션잡화", "신발", "가방", "주얼리", "쥬얼리", "시계", "유아동패션"]);
+  const rootNames = ["패션", "남성패션", "여성패션", "유아동패션"];
+  const normalize = (name) => name.replace(/[\s/·&-]/g, "");
+  const roots = [];
   const result = [], seen = new Set();
   const valid = (node) => node && Number.isSafeInteger(node.categoryId) && node.categoryId > 0 && typeof node.displayName === "string";
-  function add(node) {
+  function add(node, label) {
     if (!valid(node) || seen.has(node.categoryId)) return;
     seen.add(node.categoryId);
-    result.push({ categoryId: node.categoryId, displayName: node.displayName });
+    result.push({ categoryId: node.categoryId, displayName: node.displayName, label });
   }
   function visit(list, depth) {
     if (!Array.isArray(list) || depth > 5) return;
     for (const node of list) {
       if (!valid(node)) continue;
-      if (names.has(node.displayName.replace(/[\s/·&-]/g, ""))) {
-        add(node);
-        if (Array.isArray(node.children)) node.children.forEach(add);
-      } else visit(node.children, depth + 1);
+      if (/반려|애완|강아지|고양이|펫/.test(node.displayName)) continue;
+      if (rootNames.includes(normalize(node.displayName))) roots.push(node);
+      visit(node.children, depth + 1);
     }
   }
   visit(nodes, 1);
+  roots.sort((a, b) => rootNames.indexOf(normalize(a.displayName)) - rootNames.indexOf(normalize(b.displayName)));
+  for (const root of roots) {
+    add(root, root.displayName);
+    if (Array.isArray(root.children)) {
+      for (const child of root.children) {
+        if (valid(child)) add(child, rootNames.includes(normalize(child.displayName)) ? child.displayName : `${root.displayName} > ${child.displayName}`);
+      }
+    }
+  }
   return result;
 }
 
@@ -69,7 +79,7 @@ async function diagnose(config, { fetcher = fetch, log = console.log } = {}) {
   log("카테고리 ID | 이름 | HTTP | 결과 | 원본 상품 | 품절 제외 | 캐시 | 오류 코드");
   let complete = categories.length > 0;
   for (const category of categories.slice(0, 60)) {
-    const label = category.displayName.replace(/[\p{Cc}\p{Cf}|]/gu, " ").slice(0, 60);
+    const label = category.label.replace(/[\p{Cc}\p{Cf}|]/gu, " ").slice(0, 60);
     let result;
     try {
       result = await request(config, "/v1/products/best-categories/" + category.categoryId + "?size=50", fetcher);

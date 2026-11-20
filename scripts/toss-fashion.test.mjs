@@ -40,7 +40,7 @@ function harness(options = {}) {
       if (flags.nonJsonError) return { ok: false, status: flags.nonJsonError, json: async () => { throw SyntaxError("private-response-marker"); } };
       if (flags.invalidJson) return { ok: true, status: 200, json: async () => { throw SyntaxError("private-response-marker"); } };
       if (flags.categoriesUnsupported) return { ok: false, status: 404, json: async () => ({ resultType: "FAIL" }) };
-      success = { categories: flags.noFashion ? tree.slice(0, 1) : tree };
+      success = { categories: flags.noFashion ? tree.slice(0, 1) : flags.tree ?? tree };
     } else if (url.pathname.includes("best-categories")) {
       const id = Number(url.pathname.split("/").at(-1));
       success = { category: { categoryId: flags.wrongCategory ? 20 : id }, items: flags.empty ? [] : [product(id)] };
@@ -73,6 +73,31 @@ test("malformed JSON in a successful response is recorded as HTTP 200 invalid-re
 test("fashion discovery uses category trees, rejects food lookalikes and does not hardcode example category IDs", () => {
   const { api } = harness();
   assert.deepEqual(Array.from(api.getFashionCategories(tree), (x) => x.categoryId), [700, 701, 702]);
+});
+const scopedTree = [
+  { categoryId: 100, displayName: "생활", children: [
+    { categoryId: 101, displayName: "가방" },
+    { categoryId: 102, displayName: "시계", children: [{ categoryId: 103, displayName: "벽시계" }] },
+  ] },
+  { categoryId: 200, displayName: "반려동물", children: [{ categoryId: 201, displayName: "패션" }] },
+  { categoryId: 300, displayName: "여성패션", children: [{ categoryId: 301, displayName: "가방" }] },
+  { categoryId: 400, displayName: "남성패션", children: [{ categoryId: 401, displayName: "가방" }, { categoryId: 402, displayName: "남성시계" }] },
+  { categoryId: 500, displayName: "패션", children: [{ categoryId: 501, displayName: "의류" }] },
+];
+test("fashion scope excludes unrelated bags, household clocks and pet fashion; roots and duplicate labels stay ordered", () => {
+  const { api } = harness();
+  const categories = api.getFashionCategories(scopedTree);
+  assert.deepEqual(Array.from(categories, (category) => category.categoryId), [500, 501, 400, 401, 402, 300, 301]);
+  assert.equal(categories.find((category) => category.categoryId === 401).label, "남성패션 > 가방");
+  assert.equal(categories.find((category) => category.categoryId === 301).label, "여성패션 > 가방");
+  assert.equal(api.getFashionCategories(scopedTree.slice(0, -1))[0].displayName, "남성패션");
+});
+test("the main fashion root is the default regardless of taxonomy order and invalid legacy selections", async () => {
+  const { api, calls } = harness({ tree: scopedTree });
+  for (const requested of [undefined, "101", "102", "201"]) {
+    assert.equal((await api.getTossFashionContent(requested)).selectedCategory.categoryId, 500);
+  }
+  assert.ok(calls.filter((path) => path.includes("best-categories")).every((path) => path.endsWith("/500")));
 });
 test("fashion uses a category ranking endpoint and tracked links; existing best-selling stays separate", async () => {
   const { api, calls } = harness();
@@ -154,4 +179,8 @@ test("fashion screen keeps ad disclosure, original image blocking, sponsored lin
   const html = renderToStaticMarkup(React.createElement(TossShoppingPage, { fashion: true, result: { status: "ready", products: [{ ...product(700), rank: 1, shareUrl: "https://toss.im/p/700" }] } }));
   for (const text of ["패션 인기 상품", "광고", "수수료", "/recommendations/fashion", "sponsored noreferrer", "https://toss.im/p/700"]) assert.ok(html.includes(text), text);
   assert.ok(!html.includes("https://images.example.com/700.png"));
+  const empty = renderToStaticMarkup(React.createElement(TossShoppingPage, { fashion: true, result: { status: "ready", products: [] } }));
+  assert.ok(empty.includes("현재 이 분류에서 제공되는 인기 상품이 없습니다"));
+  assert.ok(empty.includes("다음 순위 갱신"));
+  assert.ok(!empty.includes("불러오지 못했습니다"));
 });
