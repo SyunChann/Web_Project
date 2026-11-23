@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { AirportTerminal, CongestionResult } from "@/lib/incheonCongestion";
-import { congestionDataState, congestionLaneLabel, congestionLevel, congestionOperatingState } from "@/lib/congestionPresentation";
+import { congestionDataState, congestionLaneLabel, congestionLevel, congestionOperatingState, shortestCongestionGates } from "@/lib/congestionPresentation";
 import styles from "./DepartureCongestion.module.css";
 import { useDepartureTime, useDepartureRefreshPending } from "./DepartureLive";
 
@@ -22,6 +22,8 @@ export function DepartureCongestion({ results }: { results: CongestionResult[] }
   const pending = useDepartureRefreshPending();
   const currentTime = useDepartureTime();
   const result = results.find((entry) => entry.terminal === selected);
+  const shortest = shortestCongestionGates(result, currentTime);
+  const shortestIds = new Set(shortest.map((gate) => gate.id));
   const numbers = selected === "T1" ? [1, 2, 3, 4, 5, 6] : [1, 2];
   const lanes = selected === "T1" ? ["E", "W"] : ["A", "B", "C", "D"];
 
@@ -36,6 +38,11 @@ export function DepartureCongestion({ results }: { results: CongestionResult[] }
         {terminal} · 제{terminal === "T1" ? "1" : "2"}여객터미널
       </button>)}
     </div>
+    {shortest.length ? <aside className={styles.recommendation} aria-label="대기가 짧은 입구">
+      <strong>{selected} · 대기가 짧은 입구 · {shortest[0].waitMinutes}분</strong>
+      <p>{shortest.slice(0, 3).map((gate) => congestionLaneLabel(selected, gate.number, gate.lane)).join(" · ")}{shortest.length > 3 ? ` 외 ${shortest.length - 3}곳` : ""}</p>
+      <small>제공된 운영시간·최신 대기시간 기준 · 이동 거리는 반영하지 않습니다.</small>
+    </aside> : null}
     {!result || result.state !== "ready" ? <p className={styles.message} role="status">{result ? messages[result.state as Exclude<CongestionResult["state"], "ready">] : "출국장 정보를 불러오지 못했습니다."}{result?.diagnostic ? ` (${result.diagnostic})` : ""}</p> : <ul className={`${styles.gates} ${selected === "T2" ? styles.t2 : ""}`}>
       {numbers.map((number) => {
         const key = `${selected}-${number}`;
@@ -55,7 +62,8 @@ export function DepartureCongestion({ results }: { results: CongestionResult[] }
             const current = state === "fresh" && operating !== "outside";
             const level = current ? congestionLevel(gate?.waitMinutes ?? null) : null;
             const message = operating === "outside" ? "운영시간 기준 미운영" : state === "missing" ? "미운영 또는 정보 없음" : state === "stale" ? "갱신 지연" : "수집 시각 확인 필요";
-            return <div key={lane} className={styles.compactLane}>
+            const recommended = gate ? shortestIds.has(gate.id) : false;
+            return <div key={lane} className={styles.compactLane} data-recommended={recommended}>
               <div className={styles.compactLaneHeading}>
                 <span className={styles.compactLaneName}>{selected === "T1" ? lane === "E" ? "동편" : "서편" : `${lane} 입구`}</span>
                 {level ? <span className={`${styles.level} ${styles[level.tone]}`}>{level.label}</span> : null}
@@ -64,6 +72,7 @@ export function DepartureCongestion({ results }: { results: CongestionResult[] }
                 <strong>{gate?.waitingPeople != null ? `${gate.waitingPeople.toLocaleString("ko-KR")}명` : "인원 미제공"}</strong>
                 <span>{gate?.waitMinutes != null ? `예상 ${gate.waitMinutes}분${gate.waitOver60 ? " 초과" : ""}` : "시간 미제공"}</span>
               </div> : <p className={styles.compactStatus}>{message}</p>}
+              {recommended ? <span className={styles.recommendedBadge}>대기 짧음</span> : null}
             </div>;
           })}
         </div>
@@ -74,13 +83,15 @@ export function DepartureCongestion({ results }: { results: CongestionResult[] }
           const operating = congestionOperatingState(gate?.operatingTime, currentTime);
           const current = state === "fresh" && operating !== "outside";
           const level = current ? congestionLevel(gate?.waitMinutes ?? null) : null;
-          return <div key={lane} className={`${styles.lane} ${operating === "outside" ? styles.closed : ""}`}>
+          const recommended = gate ? shortestIds.has(gate.id) : false;
+          return <div key={lane} className={`${styles.lane} ${operating === "outside" ? styles.closed : ""}`} data-recommended={recommended}>
             <span className={styles.laneName}>{congestionLaneLabel(selected, number, lane)}</span>
             <div className={styles.values}>
               {current ? <>
                 <strong>{gate?.waitingPeople != null ? `${gate.waitingPeople.toLocaleString("ko-KR")}명` : "인원 미제공"}</strong>
                 <span>{gate?.waitMinutes != null ? `예상 ${gate.waitMinutes}분${gate.waitOver60 ? " 초과" : ""}` : "시간 미제공"}</span>
                 {level ? <span className={`${styles.level} ${styles[level.tone]}`}>{level.label}</span> : null}
+                {recommended ? <span className={styles.recommendedBadge}>대기 짧음</span> : null}
               </> : <span className={styles.noData}>{operating === "outside" ? "운영시간 기준 미운영" : state === "missing" ? "미운영 또는 정보 없음" : state === "stale" ? "갱신 지연" : "수집 시각 확인 필요"}</span>}
             </div>
             {gate?.operatingTime ? <span className={styles.operating}>안내 운영시간 {gate.operatingTime}</span> : null}

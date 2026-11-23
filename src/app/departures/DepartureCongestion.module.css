@@ -13,6 +13,12 @@
 .gate { min-width: 0; padding: .75rem; border: 1px solid var(--theme-line-c8dfe9, #c8dfe9); border-radius: .45rem; background: var(--surface); }
 .gate h3 { margin-bottom: .55rem; color: var(--theme-text-123e58, #123e58); font-size: .85rem; font-weight: 900; }
 .detailToggle, .compactLanes { display: none; }
+.recommendation { margin-top: .75rem; padding: .65rem .8rem; border: 1px solid var(--theme-line-c8dfe9, #c8dfe9); border-left: 3px solid var(--theme-text-166747, #166747); border-radius: .4rem; background: var(--theme-bg-e2f4ec, #e2f4ec); color: var(--theme-text-166747, #166747); }
+.recommendation strong { font-size: .9rem; font-weight: 900; }
+.recommendation p { margin-top: .2rem; font-size: .85rem; font-weight: 700; }
+.recommendation small { display: block; margin-top: .3rem; color: var(--theme-text-537488, #537488); font-size: .75rem; line-height: 1.5; }
+.recommendedBadge, .values .recommendedBadge { display: inline-block; margin-top: .2rem; padding: .15rem .35rem; border-radius: .25rem; background: var(--theme-bg-e2f4ec, #e2f4ec); color: var(--theme-text-166747, #166747); font-size: .75rem; font-weight: 800; }
+.lane[data-recommended="true"] { border-left: 3px solid var(--theme-text-166747, #166747); padding-left: .4rem; }
 .help { margin-top: .6rem; }
 .help summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; color: var(--theme-text-537488, #537488); font-size: .8rem; font-weight: 800; }
 .help summary::after { content: " +"; margin-left: .5rem; }
@@ -44,6 +50,7 @@
   .detailToggle { display: inline-flex; align-items: center; justify-content: center; min-width: 60px; min-height: 44px; color: var(--theme-text-0878a8, #0878a8); font-size: .8rem; font-weight: 800; cursor: pointer; }
   .compactLanes { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .65rem; padding: .1rem 0 .25rem; }
   .compactLane { min-width: 0; }
+  .compactLane[data-recommended="true"] { border-left: 3px solid var(--theme-text-166747, #166747); padding-left: .4rem; }
   .compactLaneHeading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .2rem; }
   .compactLaneName { font-size: .8rem; font-weight: 800; color: var(--theme-text-537488, #537488); }
   .compactLanes .level { font-size: .75rem; }

@@ -1,0 +1,22 @@
+.dashboard {
+  --lck-accent: #4338ca;
+  --lck-accent-bg: #eef2ff;
+  --lck-selected: #4338ca;
+  --lck-success: #087443;
+  --lck-success-bg: #ecfdf3;
+  --lck-danger: #b72d3b;
+  --lck-detail-bg: #f5f8ff;
+  --lck-heat: #4338ca;
+  color: var(--foreground);
+}
+
+:global(html.dark) .dashboard {
+  --lck-accent: #beb7ff;
+  --lck-accent-bg: #292745;
+  --lck-selected: #5143b5;
+  --lck-success: #98e4be;
+  --lck-success-bg: #17382c;
+  --lck-danger: #ffacb6;
+  --lck-detail-bg: #1d293b;
+  --lck-heat: #8b80f4;
+}

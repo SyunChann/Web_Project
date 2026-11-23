@@ -1,4 +1,15 @@
-import type { AirportTerminal, CongestionGate } from "./incheonCongestion";
+import type { AirportTerminal, CongestionGate, CongestionResult } from "./incheonCongestion";
+
+export function shortestCongestionGates(result: CongestionResult | undefined, now: number): CongestionGate[] {
+  if (result?.state !== "ready") return [];
+  // A 60+ value is only a lower bound, so it cannot be ranked as an exact wait.
+  const candidates = result.gates.filter((gate) => congestionDataState(gate, now) === "fresh"
+    && congestionOperatingState(gate.operatingTime, now) === "within"
+    && gate.waitMinutes !== null && Number.isFinite(gate.waitMinutes) && gate.waitMinutes >= 0 && !gate.waitOver60);
+  if (!candidates.length) return [];
+  const minimum = Math.min(...candidates.map((gate) => gate.waitMinutes!));
+  return candidates.filter((gate) => gate.waitMinutes === minimum);
+}
 
 export function congestionLaneLabel(terminal: AirportTerminal, number: number, lane: string) {
   return terminal === "T2" ? `${number}${lane} 입구` : `${number}번 ${lane === "E" ? "동편" : "서편"}`;

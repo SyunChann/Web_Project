@@ -61,3 +61,33 @@ test("collapsed entrances show the existing congestion level only for current wa
     assert.ok(!compact(render(overrides)).includes('class="level'), JSON.stringify(overrides));
   }
 });
+
+test("shortest-wait emphasis requires confirmed hours and disappears for closed or stale data", () => {
+  const html = render({ operatingTime: "06:00~22:00", waitMinutes: 0, waitOver60: false });
+  assert.ok(html.includes('aria-label="대기가 짧은 입구"'));
+  assert.ok(html.includes("T1 · 대기가 짧은 입구 · 0분"));
+  assert.ok(html.includes('data-recommended="true"'));
+  for (const overrides of [{}, { operatingTime: "12:00~18:00" }, { operatingTime: "06:00~22:00", observedAt: new Date(now - 600001).toISOString() }]) {
+    assert.ok(!render(overrides).includes('aria-label="대기가 짧은 입구"'));
+  }
+});
+
+test("shortest-wait comparison returns all ties, excludes unknown and non-comparable metrics, and never crosses terminals", () => {
+  const base = { ...gate, operatingTime: "06:00~22:00", waitMinutes: 5, waitOver60: false };
+  const fast = { ...base, id: "fast", number: 2, lane: "W", waitMinutes: 0 };
+  const tie = { ...fast, id: "tie", number: 3 };
+  const invalid = [
+    { ...base, id: "closed", operatingTime: "12:00~18:00", waitMinutes: 0 },
+    { ...base, id: "unknown", operatingTime: null, waitMinutes: 0 },
+    { ...base, id: "old", observedAt: new Date(now - 600001).toISOString(), waitMinutes: 0 },
+    { ...base, id: "missing", waitMinutes: null },
+    { ...base, id: "infinite", waitMinutes: Infinity },
+    { ...base, id: "negative", waitMinutes: -1 },
+    { ...base, id: "lower-bound", waitMinutes: 0, waitOver60: true },
+  ];
+  const result = { terminal: "T1", state: "ready", gates: [base, fast, tie, ...invalid] };
+  assert.deepEqual(Array.from(presentation.shortestCongestionGates(result, now), (entry) => entry.id), ["fast", "tie"]);
+  assert.equal(presentation.shortestCongestionGates({ ...result, state: "unavailable" }, now).length, 0);
+  assert.equal(presentation.shortestCongestionGates(undefined, now).length, 0);
+  assert.equal(presentation.shortestCongestionGates({ terminal: "T2", state: "ready", gates: [base] }, now)[0].id, "test");
+});
