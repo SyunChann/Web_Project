@@ -1,3 +1,4 @@
+import { MobileFilterDetails } from "@/components/MobileFilterDetails";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
@@ -19,14 +20,18 @@ export default async function DrinksPage({ searchParams }: { searchParams: Promi
     <Suspense fallback={<div aria-hidden="true" className="h-12 w-24 rounded-md bg-white" />}><AppNav active="drinks" /></Suspense>
     <header className={styles.hero}><div><p className={styles.eyebrow}>TASTE NOTES</p><h1>술 취향</h1><p className={styles.description}>마신 한 잔의 기억, 다음에 만나고 싶은 한 병.</p></div><Link href="/drinks/new" className={styles.primary}>술 기록 쓰기</Link></header>
     <form key={`filters:${JSON.stringify(filters)}`} action="/drinks" className={styles.filters}>
-      <label>술 종류<select name="category" aria-label="술 종류" defaultValue={filters.category}><option value="">전체 종류</option>{Object.entries(drinkCategories).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
-      <label>글 구분<select name="kind" aria-label="글 구분" defaultValue={filters.kind}><option value="">전체 글</option>{Object.entries(drinkKinds).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
       <label className={styles.nameFilter}>술 이름<input name="q" type="search" maxLength={80} defaultValue={filters.q} placeholder="궁금한 술을 찾아보세요" /></label>
-      <details className={styles.extraFilters} open={Boolean(filters.rating || filters.tag)}><summary>별점·맛 필터{filters.rating || filters.tag ? " · 적용 중" : ""}</summary><div>
-        <label>별점<select name="rating" defaultValue={filters.rating}><option value="">전체 별점</option>{Array.from({ length: 10 }, (_, i) => (i + 1) / 2).map((value) => <option key={value} value={value}>★ {value.toFixed(1)} 이상</option>)}</select></label>
-        <label>맛 태그<select name="tag" defaultValue={filters.tag}><option value="">전체 맛</option>{tasteTags.map((tag) => <option key={tag}>{tag}</option>)}</select></label>
-      </div></details>
-      <button className={styles.secondary} type="submit">필터 적용</button>
+      <button className={styles.secondary} type="submit">검색</button>
+      <div className={styles.filterOptions}><MobileFilterDetails label="술 필터" active={Boolean(filters.category || filters.kind || filters.rating || filters.tag)}>
+        <div className={styles.filterFields}>
+          <label>술 종류<select name="category" aria-label="술 종류" defaultValue={filters.category}><option value="">전체 종류</option>{Object.entries(drinkCategories).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+          <label>글 구분<select name="kind" aria-label="글 구분" defaultValue={filters.kind}><option value="">전체 글</option>{Object.entries(drinkKinds).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+          <details className={styles.extraFilters} open={Boolean(filters.rating || filters.tag)}><summary>별점·맛 필터{filters.rating || filters.tag ? " · 적용 중" : ""}</summary><div>
+            <label>별점<select name="rating" defaultValue={filters.rating}><option value="">전체 별점</option>{Array.from({ length: 10 }, (_, i) => (i + 1) / 2).map((value) => <option key={value} value={value}>★ {value.toFixed(1)} 이상</option>)}</select></label>
+            <label>맛 태그<select name="tag" defaultValue={filters.tag}><option value="">전체 맛</option>{tasteTags.map((tag) => <option key={tag}>{tag}</option>)}</select></label>
+          </div></details>
+        </div>
+      </MobileFilterDetails></div>
     </form>
     <Suspense key={`results:${JSON.stringify(filters)}`} fallback={<p role="status" className={styles.notice}>술 기록을 불러오고 있습니다…</p>}>
       <DrinkResults params={params} />
@@ -44,7 +49,7 @@ async function DrinkResults({ params }: { params: Filters }) {
     {filters.rating || filters.tag ? <p className={styles.hint}>별점·맛 필터는 마신 술 리뷰에 적용됩니다.{filters.kind === "curious" ? " 궁금한 술을 보려면 별점·맛 필터를 해제해 주세요." : ""}</p> : null}
     {error ? <p role="status" className={styles.notice}>{error}</p> : posts.length ? <div className={styles.grid}>
       {posts.map((post) => <Link key={post.id} href={`/drinks/${post.id}`} className={styles.card}>
-        <div className={styles.cardImage}>{post.image ? <Image src={drinkPhotoUrl(post.image)} alt={`${post.name} 대표 사진`} fill sizes="(max-width:480px) calc(100vw - 3rem), (max-width:800px) 50vw, 384px" unoptimized={post.image.endsWith(".gif")} /> : <Wine size={48} strokeWidth={1.2} aria-hidden="true" />}</div>
+        <div className={styles.cardImage}>{post.image ? <Image src={drinkPhotoUrl(post.image)} alt={`${post.name} 대표 사진`} fill sizes="(max-width:480px) 83px, (max-width:800px) 50vw, 384px" unoptimized={post.image.endsWith(".gif")} /> : <Wine size={48} strokeWidth={1.2} aria-hidden="true" />}</div>
         <div className={styles.cardBody}><div className={styles.badges}><span>{drinkCategories[post.category]}</span><span>{drinkKinds[post.kind]}</span></div>
           <h2>{post.name}</h2>{post.rating !== null ? <StarRating rating={Number(post.rating)} /> : <span className={styles.hint}>마셔보고 싶은 술</span>}
           <p className={styles.excerpt}>{post.excerpt}</p>

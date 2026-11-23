@@ -8,8 +8,10 @@
 .primary { background: #304d70; color: white; border: 1px solid #304d70; }
 .secondary { background: var(--surface); color: var(--theme-text-304d70, #304d70); border: 1px solid var(--theme-line-ccd7e2, #ccd7e2); }
 .primary:disabled, .secondary:disabled { opacity: .6; cursor: wait; }
-.filters { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr) minmax(0,2fr) auto; gap: .75rem; margin: 1.5rem 0 1rem; align-items: end; }
-.filters > button { grid-column: 4; grid-row: 1; }
+.filters { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: .65rem; margin: 1rem 0; align-items: end; }
+.filters > button { grid-column: 2; grid-row: 1; }
+.filterOptions { grid-column: 1 / -1; min-width: 0; }
+.filterFields { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .75rem; margin-top: .6rem; }
 .extraFilters { grid-column: 1 / -1; font-size: .85rem; color: var(--theme-text-304d70, #304d70); }
 .extraFilters summary { min-height: 44px; padding: .7rem 0; cursor: pointer; font-weight: 700; }
 .extraFilters > div { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .75rem; }
@@ -48,6 +50,8 @@
 .chips input:checked + span { background: #304d70; color: white; border-color: #304d70; }
 .chips input:focus-visible + span { outline: 2px solid #304d70; outline-offset: 3px; }
 .ratingPicker { display: flex; margin: .6rem 0; }
+.ratingHelp { color: var(--theme-text-647282, #647282); font-size: .85rem; line-height: 1.7; }
+.mobileRatingPicker { display: none; }
 .ratingSlot { position: relative; width: 44px; height: 48px; display: grid; place-items: center; }
 .ratingSlot > .star { font-size: 2.5rem; pointer-events: none; }
 .ratingHit { position: absolute; left: 0; top: 0; width: 50%; height: 100%; cursor: pointer; }
@@ -66,5 +70,30 @@
 .gallery img { width: 100%; height: auto; max-height: 40rem; object-fit: contain; border: 1px solid var(--theme-line-d9dfe5, #d9dfe5); border-radius: .65rem; background: var(--surface); }
 .back { color: var(--theme-text-304d70, #304d70); font-weight: 800; display: inline-flex; min-height: 44px; align-items: center; }
 @media(min-width: 640px) { .page { padding: 2rem 2.5rem 4rem; } }
-@media(max-width: 800px) { .grid { grid-template-columns: repeat(2,minmax(0,1fr)); } .filters { grid-template-columns: minmax(0,1fr) minmax(0,1fr); } .nameFilter { grid-column: 1 / -1; } .filters > button { grid-column: 1 / -1; grid-row: auto; } }
-@media(max-width: 480px) { .grid { grid-template-columns: minmax(0,1fr); } .cardImage { height: 14rem; } .filters { gap: .6rem; } .hero { padding-top: 2rem; } }
+@media(max-width: 800px) { .grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media(max-width: 639px) {
+  .page { padding: 1.25rem 1rem calc(5.75rem + env(safe-area-inset-bottom)); }
+  .hero { padding: 1rem 0; gap: .65rem; }
+  .hero h1 { font-size: 1.6rem; }
+  .filters { gap: .4rem .6rem; }
+  .nameFilter { min-width: 0; }
+  .twoColumns { grid-template-columns: minmax(0,1fr); }
+  .fields { gap: 1rem; }
+  .ratingHelp, .ratingPicker { display: none; }
+  .mobileRatingPicker { display: grid; grid-template-columns: repeat(5,minmax(44px,1fr)); gap: .25rem; margin: .5rem 0; }
+  .mobileRatingPicker button { display: flex; align-items: center; justify-content: center; gap: .15rem; min-width: 44px; min-height: 44px; border: 1px solid var(--theme-line-d4dde6, #d4dde6); border-radius: .4rem; background: var(--surface); color: var(--theme-text-304d70, #304d70); font-size: .85rem; font-weight: 800; cursor: pointer; }
+  .mobileRatingPicker button[aria-pressed="true"] { background: #304d70; color: white; border-color: #304d70; }
+  .mobileRatingPicker button:focus-visible { outline: 2px solid #304d70; outline-offset: 2px; }
+}
+@media(max-width: 480px) {
+  .grid { grid-template-columns: minmax(0,1fr); gap: .75rem; }
+  .card { display: grid; grid-template-columns: 5.5rem minmax(0,1fr); align-items: start; gap: .7rem; padding: .75rem; }
+  .cardImage { height: 7rem; border-radius: .4rem; }
+  .cardImage img { padding: .3rem; }
+  .cardBody { min-width: 0; padding: 0; gap: .4rem; }
+  .card h2 { font-size: 1rem; }
+  .excerpt { font-size: .8rem; -webkit-line-clamp: 1; }
+  .badges { gap: .3rem; }
+  .badges span { padding: .15rem .35rem; font-size: .7rem; }
+  .form { padding: .75rem; }
+}

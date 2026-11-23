@@ -1,3 +1,4 @@
+import { MobileFilterDetails } from "@/components/MobileFilterDetails";
 import { ArrowLeft, Bookmark, Search, X } from "lucide-react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
@@ -56,13 +57,13 @@ export default async function WatchlistItemsPage({
   const result = await getWatchItemsPage({ query: activeQuery, status: activeStatus, page: Number(params?.page) });
   const { items: paginatedItems, count, page: currentPage } = result;
   const totalPages = Math.ceil(count / 9);
-  
+
   return (
     <main className="min-h-screen">
       <section className="mx-auto w-full max-w-6xl">
         <AppNav active="watchlist" />
 
-        <header className="py-10">
+        <header className="py-4 sm:py-10">
           <ContentSectionTabs active="watchlist" />
           <Link
             href="/watchlist"
@@ -72,16 +73,16 @@ export default async function WatchlistItemsPage({
             기대작 홈
           </Link>
           <p className="mt-0 text-sm font-semibold text-[#2f7f7a]">Watchlist</p>
-          <h1 className="mt-3 text-3xl font-bold sm:text-4xl">전체 기대작</h1>
-          <p className="mt-4 max-w-2xl leading-7 text-[#52616b]">
+          <h1 className="mt-2 text-2xl font-bold sm:mt-3 sm:text-4xl">전체 기대작</h1>
+          <p className="mt-2 max-w-2xl text-sm leading-6 sm:mt-4 sm:text-base sm:leading-7 text-[#52616b]">
             아직 감상하지 않았지만 기억해두고 싶은 작품을 모아둔 목록입니다.
           </p>
         </header>
 
-        <section className="mb-8 rounded-lg border border-[#d7e7e4] bg-white p-4 shadow-sm">
+        <section className="mb-4 rounded-lg border border-[#d7e7e4] bg-white p-3 shadow-sm sm:mb-8 sm:p-4">
           <form
             action="/watchlist/items"
-            className="grid gap-3 md:grid-cols-[1fr_auto_auto] md:items-center"
+            className="grid grid-cols-[minmax(0,1fr)_auto] gap-2 md:grid-cols-[1fr_auto_auto] md:items-center"
           >
             {activeStatus !== "all" ? (
               <input type="hidden" name="status" value={activeStatus} />
@@ -96,19 +97,19 @@ export default async function WatchlistItemsPage({
                 type="search"
                 defaultValue={activeQuery}
                 placeholder="제목, 장르, 기대 이유 검색"
-                className="h-11 w-full rounded-md border border-[#c8dedb] bg-[#f7fcfb] pr-3 pl-10 text-sm font-semibold outline-none transition placeholder:text-[#8a95a1] focus:border-[#38a39b] focus:bg-white"
+                className="min-h-[44px] w-full rounded-md border border-[#c8dedb] bg-[#f7fcfb] pr-3 pl-10 text-sm font-semibold outline-none transition placeholder:text-[#8a95a1] focus:border-[#38a39b] focus:bg-white"
               />
             </label>
             <button
               type="submit"
-              className="inline-flex h-11 items-center justify-center rounded-md bg-[#2f7f7a] px-4 text-sm font-bold text-white shadow-sm transition hover:bg-[#276a66]"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-md bg-[#2f7f7a] px-4 text-sm font-bold text-white shadow-sm transition hover:bg-[#276a66]"
             >
               검색
             </button>
             {isFiltered ? (
               <Link
                 href="/watchlist/items"
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-[#c8dedb] bg-white px-4 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#38a39b] hover:text-[#2f7f7a]"
+                className="col-span-2 inline-flex min-h-[44px] items-center justify-center gap-2 md:col-span-1 rounded-md border border-[#c8dedb] bg-white px-4 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#38a39b] hover:text-[#2f7f7a]"
               >
                 <X size={16} />
                 초기화
@@ -116,30 +117,32 @@ export default async function WatchlistItemsPage({
             ) : null}
           </form>
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            {statusOptions.map((option) => {
-              const isActive = option.value === activeStatus;
+          <MobileFilterDetails active={isFiltered}>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {statusOptions.map((option) => {
+                const isActive = option.value === activeStatus;
 
-              return (
-                <Link
-                  key={option.value}
-                  href={buildWatchlistHref({
-                    query: activeQuery,
-                    status: option.value,
-                  })}
-                  className={`rounded-md border px-3 py-2 text-sm font-bold transition ${
-                    isActive
-                      ? "border-[#38a39b] bg-[#e4f4f2] text-[#2f7f7a]"
-                      : "border-[#c8dedb] bg-white text-[#52616b] hover:border-[#38a39b] hover:text-[#2f7f7a]"
-                  }`}
-                >
-                  {option.label}
-                </Link>
-              );
-            })}
-          </div>
+                return (
+                  <Link
+                    key={option.value}
+                    href={buildWatchlistHref({
+                      query: activeQuery,
+                      status: option.value,
+                    })}
+                    className={`rounded-md border px-3 py-2 text-sm font-bold transition ${
+                      isActive
+                        ? "border-[#38a39b] bg-[#e4f4f2] text-[#2f7f7a]"
+                        : "border-[#c8dedb] bg-white text-[#52616b] hover:border-[#38a39b] hover:text-[#2f7f7a]"
+                    }`}
+                  >
+                    {option.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </MobileFilterDetails>
 
-          <p className="mt-4 text-sm font-semibold text-[#6b7280]">
+          <p className="mt-2 sm:mt-4 text-sm font-semibold text-[#6b7280]">
             {isFiltered ? `검색 결과 ${count}개` : `전체 ${count}개`}
           </p>
         </section>

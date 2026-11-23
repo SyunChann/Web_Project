@@ -114,6 +114,14 @@ a {
     font-size: 15px;
   }
 
+  /* A rem is 15px here: text-base alone still triggers input zoom on iOS. */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: 16px;
+    min-height: 44px;
+  }
+
   main.min-h-screen {
     padding: 1.25rem 1rem calc(5.75rem + env(safe-area-inset-bottom)) !important;
   }

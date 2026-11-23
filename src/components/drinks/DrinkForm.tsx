@@ -41,6 +41,7 @@ export function DrinkForm({ post, photoUrls = [], userId }: { post?: DrinkPost; 
   useEffect(() => () => previewUrls.current.forEach((url) => URL.revokeObjectURL(url)), []);
   const [state, action, pending] = useActionState<DrinkSaveResult, FormData>(async (_, data) => {
     if (fileError) return { error: fileError };
+    if (kind === "review" && (!Number.isFinite(rating) || rating < .5 || rating > 5 || rating * 2 % 1 !== 0)) return { error: "평점을 0.5~5점 중에서 선택해 주세요." };
     if (!supabaseUrl || !supabaseKey) return { error: "로그인 설정을 확인해 주세요." };
     const client = createBrowserClient(supabaseUrl, supabaseKey);
     const { data: { user } } = await client.auth.getUser();
@@ -126,11 +127,14 @@ export function DrinkForm({ post, photoUrls = [], userId }: { post?: DrinkPost; 
       <label>술 이름 <span className={styles.required}>필수</span><input name="name" required maxLength={100} value={name} onChange={(e) => setName(e.target.value)} placeholder="예: 발베니 더블우드 12년" /></label>
       {kind === "review" ? <>
         <fieldset className={styles.ratingField}><legend>평점 <span className={styles.required}>필수</span></legend>
-          <p className={styles.hint}>별의 왼쪽은 반 점, 오른쪽은 한 점입니다. 키보드 방향키로도 선택할 수 있어요.</p>
+          <p className={styles.ratingHelp}>별의 왼쪽은 반 점, 오른쪽은 한 점입니다. 키보드 방향키로도 선택할 수 있어요.</p>
+          <div className={styles.mobileRatingPicker} role="group" aria-label="평점 선택">
+            {Array.from({ length: 10 }, (_, i) => (i + 1) / 2).map((value) => <button type="button" key={value} aria-label={`${value}점 선택`} aria-pressed={rating === value} onClick={() => setRating(value)}>{value.toFixed(1)}<span aria-hidden="true">★</span></button>)}
+          </div>
           <div className={styles.ratingPicker}>{[1, 2, 3, 4, 5].map((star) => <div key={star} className={styles.ratingSlot}>
             <span aria-hidden="true" className={styles.star}>★<i style={{ width: `${Math.max(0, Math.min(1, rating - star + 1)) * 100}%` }}>★</i></span>
             {[star - .5, star].map((value, index) => <label key={value} className={`${styles.ratingHit} ${index ? styles.rightHalf : ""}`}>
-              <input type="radio" name="rating" value={value} checked={rating === value} onChange={() => setRating(value)} required aria-label={`${value}점`} />
+              <input type="radio" name="rating" value={value} checked={rating === value} onChange={() => setRating(value)} aria-label={`${value}점`} />
             </label>)}
           </div>)}</div>
           {rating > 0 ? <StarRating rating={rating} /> : <p className={styles.hint}>0.5~5점 중 선택해 주세요.</p>}

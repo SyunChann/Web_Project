@@ -18,6 +18,7 @@ const messages: Record<Exclude<CongestionResult["state"], "ready">, string> = {
 
 export function DepartureCongestion({ results }: { results: CongestionResult[] }) {
   const [selected, setSelected] = useState<AirportTerminal>("T1");
+  const [expanded, setExpanded] = useState<string[]>([]);
   const pending = useDepartureRefreshPending();
   const currentTime = useDepartureTime();
   const result = results.find((entry) => entry.terminal === selected);
@@ -36,8 +37,27 @@ export function DepartureCongestion({ results }: { results: CongestionResult[] }
       </button>)}
     </div>
     {!result || result.state !== "ready" ? <p className={styles.message} role="status">{result ? messages[result.state as Exclude<CongestionResult["state"], "ready">] : "출국장 정보를 불러오지 못했습니다."}{result?.diagnostic ? ` (${result.diagnostic})` : ""}</p> : <ul className={`${styles.gates} ${selected === "T2" ? styles.t2 : ""}`}>
-      {numbers.map((number) => <li key={number} className={styles.gate}>
-        <h3>{number}번 출국장</h3>
+      {numbers.map((number) => {
+        const key = `${selected}-${number}`;
+        const open = expanded.includes(key);
+        const detailsId = `congestion-${key}`;
+        return <li key={number} className={styles.gate}>
+        <div className={styles.gateHeading}><h3>{number}번 출국장</h3>
+          <button type="button" className={styles.detailToggle} aria-expanded={open} aria-controls={detailsId}
+            aria-label={`${number}번 출국장 상세 ${open ? "접기" : "보기"}`}
+            onClick={() => setExpanded((keys) => open ? keys.filter((entry) => entry !== key) : [...keys, key])}>{open ? "접기 −" : "상세 +"}</button>
+        </div>
+        <div className={styles.compactLanes} data-expanded={open}>
+          {lanes.map((lane) => {
+            const gate = result.gates.find((entry) => entry.number === number && entry.lane === lane);
+            const state = congestionDataState(gate, currentTime);
+            const operating = congestionOperatingState(gate?.operatingTime, currentTime);
+            const current = state === "fresh" && operating !== "outside";
+            const message = operating === "outside" ? "운영시간 기준 미운영" : state === "missing" ? "미운영 또는 정보 없음" : state === "stale" ? "갱신 지연" : "수집 시각 확인 필요";
+            return <p key={lane}><strong>{selected === "T1" ? lane === "E" ? "동편" : "서편" : lane}</strong><span>{current ? `${gate?.waitingPeople != null ? `${gate.waitingPeople.toLocaleString("ko-KR")}명` : "인원 미제공"} · ${gate?.waitMinutes != null ? `${gate.waitMinutes}분${gate.waitOver60 ? " 초과" : ""}` : "시간 미제공"}` : message}</span></p>;
+          })}
+        </div>
+        <div id={detailsId} className={styles.laneDetails} data-expanded={open}>
         {lanes.map((lane) => {
           const gate = result.gates.find((entry) => entry.number === number && entry.lane === lane);
           const state = congestionDataState(gate, currentTime);
@@ -54,13 +74,16 @@ export function DepartureCongestion({ results }: { results: CongestionResult[] }
               </> : <span className={styles.noData}>{operating === "outside" ? "운영시간 기준 미운영" : state === "missing" ? "미운영 또는 정보 없음" : state === "stale" ? "갱신 지연" : "수집 시각 확인 필요"}</span>}
             </div>
             {gate?.operatingTime ? <span className={styles.operating}>안내 운영시간 {gate.operatingTime}</span> : null}
-            {gate?.observedAt ? <span className={styles.observed}>{state === "stale" ? "마지막 수집 " : "수집 "}{observationFormat.format(new Date(gate.observedAt))}</span> : null}
+            {gate?.observedAt && Number.isFinite(Date.parse(gate.observedAt)) ? <span className={styles.observed}>{state === "stale" ? "마지막 수집 " : "수집 "}{observationFormat.format(new Date(gate.observedAt))}</span> : null}
           </div>;
         })}
-      </li>)}
+        </div>
+      </li>; })}
     </ul>}
+    <details className={styles.help}><summary>혼잡도·운영시간 안내</summary>
     <p className={styles.note}>혼잡 기준: 20분 미만 원활 · 20~40분 보통 · 40~60분 혼잡 · 60분 이상 매우혼잡. 예상 시간은 출국장 대기·보안검색·출국심사 시간을 포함합니다.</p>
     <p className={styles.note}>미운영 표시는 안내 운영시간과 현재 한국 시각을 비교한 결과이며 현장 운영과 다를 수 있습니다. 운영시간이 없는 입구는 판단하지 않습니다. 10분 초과 자료와 운영시간 밖의 대기 수치는 표시하지 않습니다.</p>
+    </details>
     <p className={styles.source}>출처 인천국제공항공사 · 공공데이터포털</p>
   </section>;
 }

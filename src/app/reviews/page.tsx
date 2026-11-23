@@ -1,3 +1,4 @@
+import { MobileFilterDetails } from "@/components/MobileFilterDetails";
 import { Search, Star, X } from "lucide-react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
@@ -85,20 +86,20 @@ export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
       <section className="mx-auto w-full max-w-6xl">
         <AppNav active="reviews" />
 
-        <header className="py-10">
+        <header className="py-4 sm:py-10">
           <ContentSectionTabs active="reviews" />
           <p className="text-sm font-semibold text-[#be4b49]">Reviews</p>
-          <h1 className="mt-3 text-3xl font-bold sm:text-4xl">전체 리뷰</h1>
-          <p className="mt-4 max-w-2xl leading-7 text-[#52616b]">
+          <h1 className="mt-2 text-2xl font-bold sm:mt-3 sm:text-4xl">전체 리뷰</h1>
+          <p className="mt-2 max-w-2xl text-sm leading-6 sm:mt-4 sm:text-base sm:leading-7 text-[#52616b]">
             영화, 애니, 게임, 드라마 감상 기록을 한곳에서 확인할 수
             있습니다.
           </p>
         </header>
 
-        <section className="mb-8 rounded-lg border border-[#ddd6cc] bg-white p-4 shadow-sm">
+        <section className="mb-4 rounded-lg border border-[#ddd6cc] bg-white p-3 shadow-sm sm:mb-8 sm:p-4">
           <form
             action="/reviews"
-            className="grid gap-3 md:grid-cols-[1fr_auto_auto] md:items-center"
+            className="grid grid-cols-[minmax(0,1fr)_auto] gap-2 md:grid-cols-[1fr_auto_auto] md:items-center"
           >
             {activeType !== "all" ? (
               <input type="hidden" name="type" value={activeType} />
@@ -116,12 +117,12 @@ export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
                 type="search"
                 defaultValue={activeQuery}
                 placeholder="제목, 장르, 요약 검색"
-                className="h-11 w-full rounded-md border border-[#d8cfc2] bg-[#fbfaf7] pr-3 pl-10 text-sm font-semibold outline-none transition placeholder:text-[#8a95a1] focus:border-[#be4b49] focus:bg-white"
+                className="min-h-[44px] w-full rounded-md border border-[#d8cfc2] bg-[#fbfaf7] pr-3 pl-10 text-sm font-semibold outline-none transition placeholder:text-[#8a95a1] focus:border-[#be4b49] focus:bg-white"
               />
             </label>
             <button
               type="submit"
-              className="inline-flex h-11 items-center justify-center rounded-md bg-[#be4b49] px-4 text-sm font-bold text-white shadow-sm transition hover:bg-[#a83f3d]"
+              className="inline-flex min-h-[44px] items-center justify-center rounded-md bg-[#be4b49] px-4 text-sm font-bold text-white shadow-sm transition hover:bg-[#a83f3d]"
             >
               검색
             </button>
@@ -132,7 +133,7 @@ export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
                   type: "all",
                   sort: activeSort,
                 })}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#be4b49] hover:text-[#be4b49]"
+                className="col-span-2 inline-flex min-h-[44px] items-center justify-center gap-2 md:col-span-1 rounded-md border border-[#d8cfc2] bg-white px-4 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#be4b49] hover:text-[#be4b49]"
               >
                 <X size={16} />
                 초기화
@@ -140,22 +141,47 @@ export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
             ) : null}
           </form>
 
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap gap-2">
-              {typeOptions.map((option) => {
-                const isActive = option.value === activeType;
+          <MobileFilterDetails active={isFiltered || activeSort !== "created-desc"}>
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap gap-2">
+                {typeOptions.map((option) => {
+                  const isActive = option.value === activeType;
+
+                  return (
+                    <Link
+                      key={option.value}
+                      href={buildReviewsHref({
+                        query: activeQuery,
+                        type: option.value,
+                        sort: activeSort,
+                      })}
+                      className={`rounded-md border px-3 py-2 text-sm font-bold transition ${
+                        isActive
+                          ? "border-[#be4b49] bg-[#fff7f5] text-[#be4b49]"
+                          : "border-[#d8cfc2] bg-white text-[#52616b] hover:border-[#be4b49] hover:text-[#be4b49]"
+                      }`}
+                    >
+                      {option.label}
+                    </Link>
+                  );
+                })}
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+              {sortOptions.map((option) => {
+                const isActive = option.value === activeSort;
 
                 return (
                   <Link
                     key={option.value}
-                    href={buildReviewsHref({
-                      query: activeQuery,
-                      type: option.value,
-                      sort: activeSort,
-                    })}
-                    className={`rounded-md border px-3 py-2 text-sm font-bold transition ${
+                      href={buildReviewsHref({
+                        query: activeQuery,
+                        type: activeType,
+                        sort: option.value,
+                      })}
+                    className={`rounded-md border px-4 py-2 text-sm font-bold shadow-sm transition ${
                       isActive
-                        ? "border-[#be4b49] bg-[#fff7f5] text-[#be4b49]"
+                        ? "border-[#be4b49] bg-[#be4b49] text-white"
                         : "border-[#d8cfc2] bg-white text-[#52616b] hover:border-[#be4b49] hover:text-[#be4b49]"
                     }`}
                   >
@@ -163,34 +189,11 @@ export default async function ReviewsPage({ searchParams }: ReviewsPageProps) {
                   </Link>
                 );
               })}
+              </div>
             </div>
+          </MobileFilterDetails>
 
-            <div className="flex flex-wrap gap-2">
-            {sortOptions.map((option) => {
-              const isActive = option.value === activeSort;
-
-              return (
-                <Link
-                  key={option.value}
-                    href={buildReviewsHref({
-                      query: activeQuery,
-                      type: activeType,
-                      sort: option.value,
-                    })}
-                  className={`rounded-md border px-4 py-2 text-sm font-bold shadow-sm transition ${
-                    isActive
-                      ? "border-[#be4b49] bg-[#be4b49] text-white"
-                      : "border-[#d8cfc2] bg-white text-[#52616b] hover:border-[#be4b49] hover:text-[#be4b49]"
-                  }`}
-                >
-                  {option.label}
-                </Link>
-              );
-            })}
-            </div>
-          </div>
-
-          <p className="mt-4 text-sm font-semibold text-[#6b7280]">
+          <p className="mt-2 sm:mt-4 text-sm font-semibold text-[#6b7280]">
             {isFiltered ? `검색 결과 ${totalCount}개` : `전체 ${totalCount}개`}
           </p>
         </section>

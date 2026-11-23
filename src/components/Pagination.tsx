@@ -76,7 +76,14 @@ export default function Pagination({
 
   return (
     <nav aria-label="페이지 이동">
-      <div className="flex flex-wrap items-center justify-center gap-2">
+      <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 sm:hidden">
+        {safeCurrentPage > 1 ? <Link href={getHref(safeCurrentPage - 1)} className={`${inactiveClass} min-h-[44px] min-w-[72px]`} rel="prev"><ChevronLeft className="h-4 w-4" aria-hidden="true" />이전</Link>
+          : <span className={`${disabledClass} min-h-[44px] min-w-[72px]`} aria-disabled="true">이전</span>}
+        <span className="text-center text-sm font-bold tabular-nums text-[var(--foreground)]" aria-label={`전체 ${totalPages}페이지 중 ${safeCurrentPage}페이지`}>{safeCurrentPage} / {totalPages}</span>
+        {safeCurrentPage < totalPages ? <Link href={getHref(safeCurrentPage + 1)} className={`${inactiveClass} min-h-[44px] min-w-[72px]`} rel="next">다음<ChevronRight className="h-4 w-4" aria-hidden="true" /></Link>
+          : <span className={`${disabledClass} min-h-[44px] min-w-[72px]`} aria-disabled="true">다음</span>}
+      </div>
+      <div className="hidden flex-wrap items-center justify-center gap-2 sm:flex">
         {safeCurrentPage > 1 ? (
           <Link href={getHref(safeCurrentPage - 1)} className={inactiveClass}>
             <ChevronLeft className="h-4 w-4" aria-hidden="true" />

@@ -1,3 +1,4 @@
+import { MobileFilterDetails } from "@/components/MobileFilterDetails";
 import { Search, Star, X } from "lucide-react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
@@ -69,24 +70,24 @@ export default async function TravelsPage({
       <section className="mx-auto w-full max-w-6xl">
         <AppNav active="travel" />
 
-        <header className="py-10">
+        <header className="py-4 sm:py-10">
           <p className={`text-sm font-semibold ${accentText}`}>
             {isOverseas ? "Overseas Restaurant" : "Restaurant"}
           </p>
-          <h1 className="mt-3 text-3xl font-bold sm:text-4xl">
+          <h1 className="mt-2 text-2xl font-bold sm:mt-3 sm:text-4xl">
             {isOverseas ? "여행리뷰 목록" : "전체 여행리뷰"}
           </h1>
-          <p className="mt-4 max-w-2xl leading-7 text-[#52616b]">
+          <p className="mt-2 max-w-2xl text-sm leading-6 sm:mt-4 sm:text-base sm:leading-7 text-[#52616b]">
             {isOverseas
               ? "지도에 등록된 여행리뷰를 목록으로 확인합니다."
               : "여행의 기록을 한곳에서 확인할 수 있습니다."}
           </p>
         </header>
 
-        <section className="mb-8 rounded-lg border border-[#ddd6cc] bg-white p-4 shadow-sm">
+        <section className="mb-4 rounded-lg border border-[#ddd6cc] bg-white p-3 shadow-sm sm:mb-8 sm:p-4">
           <form
             action="/travel/items"
-            className="grid gap-3 md:grid-cols-[1fr_auto_auto] md:items-center"
+            className="grid grid-cols-[minmax(0,1fr)_auto] gap-2 md:grid-cols-[1fr_auto_auto] md:items-center"
           >
             {isOverseas ? (
               <input type="hidden" name="scope" value="overseas" />
@@ -112,7 +113,7 @@ export default async function TravelsPage({
             </label>
             <button
               type="submit"
-              className={`inline-flex h-11 items-center justify-center rounded-md px-4 text-sm font-bold text-white shadow-sm transition ${accentBg} ${accentHoverBg}`}
+              className={`inline-flex min-h-[44px] items-center justify-center rounded-md px-4 text-sm font-bold text-white shadow-sm transition ${accentBg} ${accentHoverBg}`}
             >
               검색
             </button>
@@ -124,7 +125,7 @@ export default async function TravelsPage({
                   sort: activeSort,
                   scope: activeScope,
                 })}
-                className={`inline-flex h-11 items-center justify-center gap-2 rounded-md border border-[#d8cfc2] bg-white px-4 text-sm font-bold text-[#52616b] shadow-sm transition ${softHover}`}
+                className={`col-span-2 inline-flex min-h-[44px] items-center justify-center gap-2 md:col-span-1 rounded-md border border-[#d8cfc2] bg-white px-4 text-sm font-bold text-[#52616b] shadow-sm transition ${softHover}`}
               >
                 <X size={16} />
                 초기화
@@ -132,24 +133,55 @@ export default async function TravelsPage({
             ) : null}
           </form>
 
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-            {!isOverseas ? (
+          <MobileFilterDetails active={isFiltered || activeSort !== "created-desc"}>
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+              {!isOverseas ? (
+                <div className="flex flex-wrap gap-2">
+                  {categoryOptions.map((option) => {
+                    const isActive = option.value === activeCategory;
+
+                    return (
+                      <Link
+                        key={option.value}
+                        href={buildReviewsHref({
+                          query: activeQuery,
+                          category: option.value,
+                          sort: activeSort,
+                          scope: activeScope,
+                        })}
+                        className={`rounded-md border px-3 py-2 text-sm font-bold transition ${
+                          isActive
+                            ? softActive
+                            : `border-[#d8cfc2] bg-white text-[#52616b] ${softHover}`
+                        }`}
+                      >
+                        {option.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-sm font-semibold text-[#6b7280]">
+                  여행리뷰는 Google Maps 장소 기준으로 정리됩니다.
+                </div>
+              )}
+
               <div className="flex flex-wrap gap-2">
-                {categoryOptions.map((option) => {
-                  const isActive = option.value === activeCategory;
+                {sortOptions.map((option) => {
+                  const isActive = option.value === activeSort;
 
                   return (
                     <Link
                       key={option.value}
                       href={buildReviewsHref({
                         query: activeQuery,
-                        category: option.value,
-                        sort: activeSort,
+                        category: activeCategory,
+                        sort: option.value,
                         scope: activeScope,
                       })}
-                      className={`rounded-md border px-3 py-2 text-sm font-bold transition ${
+                      className={`rounded-md border px-4 py-2 text-sm font-bold shadow-sm transition ${
                         isActive
-                          ? softActive
+                          ? `${accentBorder} ${accentBg} text-white`
                           : `border-[#d8cfc2] bg-white text-[#52616b] ${softHover}`
                       }`}
                     >
@@ -158,39 +190,10 @@ export default async function TravelsPage({
                   );
                 })}
               </div>
-            ) : (
-              <div className="text-sm font-semibold text-[#6b7280]">
-                여행리뷰는 Google Maps 장소 기준으로 정리됩니다.
-              </div>
-            )}
-
-            <div className="flex flex-wrap gap-2">
-              {sortOptions.map((option) => {
-                const isActive = option.value === activeSort;
-
-                return (
-                  <Link
-                    key={option.value}
-                    href={buildReviewsHref({
-                      query: activeQuery,
-                      category: activeCategory,
-                      sort: option.value,
-                      scope: activeScope,
-                    })}
-                    className={`rounded-md border px-4 py-2 text-sm font-bold shadow-sm transition ${
-                      isActive
-                        ? `${accentBorder} ${accentBg} text-white`
-                        : `border-[#d8cfc2] bg-white text-[#52616b] ${softHover}`
-                    }`}
-                  >
-                    {option.label}
-                  </Link>
-                );
-              })}
             </div>
-          </div>
+          </MobileFilterDetails>
 
-          <p className="mt-4 text-sm font-semibold text-[#6b7280]">
+          <p className="mt-2 sm:mt-4 text-sm font-semibold text-[#6b7280]">
             {isFiltered
               ? `검색 결과 ${count}개`
               : `전체 ${count}개`}
