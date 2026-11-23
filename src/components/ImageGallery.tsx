@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState, type MouseEvent, type PointerEvent } from "react";
 
-const zoom = 2.5;
+const zoom = 2;
 type Photo = { src: string; alt: string };
 type Lens = { x: number; y: number; size: number; image: string; width: number; height: number; offsetX: number; offsetY: number };
 
@@ -24,7 +24,7 @@ function MagnifyingPhoto({ image }: { image: Photo }) {
     const x = clientX - left;
     const y = clientY - top;
     if (x < 0 || y < 0 || x > width || y > height) { setLens(null); return; }
-    const size = Math.min(180, frame.width * 0.48);
+    const size = Math.min(280, frame.width * 0.7);
     setLens({ x: clientX - frame.left, y: clientY - frame.top, size, image: photo.currentSrc || photo.src,
       width: width * zoom, height: height * zoom, offsetX: size / 2 - x * zoom, offsetY: size / 2 - y * zoom });
   }
