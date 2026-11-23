@@ -1,35 +1,66 @@
 "use client";
-import Image from "next/image";
-import { useId, useState } from "react";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import { Modal } from "@/components/Modal";
 
-export function ImageGallery({ images }: { images: { src: string; alt: string }[] }) {
-  const [selected, setSelected] = useState<number | null>(null);
-  const id = useId();
-  const move = (offset: number) => setSelected((index) => index === null ? null : (index + offset + images.length) % images.length);
-  const current = selected === null ? null : images[selected];
-  return <>
-    {images.map((image, index) => <button type="button" key={image.src} onClick={() => setSelected(index)}
-      className="block w-full rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]" aria-label={`${image.alt} 크게 보기`}>
-      <Image src={image.src} alt={image.alt} width={1920} height={1920} sizes="(max-width:768px) calc(100vw - 3rem), 768px" unoptimized={image.src.toLowerCase().endsWith(".gif")} />
-    </button>)}
-    {current && selected !== null ? <Modal onClose={() => setSelected(null)} labelledBy={`${id}-title`} className="w-[calc(100%-1rem)] max-w-6xl"
-      onKeyDown={(event) => {
-        if (event.key === "ArrowLeft") { event.preventDefault(); move(-1); }
-        if (event.key === "ArrowRight") { event.preventDefault(); move(1); }
-      }}>
-      <div className="flex items-center justify-between gap-2 border-b border-[var(--line)] px-3 py-2">
-        <p id={`${id}-title`} className="min-w-0 text-sm font-bold" aria-live="polite">사진 {selected + 1} / {images.length}</p>
-        <button type="button" data-autofocus onClick={() => setSelected(null)} aria-label="사진 닫기" className="grid min-h-[44px] min-w-[44px] place-items-center rounded-lg hover:bg-[var(--surface-muted)]"><X size={22} /></button>
-      </div>
-      <div className="relative h-[min(70dvh,48rem)] min-h-40 bg-[var(--background)]">
-        <Image src={current.src} alt={current.alt} fill sizes="100vw" className="object-contain" unoptimized={current.src.toLowerCase().endsWith(".gif")} />
-      </div>
-      {images.length > 1 ? <div className="flex items-center justify-between gap-3 border-t border-[var(--line)] p-2">
-        <button type="button" onClick={() => move(-1)} className="inline-flex min-h-[44px] items-center gap-1 rounded-md px-3 font-bold hover:bg-[var(--surface-muted)]"><ChevronLeft size={20} />이전 사진</button>
-        <button type="button" onClick={() => move(1)} className="inline-flex min-h-[44px] items-center gap-1 rounded-md px-3 font-bold hover:bg-[var(--surface-muted)]">다음 사진<ChevronRight size={20} /></button>
-      </div> : null}
-    </Modal> : null}
-  </>;
+import Image from "next/image";
+import { useState, type MouseEvent, type PointerEvent } from "react";
+
+const zoom = 2.5;
+type Photo = { src: string; alt: string };
+type Lens = { x: number; y: number; size: number; image: string; width: number; height: number; offsetX: number; offsetY: number };
+
+function MagnifyingPhoto({ image }: { image: Photo }) {
+  const [lens, setLens] = useState<Lens | null>(null);
+
+  function showAt(button: HTMLButtonElement, clientX: number, clientY: number) {
+    const photo = button.querySelector("img");
+    if (!photo?.naturalWidth || !photo.naturalHeight) return;
+    const frame = button.getBoundingClientRect();
+    const bounds = photo.getBoundingClientRect();
+    // object-fit: contain can leave space beside a portrait or landscape photo.
+    const ratio = Math.min(bounds.width / photo.naturalWidth, bounds.height / photo.naturalHeight);
+    const width = photo.naturalWidth * ratio;
+    const height = photo.naturalHeight * ratio;
+    const left = bounds.left + (bounds.width - width) / 2;
+    const top = bounds.top + (bounds.height - height) / 2;
+    const x = clientX - left;
+    const y = clientY - top;
+    if (x < 0 || y < 0 || x > width || y > height) { setLens(null); return; }
+    const size = Math.min(180, frame.width * 0.48);
+    setLens({ x: clientX - frame.left, y: clientY - frame.top, size, image: photo.currentSrc || photo.src,
+      width: width * zoom, height: height * zoom, offsetX: size / 2 - x * zoom, offsetY: size / 2 - y * zoom });
+  }
+
+  function move(event: PointerEvent<HTMLButtonElement>) {
+    if (event.pointerType === "mouse" || (event.pointerType === "pen" && event.buttons === 0)) {
+      showAt(event.currentTarget, event.clientX, event.clientY);
+    }
+  }
+
+  function toggle(event: MouseEvent<HTMLButtonElement>) {
+    // Pointer input is handled separately; keyboard activation magnifies the centre.
+    if (event.detail !== 0) return;
+    if (lens) setLens(null);
+    else {
+      const bounds = event.currentTarget.getBoundingClientRect();
+      showAt(event.currentTarget, bounds.left + bounds.width / 2, bounds.top + bounds.height / 2);
+    }
+  }
+
+  return <button type="button" aria-label={`${image.alt} 부분 확대`} aria-pressed={Boolean(lens)}
+    title="마우스를 올리면 부분 확대 · 터치하면 확대/해제"
+    onPointerEnter={move} onPointerMove={move}
+    onPointerLeave={(event) => { if (event.pointerType !== "touch") setLens(null); }}
+    onPointerUp={(event) => { if (event.pointerType === "touch") { if (lens) setLens(null); else showAt(event.currentTarget, event.clientX, event.clientY); } }}
+    onPointerCancel={() => setLens(null)} onClick={toggle} onBlur={() => setLens(null)}
+    onKeyDown={(event) => { if (event.key === "Escape") setLens(null); }}
+    className="relative block w-full cursor-zoom-in overflow-hidden rounded-lg p-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]">
+    <Image src={image.src} alt={image.alt} width={1920} height={1920} sizes="(max-width:768px) calc(100vw - 3rem), 768px" unoptimized={image.src.toLowerCase().endsWith(".gif")} />
+    {lens ? <span aria-hidden="true" data-magnifier className="pointer-events-none absolute rounded-full border-2 border-white shadow-xl ring-1 ring-black/20"
+      style={{ left: lens.x - lens.size / 2, top: lens.y - lens.size / 2, width: lens.size, height: lens.size,
+        backgroundColor: "var(--surface)", backgroundImage: `url(${JSON.stringify(lens.image)})`, backgroundRepeat: "no-repeat",
+        backgroundSize: `${lens.width}px ${lens.height}px`, backgroundPosition: `${lens.offsetX}px ${lens.offsetY}px` }} /> : null}
+  </button>;
+}
+
+export function ImageGallery({ images }: { images: Photo[] }) {
+  return <>{images.map((image) => <MagnifyingPhoto key={image.src} image={image} />)}</>;
 }
