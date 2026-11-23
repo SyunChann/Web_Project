@@ -8,7 +8,7 @@ import { requireAdminSession } from "@/lib/adminSession";
 export const metadata: Metadata = { title: "외부 API 운영 현황 | 관리자 | 취향보관소" };
 
 export default async function AdminApiStatusPage() {
-  const { user } = await requireAdminSession();
+  const { user } = await requireAdminSession("/admin/api-status");
   const now = new Date().getTime();
   return <main className="min-h-screen px-4 py-6 pb-28 sm:px-10 sm:py-8">
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">

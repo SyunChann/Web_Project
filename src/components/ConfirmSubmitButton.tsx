@@ -1,6 +1,9 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useId, useRef, useState, type ReactNode } from "react";
+
+import { useFormStatus } from "react-dom";
+import { Modal } from "@/components/Modal";
 
 type ConfirmSubmitButtonProps = {
   triggerLabel: string;
@@ -26,12 +29,23 @@ export function ConfirmSubmitButton({
   confirmClassName = "bg-[#be4b49] text-white hover:bg-[#a83f3d]",
 }: ConfirmSubmitButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const id = useId();
+  const trigger = useRef<HTMLButtonElement>(null);
+  const [formId, setFormId] = useState("");
+  const { pending } = useFormStatus();
+  function open() {
+    const form = trigger.current?.closest("form");
+    if (form) { if (!form.id) form.id = `${id}-form`; setFormId(form.id); }
+    setIsOpen(true);
+  }
 
   return (
     <>
       <button
         type="button"
-        onClick={() => setIsOpen(true)}
+        ref={trigger}
+        onClick={open}
+        disabled={pending}
         className={triggerClassName}
         aria-label={ariaLabel ?? (triggerLabel || title)}
         title={ariaLabel ?? (triggerLabel || title)}
@@ -41,24 +55,20 @@ export function ConfirmSubmitButton({
       </button>
 
       {isOpen ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[#17202a]/45 px-4"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="confirm-modal-title"
-        >
+        <Modal onClose={() => setIsOpen(false)} labelledBy={`${id}-title`} describedBy={`${id}-description`} className="w-[calc(100%-2rem)] max-w-sm">
           <div className="w-full max-w-sm rounded-lg border border-[#d8cfc2] bg-[#f7f3ed] p-5 shadow-xl">
             <h2
-              id="confirm-modal-title"
+              id={`${id}-title`}
               className="text-lg font-black text-[#17202a]"
             >
               {title}
             </h2>
-            <p className="mt-3 leading-7 text-[#52616b]">{description}</p>
+            <p id={`${id}-description`} className="mt-3 leading-7 text-[#52616b]">{description}</p>
 
             <div className="mt-6 flex justify-end gap-2">
               <button
                 type="button"
+                data-autofocus
                 onClick={() => setIsOpen(false)}
                 className="rounded-md border border-[#d8cfc2] bg-white px-4 py-2 text-sm font-bold text-[#52616b] shadow-sm transition hover:border-[#be4b49] hover:text-[#be4b49]"
               >
@@ -66,13 +76,16 @@ export function ConfirmSubmitButton({
               </button>
               <button
                 type="submit"
+                form={formId}
+                disabled={pending || !formId}
+                aria-busy={pending}
                 className={`rounded-md px-4 py-2 text-sm font-bold shadow-sm transition ${confirmClassName}`}
               >
-                {confirmLabel}
+                {pending ? "처리 중…" : confirmLabel}
               </button>
             </div>
           </div>
-        </div>
+        </Modal>
       ) : null}
     </>
   );

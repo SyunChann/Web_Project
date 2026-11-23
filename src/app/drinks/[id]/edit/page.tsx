@@ -1,3 +1,4 @@
+import { loginHref } from "@/lib/returnTo";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { AppNav } from "@/components/AppNav";
@@ -7,9 +8,9 @@ import { getDrinkPost, drinkPhotoUrl } from "@/data/drinks";
 import { getSupabaseServerSession } from "@/lib/supabase/session";
 export const metadata = { title: "술 기록 수정 | 취향보관소", robots: { index: false, follow: false } };
 export default async function EditDrinkPage({ params }: { params: Promise<{ id: string }> }) {
-  const { user } = await getSupabaseServerSession();
-  if (!user) redirect("/login");
   const { id } = await params;
+  const { user } = await getSupabaseServerSession();
+  if (!user) redirect(loginHref(`/drinks/${encodeURIComponent(id)}/edit`));
   const { post, error } = await getDrinkPost(id);
   if (!error && !post) notFound();
   if (post && user.id !== post.author_id) redirect(`/drinks/${id}`);

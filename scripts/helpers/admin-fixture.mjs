@@ -45,11 +45,12 @@ export async function renderAdminFixture(scenario = "normal", route = "content")
     const exports = {};
     vm.runInNewContext(ts.transpileModule(readFileSync(new URL(`../../${path}`, import.meta.url), "utf8"), {
       compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX },
-    }).outputText, { exports, require: name => modules[name] ?? {}, Headers, process: { env: { DATA_GO_KR_API_KEY: "fixture-secret-marker" } } });
+    }).outputText, { exports, require: name => modules[name] ?? {}, Headers, URL, URLSearchParams, process: { env: { DATA_GO_KR_API_KEY: "fixture-secret-marker" } } });
     return exports;
   }
   modules["@/lib/adminContent"] = load("src/lib/adminContent.ts");
   modules["@/data/admin"] = load("src/data/admin.ts");
+  modules["@/lib/returnTo"] = load("src/lib/returnTo.ts");
   modules["@/lib/adminSession"] = load("src/lib/adminSession.ts");
   modules["@/components/admin/AdminSectionNav"] = load("src/components/admin/AdminSectionNav.tsx");
   modules["@/components/admin/AdminServices"] = load("src/components/admin/AdminServices.tsx");

@@ -64,5 +64,10 @@ export function useLocalDraft<T>(key: string, value: T, dirty: boolean, revision
     blocked.current = false; setDraft(undefined); setStatus("새 기록을 작성할 수 있습니다.");
   };
   const restore = () => { blocked.current = false; setDraft(undefined); setStatus("임시 저장한 글과 사진을 복구했습니다."); return draft?.value; };
-  return { draft, ready, status, clear, discard, restore };
+  const persist = async (nextValue: T) => {
+    latest.current = { ...latest.current, value: nextValue, dirty: true };
+    save();
+    await queue.current.catch(() => {});
+  };
+  return { draft, ready, status, clear, discard, restore, persist };
 }

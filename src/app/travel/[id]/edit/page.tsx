@@ -1,3 +1,4 @@
+import { loginHref } from "@/lib/returnTo";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -17,6 +18,7 @@ export default async function TravelEditPage({ params }: TravelEditPageProps) {
   if (!item) notFound();
 
   const { user } = await getSupabaseServerSession();
+  if (!user) redirect(loginHref(`/travel/${encodeURIComponent(id)}/edit`));
 
   if (!canManageContent(user, item.authorId)) redirect(`/travel/${item.id}`);
 
@@ -40,6 +42,7 @@ export default async function TravelEditPage({ params }: TravelEditPageProps) {
         <header className="py-8"><p className="text-sm font-bold uppercase text-[#4d7c0f]">edit travel</p><h1 className="mt-2 text-3xl font-black text-[#17202a]">여행 기록 수정</h1></header>
         <section className="rounded-lg border border-[#ddd6cc] bg-white p-6 shadow-sm sm:p-8">
           <TravelForm
+            draftOwnerId={user.id}
             action={updateTravel.bind(null, item.id)}
             submitLabel="수정 완료"
             travel={editableTravel}

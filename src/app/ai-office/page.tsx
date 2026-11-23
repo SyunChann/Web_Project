@@ -1,3 +1,4 @@
+import { loginHref } from "@/lib/returnTo";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { AppNav } from "@/components/AppNav";
@@ -14,7 +15,7 @@ export default async function AiOfficePage() {
   const { user } = await getSupabaseServerSession();
 
   if (!user) {
-    redirect("/login");
+    redirect(loginHref("/ai-office"));
   }
 
   return (

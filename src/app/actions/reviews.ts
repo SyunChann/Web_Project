@@ -4,6 +4,7 @@ import { randomUUID } from "crypto";
 import type { User } from "@supabase/supabase-js";
 import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
+import { loginHref } from "@/lib/returnTo";
 import { canManageContent } from "@/lib/contentPermissions";
 import { notifyDiscord } from "@/lib/discord";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -99,11 +100,11 @@ function readThumbnailFile(formData: FormData) {
   return file;
 }
 
-async function requireSupabaseUser() {
+async function requireSupabaseUser(formData?: FormData) {
   const supabase = await createSupabaseServerClient();
 
   if (!supabase) {
-    redirect("/login?error=config");
+    redirect(`${loginHref(formData?.get("return_to"))}&error=config`);
   }
 
   const {
@@ -111,7 +112,7 @@ async function requireSupabaseUser() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    redirect(loginHref(formData?.get("return_to")));
   }
 
   return { supabase, user };
@@ -189,7 +190,7 @@ async function uploadThumbnail(
 }
 
 export async function createReview(formData: FormData) {
-  const { supabase, user } = await requireSupabaseUser();
+  const { supabase, user } = await requireSupabaseUser(formData);
   const payload = readReviewPayload(formData);
   const requestedId = String(formData.get("id") ?? "").trim();
   const id = normalizeSlug(requestedId || payload.title);
@@ -215,11 +216,11 @@ export async function createReview(formData: FormData) {
   updateTag("reviews");
   revalidatePath("/");
   revalidatePath("/reviews");
-  redirect(`/reviews/${id}`);
+  return { redirectTo: `/reviews/${id}` };
 }
 
 export async function updateReview(id: string, formData: FormData) {
-  const { supabase, user } = await requireSupabaseUser();
+  const { supabase, user } = await requireSupabaseUser(formData);
   await assertCanManageReview(supabase, user, id);
   const payload = readReviewPayload(formData);
   const uploadedThumbnail = await uploadThumbnail(supabase, id, formData);
@@ -247,7 +248,7 @@ export async function updateReview(id: string, formData: FormData) {
   revalidatePath("/");
   revalidatePath("/reviews");
   revalidatePath(`/reviews/${id}`);
-  redirect(`/reviews/${id}`);
+  return { redirectTo: `/reviews/${id}` };
 }
 
 export async function deleteReview(id: string) {

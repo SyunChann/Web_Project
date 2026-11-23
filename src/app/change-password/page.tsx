@@ -1,3 +1,4 @@
+import { loginHref } from "@/lib/returnTo";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -14,7 +15,7 @@ export default async function ChangePasswordPage({ searchParams }: { searchParam
   const { user } = await getSupabaseServerSession();
   if (!user) {
     if ((await cookies()).get(passwordCompletionCookieName)?.value === "complete") redirect("/password-complete");
-    redirect("/login");
+    redirect(loginHref("/change-password"));
   }
   const { error } = await searchParams;
   return <PasswordPage title="비밀번호 변경" description="현재 비밀번호를 확인한 뒤 변경합니다. 저장 후 로그인 세션이 종료되므로 새 비밀번호로 다시 로그인해 주세요." error={error}>

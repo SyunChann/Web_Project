@@ -1,12 +1,16 @@
 "use client";
 
+import { DraftForm } from "@/components/DraftForm";
+import { SubmitButton } from "@/components/SubmitButton";
+
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import type { RestaurantsReview } from "@/data/restaurants";
 import { PlaceSearch, type SelectedPlaceData } from "@/components/PlaceSearch";
 
 type OverseasRestaurantsReviewFormProps = {
-  action: (formData: FormData) => void | Promise<void>;
+  action: (formData: FormData) => unknown | Promise<unknown>;
+  draftOwnerId: string;
   submitLabel: string;
   restaurantsReview?: RestaurantsReview;
   scope?: RestaurantsReview["scope"];
@@ -108,6 +112,7 @@ function FieldLabel({
 
 export function OverseasRestaurantsReviewForm({
   action,
+  draftOwnerId,
   submitLabel,
   restaurantsReview,
   scope,
@@ -134,20 +139,22 @@ export function OverseasRestaurantsReviewForm({
   )
 
   async function submitCompressedForm(formData: FormData) {
-    const thumbnail = formData.get("thumbnail_file");
+    try {
+      const thumbnail = formData.get("thumbnail_file");
 
-    if (thumbnail instanceof File && thumbnail.size > 0) {
-      setIsCompressing(true);
-      const compressedThumbnail = await compressThumbnail(thumbnail);
-      formData.set("thumbnail_file", compressedThumbnail);
-    }
+      if (thumbnail instanceof File && thumbnail.size > 0) {
+        setIsCompressing(true);
+        const compressedThumbnail = await compressThumbnail(thumbnail);
+        formData.set("thumbnail_file", compressedThumbnail);
+      }
 
-    await action(formData);
-    setIsCompressing(false);
+      setIsCompressing(false);
+      return await action(formData);
+    } finally { setIsCompressing(false); }
   }
 
   return (
-    <form action={submitCompressedForm} className="grid gap-5">
+    <DraftForm draftKey={`content:v1:${draftOwnerId}:restaurants-overseas:${restaurantsReview?.id ?? "new"}`} revision={restaurantsReview?.updatedAt} action={submitCompressedForm} extra={{ placeData }} onRestoreExtra={(saved) => { setPlaceData(saved.placeData); }} className="grid gap-5">
       <input type="hidden" name="scope" value={reviewScope} />
 
       {showSlugField ? (
@@ -260,13 +267,12 @@ export function OverseasRestaurantsReviewForm({
       </label>
 
       <div className="flex flex-wrap gap-3">
-        <button
-          type="submit"
+        <SubmitButton pendingLabel={isCompressing ? "이미지 압축 중…" : "저장 중…"}
           disabled={isCompressing}
           className={`rounded-md px-5 py-3 text-sm font-bold text-white shadow-sm transition ${primaryButtonClass}`}
         >
           {isCompressing ? "이미지 압축 중..." : submitLabel}
-        </button>
+        </SubmitButton>
         <Link
           href={restaurantsReview ? `/restaurants/${restaurantsReview.id}` : "/restaurants/map"}
           className={`rounded-md border border-[#d8cfc2] bg-white px-5 py-3 text-sm font-bold text-[#52616b] shadow-sm transition ${secondaryButtonClass}`}
@@ -274,6 +280,6 @@ export function OverseasRestaurantsReviewForm({
           취소
         </Link>
       </div>
-    </form>
+    </DraftForm>
   );
 }

@@ -1,3 +1,5 @@
+import { safeReturnTo } from "@/lib/returnTo";
+import { SubmitButton } from "@/components/SubmitButton";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -7,6 +9,7 @@ import { Captcha } from "@/components/auth/Captcha";
 
 type LoginPageProps = {
   searchParams: Promise<{
+    next?: string;
     error?: string;
     status?: string;
   }>;
@@ -23,13 +26,14 @@ const errorMessages = {
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const { error, status, next: requested } = await searchParams;
+  const next = safeReturnTo(requested);
   const { user } = await getSupabaseServerSession();
 
   if (user) {
-    redirect("/reviews");
+    redirect(next);
   }
 
-  const { error, status } = await searchParams;
   const message = error
     ? errorMessages[error as keyof typeof errorMessages] ??
       "로그인 중 문제가 발생했습니다."
@@ -67,6 +71,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           ) : null}
 
           <form action={signIn} className="mt-6 flex flex-col gap-4">
+            <input type="hidden" name="next" value={next} />
             <label className="flex flex-col gap-2 text-sm font-bold text-[#1f2933]">
               이메일
               <input
@@ -90,12 +95,11 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             </label>
 
             <Captcha siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY} />
-            <button
-              type="submit"
+            <SubmitButton pendingLabel="로그인 중…"
               className="mt-2 rounded-md bg-[#be4b49] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#a83f3d]"
             >
               로그인
-            </button>
+            </SubmitButton>
           </form>
 
           <Link href="/forgot-password" className="mt-4 flex min-h-11 items-center text-sm font-bold text-[#52616b] underline-offset-4 hover:underline">

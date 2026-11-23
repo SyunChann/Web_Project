@@ -1,3 +1,4 @@
+import { loginHref } from "@/lib/returnTo";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -16,13 +17,13 @@ type EditWatchlistPageProps = {
 export default async function EditWatchlistPage({
   params,
 }: EditWatchlistPageProps) {
+  const { id } = await params;
   const { user } = await getSupabaseServerSession();
 
   if (!user) {
-    redirect("/login");
+    redirect(loginHref(`/watchlist/${encodeURIComponent(id)}/edit`));
   }
 
-  const { id } = await params;
   const item = await getWatchItem(id);
 
   if (!item) {
@@ -53,6 +54,7 @@ export default async function EditWatchlistPage({
 
         <section className="rounded-lg border border-[#ddd6cc] bg-white p-6 shadow-sm sm:p-8">
           <WatchlistForm
+            draftOwnerId={user.id}
             action={updateAction}
             submitLabel="수정 저장"
             item={item}

@@ -1,3 +1,4 @@
+import { loginHref } from "@/lib/returnTo";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { CopyButton } from "@/components/CopyButton";
@@ -12,7 +13,7 @@ export default async function TossImagesAdminPage({ searchParams }: {
   searchParams?: Promise<{ source?: string; category?: string }>;
 } = {}) {
   const { user } = await getSupabaseServerSession();
-  if (!user) redirect("/login");
+  if (!user) redirect(loginHref("/admin/toss-images"));
   if (!isAdminUser(user)) notFound();
 
   const params = await searchParams;

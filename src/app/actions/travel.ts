@@ -4,6 +4,7 @@ import { randomUUID } from "crypto";
 import type { User } from "@supabase/supabase-js";
 import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
+import { loginHref } from "@/lib/returnTo";
 import { canManageContent } from "@/lib/contentPermissions";
 import { notifyDiscord } from "@/lib/discord";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -226,11 +227,11 @@ function readThumbnailFile(formData: FormData) {
   return file;
 }
 
-async function requireSupabaseUser() {
+async function requireSupabaseUser(formData?: FormData) {
   const supabase = await createSupabaseServerClient();
 
   if (!supabase) {
-    redirect("/login?error=config");
+    redirect(`${loginHref(formData?.get("return_to"))}&error=config`);
   }
 
   const {
@@ -238,7 +239,7 @@ async function requireSupabaseUser() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    redirect(loginHref(formData?.get("return_to")));
   }
 
   return { supabase, user };
@@ -338,7 +339,7 @@ function withoutScope(payload: TravelPayload) {
 }
 
 export async function createTravel(formData: FormData) {
-  const { supabase, user } = await requireSupabaseUser();
+  const { supabase, user } = await requireSupabaseUser(formData);
   const payload = readTravelPayload(formData);
   const itineraryPlaces = payload.scope === "overseas" ? readItineraryPlaces(formData) : [];
 
@@ -382,7 +383,7 @@ export async function createTravel(formData: FormData) {
       description: `${itineraryPlaces.length}개 장소가 여행 기록에 추가되었습니다.`,
     });
     revalidateTravelPaths();
-    redirect(`/travel/${id}`);
+    return { redirectTo: `/travel/${id}` };
   }
 
   if (payload.scope === "overseas") {
@@ -426,11 +427,11 @@ export async function createTravel(formData: FormData) {
   });
 
   revalidateTravelPaths();
-  redirect(`/travel/${id}`);
+  return { redirectTo: `/travel/${id}` };
 }
 
 export async function updateTravel(id: string, formData: FormData) {
-  const { supabase, user } = await requireSupabaseUser();
+  const { supabase, user } = await requireSupabaseUser(formData);
   await assertCanManageReview(supabase, user, id);
   const payload = readTravelPayload(formData);
   const itineraryPlaces = payload.scope === "overseas" ? readItineraryPlaces(formData) : [];
@@ -501,7 +502,7 @@ export async function updateTravel(id: string, formData: FormData) {
 
   revalidateTravelPaths();
   revalidatePath(`/travel/${id}`);
-  redirect(`/travel/${id}`);
+  return { redirectTo: `/travel/${id}` };
 }
 
 export async function deleteTravel(id: string) {

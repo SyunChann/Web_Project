@@ -4,6 +4,7 @@ import { randomUUID } from "crypto";
 import type { User } from "@supabase/supabase-js";
 import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
+import { loginHref } from "@/lib/returnTo";
 import { canManageContent } from "@/lib/contentPermissions";
 import { notifyDiscord } from "@/lib/discord";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -120,11 +121,11 @@ function readThumbnailFile(formData: FormData) {
   return file;
 }
 
-async function requireSupabaseUser() {
+async function requireSupabaseUser(formData?: FormData) {
   const supabase = await createSupabaseServerClient();
 
   if (!supabase) {
-    redirect("/login?error=config");
+    redirect(`${loginHref(formData?.get("return_to"))}&error=config`);
   }
 
   const {
@@ -132,7 +133,7 @@ async function requireSupabaseUser() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    redirect(loginHref(formData?.get("return_to")));
   }
 
   return { supabase, user };
@@ -210,7 +211,7 @@ async function uploadThumbnail(
 }
 
 export async function createWatchlistItem(formData: FormData) {
-  const { supabase, user } = await requireSupabaseUser();
+  const { supabase, user } = await requireSupabaseUser(formData);
   const payload = readWatchlistPayload(formData);
   const requestedId = String(formData.get("id") ?? "").trim();
   const id = normalizeSlug(requestedId || payload.title);
@@ -238,11 +239,11 @@ export async function createWatchlistItem(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/watchlist");
   revalidatePath("/watchlist/items");
-  redirect(`/watchlist/${id}`);
+  return { redirectTo: `/watchlist/${id}` };
 }
 
 export async function updateWatchlistItem(id: string, formData: FormData) {
-  const { supabase, user } = await requireSupabaseUser();
+  const { supabase, user } = await requireSupabaseUser(formData);
   await assertCanManageWatchlistItem(supabase, user, id);
   const payload = readWatchlistPayload(formData);
   const uploadedThumbnail = await uploadThumbnail(supabase, id, formData);
@@ -271,7 +272,7 @@ export async function updateWatchlistItem(id: string, formData: FormData) {
   revalidatePath("/watchlist");
   revalidatePath("/watchlist/items");
   revalidatePath(`/watchlist/${id}`);
-  redirect(`/watchlist/${id}`);
+  return { redirectTo: `/watchlist/${id}` };
 }
 
 export async function deleteWatchlistItem(id: string) {

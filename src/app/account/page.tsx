@@ -1,3 +1,4 @@
+import { loginHref } from "@/lib/returnTo";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -11,7 +12,7 @@ export const metadata: Metadata = { title: "내 계정 | 취향보관소", robot
 const field = "w-full rounded-md border border-[#d8cfc2] bg-white px-3 py-3 text-base";
 export default async function AccountPage({ searchParams }: { searchParams: Promise<{ error?: string; status?: string }> }) {
   const { supabase, user } = await getSupabaseServerSession();
-  if (!supabase || !user) redirect("/login");
+  if (!supabase || !user) redirect(loginHref("/account"));
   const { data: profile, error: profileError } = await supabase.from("member_profiles").select("nickname").eq("user_id", user.id).maybeSingle();
   const { error, status } = await searchParams;
   const errors: Record<string, string> = { ...membershipErrors, nickname: isAdminUser(user) ? "닉네임은 한글·영문·숫자·_·- 조합으로 2~16자 입력해 주세요. 탈퇴 전용 이름은 사용할 수 없습니다." : membershipErrors.nickname, save: "계정 정보를 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.", current: "현재 비밀번호를 확인해 주세요.", admin: "관리자 계정은 여기서 탈퇴할 수 없습니다.", confirm: "현재 비밀번호와 확인 문구 ‘탈퇴’를 입력해 주세요." };

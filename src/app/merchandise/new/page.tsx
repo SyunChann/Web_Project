@@ -1,3 +1,4 @@
+import { loginHref } from "@/lib/returnTo";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -9,7 +10,7 @@ export default async function NewReviewPage() {
   const { user } = await getSupabaseServerSession();
 
   if (!user) {
-    redirect("/login");
+    redirect(loginHref("/merchandise/new"));
   }
 
   return (
@@ -32,6 +33,7 @@ export default async function NewReviewPage() {
 
         <section className="rounded-lg border border-[#ddd6cc] bg-white p-6 shadow-sm sm:p-8">
           <MerchandiseReviewForm
+            draftOwnerId={user.id}
             action={createMerchandiseReview}
             submitLabel="리뷰 저장"
             showSlugField

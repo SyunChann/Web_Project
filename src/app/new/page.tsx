@@ -1,3 +1,4 @@
+import { loginHref } from "@/lib/returnTo";
 import { ArrowLeft, Bookmark, Library, MapPinned, Utensils, Plane, ShoppingCart, Wine } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -28,13 +29,12 @@ export const metadata = {
 };
 
 export default async function NewPostPage({ searchParams }: NewPostPageProps) {
+  const { type } = await searchParams;
   const { user } = await getSupabaseServerSession();
 
   if (!user) {
-    redirect("/login");
+    redirect(loginHref(type ? `/new?${new URLSearchParams({ type })}` : "/new"));
   }
-
-  const { type } = await searchParams;
 
   if (type === "review") {
     return (
@@ -45,7 +45,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
         title="새 리뷰 작성"
         tone="review"
       >
-        <ReviewForm action={createReview} submitLabel="리뷰 저장" showSlugField />
+        <ReviewForm draftOwnerId={user.id} action={createReview} submitLabel="리뷰 저장" showSlugField />
       </PostFormShell>
     );
   }
@@ -60,6 +60,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
         tone="watchlist"
       >
         <WatchlistForm
+          draftOwnerId={user.id}
           action={createWatchlistItem}
           submitLabel="기대작 저장"
           showSlugField
@@ -78,6 +79,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
         tone="restaurants"
       >
         <DomesticRestaurantsReviewForm
+          draftOwnerId={user.id}
           action={createRestaurantReview}
           submitLabel="맛집 저장"
           scope="domestic"
@@ -97,6 +99,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
         tone="overseas"
       >
         <OverseasRestaurantsReviewForm
+          draftOwnerId={user.id}
           action={createRestaurantReview}
           submitLabel="해외 맛집 저장"
           scope="overseas"
@@ -116,6 +119,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
         tone="travel"
       >
         <TravelForm
+          draftOwnerId={user.id}
           action={createTravel}
           submitLabel="해외여행 리뷰 저장"
           scope="overseas"
@@ -135,6 +139,7 @@ export default async function NewPostPage({ searchParams }: NewPostPageProps) {
         tone="merchandise"
       >
         <MerchandiseReviewForm
+          draftOwnerId={user.id}
           action={createMerchandiseReview}
           submitLabel="상품 리뷰 저장"
           showSlugField

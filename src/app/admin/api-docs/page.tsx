@@ -8,7 +8,7 @@ import { requireAdminSession } from "@/lib/adminSession";
 export const metadata: Metadata = { title: "내부 API 문서 | 관리자 | 취향보관소" };
 
 export default async function AdminApiDocsPage() {
-  await requireAdminSession();
+  await requireAdminSession("/admin/api-docs");
   return <main className="min-h-screen px-4 py-6 pb-28 sm:px-10 sm:py-8">
     <div className="mx-auto flex w-full min-w-0 max-w-6xl flex-col gap-6">
       <AppNav active="admin" />

@@ -1,3 +1,4 @@
+import { loginHref } from "@/lib/returnTo";
 import { notFound, redirect } from "next/navigation";
 import { updateRestaurantReview } from "@/app/actions/restaurants";
 import { AppNav } from "@/components/AppNav";
@@ -34,6 +35,7 @@ export default async function RestaurantEditPage({
 
   // 2. Supabase 유저 및 수정 권한 체크
   const { user } = await getSupabaseServerSession();
+  if (!user) redirect(loginHref(`/restaurants/${encodeURIComponent(id)}/edit`));
 
   const canManageReview = canManageContent(user, item.authorId);
 
@@ -63,6 +65,7 @@ export default async function RestaurantEditPage({
         {/* 4. 수정 폼 렌더링 */}
         <div className="mt-8 rounded-lg border border-[#ddd6cc] bg-white p-6 shadow-sm sm:p-8">
           <RestaurantsReviewForm
+            draftOwnerId={user.id}
             action={updateActionWithId}
             submitLabel="수정 완료"
             restaurantsReview={item}
