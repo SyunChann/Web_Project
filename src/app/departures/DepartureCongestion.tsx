@@ -53,8 +53,18 @@ export function DepartureCongestion({ results }: { results: CongestionResult[] }
             const state = congestionDataState(gate, currentTime);
             const operating = congestionOperatingState(gate?.operatingTime, currentTime);
             const current = state === "fresh" && operating !== "outside";
+            const level = current ? congestionLevel(gate?.waitMinutes ?? null) : null;
             const message = operating === "outside" ? "운영시간 기준 미운영" : state === "missing" ? "미운영 또는 정보 없음" : state === "stale" ? "갱신 지연" : "수집 시각 확인 필요";
-            return <p key={lane}><strong>{selected === "T1" ? lane === "E" ? "동편" : "서편" : lane}</strong><span>{current ? `${gate?.waitingPeople != null ? `${gate.waitingPeople.toLocaleString("ko-KR")}명` : "인원 미제공"} · ${gate?.waitMinutes != null ? `${gate.waitMinutes}분${gate.waitOver60 ? " 초과" : ""}` : "시간 미제공"}` : message}</span></p>;
+            return <div key={lane} className={styles.compactLane}>
+              <div className={styles.compactLaneHeading}>
+                <span className={styles.compactLaneName}>{selected === "T1" ? lane === "E" ? "동편" : "서편" : `${lane} 입구`}</span>
+                {level ? <span className={`${styles.level} ${styles[level.tone]}`}>{level.label}</span> : null}
+              </div>
+              {current ? <div className={styles.compactMetrics}>
+                <strong>{gate?.waitingPeople != null ? `${gate.waitingPeople.toLocaleString("ko-KR")}명` : "인원 미제공"}</strong>
+                <span>{gate?.waitMinutes != null ? `예상 ${gate.waitMinutes}분${gate.waitOver60 ? " 초과" : ""}` : "시간 미제공"}</span>
+              </div> : <p className={styles.compactStatus}>{message}</p>}
+            </div>;
           })}
         </div>
         <div id={detailsId} className={styles.laneDetails} data-expanded={open}>

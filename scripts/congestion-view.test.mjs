@@ -48,3 +48,16 @@ test("mobile summary and expanded view both suppress old, invalid-time, and clos
     assert.ok(!html.includes("17분 초과"), message);
   }
 });
+test("collapsed entrances show the existing congestion level only for current waiting-time data", () => {
+  const compact = (html) => html.split('class="compactLanes"')[1].split('class="laneDetails"')[0];
+  for (const [waitMinutes, label] of [[0, "원활"], [19, "원활"], [20, "보통"], [40, "혼잡"], [60, "매우혼잡"]]) {
+    assert.ok(compact(render({ waitMinutes })).includes(label), label);
+  }
+  for (const overrides of [
+    { waitMinutes: null },
+    { observedAt: new Date(now - 600001).toISOString() },
+    { operatingTime: "12:00~18:00" },
+  ]) {
+    assert.ok(!compact(render(overrides)).includes('class="level'), JSON.stringify(overrides));
+  }
+});
