@@ -64,11 +64,11 @@ test("collapsed entrances show the existing congestion level only for current wa
 
 test("shortest-wait emphasis requires confirmed hours and disappears for closed or stale data", () => {
   const html = render({ operatingTime: "06:00~22:00", waitMinutes: 0, waitOver60: false });
-  assert.ok(html.includes('aria-label="대기가 짧은 입구"'));
-  assert.ok(html.includes("T1 · 대기가 짧은 입구 · 0분"));
+  assert.ok(!html.includes("<aside"));
+  assert.ok(html.includes("대기 짧음"));
   assert.ok(html.includes('data-recommended="true"'));
   for (const overrides of [{}, { operatingTime: "12:00~18:00" }, { operatingTime: "06:00~22:00", observedAt: new Date(now - 600001).toISOString() }]) {
-    assert.ok(!render(overrides).includes('aria-label="대기가 짧은 입구"'));
+    assert.ok(!render(overrides).includes('data-recommended="true"'));
   }
 });
 

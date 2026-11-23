@@ -1,8 +1,3 @@
-.panel { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .6rem; padding: .85rem 1rem; border: 1px solid var(--theme-line-a2c9dc, #a2c9dc); border-radius: .6rem; background: var(--theme-bg-f8fcfe, #f8fcfe); color: var(--theme-text-27566f, #27566f); font-size: .82rem; margin-bottom: 1rem; }
-.hint { margin-top: .2rem; color: var(--theme-text-537488, #537488); font-size: .78rem; font-variant-numeric: tabular-nums; }
-.panel button { min-height: 44px; padding: .5rem .8rem; border: 1px solid var(--theme-line-8dbbd1, #8dbbd1); border-radius: .4rem; color: var(--theme-text-075985, #075985); background: var(--surface); font-weight: 700; cursor: pointer; }
-.panel button:disabled { opacity: .65; cursor: default; }
-.panel button:focus-visible { outline: 2px solid #075985; outline-offset: 3px; }
-.note { flex-basis: 100%; font-size: .73rem; line-height: 1.6; color: var(--theme-text-537488, #537488); }
-.note summary { cursor: pointer; min-height: 32px; padding-top: .25rem; }
-@media(max-width: 480px) { .panel { padding: .7rem; } .panel > div { min-width: 0; } .note { font-size: .72rem; } }
+.button { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; min-height: 44px; padding: .5rem .8rem; border: 1px solid var(--theme-line-8dbbd1, #8dbbd1); border-radius: .4rem; color: var(--theme-text-075985, #075985); background: var(--surface); font-size: .82rem; font-weight: 800; white-space: nowrap; cursor: pointer; }
+.button:disabled { opacity: .65; cursor: default; }
+.button:focus-visible { outline: 2px solid #075985; outline-offset: 3px; }

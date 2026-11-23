@@ -73,13 +73,11 @@ export function DepartureRefresh() {
     const timer = setInterval(tick, 1000);
     return () => clearInterval(timer);
   }, []);
-  const seconds = Math.max(0, Math.ceil((nextAt - time) / 1000));
   const cooldown = Math.max(0, Math.ceil((nextAt - 105_000 - time) / 1000));
-  return <div className={styles.panel}>
-    <div><p>화면 확인 <time dateTime={new Date(checkedAt).toISOString()}>{clockFormat.format(checkedAt)} KST</time></p>
-      <p className={styles.hint} role={!online || pending ? "status" : undefined}>{!online ? "인터넷 연결 후 자동으로 다시 확인합니다." : pending ? "최신 제공 정보를 확인하고 있습니다…" : `자동 확인 ${Math.floor(seconds / 60)}분 ${String(seconds % 60).padStart(2, "0")}초 후`}</p>
-    </div>
-    <button type="button" onClick={refresh} disabled={pending || !online || cooldown > 0}>{pending ? "확인 중…" : cooldown > 0 ? `${cooldown}초 후 재확인` : "다시 확인"}</button>
-    <details className={styles.note}><summary>갱신 시각 안내</summary><p>화면은 2분마다 확인합니다. 아래 수집·갱신 시각이 실제 자료의 기준이며, 항공편 자료는 최대 5분간 캐시됩니다. 갱신 지연은 제공기관의 수집 자료가 10분 넘게 지난 상태입니다.</p></details>
-  </div>;
+  const title = !online ? "인터넷 연결 후 자동으로 다시 확인합니다." : pending ? "최신 제공 정보를 확인하고 있습니다." : cooldown > 0 ? `${cooldown}초 후 다시 확인할 수 있습니다.` : `화면 확인 ${clockFormat.format(checkedAt)} KST · 2분마다 자동 확인합니다.`;
+  return <button className={styles.button} type="button" onClick={refresh}
+    disabled={pending || !online || cooldown > 0} aria-busy={pending} title={title}
+    aria-label={!online ? "오프라인 · 연결 후 다시 확인" : cooldown > 0 ? `다시 확인 (${cooldown}초 후 가능)` : undefined}>
+    {pending ? "확인 중…" : !online ? "오프라인" : "다시 확인"}
+  </button>;
 }

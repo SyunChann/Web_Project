@@ -38,11 +38,6 @@ export function DepartureCongestion({ results }: { results: CongestionResult[] }
         {terminal} · 제{terminal === "T1" ? "1" : "2"}여객터미널
       </button>)}
     </div>
-    {shortest.length ? <aside className={styles.recommendation} aria-label="대기가 짧은 입구">
-      <strong>{selected} · 대기가 짧은 입구 · {shortest[0].waitMinutes}분</strong>
-      <p>{shortest.slice(0, 3).map((gate) => congestionLaneLabel(selected, gate.number, gate.lane)).join(" · ")}{shortest.length > 3 ? ` 외 ${shortest.length - 3}곳` : ""}</p>
-      <small>제공된 운영시간·최신 대기시간 기준 · 이동 거리는 반영하지 않습니다.</small>
-    </aside> : null}
     {!result || result.state !== "ready" ? <p className={styles.message} role="status">{result ? messages[result.state as Exclude<CongestionResult["state"], "ready">] : "출국장 정보를 불러오지 못했습니다."}{result?.diagnostic ? ` (${result.diagnostic})` : ""}</p> : <ul className={`${styles.gates} ${selected === "T2" ? styles.t2 : ""}`}>
       {numbers.map((number) => {
         const key = `${selected}-${number}`;
@@ -104,6 +99,7 @@ export function DepartureCongestion({ results }: { results: CongestionResult[] }
     <details className={styles.help}><summary>혼잡도·운영시간 안내</summary>
     <p className={styles.note}>혼잡 기준: 20분 미만 원활 · 20~40분 보통 · 40~60분 혼잡 · 60분 이상 매우혼잡. 예상 시간은 출국장 대기·보안검색·출국심사 시간을 포함합니다.</p>
     <p className={styles.note}>미운영 표시는 안내 운영시간과 현재 한국 시각을 비교한 결과이며 현장 운영과 다를 수 있습니다. 운영시간이 없는 입구는 판단하지 않습니다. 10분 초과 자료와 운영시간 밖의 대기 수치는 표시하지 않습니다.</p>
+    <p className={styles.note}>대기 짧음: 선택한 터미널에서 운영시간과 최근 대기시간이 확인된 입구를 비교합니다. 같은 시간이면 모두 표시하며 이동 거리는 반영하지 않습니다.</p>
     </details>
     <p className={styles.source}>출처 인천국제공항공사 · 공공데이터포털</p>
   </section>;

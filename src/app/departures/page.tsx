@@ -36,12 +36,12 @@ export default function DeparturesPage() {
               T1·T2 출국장 대기 현황과 일본행 항공편을 한곳에서 확인하세요. 모든 시각은 한국 표준시(KST)입니다.
             </p>
           </div>
-          <div className={styles.clock} aria-label="현재 한국 시각">
-            <DepartureClock />
+          <div className={styles.headerTools}>
+            <div className={styles.clock} aria-label="현재 한국 시각"><DepartureClock /></div>
+            <DepartureRefresh />
           </div>
         </header>
 
-        <DepartureRefresh />
         <Suspense fallback={<SectionLoading label="출국장 대기 현황" />}>
           <CongestionSection />
         </Suspense>
