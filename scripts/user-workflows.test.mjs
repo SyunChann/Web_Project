@@ -38,6 +38,7 @@ test("a content save returns a destination only after a confirmed database write
     const writes = [];
     const actions = load("src/app/actions/reviews.ts", {
       "next/navigation": { redirect }, "next/cache": { updateTag() {}, revalidatePath() {} }, "@/lib/returnTo": returnTo,
+      "@/lib/thumbnailReference": { readUploadedThumbnail: async () => null },
       "@/lib/contentPermissions": { canManageContent: () => false }, "@/lib/discord": { notifyDiscord: async () => {} },
       "@/lib/supabase/server": { createSupabaseServerClient: async () => ({
         auth: { getUser: async () => ({ data: { user: state === "expired" ? null : { id: "owner", email: "owner@example.com", user_metadata: {} } } }) },

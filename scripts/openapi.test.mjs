@@ -13,7 +13,7 @@ function load(file, modules = {}) {
     if (name === "server-only") return {};
     if (!(name in modules)) throw Error(`Unmocked dependency: ${name}`);
     return modules[name];
-  }, URL, Request, Response });
+  }, URL, Request, Response, TextDecoder, Uint8Array, Error });
   return exports;
 }
 const spec = JSON.parse(JSON.stringify(load("src/lib/internalOpenApi.ts").internalOpenApi));
@@ -73,7 +73,7 @@ test("documented anime success response preserves query defaults and empty-resul
     "next/server": next,
     "@/data/anilist": { getCurrentAniListQuarter: () => 4, getAniListQuarterReleases: async () => [] },
   });
-  for (const [query, year, quarter] of [["year=2026&quarter=2", 2026, 2], ["year=1999&quarter=9", new Date().getFullYear(), 4], ["year=2026&quarter=1.5", 2026, 1.5]]) {
+  for (const [query, year, quarter] of [["year=2026&quarter=2", 2026, 2], ["year=1999&quarter=9", new Date().getFullYear(), 4], ["year=2026&quarter=1.5", 2026, 4]]) {
     const response = await GET({ nextUrl: new URL(`https://example.test/api/anilist/releases?${query}`) });
     assert.ok(spec.paths["/api/anilist/releases"].get.responses[response.status]);
     assert.deepEqual(await response.json(), { year, quarter, items: [] });
@@ -85,6 +85,8 @@ test("nickname docs cover actual validation, duplicate, malformed JSON and servi
   for (const [nickname, dbResult, expected, available] of [["술친구_01", true, 200, true], ["술친구_01", false, 200, false], ["관리자", true, 400, false], [" 공백 ", true, 400, false], ["술친구_01", null, 503, undefined]]) {
     const { POST } = load("src/app/api/account/nickname/route.ts", {
       "next/server": next, "@/lib/membership": membership,
+      "@/lib/nicknameRateLimit": { checkNicknameRateLimit: async () => ({ allowed: true, retryAfter: 0 }) },
+      "@/lib/smallJsonBody": load("src/lib/smallJsonBody.ts"),
       "@/lib/supabase/server": { createSupabaseServerClient: async () => dbResult === null ? null : { rpc: async () => ({ data: dbResult, error: null }) } },
     });
     const response = await POST(new Request("https://example.test", { method: "POST", body: JSON.stringify({ nickname }) }));
@@ -92,8 +94,8 @@ test("nickname docs cover actual validation, duplicate, malformed JSON and servi
     assert.ok(spec.paths["/api/account/nickname"].post.responses[response.status]);
     assert.equal((await response.json()).available, available);
     const oversized = await POST(new Request("https://example.test", { method: "POST", headers: { "Content-Length": "1025" }, body: "{}" }));
-    assert.equal(oversized.status, 400);
+    assert.equal(oversized.status, 413);
     const invalidJson = await POST(new Request("https://example.test", { method: "POST", body: "{" }));
-    assert.equal(invalidJson.status, 503);
+    assert.equal(invalidJson.status, 400);
   }
 });

@@ -1,3 +1,6 @@
+import "server-only";
+import { after } from "next/server";
+
 type DiscordField = {
   name: string;
   value: string;
@@ -52,25 +55,32 @@ export async function notifyDiscord({
   }
 
   try {
-    await fetch(webhookUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        embeds: [
-          {
-            title,
-            description,
-            url,
-            color,
-            fields,
-            timestamp: new Date().toISOString(),
+    after(async () => {
+      try {
+        const response = await fetch(webhookUrl, {
+          method: "POST",
+          signal: AbortSignal.timeout(3000),
+          cache: "no-store",
+          headers: {
+            "Content-Type": "application/json",
           },
-        ],
-      }),
+          body: JSON.stringify({
+            embeds: [
+              {
+                title,
+                description,
+                url,
+                color,
+                fields,
+                timestamp: new Date().toISOString(),
+              },
+            ],
+          }),
+        });
+        if (!response.ok) console.warn("[discord] notification failed");
+      } catch { console.warn("[discord] notification failed"); }
     });
-  } catch (error) {
-    console.error("[discord] notification failed", error);
+  } catch {
+    console.warn("[discord] notification scheduling failed");
   }
 }

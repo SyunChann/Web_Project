@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, type MouseEvent, type PointerEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent, type PointerEvent } from "react";
 
 const zoom = 2;
 type Photo = { src: string; alt: string };
@@ -9,6 +9,15 @@ type Lens = { x: number; y: number; size: number; image: string; width: number; 
 
 function MagnifyingPhoto({ image }: { image: Photo }) {
   const [lens, setLens] = useState<Lens | null>(null);
+  const frameId = useRef<number | null>(null);
+  const point = useRef<{ button: HTMLButtonElement; x: number; y: number } | null>(null);
+  useEffect(() => () => { if (frameId.current !== null) cancelAnimationFrame(frameId.current); }, []);
+  function hide() {
+    if (frameId.current !== null) cancelAnimationFrame(frameId.current);
+    frameId.current = null;
+    point.current = null;
+    setLens(null);
+  }
 
   function showAt(button: HTMLButtonElement, clientX: number, clientY: number) {
     const photo = button.querySelector("img");
@@ -31,14 +40,20 @@ function MagnifyingPhoto({ image }: { image: Photo }) {
 
   function move(event: PointerEvent<HTMLButtonElement>) {
     if (event.pointerType === "mouse" || (event.pointerType === "pen" && event.buttons === 0)) {
-      showAt(event.currentTarget, event.clientX, event.clientY);
+      point.current = { button: event.currentTarget, x: event.clientX, y: event.clientY };
+      if (frameId.current !== null) return;
+      frameId.current = requestAnimationFrame(() => {
+        frameId.current = null;
+        const next = point.current;
+        if (next) showAt(next.button, next.x, next.y);
+      });
     }
   }
 
   function toggle(event: MouseEvent<HTMLButtonElement>) {
     // Pointer input is handled separately; keyboard activation magnifies the centre.
     if (event.detail !== 0) return;
-    if (lens) setLens(null);
+    if (lens) hide();
     else {
       const bounds = event.currentTarget.getBoundingClientRect();
       showAt(event.currentTarget, bounds.left + bounds.width / 2, bounds.top + bounds.height / 2);
@@ -48,10 +63,10 @@ function MagnifyingPhoto({ image }: { image: Photo }) {
   return <button type="button" aria-label={`${image.alt} 부분 확대`} aria-pressed={Boolean(lens)}
     title="마우스를 올리면 부분 확대 · 터치하면 확대/해제"
     onPointerEnter={move} onPointerMove={move}
-    onPointerLeave={(event) => { if (event.pointerType !== "touch") setLens(null); }}
-    onPointerUp={(event) => { if (event.pointerType === "touch") { if (lens) setLens(null); else showAt(event.currentTarget, event.clientX, event.clientY); } }}
-    onPointerCancel={() => setLens(null)} onClick={toggle} onBlur={() => setLens(null)}
-    onKeyDown={(event) => { if (event.key === "Escape") setLens(null); }}
+    onPointerLeave={(event) => { if (event.pointerType !== "touch") hide(); }}
+    onPointerUp={(event) => { if (event.pointerType === "touch") { if (lens) hide(); else showAt(event.currentTarget, event.clientX, event.clientY); } }}
+    onPointerCancel={hide} onClick={toggle} onBlur={hide}
+    onKeyDown={(event) => { if (event.key === "Escape") hide(); }}
     className="relative block w-full cursor-zoom-in overflow-hidden rounded-lg p-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--foreground)]">
     <Image src={image.src} alt={image.alt} width={1920} height={1920} sizes="(max-width:768px) calc(100vw - 3rem), 768px" unoptimized={image.src.toLowerCase().endsWith(".gif")} />
     {lens ? <span aria-hidden="true" data-magnifier className="pointer-events-none absolute rounded-full border-2 border-white shadow-xl ring-1 ring-black/20"

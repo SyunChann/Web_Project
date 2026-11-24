@@ -8,7 +8,7 @@ import {
 function parseQuarter(value: string | null) {
   const quarter = Number(value);
 
-  return quarter >= 1 && quarter <= 4
+  return Number.isInteger(quarter) && quarter >= 1 && quarter <= 4
     ? quarter as AniListQuarter
     : getCurrentAniListQuarter();
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { uploadFormThumbnail } from "@/lib/thumbnailUpload";
 import { DraftForm } from "@/components/DraftForm";
 import { SubmitButton } from "@/components/SubmitButton";
 
@@ -166,7 +167,7 @@ export function ReviewForm({
       }
 
       setIsCompressing(false);
-      return await action(formData);
+      return await action(await uploadFormThumbnail(formData));
     } finally { setIsCompressing(false); }
   }
 

@@ -33,7 +33,7 @@ export const internalOpenApi = {
 
 - year 생략·범위 오류: 서버의 현재 연도로 처리합니다.
 - quarter 생략·범위 오류: 서버의 현재 분기로 처리합니다.
-- quarter는 1~4 정수로 요청하세요. 현재 구현은 소수 분기도 허용하지만 빈 목록이 반환될 수 있습니다.
+- quarter는 1~4 정수만 허용하며 소수 등 잘못된 값은 현재 분기로 처리합니다.
 
 **빈 목록과 오류**
 
@@ -53,7 +53,7 @@ export const internalOpenApi = {
         tags: ["회원가입"], operationId: "checkNicknameAvailability", summary: "닉네임 사용 가능 여부 확인", security: [],
         description: `**조회 방식**
 
-로그인 없이 Supabase DB의 nickname_available_v1을 조회합니다. 데이터는 변경하지 않습니다.
+로그인 없이 Supabase DB의 nickname_available_v1을 조회합니다. 닉네임 데이터는 변경하지 않습니다. 요청 횟수는 서버 전용 DB에 임시 집계하며 원본 IP는 저장하지 않습니다.
 
 **닉네임 규칙**
 
@@ -69,8 +69,10 @@ export const internalOpenApi = {
         requestBody: { required: true, content: json(ref("NicknameRequest"), { nickname: "술친구_01" }) },
         responses: {
           "200": { description: "사용 가능 여부를 반환합니다.\n\n이미 사용 중인 경우에도 HTTP 200이며 available은 false입니다.", content: json(ref("NicknameAvailability"), { available: true, message: "사용할 수 있습니다. 가입 완료 시 최종 확정됩니다." }) },
-          "400": { description: "형식·예약 이름 오류 또는 Content-Length가 1024바이트 초과입니다.\n\n크기 초과 응답에는 available이 없습니다.", content: json(ref("NicknameValidationError"), { available: false, message: "한글·영문·숫자·_·- 조합으로 2~16자 입력해 주세요. 운영자 이름은 사용할 수 없습니다." }) },
-          "503": { description: "DB 연결·설정 오류입니다.\n\n현재 구현은 잘못된 JSON도 이 응답으로 처리합니다.", content: json(ref("MessageError"), { message: "중복 확인을 완료하지 못했습니다. 잠시 후 시도해 주세요." }) },
+          "400": { description: "닉네임 형식·예약 이름 오류 또는 잘못된 JSON입니다.", content: json(ref("NicknameValidationError"), { available: false, message: "한글·영문·숫자·_·- 조합으로 2~16자 입력해 주세요. 운영자 이름은 사용할 수 없습니다." }) },
+          "413": { description: "실제 요청 본문이 1024바이트를 초과했습니다.", content: json(ref("MessageError")) },
+          "429": { description: "IP당 분당 30회 또는 전체 분당 600회 한도 초과입니다. Retry-After에 재시도 대기 시간이 표시됩니다.", headers: { "Retry-After": { schema: { type: "integer", minimum: 1, maximum: 60 } } }, content: json(ref("MessageError")) },
+          "503": { description: "DB 또는 호출 제한 저장소 연결·설정 오류입니다.", content: json(ref("MessageError"), { message: "중복 확인을 완료하지 못했습니다. 잠시 후 시도해 주세요." }) },
         },
         "x-upstream": "Supabase PostgreSQL RPC (외부 HTTP API 운영 통계와 별도)",
       },

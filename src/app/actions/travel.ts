@@ -1,5 +1,6 @@
 "use server";
 
+import { readUploadedThumbnail } from "@/lib/thumbnailReference";
 import { randomUUID } from "crypto";
 import type { User } from "@supabase/supabase-js";
 import { revalidatePath, updateTag } from "next/cache";
@@ -282,16 +283,18 @@ async function assertCanManageReview(
 
 async function uploadThumbnail(
   supabase: NonNullable<Awaited<ReturnType<typeof createSupabaseServerClient>>>,
-  reviewId: string,
   formData: FormData,
+  ownerId: string,
 ) {
+  const uploaded = await readUploadedThumbnail(supabase, formData, ownerId);
+  if (uploaded) return uploaded;
   const file = readThumbnailFile(formData);
 
   if (!file) {
     return null;
   }
 
-  const path = `${reviewId}/${normalizeFileName(file.name)}`;
+  const path = `${ownerId}/${normalizeFileName(file.name)}`;
   const { error } = await supabase.storage
     .from(thumbnailBucket)
     .upload(path, file, {
@@ -392,7 +395,7 @@ export async function createTravel(formData: FormData) {
 
   const requestedId = String(formData.get("id") ?? "").trim();
   const id = normalizeSlug(requestedId || payload.title);
-  const uploadedThumbnail = await uploadThumbnail(supabase, id, formData);
+  const uploadedThumbnail = await uploadThumbnail(supabase, formData, user.id);
 
   const insertPayload = {
     ...payload,
@@ -435,7 +438,7 @@ export async function updateTravel(id: string, formData: FormData) {
   await assertCanManageReview(supabase, user, id);
   const payload = readTravelPayload(formData);
   const itineraryPlaces = payload.scope === "overseas" ? readItineraryPlaces(formData) : [];
-  const uploadedThumbnail = await uploadThumbnail(supabase, id, formData);
+  const uploadedThumbnail = await uploadThumbnail(supabase, formData, user.id);
 
   const updatePayload = itineraryPlaces.length ? {
     ...payload,

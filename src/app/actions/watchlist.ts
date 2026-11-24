@@ -1,5 +1,6 @@
 "use server";
 
+import { readUploadedThumbnail } from "@/lib/thumbnailReference";
 import { randomUUID } from "crypto";
 import type { User } from "@supabase/supabase-js";
 import { revalidatePath, updateTag } from "next/cache";
@@ -176,16 +177,18 @@ async function assertCanManageWatchlistItem(
 
 async function uploadThumbnail(
   supabase: NonNullable<Awaited<ReturnType<typeof createSupabaseServerClient>>>,
-  itemId: string,
   formData: FormData,
+  ownerId: string,
 ) {
+  const uploaded = await readUploadedThumbnail(supabase, formData, ownerId);
+  if (uploaded) return uploaded;
   const file = readThumbnailFile(formData);
 
   if (!file) {
     return null;
   }
 
-  const path = `${itemId}/${normalizeFileName(file.name)}`;
+  const path = `${ownerId}/${normalizeFileName(file.name)}`;
   const { error } = await supabase.storage
     .from(thumbnailBucket)
     .upload(path, file, {
@@ -215,7 +218,7 @@ export async function createWatchlistItem(formData: FormData) {
   const payload = readWatchlistPayload(formData);
   const requestedId = String(formData.get("id") ?? "").trim();
   const id = normalizeSlug(requestedId || payload.title);
-  const uploadedThumbnail = await uploadThumbnail(supabase, id, formData);
+  const uploadedThumbnail = await uploadThumbnail(supabase, formData, user.id);
 
   const { error } = await supabase.from("watchlist_items").insert({
     ...payload,
@@ -246,7 +249,7 @@ export async function updateWatchlistItem(id: string, formData: FormData) {
   const { supabase, user } = await requireSupabaseUser(formData);
   await assertCanManageWatchlistItem(supabase, user, id);
   const payload = readWatchlistPayload(formData);
-  const uploadedThumbnail = await uploadThumbnail(supabase, id, formData);
+  const uploadedThumbnail = await uploadThumbnail(supabase, formData, user.id);
 
   const { error } = await supabase
     .from("watchlist_items")
