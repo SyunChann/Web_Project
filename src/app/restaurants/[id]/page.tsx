@@ -1,3 +1,4 @@
+import { AuthorBadge } from "@/components/AuthorBadge";
 import {
   ArrowLeft,
   ArrowRight,
@@ -201,7 +202,7 @@ export default async function RestaurantsDetailPage({
                   <span className="flex items-center gap-2">
                     <Utensils size={16} className={accentText} />
                     <span className="text-[#8c9ba5]">작성자:</span>
-                    {item.authorName}
+                    <AuthorBadge name={item.authorName} authorId={item.authorId}/>
                   </span>
                 ) : null}
               </div>

@@ -1,0 +1,130 @@
+/* Shared archive palette, including existing CSS-module token aliases. */
+:root, html.dark {
+  --theme-bg-d2d5db: var(--surface-muted);
+  --theme-bg-dceef6: var(--surface-muted);
+  --theme-bg-dceff8: var(--surface-muted);
+  --theme-bg-e0f4fc: var(--surface-muted);
+  --theme-bg-e2f1fb: var(--surface-muted);
+  --theme-bg-e2f4ec: var(--surface-muted);
+  --theme-bg-eaf0f6: var(--surface-muted);
+  --theme-bg-edf7fc: var(--surface-muted);
+  --theme-bg-edf8fd: var(--surface-muted);
+  --theme-bg-eef1f4: var(--surface-muted);
+  --theme-bg-eef3f8: var(--surface-muted);
+  --theme-bg-f0f9fe: var(--surface-muted);
+  --theme-bg-f1f4f6: var(--surface-muted);
+  --theme-bg-f2ede6: var(--surface-muted);
+  --theme-bg-f4f0eb: var(--surface-muted);
+  --theme-bg-f8fcfe: var(--surface-muted);
+  --theme-bg-faf8f4: var(--background);
+  --theme-bg-fde6ea: var(--surface-muted);
+  --theme-bg-fff0f2: var(--surface-muted);
+  --theme-bg-fff1d9: var(--surface-muted);
+  --theme-bg-fff8db: var(--surface-muted);
+  --theme-bg-ffffff: var(--surface);
+  --theme-line-4aafd3: var(--line);
+  --theme-line-8dbbd1: var(--line);
+  --theme-line-8fc5da: var(--line);
+  --theme-line-91c2d8: var(--line);
+  --theme-line-a2c9dc: var(--line);
+  --theme-line-b7d5e3: var(--line);
+  --theme-line-b8d6e5: var(--line);
+  --theme-line-b9d9e8: var(--line);
+  --theme-line-c89b99: var(--line);
+  --theme-line-c8dfe9: var(--line);
+  --theme-line-ccd7e2: var(--line);
+  --theme-line-d2d5db: var(--line);
+  --theme-line-d4dde6: var(--line);
+  --theme-line-d5d8df: var(--line);
+  --theme-line-d6baba: var(--line);
+  --theme-line-d8dfe5: var(--line);
+  --theme-line-d9dce1: var(--line);
+  --theme-line-d9dfe5: var(--line);
+  --theme-line-dce1e7: var(--line);
+  --theme-line-dfe2e8: var(--line);
+  --theme-line-dff3e5: var(--line);
+  --theme-line-e0e2e6: var(--line);
+  --theme-line-e0e4e8: var(--line);
+  --theme-line-e2e8f0: var(--line);
+  --theme-line-e6eff4: var(--line);
+  --theme-line-edf0f3: var(--line);
+  --theme-text-036b9b: var(--foreground);
+  --theme-text-075985: var(--foreground);
+  --theme-text-0878a8: var(--accent);
+  --theme-text-0b3553: var(--foreground);
+  --theme-text-111827: var(--foreground);
+  --theme-text-123e58: var(--foreground);
+  --theme-text-166747: var(--foreground);
+  --theme-text-17212b: var(--foreground);
+  --theme-text-173f56: var(--foreground);
+  --theme-text-1c2029: var(--foreground);
+  --theme-text-1c2734: var(--foreground);
+  --theme-text-202a35: var(--foreground);
+  --theme-text-24262d: var(--foreground);
+  --theme-text-244c64: var(--foreground);
+  --theme-text-27566f: var(--foreground);
+  --theme-text-283747: var(--foreground);
+  --theme-text-294f66: var(--foreground);
+  --theme-text-304d70: var(--accent);
+  --theme-text-315b73: var(--foreground);
+  --theme-text-3c4654: var(--foreground);
+  --theme-text-476b80: var(--muted);
+  --theme-text-49677a: var(--muted);
+  --theme-text-52616b: var(--muted);
+  --theme-text-527387: var(--muted);
+  --theme-text-537488: var(--muted);
+  --theme-text-596979: var(--muted);
+  --theme-text-626b79: var(--muted);
+  --theme-text-6357a0: var(--accent);
+  --theme-text-637c8b: var(--muted);
+  --theme-text-647184: var(--muted);
+  --theme-text-647282: var(--muted);
+  --theme-text-70757f: var(--muted);
+  --theme-text-7b6666: var(--muted);
+  --theme-text-7b8794: var(--muted);
+  --theme-text-7d8490: var(--muted);
+  --theme-text-7d8794: var(--muted);
+  --theme-text-8993a0: var(--muted);
+  --theme-text-8a94a0: var(--muted);
+  --theme-text-8b919f: var(--muted);
+  --theme-text-8b97a5: var(--muted);
+  --theme-text-9a4b0b: var(--foreground);
+  --theme-text-9a907c: var(--muted);
+  --theme-text-9b2842: var(--foreground);
+  --theme-text-a21b3c: var(--foreground);
+  --theme-text-a4aeba: var(--muted);
+  --theme-text-a54846: var(--muted);
+  --theme-text-a94341: var(--accent);
+  --theme-text-b17a25: var(--muted);
+  --theme-text-be4b49: var(--accent);
+}
+.site-content { min-width: 0; outline: none; }
+.site-content > main, .site-content > [data-travel-theme] > main { min-height: 0; padding: 0; background: transparent; }
+.site-content > main > :is(section,div) > header:first-of-type { margin-top: 0; padding-top: 0; }
+.site-content.site-content h1 { font-size: clamp(27px,2.5vw,34px); line-height: 1.5; letter-spacing: -1px; font-weight: 700; }
+.site-content :is(section,article,form).shadow-sm, .site-content :is(section,article,form).shadow-md, .site-content :is(section,article,form).shadow-lg { box-shadow: none; }
+.site-content :is(input,select,textarea):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="hidden"]) { border-color: var(--line); background-color: var(--surface); color: var(--foreground); }
+.site-content :is(a,button,input,select,textarea,summary):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.site-content.site-content [class~="border-[#d8cfc2]"], .site-content.site-content [class~="border-[#ddd6cc]"], .site-content.site-content [class~="border-[#cbd6e6]"] { border-color: var(--line) !important; }
+.site-content.site-content [class~="text-[#52616b]"], .site-content.site-content [class~="text-[#64748b]"], .site-content.site-content [class~="text-[#7b8794]"] { color: var(--muted) !important; }
+.site-content.site-content [class~="text-[#be4b49]"], .site-content.site-content [class~="text-[#304d70]"], .site-content.site-content [class~="text-[#2f7f7a]"] { color: var(--accent) !important; }
+.site-content.site-content [class~="bg-[#be4b49]"], .site-content.site-content [class~="bg-[#304d70]"], .site-content.site-content [class~="bg-[#2f7f7a]"], .site-content.site-content [class~="bg-[#9249be]"] { background-color: var(--accent) !important; color: var(--on-accent) !important; }
+.site-content.site-content [class~="bg-[#be4b49]"]:hover, .site-content.site-content [class~="bg-[#304d70]"]:hover, .site-content.site-content [class~="bg-[#2f7f7a]"]:hover { background-color: var(--accent-hover) !important; }
+.site-content.site-content [class~="bg-[#f7f3ed]"], .site-content.site-content [class~="bg-[#eef1ed]"], .site-content.site-content [class~="bg-[#fffaf7]"] { background-color: var(--surface-muted) !important; }
+.site-content.site-content [class~="bg-white"] { background-color: var(--surface) !important; }
+@media(max-width:767px) { .site-content.site-content h1 { font-size: 26px; letter-spacing: -.9px; } }
+
+.author-badge { display: inline-flex; align-items: center; gap: 7px; vertical-align: middle; font-size: inherit; font-weight: inherit; color: var(--muted); max-width: 100%; }
+.author-badge > span:last-child { overflow-wrap: anywhere; }
+
+.site-content.site-content [class~="bg-[#e57632]"], .site-content.site-content [class~="bg-[#0284c7]"], .site-content.site-content [class~="bg-[#65a30d]"], .site-content.site-content [class~="bg-[#5ca1e6]"], .site-content.site-content [class~="bg-[#0878a8]"] { background-color: var(--accent) !important; color: var(--on-accent) !important; }
+.section-tabs { display: flex; flex-wrap: wrap; gap: 8px 23px; margin-bottom: 25px; border-bottom: 1px solid var(--line); }
+.section-tabs a { display: inline-flex; align-items: center; gap: 6px; padding: 10px 0; min-height: 44px; color: var(--muted); border-bottom: 2px solid transparent; font-size: 13px; }
+.section-tabs a[aria-current="page"] { color: var(--foreground); border-bottom-color: var(--accent); font-weight: 700; }
+.section-tabs a:hover { color: var(--foreground); }
+@media(max-width:767px) { .section-tabs { gap: 0 18px; margin-bottom: 20px; } .section-tabs a { font-size: 12px; } .section-tabs svg { display: none; } }
+/* Form surfaces must follow the active palette even on legacy focus utilities. */
+.site-content.site-content :is(input,select,textarea):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="hidden"]) { background-color: var(--surface) !important; color: var(--foreground) !important; border-color: var(--line); }
+
+.site-content input[type="file"]::file-selector-button { min-height: 44px; margin-right: 10px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface-muted); color: var(--foreground); cursor: pointer; font: inherit; }
+.site-content.site-content [class~="text-[var(--on-accent)]"] { color: var(--on-accent) !important; }

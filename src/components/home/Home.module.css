@@ -18,7 +18,7 @@
 .root a:focus-visible, .root button:focus-visible, .root summary:focus-visible { outline: 2px solid var(--home-accent); outline-offset: 4px; }
 .skipLink { position: fixed; top: -100px; left: 16px; z-index: 100; padding: 10px 16px; border: 1px solid var(--home-line); background: var(--surface); }
 .skipLink:focus { top: 12px; }
-.shell { max-width: 1440px; margin: 0 auto; display: grid; grid-template-columns: 210px minmax(0, 1fr); }
+.shell { max-width: 1440px; margin: 0 auto; display: grid; grid-template-columns: var(--sidebar-width, 210px) minmax(0, 1fr); }
 .sidebar { position: sticky; top: 0; min-height: 100dvh; max-height: 100dvh; overflow-y: auto; scrollbar-width: thin; display: flex; flex-direction: column; gap: 24px; padding: 31px 20px 22px; border-right: 1px solid var(--home-line); }
 .brand { display: inline-flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; letter-spacing: -.6px; min-height: 36px; flex-shrink: 0; }
 .brand svg { flex-shrink: 0; }
@@ -27,7 +27,7 @@
 .menuLinks a:hover { background: var(--home-soft); color: var(--foreground); }
 .menuLinks a[aria-current="page"] { color: var(--foreground); background: var(--home-soft); font-weight: 700; }
 .menuLinks svg { flex-shrink: 0; }
-.information { margin-top: 2px; }
+.information { margin-top: 24px; }
 .information > p { padding: 0 10px; margin-bottom: 10px; color: var(--home-muted); font-size: 11px; }
 .profile { margin-top: auto; border-top: 1px solid var(--home-line); padding: 19px 4px 0; display: flex; align-items: center; gap: 10px; }
 .avatar { width: 32px; height: 32px; display: grid; place-items: center; flex-shrink: 0; border-radius: 50%; background: var(--home-soft); color: var(--home-accent); font-size: 15px; }
@@ -104,7 +104,7 @@
 .skeletonRow i { display: block; height: 11px; width: 65%; background: var(--home-soft); }
 .skeletonRow i + i { width: 40%; }
 @media (max-width: 1150px) {
-  .shell { grid-template-columns: 185px minmax(0, 1fr); }
+  .shell { grid-template-columns: var(--sidebar-width, 185px) minmax(0, 1fr); }
   .sidebar { padding: 27px 13px 22px; gap: 22px; }
   .main { padding: 25px 26px 30px; }
   .utilities { gap: 13px; }
@@ -238,3 +238,27 @@
   .airportSummary dt small { max-width: 73px; overflow-wrap: anywhere; }
   .airportSummary dd { flex-shrink: 1; }
 }
+
+/* Shared site navigation. */
+.sidebarBrand { display: flex; align-items: center; justify-content: space-between; gap: 5px; flex-shrink: 0; }
+.sidebarBrand .brand { font-size: 16px; gap: 7px; }
+.sidebarToggle { min-width: 28px; min-height: 36px; display: grid; place-items: center; border-radius: 4px; cursor: pointer; color: var(--home-muted); }
+.sidebarToggle:hover { background: var(--home-soft); color: var(--foreground); }
+.navigationPlaceholder { min-height: 550px; }
+:global(html[data-sidebar="collapsed"]) .root { --sidebar-width: 72px; }
+:global(html[data-sidebar="collapsed"]) .sidebar { padding-inline: 12px; gap: 18px; }
+:global(html[data-sidebar="collapsed"]) .sidebarBrand { flex-direction: column; }
+:global(html[data-sidebar="collapsed"]) .sidebar .brand span,
+:global(html[data-sidebar="collapsed"]) .sidebar .menuLabel,
+:global(html[data-sidebar="collapsed"]) .sidebar .information > p,
+:global(html[data-sidebar="collapsed"]) .sidebar .profileName { display: none; }
+:global(html[data-sidebar="collapsed"]) .sidebar .menuLinks a { justify-content: center; padding-inline: 0; }
+:global(html[data-sidebar="collapsed"]) .sidebar .profile { justify-content: center; padding-inline: 0; }
+:global(html[data-sidebar="collapsed"]) .sidebar .information { border-top: 1px solid var(--home-line); padding-top: 15px; margin-top: 15px; }
+.bottomGroup { position: relative; }
+.bottomGroup summary { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 52px; list-style: none; font-size: 10px; color: var(--home-muted); cursor: pointer; }
+.bottomGroup summary::-webkit-details-marker { display: none; }
+.bottomGroup summary[data-active="true"] { color: var(--foreground); font-weight: 700; }
+.bottomGroup > div { position: absolute; left: 0; bottom: calc(100% + 10px); width: 174px; padding: 7px; border: 1px solid var(--home-line); border-radius: 6px; background: var(--surface); box-shadow: 0 8px 24px #00000016; }
+.bottomGroup > div a { min-height: 44px; padding: 10px; align-items: flex-start; font-size: 13px; }
+.bottomGroup > div a:hover { background: var(--home-soft); }

@@ -33,6 +33,7 @@ test('home account controls retain login return, member account and administrato
    react:React,'react/jsx-runtime':jsx,'lucide-react':icons,'next/link':{default:({children,href})=>React.createElement('a',{href},children)},
    '@/lib/supabase/session':{getSupabaseServerSession:async()=>{if(scenario==='unavailable')throw Error('offline');return {user};}},
    '@/lib/admin':{isAdminUser:u=>u?.email==='admin@example.test'},'@/lib/returnTo':{loginHref:path=>'/login?'+new URLSearchParams({next:path})},
+   '@/components/site/SiteNavigation':{SiteNavigationLinks:()=>null,SiteMobileMenu:()=>null,SiteBottomNavigation:()=>null,SidebarToggle:()=>null},
    '@/data/memberProfile':{getMemberProfile:async()=>null},'@/components/account/ProfileAvatar':{ProfileAvatar:()=>React.createElement('span',null,'사진')},
    '@/components/ThemeToggle':{ThemeToggle:()=>React.createElement('button',null,'테마')},'@/components/LogoutButton':{LogoutButton:()=>React.createElement('button',null,'로그아웃')},
    './Home.module.css':{default:new Proxy({},{get:(_target,key)=>String(key)})},

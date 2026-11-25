@@ -1,3 +1,4 @@
+import { AuthorBadge } from "@/components/AuthorBadge";
 import { ArrowRight, Bookmark, Star, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
@@ -144,7 +145,7 @@ function FeaturedTravelItem({ item }: { item:  Travel}) {
         </div>
         <h2 className="mt-5 text-2xl font-bold">{item.tripTitle ?? item.title}</h2>
         <p className="mt-2 text-sm text-[#6b7280]">
-          {item.authorName ? ` · ${item.authorName}` : ""}
+          {item.authorName ? ` · $<AuthorBadge name={item.authorName} authorId={item.authorId}/>` : ""}
         </p>
         <p className="mt-5 line-clamp-3 leading-7 text-[#3f4a54]">
           {item.review}
@@ -193,7 +194,7 @@ function TravelItemCard({ item, placeCount }: { item: Travel; placeCount: number
         <p className="mt-2 text-xs font-bold text-[#4d7c0f]">여행 장소 {placeCount}곳</p>
         <p className="mt-2 text-sm text-[#6b7280]">
           {item.visitedAt}
-          {item.authorName ? ` · ${item.authorName}` : ""}
+          {item.authorName ? ` · $<AuthorBadge name={item.authorName} authorId={item.authorId}/>` : ""}
         </p>
         <p className="mt-4 line-clamp-2 text-sm leading-6 text-[#3f4a54]">
           {item.review}

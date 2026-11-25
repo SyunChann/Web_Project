@@ -1,8 +1,6 @@
 .page {
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 86% 4%, rgba(56, 189, 248, 0.22), transparent 26rem),
-    linear-gradient(180deg, var(--theme-bg-edf8fd, #edf8fd) 0%, var(--theme-bg-dceef6, #dceef6) 100%);
+  background: var(--surface);
   color: var(--theme-text-123e58, #123e58);
 }
 
@@ -69,7 +67,7 @@
   border: 1px solid var(--theme-line-8dbbd1, #8dbbd1);
   border-radius: 0.65rem;
   background: var(--theme-bg-f8fcfe, #f8fcfe);
-  box-shadow: 0 24px 60px rgba(20, 83, 116, 0.18);
+  box-shadow: none;
 }
 
 .boardTop {

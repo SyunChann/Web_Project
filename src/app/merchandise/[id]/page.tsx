@@ -1,3 +1,4 @@
+import { AuthorBadge } from "@/components/AuthorBadge";
 import { ArrowLeft, ArrowRight, Calendar, Pencil, Star } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -142,7 +143,7 @@ export default async function MerchandiseReviewDetailPage({
               {review.authorName ? (
                 <span>
                   <span className="text-[#6d470c]">작성자:</span>{" "}
-                  {review.authorName}
+                  <AuthorBadge name={review.authorName} authorId={review.authorId}/>
                 </span>
               ) : null}
             </div>

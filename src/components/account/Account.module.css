@@ -17,7 +17,7 @@
 .form label { display: grid; gap: 8px; font-size: 13px; font-weight: 600; }
 .input { width: 100%; min-width: 0; padding: 11px 12px; border-radius: 6px; border: 1px solid var(--line, #ddd6cc); background: var(--surface); color: var(--foreground); font-size: 16px; font-weight: 400; }
 .form textarea { resize: vertical; min-height: 94px; }
-.button { min-height: 44px; padding: 10px 15px; border-radius: 6px; background: #304d70; color: white; font-size: 13px; font-weight: 600; cursor: pointer; }
+.button { min-height: 44px; padding: 10px 15px; border-radius: 6px; background: var(--accent); color: var(--on-accent); font-size: 13px; font-weight: 600; cursor: pointer; }
 .secondary { min-height: 44px; padding: 10px 12px; border: 1px solid var(--line, #ddd6cc); border-radius: 6px; color: var(--foreground); font-size: 13px; cursor: pointer; }
 .button:disabled, .secondary:disabled { opacity: .55; cursor: not-allowed; }
 .button[aria-busy="true"], .secondary[aria-busy="true"] { cursor: progress; }

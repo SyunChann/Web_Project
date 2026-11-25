@@ -15,7 +15,7 @@ export function AdminServices({ headingLevel = "h2" }: { headingLevel?: "h1" | "
   const links = [
     ["/drinks", "술 취향", "리뷰·궁금한 술·반 별 평점"],
     ["/departures", "인천공항 출국 안내", "출국장 혼잡도·일본행 항공편"],
-    ["/recommendations", "추천 콘텐츠", "토스 상품과 에디터 픽"],
+    ["/recommendations", "쇼핑 베스트", "토스 전체·패션 인기 상품"],
     ["/admin/toss-images", "토스 이미지 관리", "노출 중단 상품과 이미지 상태"],
     ["/release-calendar", "애니 신작 캘린더", "분기별 애니메이션 공개 일정"],
     ["/lck-calendar", "LCK 경기 일정", "경기 일정과 결과"],

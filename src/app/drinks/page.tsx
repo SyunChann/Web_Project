@@ -1,3 +1,4 @@
+import { AuthorBadge } from "@/components/AuthorBadge";
 import { MobileFilterDetails } from "@/components/MobileFilterDetails";
 import type { Metadata } from "next";
 import { Suspense } from "react";
@@ -54,7 +55,7 @@ async function DrinkResults({ params }: { params: Filters }) {
           <h2>{post.name}</h2>{post.rating !== null ? <StarRating rating={Number(post.rating)} /> : <span className={styles.hint}>마셔보고 싶은 술</span>}
           <p className={styles.excerpt}>{post.excerpt}</p>
           {post.tags.length ? <p className={styles.hint}>{post.tags.slice(0, 3).join(" · ")}</p> : null}
-          <div className={styles.meta}><span>{post.author_name}</span><time dateTime={post.created_at}>{new Intl.DateTimeFormat("ko-KR", { timeZone: "Asia/Seoul", dateStyle: "medium" }).format(new Date(post.created_at))}</time></div>
+          <div className={styles.meta}><AuthorBadge name={post.author_name} authorId={"author_id" in post ? post.author_id as string | null : null}/><time dateTime={post.created_at}>{new Intl.DateTimeFormat("ko-KR", { timeZone: "Asia/Seoul", dateStyle: "medium" }).format(new Date(post.created_at))}</time></div>
         </div>
       </Link>)}
     </div> : <div className={styles.notice}>{filtered ? "조건에 맞는 술 기록이 없습니다. 필터를 바꿔 찾아보세요." : "아직 술 기록이 없습니다. 첫 한 잔의 이야기를 남겨보세요."}</div>}

@@ -5,7 +5,7 @@
 .hero h1 { font-size: clamp(2rem,5vw,3rem); font-weight: 900; margin: .55rem 0; overflow-wrap: anywhere; }
 .description, .hint { color: var(--theme-text-647282, #647282); font-size: .85rem; line-height: 1.7; }
 .primary, .secondary { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: .65rem 1.1rem; border-radius: .5rem; font-weight: 800; font-size: .9rem; cursor: pointer; }
-.primary { background: #304d70; color: white; border: 1px solid #304d70; }
+.primary { background: var(--accent); color: var(--on-accent); border: 1px solid var(--accent); }
 .secondary { background: var(--surface); color: var(--theme-text-304d70, #304d70); border: 1px solid var(--theme-line-ccd7e2, #ccd7e2); }
 .primary:disabled, .secondary:disabled { opacity: .6; cursor: wait; }
 .filters { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: .65rem; margin: 1rem 0; align-items: end; }
@@ -47,7 +47,7 @@
 .chips label { cursor: pointer; }
 .chips input { position: absolute; opacity: 0; width: 1px; height: 1px; }
 .chips span { display: flex; align-items: center; min-height: 42px; padding: .45rem .7rem; border: 1px solid var(--theme-line-d4dde6, #d4dde6); border-radius: 2rem; color: var(--theme-text-647282, #647282); font-size: .85rem; }
-.chips input:checked + span { background: #304d70; color: white; border-color: #304d70; }
+.chips input:checked + span { background: var(--accent); color: var(--on-accent); border-color: #304d70; }
 .chips input:focus-visible + span { outline: 2px solid #304d70; outline-offset: 3px; }
 .ratingPicker { display: flex; margin: .6rem 0; }
 .ratingHelp { color: var(--theme-text-647282, #647282); font-size: .85rem; line-height: 1.7; }
@@ -82,7 +82,7 @@
   .ratingHelp, .ratingPicker { display: none; }
   .mobileRatingPicker { display: grid; grid-template-columns: repeat(5,minmax(44px,1fr)); gap: .25rem; margin: .5rem 0; }
   .mobileRatingPicker button { display: flex; align-items: center; justify-content: center; gap: .15rem; min-width: 44px; min-height: 44px; border: 1px solid var(--theme-line-d4dde6, #d4dde6); border-radius: .4rem; background: var(--surface); color: var(--theme-text-304d70, #304d70); font-size: .85rem; font-weight: 800; cursor: pointer; }
-  .mobileRatingPicker button[aria-pressed="true"] { background: #304d70; color: white; border-color: #304d70; }
+  .mobileRatingPicker button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); border-color: #304d70; }
   .mobileRatingPicker button:focus-visible { outline: 2px solid #304d70; outline-offset: 2px; }
 }
 @media(max-width: 480px) {

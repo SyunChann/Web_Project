@@ -1,0 +1,5 @@
+import { Suspense, type ReactNode } from 'react';
+import { HomeSidebar, HomeAccount, HomeBottomNav } from '@/components/home/HomeNavigation';
+import { SiteBreadcrumb } from './SiteNavigation';
+import styles from '@/components/home/Home.module.css';
+export function SiteShell({children}:{children:ReactNode}) {return <div className={`${styles.root} site-theme`}><script dangerouslySetInnerHTML={{__html:"try{document.documentElement.dataset.sidebar=localStorage.getItem('archive-sidebar-collapsed')==='true'?'collapsed':'expanded'}catch{}"}}/><a href="#site-main" className={styles.skipLink}>본문으로 바로가기</a><div className={styles.shell}><HomeSidebar/><div className={styles.main}><div className={styles.topbar}><Suspense fallback={<p className={styles.breadcrumb}>취향 보관소</p>}><SiteBreadcrumb/></Suspense><Suspense fallback={<div className={styles.accountPlaceholder} aria-label="계정 확인 중"/>}><HomeAccount/></Suspense></div><div id="site-main" className="site-content" tabIndex={-1}>{children}</div></div></div><HomeBottomNav/></div>;}

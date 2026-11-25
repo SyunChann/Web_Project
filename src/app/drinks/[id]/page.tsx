@@ -1,3 +1,4 @@
+import { AuthorBadge } from "@/components/AuthorBadge";
 import { ImageGallery } from "@/components/ImageGallery";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -25,7 +26,7 @@ export default async function DrinkDetailPage({ params }: { params: Promise<{ id
     <ListBackLink href="/drinks" className={styles.back}>← 술 취향 목록</ListBackLink>
     {error || !post ? <p className={styles.notice} role="status">{error}</p> : <>
       <header className={styles.hero}><div><div className={styles.badges}><span>{drinkCategories[post.category]}</span><span>{drinkKinds[post.kind]}</span></div><h1>{post.name}</h1>
-        <div className={styles.meta}><span>작성자 {post.author_name}</span><time dateTime={post.created_at}>{new Intl.DateTimeFormat("ko-KR", { timeZone: "Asia/Seoul", dateStyle: "long" }).format(new Date(post.created_at))}</time></div>
+        <div className={styles.meta}><AuthorBadge name={post.author_name} authorId={post.author_id}/><time dateTime={post.created_at}>{new Intl.DateTimeFormat("ko-KR", { timeZone: "Asia/Seoul", dateStyle: "long" }).format(new Date(post.created_at))}</time></div>
       </div>{user?.id === post.author_id ? <div className={styles.actions}><Link className={styles.secondary} href={`/drinks/${id}/edit`}>수정</Link><DeleteDrinkButton id={id} /></div> : null}</header>
       {post.rating !== null ? <div className="mt-5"><StarRating rating={Number(post.rating)} large /></div> : null}
       {post.methods.length ? <p className="mt-5"><strong>마신 방법</strong> · {post.methods.join(" · ")}</p> : null}

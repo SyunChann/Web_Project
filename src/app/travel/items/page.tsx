@@ -1,3 +1,4 @@
+import { AuthorBadge } from "@/components/AuthorBadge";
 import { MobileFilterDetails } from "@/components/MobileFilterDetails";
 import { Search, Star, X } from "lucide-react";
 import Link from "next/link";
@@ -249,7 +250,7 @@ export default async function TravelsPage({
                       {review.authorName ? (
                         <>
                           <span className="text-[#6d470c]">작성자:</span>{" "}
-                          {review.authorName}
+                          <AuthorBadge name={review.authorName} authorId={review.authorId}/>
                           <span className="mx-2 text-[#d4c9bb]">·</span>
                         </>
                       ) : null}

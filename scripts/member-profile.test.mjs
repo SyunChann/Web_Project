@@ -21,7 +21,7 @@ function actions(options={}){
    remove: async paths => { calls.push(['remove',bucket,paths]); return {error:options.removeError}; }
   }) }
  };
- return {calls,api:load('src/app/account/profileActions.ts',{'@/lib/memberProfile':model,'@/lib/supabase/server':{createSupabaseServerClient:async()=>client},'next/cache':{revalidatePath:path=>calls.push(['refresh',path])}})};
+ return {calls,api:load('src/app/account/profileActions.ts',{'@/lib/memberProfile':model,'@/lib/supabase/server':{createSupabaseServerClient:async()=>client},'next/cache':{revalidatePath:path=>calls.push(['refresh',path]),updateTag:tag=>calls.push(['tag',tag])}})};
 }
 function photoForm(file){const form=new FormData();form.set('photo',file);form.set('user_id','victim');return form;}
 const validPhoto=()=>new File([new Uint8Array([82,73,70,70,4,0,0,0,87,69,66,80])],'avatar.webp',{type:'image/webp'});

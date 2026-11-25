@@ -1,5 +1,5 @@
 'use server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, updateTag } from 'next/cache';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { isProfileWebp, maxProfilePhotoBytes, profilePhotoBucket, profilePhotoPath, validProfileBio } from '@/lib/memberProfile';
 async function session() {
@@ -8,7 +8,7 @@ async function session() {
   if (!supabase || !user?.email_confirmed_at) throw Error('로그인 후 다시 시도해 주세요.');
   return {supabase,user};
 }
-function refreshProfile() { revalidatePath('/account'); revalidatePath('/'); }
+function refreshProfile() { updateTag('author-photos'); revalidatePath('/account'); revalidatePath('/'); }
 export async function saveProfileBio(form: FormData) {
   const {supabase,user} = await session();
   const bio = String(form.get('bio') ?? '').trim();

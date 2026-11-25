@@ -1,3 +1,4 @@
+import { AuthorBadge } from "@/components/AuthorBadge";
 import { MobileFilterDetails } from "@/components/MobileFilterDetails";
 import { ArrowLeft, Bookmark, Search, X } from "lucide-react";
 import Link from "next/link";
@@ -221,7 +222,7 @@ function WatchItemCard({ item }: { item: WatchItem }) {
         <p className="mt-4 text-xs font-semibold text-[#7a8490]">
           {item.authorName ? (
             <>
-              <span className="text-[#6d470c]">작성자:</span> {item.authorName}
+              <span className="text-[#6d470c]">작성자:</span> <AuthorBadge name={item.authorName} authorId={item.authorId}/>
             </>
           ) : null}
         </p>

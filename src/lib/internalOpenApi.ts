@@ -9,19 +9,27 @@ export const internalOpenApi = {
   info: {
     title: "취향 보관소 내부 API",
     version: "1.0.0",
-    description: `현재 사이트가 제공하는 JSON API 두 개의 명세입니다.
+    description: `현재 사이트가 제공하는 조회 API와 작성자 이미지 조회 명세입니다.
 
 - 문서와 명세 JSON은 관리자만 볼 수 있습니다.
-- 아래 두 API 자체는 로그인 없이 조회할 수 있습니다.
-- 이 문서에서는 GET 조회만 직접 실행할 수 있습니다.
+- 아래 공개 API 자체는 로그인 없이 조회할 수 있습니다.
+- 이 문서에서는 애니 신작 GET 조회만 직접 실행할 수 있습니다. 작성자 사진은 이미지용 리다이렉트 명세를 제공합니다.
 
 항공편·혼잡도·환율 등도 외부 API를 사용합니다. 다만 Next.js 서버에서 직접 호출하므로 이 사이트의 별도 JSON API로 등록되어 있지 않습니다.
 
 외부 API의 장애·응답시간 기록은 관리자 메뉴의 **외부 API 현황**에서 확인하세요.`,
   },
   servers: [{ url: "/", description: "현재 접속한 사이트" }],
-  tags: [{ name: "애니 신작", description: "AniList 연동 일정 조회" }, { name: "회원가입", description: "닉네임 사용 가능 여부 확인" }],
+  tags: [{name:"작성자 사진",description:"공개 글 작성자 사진 조회"},{ name: "애니 신작", description: "AniList 연동 일정 조회" }, { name: "회원가입", description: "닉네임 사용 가능 여부 확인" }],
   paths: {
+    "/api/authors/avatar": {
+      get: {
+        tags: ["작성자 사진"], operationId: "getAuthorAvatar", summary: "작성자 프로필 사진 조회", security: [],
+        description: "작성자 ID 또는 닉네임으로 프로필 사진의 임시 URL에 이동합니다. 이메일·소개·인증 정보는 반환하지 않습니다. 사진이 없으면 기본 아이콘을 표시합니다.",
+        parameters: [{name:"author_id",in:"query",schema:{type:"string",format:"uuid"},description:"작성자 ID. 지정 시 닉네임보다 우선합니다."},{name:"nickname",in:"query",schema:{type:"string",minLength:2,maxLength:16},description:"ID가 없을 때 사용할 현재 닉네임"}],
+        responses: {"307":{description:"수명이 제한된 Storage 사진 URL로 이동"},"400":{description:"조회 값 형식 오류"},"404":{description:"프로필 사진 없음"},"503":{description:"사진 조회 지연"}},
+      },
+    },
     "/api/anilist/releases": {
       get: {
         tags: ["애니 신작"], operationId: "getAnimeReleases", summary: "연도·분기별 애니 신작 조회", security: [],

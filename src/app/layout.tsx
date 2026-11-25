@@ -8,6 +8,8 @@ import localFont from "next/font/local";
 import { getSiteUrl } from "@/lib/siteUrl";
 import { siteName as siteTitle, siteDescription } from "@/lib/siteIdentity";
 import "./globals.css";
+import "./site-theme.css";
+import { SiteShell } from "@/components/site/SiteShell";
 
 const mainFont = localFont({
   src: "../assets/fonts/My_Font.woff",
@@ -58,7 +60,7 @@ export default function RootLayout({
     <html lang="ko" className={mainFont.variable} suppressHydrationWarning>
       <body>
         <ThemeProvider>
-          {children}
+          <SiteShell>{children}</SiteShell>
           <Suspense fallback={null}><ListNavigation /></Suspense>
         </ThemeProvider>
         <Analytics />

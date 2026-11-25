@@ -4,24 +4,30 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #f4f6f8;
+  --background: #ffffff;
   --foreground: #1f2933;
   --surface: #ffffff;
   --surface-rgb: 255 255 255;
-  --surface-muted: #fbfaf7;
-  --line: #d8cfc2;
-  --muted: #52616b;
+  --accent: #34483b;
+  --accent-hover: #293b30;
+  --on-accent: #ffffff;
+  --surface-muted: #f3f5f1;
+  --line: #e6e9e4;
+  --muted: #687167;
 }
 
 html.dark {
   color-scheme: dark;
-  --background: #101820;
+  --background: #19242f;
   --foreground: #e7edf4;
   --surface: #19242f;
   --surface-rgb: 25 36 47;
-  --surface-muted: #202e3b;
-  --line: #3b4b5c;
-  --muted: #b4c2d0;
+  --accent: #c5dccb;
+  --accent-hover: #d5e8da;
+  --on-accent: #18291d;
+  --surface-muted: #26343c;
+  --line: #33414a;
+  --muted: #b0bdb4;
 }
 
 .theme-toggle {

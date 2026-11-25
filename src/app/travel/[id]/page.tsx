@@ -1,3 +1,4 @@
+import { AuthorBadge } from "@/components/AuthorBadge";
 import {
   ArrowLeft,
   CalendarDays,
@@ -146,7 +147,7 @@ export default async function TravelDetailPage({ params }: TravelDetailPageProps
               </div>
               <h1 className="mt-5 text-3xl font-black leading-tight text-[#17202a] sm:text-4xl">{title}</h1>
               <p className="mt-4 whitespace-pre-wrap text-base leading-8 text-[#52616b]">{item.summary}</p>
-              {item.authorName ? <p className="mt-5 text-sm font-bold text-[#64748b]">작성자: {item.authorName}</p> : null}
+              {item.authorName ? <p className="mt-5 text-sm font-bold text-[#64748b]">작성자: <AuthorBadge name={item.authorName} authorId={item.authorId}/></p> : null}
             </div>
           </header>
 
