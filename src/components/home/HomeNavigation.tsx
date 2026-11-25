@@ -7,6 +7,8 @@ import { loginHref } from "@/lib/returnTo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LogoutButton } from "@/components/LogoutButton";
 import styles from "./Home.module.css";
+import { getMemberProfile } from "@/data/memberProfile";
+import { ProfileAvatar } from "@/components/account/ProfileAvatar";
 
 const archiveLinks = [
   { href: "/", label: "모아보기", icon: House }, { href: "/reviews", label: "콘텐츠 리뷰", icon: Library },
@@ -31,8 +33,9 @@ export function HomeSidebar() {
 }
 async function HomeProfile() {
   const user = await currentUser();
-  const name = user ? String(user.user_metadata?.nickname || user.user_metadata?.display_name || "마이페이지").slice(0, 30) : "취향 보관소";
-  return <Link prefetch={false} href={user ? "/account" : "/login"} className={styles.profile}><span className={styles.avatar} aria-hidden="true">{user ? name.slice(0, 1) : "S"}</span><span className={styles.profileName}>{name}<small>{user ? "마이페이지" : "좋아하는 것을 기록하는 공간"}</small></span></Link>;
+  const profile = user ? await getMemberProfile() : null;
+  const name = user ? String(profile?.nickname || user.user_metadata?.nickname || user.user_metadata?.display_name || "마이페이지").slice(0, 30) : "취향 보관소";
+  return <Link prefetch={false} href={user ? "/account" : "/login"} className={styles.profile}><ProfileAvatar src={profile?.photoUrl ?? null} name={name} size={32}/><span className={styles.profileName}>{name}<small>{user ? "마이페이지" : "좋아하는 것을 기록하는 공간"}</small></span></Link>;
 }
 export async function HomeAccount() {
   const user = await currentUser();

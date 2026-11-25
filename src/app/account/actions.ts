@@ -52,6 +52,8 @@ export async function withdrawAccount(form: FormData) {
         offset += files.length - unused.length;
         if (files.length < 100) break;
       }
+      const { error: profilePhotoError } = await admin.storage.from("profile-photos").remove([`${user.id}/avatar.webp`]);
+      if (profilePhotoError) throw Error("profile photo unavailable");
       const { error: closeError } = await admin.rpc("close_member_account_v1", { p_user_id: user.id });
       if (closeError) throw Error("withdraw failed");
       try { await supabase.auth.signOut({ scope: "global" }); } catch { /* Auth user and sessions were already removed. */ }

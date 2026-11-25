@@ -1,0 +1,48 @@
+.page { max-width: 1024px; margin: 30px auto 0; color: var(--foreground); }
+.heading { font-size: 28px; font-weight: 700; margin-bottom: 22px; }
+.grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+.column { display: grid; gap: 20px; min-width: 0; }
+.panel { border: 1px solid var(--line, #ddd6cc); background: var(--surface); padding: 24px; border-radius: 10px; min-width: 0; }
+.panel h2 { font-size: 17px; font-weight: 700; margin-bottom: 16px; }
+.identity { display: flex; gap: 18px; align-items: center; margin-bottom: 20px; }
+.identity > div { min-width: 0; }
+.identity h2 { margin-bottom: 4px; font-size: 21px; overflow-wrap: anywhere; }
+.muted { color: var(--muted, #64748b); font-size: 13px; line-height: 1.8; overflow-wrap: anywhere; }
+.bio { margin-top: 8px; font-size: 14px; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
+.details { display: grid; gap: 10px; border-top: 1px solid var(--line, #ddd6cc); padding-top: 17px; font-size: 13px; }
+.details > div { display: flex; gap: 16px; justify-content: space-between; }
+.details dt { color: var(--muted, #64748b); }
+.details dd { text-align: right; }
+.form { display: grid; grid-template-columns: minmax(0,1fr); gap: 10px; margin-top: 20px; }
+.form label { display: grid; gap: 8px; font-size: 13px; font-weight: 600; }
+.input { width: 100%; min-width: 0; padding: 11px 12px; border-radius: 6px; border: 1px solid var(--line, #ddd6cc); background: var(--surface); color: var(--foreground); font-size: 16px; font-weight: 400; }
+.form textarea { resize: vertical; min-height: 94px; }
+.button { min-height: 44px; padding: 10px 15px; border-radius: 6px; background: #304d70; color: white; font-size: 13px; font-weight: 600; cursor: pointer; }
+.secondary { min-height: 44px; padding: 10px 12px; border: 1px solid var(--line, #ddd6cc); border-radius: 6px; color: var(--foreground); font-size: 13px; cursor: pointer; }
+.button:disabled, .secondary:disabled { opacity: .55; cursor: wait; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.photoForm { display: grid; grid-template-columns: minmax(0,1fr); gap: 12px; padding-bottom: 20px; border-bottom: 1px solid var(--line, #ddd6cc); }
+.photoForm label { min-width: 0; }
+.photoForm input { width: 100%; min-width: 0; max-width: 100%; font-size: 13px; }
+.notice { padding: 13px 16px; border: 1px solid var(--line, #ddd6cc); border-radius: 6px; margin-bottom: 18px; font-size: 13px; line-height: 1.8; }
+.total { font-size: 28px; font-weight: 700; margin-bottom: 14px; }
+.counts { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; }
+.counts > div { padding: 10px 8px; border: 1px solid var(--line, #ddd6cc); border-radius: 6px; }
+.counts dt { font-size: 12px; color: var(--muted, #64748b); }
+.counts dd { margin-top: 5px; font-size: 19px; font-variant-numeric: tabular-nums; }
+.records { margin-top: 23px; }
+.records h3 { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.records li + li { border-top: 1px solid var(--line, #ddd6cc); }
+.records a { display: grid; gap: 4px; padding: 13px 0; min-height: 44px; }
+.records a strong { font-size: 14px; overflow-wrap: anywhere; }
+.records a:hover strong { text-decoration: underline; text-underline-offset: 4px; }
+.records small { color: var(--muted, #64748b); font-size: 12px; }
+.records .securityLink { display: flex; }
+.securityLink { display: flex; justify-content: space-between; align-items: center; min-height: 44px; font-size: 14px; }
+.danger { margin-top: 18px; border-top: 1px solid var(--line, #ddd6cc); padding-top: 15px; }
+.danger summary { cursor: pointer; min-height: 44px; padding-block: 10px; color: #a73735; font-size: 13px; font-weight: 600; }
+.legal { display: flex; gap: 20px; padding: 10px 0 0; }
+.legal a { display: inline-flex; align-items: center; min-height: 44px; font-size: 12px; color: var(--muted, #64748b); }
+:global(html.dark) .danger summary { color: #ffb0ab; }
+.page :is(a,button,input,textarea,summary):focus-visible { outline: 2px solid #709cc1; outline-offset: 3px; }
+@media (max-width: 767px) { .grid { grid-template-columns: minmax(0,1fr); gap: 18px; } .page { margin-top: 22px; } .panel { padding: 19px; } .heading { font-size: 25px; } .identity { gap: 14px; } }

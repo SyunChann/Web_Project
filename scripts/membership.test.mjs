@@ -103,6 +103,7 @@ test("withdrawal scopes deletion to the verified user and preserves attached pho
   assert.equal(h.calls.find(x => x[0] === "close_member_account_v1")[1].p_user_id, "owner");
   assert.equal(h.calls.find(x => x[0] === "postOwner")[1], "owner"); assert.equal(h.calls.find(x => x[0] === "photoOwner")[1], "owner");
   assert.equal(JSON.stringify(h.calls.find(x => x[0] === "removePhotos")[1]), '["owner/unused.jpg"]');
+  assert.ok(h.calls.some(x => x[0] === 'removePhotos' && JSON.stringify(x[1]) === '["owner/avatar.webp"]'));
 });
 test("storage cleanup failure leaves the account intact", async () => {
   const h = harness({ env: { SUPABASE_SERVICE_ROLE_KEY: "private-marker" }, storageError: {} });
