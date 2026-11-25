@@ -19,10 +19,15 @@
 .form textarea { resize: vertical; min-height: 94px; }
 .button { min-height: 44px; padding: 10px 15px; border-radius: 6px; background: #304d70; color: white; font-size: 13px; font-weight: 600; cursor: pointer; }
 .secondary { min-height: 44px; padding: 10px 12px; border: 1px solid var(--line, #ddd6cc); border-radius: 6px; color: var(--foreground); font-size: 13px; cursor: pointer; }
-.button:disabled, .secondary:disabled { opacity: .55; cursor: wait; }
+.button:disabled, .secondary:disabled { opacity: .55; cursor: not-allowed; }
+.button[aria-busy="true"], .secondary[aria-busy="true"] { cursor: progress; }
 .actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .photoForm { display: grid; grid-template-columns: minmax(0,1fr); gap: 12px; padding-bottom: 20px; border-bottom: 1px solid var(--line, #ddd6cc); }
 .photoForm label { min-width: 0; }
+.filePicker { display: grid; gap: 10px; font-size: 13px; font-weight: 600; }
+.filePicker input::file-selector-button { margin-right: 10px; min-height: 44px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface-muted); color: var(--foreground); padding: 10px 14px; font: inherit; font-weight: 600; cursor: pointer; }
+.filePicker input:disabled::file-selector-button { cursor: not-allowed; }
+.filePicker input:focus-visible { outline: 2px solid #709cc1; outline-offset: 3px; }
 .photoForm input { width: 100%; min-width: 0; max-width: 100%; font-size: 13px; }
 .notice { padding: 13px 16px; border: 1px solid var(--line, #ddd6cc); border-radius: 6px; margin-bottom: 18px; font-size: 13px; line-height: 1.8; }
 .total { font-size: 28px; font-weight: 700; margin-bottom: 14px; }
