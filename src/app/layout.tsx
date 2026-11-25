@@ -6,7 +6,7 @@ import { ListNavigation } from "@/components/ListNavigation";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import localFont from "next/font/local";
 import { getSiteUrl } from "@/lib/siteUrl";
-import { siteName as siteTitle, siteDescription } from "@/lib/siteIdentity";
+import { siteName as siteTitle, siteDescription, siteShareDescription } from "@/lib/siteIdentity";
 import "./globals.css";
 import "./site-theme.css";
 import { SiteShell } from "@/components/site/SiteShell";
@@ -18,7 +18,7 @@ const mainFont = localFont({
 });
 
 const shareImage = {
-  url: "/share/home-v3",
+  url: "/share/home-v4",
   width: 1200,
   height: 630,
   alt: "취향 보관소 — 콘텐츠 · 맛집 · 여행 · 술",
@@ -40,13 +40,13 @@ export const metadata: Metadata = {
     locale: "ko_KR",
     siteName: siteTitle,
     title: siteTitle,
-    description: siteDescription,
+    description: siteShareDescription,
     images: [shareImage],
   },
   twitter: {
     card: "summary_large_image",
     title: siteTitle,
-    description: siteDescription,
+    description: siteShareDescription,
     images: [{ url: shareImage.url, alt: shareImage.alt }],
   },
 };

@@ -2,6 +2,7 @@ import { getSiteUrl } from "@/lib/siteUrl";
 
 export const siteName = "취향 보관소";
 export const homeSearchTitle = "취향 보관소 | 리뷰·맛집·여행·술 기록";
+export const siteShareDescription = "콘텐츠·맛집·여행·술, 좋아한 것들의 기록.";
 export const siteDescription = "콘텐츠 리뷰와 맛집·여행 후기, 위스키·사케 시음 기록을 모으는 개인 취향 아카이브입니다. 인천공항 출국 안내도 확인하세요.";
 
 export function websiteStructuredData() {

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getSiteUrl } from "@/lib/siteUrl";
 
-export const defaultShareImage = "/share/home-v3";
+export const defaultShareImage = "/share/home-v4";
 
 export function postMetadata({ title, description, path, image, imageAlt }: {
   title: string; description?: string; path: string; image?: string; imageAlt?: string;

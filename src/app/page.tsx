@@ -4,14 +4,14 @@ import { HomeRecentEntries } from "@/components/home/HomeRecentEntries";
 import { HomeAirportInfo, HomeEditorPick, HomeExchangeRates, HomeRatesSkeleton, HomeAirportSkeleton, HomeEditorSkeleton } from "@/components/home/HomeQuickInfo";
 import { StatusToast } from "@/components/StatusToast";
 import { getHomeFeed } from "@/data/homeFeed";
-import { homeSearchTitle, siteDescription, siteName, websiteStructuredData } from "@/lib/siteIdentity";
+import { homeSearchTitle, siteDescription, siteShareDescription, siteName, websiteStructuredData } from "@/lib/siteIdentity";
 import styles from "@/components/home/Home.module.css";
 
 export const metadata: Metadata = {
   title: homeSearchTitle,
   description: siteDescription,
   alternates: { canonical: "/" },
-  openGraph: { type: "website", locale: "ko_KR", siteName, title: siteName, description: siteDescription, url: "/", images: [{ url: "/share/home-v3", width: 1200, height: 630, alt: "취향 보관소 — 콘텐츠 · 맛집 · 여행 · 술" }] },
+  openGraph: { type: "website", locale: "ko_KR", siteName, title: siteName, description: siteShareDescription, url: "/", images: [{ url: "/share/home-v4", width: 1200, height: 630, alt: "취향 보관소 — 콘텐츠 · 맛집 · 여행 · 술" }] },
 };
 
 type HomeProps = { searchParams?: Promise<{ status?: string }> };
