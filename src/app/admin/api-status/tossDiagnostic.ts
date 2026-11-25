@@ -30,10 +30,8 @@ export async function checkTossDiagnostic() {
     }
   }
   await observeApi('toss',async()=>{
-    // Only GETs: reuse the existing ranking cache and inspect one detail item.
-    const items=await probe('베스트 상품','/v1/products/best-selling?size=50','items');
-    const id=items?.find(item=>item && Number.isSafeInteger(item.tacaItemId) && item.tacaItemId!>0)?.tacaItemId;
-    if(id)await probe('상품 상세',`/v1/products/detail?tacaItemIds=${id}`,'items');
+    // Only probe endpoints used by the shopping list. No detail or link calls.
+    await probe('베스트 상품','/v1/products/best-selling?size=50','items');
     await probe('카테고리 목록','/v1/categories','categories');
     return checks;
   },values=>{

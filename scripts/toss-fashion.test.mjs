@@ -189,7 +189,15 @@ test("fashion screen keeps ad disclosure, original image blocking, sponsored lin
 });
 
 test('HTTP 200 business failures survive the complete shopping and link pipeline', async()=>{
- for(const [endpoint,code,expected] of [['/v1/products/best-selling','SHARELINK_OPENAPI_ACCESS_DENIED','authentication'],['/v1/products/detail','SHARELINK_OPENAPI_QUOTA_EXCEEDED','rate-limit'],['/v1/links','SHARELINK_OPENAPI_QUOTA_EXCEEDED','rate-limit']]){
+ for(const [endpoint,code,expected] of [['/v1/products/best-selling','SHARELINK_OPENAPI_ACCESS_DENIED','authentication'],['/v1/links','SHARELINK_OPENAPI_QUOTA_EXCEEDED','rate-limit']]){
   const h=harness({businessFailure:{endpoint,code}});assert.equal((await h.api.getTossSharelinkContent()).status,'error');const error=h.observations.at(-1);assert.equal(error.state,expected);assert.equal(error.httpStatus,200);
  }
+});
+
+test('best-selling and fashion render ranking fields when the detail API is not authorized',async()=>{
+ const h=harness({businessFailure:{endpoint:'/v1/products/detail',code:'SHARELINK_OPENAPI_PARTNER_NOT_AUTHORIZED'}});
+ for(const result of [await h.api.getTossSharelinkContent(),await h.api.getTossFashionContent()]){
+  assert.equal(result.status,'ready');assert.ok(result.products.length);const item=result.products[0];assert.equal(item.displayPrice,20000);assert.ok(item.thumbnailUrl.endsWith('?original=1'));assert.ok(item.shareUrl.startsWith('https://toss.im/'));
+ }
+ assert.ok(!h.calls.some(path=>path.includes('/detail')));
 });

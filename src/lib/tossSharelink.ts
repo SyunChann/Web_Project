@@ -7,7 +7,6 @@ import { readTossSuccess, tossOperation, TossResponseError } from "@/lib/tossRes
 const CACHE_TTL_MS = 60 * 60 * 1000;
 const DISPLAY_PRODUCT_COUNT = 20;
 const BEST_SELLING_CANDIDATE_COUNT = 50;
-const PRODUCT_DETAIL_BATCH_SIZE = 20;
 const LINK_REQUEST_CONCURRENCY = 5;
 const STALE_RETRY_TTL_MS = 5 * 60 * 1000;
 const MAX_DATA_AGE_MS = 24 * 60 * 60 * 1000;
@@ -18,7 +17,7 @@ type TossApiResult<T> = {
   error?: { errorCode?: string; reason?: string; message?: string };
 };
 
-type ProductDetail = {
+type RankedProduct = {
   tacaItemId: number;
   displayName: string;
   thumbnailUrl?: string | null;
@@ -39,7 +38,7 @@ type LinkResult = {
   originUrl: string;
 };
 
-export type TossSharelinkProduct = ProductDetail & {
+export type TossSharelinkProduct = RankedProduct & {
   rank: number;
   shareUrl: string;
 };
@@ -136,7 +135,7 @@ async function callProxy<T>(
 }
 
 async function loadProducts(proxyBaseUrl: string, proxyApiKey: string, categoryId?: number) {
-  const bestSelling = await callProxy<{ items: ProductDetail[]; category?: { categoryId: number } }>(
+  const bestSelling = await callProxy<{ items: RankedProduct[]; category?: { categoryId: number } }>(
     proxyBaseUrl,
     proxyApiKey,
     categoryId === undefined
@@ -151,30 +150,9 @@ async function loadProducts(proxyBaseUrl: string, proxyApiKey: string, categoryI
   if (itemIds.length === 0 && categoryId !== undefined) return [];
   if (itemIds.length === 0) throw new Error("토스쇼핑 베스트 상품을 찾을 수 없습니다.");
 
-  const detailBatches = await Promise.all(
-    Array.from({ length: Math.ceil(itemIds.length / PRODUCT_DETAIL_BATCH_SIZE) }, (_, index) =>
-      itemIds.slice(
-        index * PRODUCT_DETAIL_BATCH_SIZE,
-        (index + 1) * PRODUCT_DETAIL_BATCH_SIZE,
-      ),
-    ).map((batch) =>
-      callProxy<{ items: ProductDetail[] }>(
-        proxyBaseUrl,
-        proxyApiKey,
-        `/v1/products/detail?tacaItemIds=${batch.join(",")}`,
-      ),
-    ),
-  );
-  const detailsById = new Map(
-    detailBatches.flatMap((detail) => detail.items).map((product) => [product.tacaItemId, product]),
-  );
-
-  const candidates = rankedProducts
-    .map((product) => {
-      const detail = detailsById.get(product.tacaItemId);
-      return detail ? { ...product, ...detail, thumbnailUrl: product.thumbnailUrl ?? detail.thumbnailUrl } : product;
-    })
-    .filter((product) => !product.isSoldOut);
+  // Ranking responses already contain every field rendered by the cards.
+  // Do not make display depend on the separately authorized detail endpoint.
+  const candidates = rankedProducts.filter((product) => !product.isSoldOut);
   const availableProducts: TossSharelinkProduct[] = [];
   let firstLinkError: unknown;
 

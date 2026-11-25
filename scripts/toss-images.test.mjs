@@ -83,12 +83,13 @@ function setupApi() {
   });
   return { service, calls, advance: (ms) => { now += ms; }, fail: () => { unavailable = true; } };
 }
-test("list thumbnail survives detail enrichment without extra image API calls", async () => {
+test("ranking thumbnail is preserved without a detail request", async () => {
   const { service, calls } = setupApi();
   const result = await service.getTossSharelinkContent();
   assert.equal(result.status, "ready");
   assert.equal(result.products[0].thumbnailUrl, original);
-  assert.equal(calls.length, 3); // Existing list, detail and tracked-link requests only.
+  assert.equal(calls.length, 2); // Ranking and tracked link only.
+  assert.ok(!calls.some(call => call.url.includes("/detail")));
 });
 test("permission removal still applies to an already cached product", async () => {
   const { service, calls } = setupApi();
@@ -96,7 +97,7 @@ test("permission removal still applies to an already cached product", async () =
   assert.equal(images.getTossThumbnailUrl(first.products[0], new Set()), original);
   const cached = await service.getTossSharelinkContent();
   assert.equal(images.getTossThumbnailUrl(cached.products[0], new Set([123])), null);
-  assert.equal(calls.length, 3);
+  assert.equal(calls.length, 2);
 });
 test("upstream outages never extend product data beyond 24 hours", async () => {
   const { service, advance, fail } = setupApi();
