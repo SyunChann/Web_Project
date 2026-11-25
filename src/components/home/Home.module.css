@@ -171,3 +171,59 @@
   .account :global(.theme-toggle) { width: 35px; }
 }
 @media (prefers-reduced-motion: reduce) { .root *, .root *::before, .root *::after { transition: none; } }
+/* Home overview: real data, quieter density, shared typography. */
+.recordsGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 34px; }
+.exploreIntro { display: flex; align-items: flex-start; min-height: 39px; padding-top: 5px; border-bottom: 1px solid var(--home-line); font-size: 12px; color: var(--home-muted); }
+.productPreview { display: grid; gap: 12px; margin-top: 3px; }
+.productPreview li + li { border-top: 1px solid var(--home-line); padding-top: 11px; }
+.productPreview a { display: flex; align-items: flex-start; gap: 10px; }
+.productPreview a > div { flex: 1; min-width: 0; }
+.productPreview a > svg { flex-shrink: 0; margin-top: 3px; color: var(--home-muted); }
+.productRank { flex-shrink: 0; padding-top: 2px; color: var(--home-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.productPreview h3 { font-size: 12px; font-weight: 500; line-height: 1.7; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.productPreview a:hover h3 { text-decoration: underline; text-underline-offset: 3px; }
+.productPreview p { margin-top: 5px; font-size: 14px; font-weight: 700; }
+.shoppingFallback { display: flex; flex-wrap: wrap; gap: 10px 14px; }
+.shoppingFallback > p { width: 100%; margin-top: 0; }
+.shoppingFallback > a { font-size: 12px; text-decoration: underline; text-underline-offset: 4px; }
+.airportSummary { display: grid; gap: 10px; margin-top: 3px; }
+.airportSummary > div { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.airportSummary > div + div { padding-top: 10px; border-top: 1px solid var(--home-line); }
+.airportSummary dt { font-size: 13px; font-weight: 700; }
+.airportSummary dt small { display: block; margin-top: 2px; font-size: 10px; font-weight: 400; color: var(--home-muted); }
+.airportSummary dd { text-align: right; flex-shrink: 0; }
+.airportSummary dd strong { display: block; font-size: 17px; font-weight: 700; }
+.airportSummary dd span { display: block; margin-top: 2px; font-size: 10px; color: var(--home-muted); }
+.rates .rateMovement { display: grid; gap: 3px; margin-top: 4px; font-size: 11px; font-weight: 600; line-height: 1.6; white-space: normal; }
+.rates .rateMovement > span { display: flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 600; color: inherit; }
+.rateMovement small { padding-left: 17px; font-size: 10px; font-weight: 400; }
+.rateMovement[data-direction="up"] { color: #b23c3c; }
+.rateMovement[data-direction="down"] { color: #2267a3; }
+.rateMovement[data-direction="flat"], .rateMovement[data-direction="unknown"] { color: var(--home-muted); }
+:global(html.dark) .rateMovement[data-direction="up"] { color: #ffb0ab; }
+:global(html.dark) .rateMovement[data-direction="down"] { color: #9dccff; }
+.quickSkeleton { display: grid; gap: 13px; padding: 8px 0; min-height: 150px; }
+.quickSkeleton span { display: block; height: 12px; width: 80%; background: var(--home-line); border-radius: 3px; }
+.quickSkeleton span:nth-child(2) { width: 65%; }
+.quickSkeleton span:nth-child(3) { width: 50%; }
+@media (max-width: 1200px) and (min-width: 1024px) {
+  .recordsGrid { gap: 23px; }
+  .recordsGrid .thumbnail { width: 49px; height: 62px; }
+  .recordsGrid .entryLink { gap: 11px; }
+  .recordsGrid .tabs { justify-content: space-between; gap: 6px; }
+}
+@media (max-width: 1023px) {
+  .recordsGrid { grid-template-columns: minmax(0, 1fr); gap: 30px; }
+}
+@media (max-width: 767px) {
+  .exploreIntro { min-height: 45px; padding-top: 10px; }
+  .productPreview { gap: 9px; }
+  .productPreview a { gap: 7px; }
+  .productPreview h3 { font-size: 11px; }
+  .productPreview p { font-size: 13px; }
+  .productRank { font-size: 10px; }
+  .airportSummary > div { align-items: flex-start; gap: 6px; }
+  .airportSummary dd strong { font-size: 15px; }
+  .airportSummary dt small { max-width: 73px; overflow-wrap: anywhere; }
+  .airportSummary dd { flex-shrink: 1; }
+}

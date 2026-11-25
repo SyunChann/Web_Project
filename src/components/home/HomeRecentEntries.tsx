@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useId, useState } from "react";
 import { ArrowUpRight, Library, MapPinned, Plane, Star, Wine } from "lucide-react";
+import { otherHomeEntries } from "@/lib/homeOverview";
 import type { HomeEntry, HomeGroup } from "@/data/homeFeed";
 import styles from "./Home.module.css";
 
@@ -19,12 +20,24 @@ function EntryPhoto({ entry }: { entry: HomeEntry }) {
     {entry.image && failed !== entry.image ? <Image src={entry.image} alt="" width={120} height={144} sizes="60px" className={styles.photo} unoptimized={/\.gif(?:\?|$)/i.test(entry.image)} onError={() => setFailed(entry.image)} /> : <Icon size={22} strokeWidth={1.5} aria-hidden="true" />}
   </span>;
 }
+function RecordRow({ entry }: { entry: HomeEntry }) { return (<article className={styles.entry}>
+        <Link prefetch={false} href={entry.href} className={styles.entryLink}>
+          <EntryPhoto entry={entry} />
+          <div className={styles.entryBody}><p className={styles.entryLabel}>{entry.label}{entry.detail ? ` · ${entry.detail}` : ""}</p><h3>{entry.title}</h3>
+            <div className={styles.entryMeta}>{entry.rating !== null ? <span className={styles.rating}><Star size={12} fill="currentColor" aria-hidden="true" /><span className="sr-only">평점 </span>{entry.rating.toFixed(1)}</span> : null}
+              <time dateTime={entry.createdAt}>{new Intl.DateTimeFormat("ko-KR", { month: "numeric", day: "numeric", timeZone: "Asia/Seoul" }).format(new Date(entry.createdAt))}</time>
+            </div>
+          </div><ArrowUpRight size={17} className={styles.entryArrow} aria-hidden="true" />
+        </Link>
+      </article>); }
+
 export function HomeRecentEntries({ entries, partial = false }: { entries: HomeEntry[]; partial?: boolean }) {
   const [selected, setSelected] = useState<HomeGroup | "all">("all");
   const id = useId();
   const visible = entries.filter((entry) => selected === "all" || entry.group === selected).slice(0, 3);
+  const others = otherHomeEntries(entries, visible.map((entry) => entry.id));
   const current = filters.find((filter) => filter.value === selected)!;
-  return <section className={styles.recent} aria-labelledby={`${id}-heading`}>
+  return <div className={styles.recordsGrid}><section className={styles.recent} aria-labelledby={`${id}-heading`}>
     <div className={styles.sectionHeader}><h2 id={`${id}-heading`}>최근 남긴 기록</h2><Link prefetch={false} href={current.href} className={styles.textLink}>목록 보기 <ArrowUpRight size={14} aria-hidden="true" /></Link></div>
     <div className={styles.tabs} role="tablist" aria-label="기록 종류">
       {filters.map((filter, index) => <button key={filter.value} id={`${id}-${filter.value}`} type="button" role="tab" aria-selected={selected === filter.value} aria-controls={`${id}-entries`} tabIndex={selected === filter.value ? 0 : -1}
@@ -36,17 +49,14 @@ export function HomeRecentEntries({ entries, partial = false }: { entries: HomeE
         }}>{filter.label}</button>)}
     </div>
     <div id={`${id}-entries`} role="tabpanel" aria-labelledby={`${id}-${selected}`} aria-live="polite" className={styles.entries}>
-      {visible.length ? visible.map((entry) => <article className={styles.entry} key={entry.id}>
-        <Link prefetch={false} href={entry.href} className={styles.entryLink}>
-          <EntryPhoto entry={entry} />
-          <div className={styles.entryBody}><p className={styles.entryLabel}>{entry.label}{entry.detail ? ` · ${entry.detail}` : ""}</p><h3>{entry.title}</h3>
-            <div className={styles.entryMeta}>{entry.rating !== null ? <span className={styles.rating}><Star size={12} fill="currentColor" aria-hidden="true" /><span className="sr-only">평점 </span>{entry.rating.toFixed(1)}</span> : null}
-              <time dateTime={entry.createdAt}>{new Intl.DateTimeFormat("ko-KR", { month: "numeric", day: "numeric", timeZone: "Asia/Seoul" }).format(new Date(entry.createdAt))}</time>
-            </div>
-          </div><ArrowUpRight size={17} className={styles.entryArrow} aria-hidden="true" />
-        </Link>
-      </article>) : <p className={styles.empty}>{partial ? "기록을 불러오지 못했습니다. 각 목록에서 다시 확인해 주세요." : "아직 등록된 기록이 없습니다."}</p>}
+      {visible.length ? visible.map((entry) => <RecordRow key={entry.id} entry={entry} />) : <p className={styles.empty}>{partial ? "기록을 불러오지 못했습니다. 각 목록에서 다시 확인해 주세요." : "아직 등록된 기록이 없습니다."}</p>}
     </div>
     {partial && visible.length ? <p className={styles.feedNotice}>일부 기록을 불러오지 못했습니다. 각 목록에서 확인해 주세요.</p> : null}
-  </section>;
+  </section>
+    <section className={styles.recent} aria-labelledby={`${id}-explore-heading`}>
+      <div className={styles.sectionHeader}><h2 id={`${id}-explore-heading`}>다른 취향 둘러보기</h2></div>
+      <p className={styles.exploreIntro}>콘텐츠 · 맛집 · 여행의 새 기록</p>
+      <div className={styles.entries}>{others.length ? others.map((entry) => <RecordRow key={entry.id} entry={entry} />) : <p className={styles.empty}>{partial ? "다른 기록은 각 목록에서 확인해 주세요." : "다른 분야의 기록이 쌓이면 여기에 모아 보여드려요."}</p>}</div>
+    </section>
+  </div>;
 }
