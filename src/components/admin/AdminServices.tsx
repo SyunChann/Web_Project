@@ -20,7 +20,7 @@ export function AdminServices({ headingLevel = "h2" }: { headingLevel?: "h1" | "
     ["/release-calendar", "애니 신작 캘린더", "분기별 애니메이션 공개 일정"],
     ["/lck-calendar", "LCK 경기 일정", "경기 일정과 결과"],
     ["/lck-analysis", "LCK 밴픽 분석", "대회 밴픽 자료"],
-    ["/account", "내 계정", "닉네임·비밀번호 관리"],
+    ["/account", "마이페이지", "닉네임·비밀번호 관리"],
   ];
   return <section id="services" className="grid scroll-mt-6 gap-5">
     <div><Heading className={headingLevel === "h1" ? "text-3xl font-black tracking-tight sm:text-4xl" : "text-2xl font-black"}>서비스·연동 관리</Heading><p className="mt-2 text-sm leading-6 text-[#64748b]">키 값은 표시하지 않습니다. 등록 상태는 현재 서버 환경변수 기준이며, 인증 승인·호출 한도·실시간 연결 상태를 뜻하지 않습니다.</p></div>

@@ -15,7 +15,7 @@ const archiveLinks = [
   { href: "/travel/items", label: "해외여행", icon: Plane }, { href: "/drinks", label: "술 취향", icon: Wine },
 ];
 const informationLinks = [
-  { href: "/recommendations", label: "에디터 픽", icon: Bookmark }, { href: "/departures", label: "출국 안내", icon: PlaneTakeoff },
+  { href: "/recommendations", label: "쇼핑 베스트", icon: Bookmark }, { href: "/departures", label: "출국 안내", icon: PlaneTakeoff },
   { href: "/lck-calendar", label: "LCK 일정", icon: Trophy }, { href: "/lck-analysis", label: "LCK 분석", icon: Trophy },
 ];
 async function currentUser() { try { return (await getSupabaseServerSession()).user; } catch { return null; } }
@@ -31,20 +31,20 @@ export function HomeSidebar() {
 }
 async function HomeProfile() {
   const user = await currentUser();
-  const name = user ? String(user.user_metadata?.nickname || user.user_metadata?.display_name || "내 계정").slice(0, 30) : "취향 보관소";
-  return <Link prefetch={false} href={user ? "/account" : "/login"} className={styles.profile}><span className={styles.avatar} aria-hidden="true">{user ? name.slice(0, 1) : "S"}</span><span className={styles.profileName}>{name}<small>{user ? "내 계정" : "좋아하는 것을 기록하는 공간"}</small></span></Link>;
+  const name = user ? String(user.user_metadata?.nickname || user.user_metadata?.display_name || "마이페이지").slice(0, 30) : "취향 보관소";
+  return <Link prefetch={false} href={user ? "/account" : "/login"} className={styles.profile}><span className={styles.avatar} aria-hidden="true">{user ? name.slice(0, 1) : "S"}</span><span className={styles.profileName}>{name}<small>{user ? "마이페이지" : "좋아하는 것을 기록하는 공간"}</small></span></Link>;
 }
 export async function HomeAccount() {
   const user = await currentUser();
   return <nav className={styles.account} aria-label="계정 메뉴"><ThemeToggle />
     <Link prefetch={false} href={user ? "/new" : loginHref("/new")} className={styles.primaryButton}><Plus size={16} aria-hidden="true" />새 기록</Link>
-    {user ? <><details className={styles.accountMenu}><summary>내 계정<ChevronDown size={13} aria-hidden="true" /></summary><div><Link prefetch={false} href="/account">계정 설정<ArrowUpRight size={14} aria-hidden="true" /></Link><Link prefetch={false} href="/ai-office">AI Office<ArrowUpRight size={14} aria-hidden="true" /></Link><LogoutButton /></div></details>{isAdminUser(user) ? <Link prefetch={false} href="/admin" className={styles.adminLink}>관리자</Link> : null}</>
+    {user ? <><details className={styles.accountMenu}><summary>마이페이지<ChevronDown size={13} aria-hidden="true" /></summary><div><Link prefetch={false} href="/account">프로필·계정 설정<ArrowUpRight size={14} aria-hidden="true" /></Link><Link prefetch={false} href="/ai-office">AI Office<ArrowUpRight size={14} aria-hidden="true" /></Link><LogoutButton /></div></details>{isAdminUser(user) ? <Link prefetch={false} href="/admin" className={styles.adminLink}>관리자</Link> : null}</>
       : <Link prefetch={false} href="/login" className={styles.loginLink}><LogIn size={16} aria-hidden="true" /><span>로그인</span></Link>}
   </nav>;
 }
 export function HomeBottomNav() {
   return <nav className={styles.bottomNav} aria-label="모바일 바로가기">{[
     { href: "/", label: "홈", icon: House }, { href: "/reviews", label: "콘텐츠", icon: Library },
-    { href: "/recommendations", label: "에디터픽", icon: Bookmark }, { href: "/departures", label: "출국안내", icon: PlaneTakeoff },
+    { href: "/recommendations", label: "쇼핑베스트", icon: Bookmark }, { href: "/departures", label: "출국안내", icon: PlaneTakeoff },
   ].map(({ href, label, icon: Icon }) => <Link prefetch={false} key={href} href={href} aria-current={href === "/" ? "page" : undefined}><Icon size={19} strokeWidth={1.6} aria-hidden="true" /><span>{label}</span></Link>)}</nav>;
 }

@@ -58,7 +58,7 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
   const sectionLabels: Record<string, string> = {
     home: "리뷰",
     reviews: "리뷰 목록",
-    recommendations: "에디터픽",
+    recommendations: "쇼핑베스트",
     watchlist: "기대작",
     "domestic-restaurants-map": "국내 맛집리뷰 지도",
     "overseas-restaurants-map": "해외 맛집리뷰 지도",
@@ -180,7 +180,7 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
               <Ellipsis size={20} />
             </summary>
             <div className="absolute right-0 z-30 mt-2 flex w-36 flex-col gap-1 rounded-lg border border-[#d8cfc2] bg-white p-2 shadow-lg">
-              <Link href="/account" className="rounded-md px-3 py-2.5 text-sm font-bold text-[#52616b] hover:bg-[#f7f3ed]">내 계정</Link>
+              <Link href="/account" className="rounded-md px-3 py-2.5 text-sm font-bold text-[#52616b] hover:bg-[#f7f3ed]">마이페이지</Link>
               {isAdmin ? (
                 <Link
                   href="/admin"
@@ -241,7 +241,7 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
             />
           </summary>
           <div className="absolute left-0 z-30 mt-2 w-52 overflow-hidden rounded-lg border border-[#d8cfc2] bg-white p-2 shadow-lg sm:right-0 sm:left-auto">
-            {user ? <Link href="/account" className="flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-bold text-[#52616b] hover:bg-[#f7f3ed]">내 계정</Link> : null}
+            {user ? <Link href="/account" className="flex min-h-11 items-center rounded-md px-3 py-2 text-sm font-bold text-[#52616b] hover:bg-[#f7f3ed]">마이페이지</Link> : null}
             <NavMenuLink
               href="/reviews"
               active={isContentSection}
@@ -321,7 +321,7 @@ export async function AppNav({ active = "home", showAuth = true }: AppNavProps) 
                 작성자
               </span>
             )}
-            <Link href="/account" className="rounded-md border border-[#d8cfc2] bg-white px-3 py-2 text-sm font-bold text-[#52616b] shadow-sm">내 계정</Link>
+            <Link href="/account" className="rounded-md border border-[#d8cfc2] bg-white px-3 py-2 text-sm font-bold text-[#52616b] shadow-sm">마이페이지</Link>
             <LogoutButton />
           </>
         ) : (
@@ -364,7 +364,7 @@ function MobileBottomNav({ active }: { active: NonNullable<AppNavProps["active"]
   return <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-[#d8cfc2] bg-white/95 px-1 pb-[max(0.35rem,env(safe-area-inset-bottom))] pt-1 shadow-[0_-4px_16px_rgba(23,32,42,0.08)] backdrop-blur sm:hidden">
     <Link href="/" aria-current={active === "home" ? "page" : undefined} className={mobileNavButton(active === "home")}><Home size={19} /><span>홈</span></Link>
     <MobileNavGroup label="콘텐츠" icon={<Library size={19} />} active={isContentSection} items={[{ href: "/reviews", label: "콘텐츠 리뷰" }, { href: "/watchlist/items", label: "기대작" }, { href: "/merchandise", label: "상품 리뷰" }, { href: "/drinks", label: "술 취향" }]} />
-    <Link href="/recommendations" aria-current={active === "recommendations" ? "page" : undefined} className={mobileNavButton(active === "recommendations")}><Sparkles size={19} /><span>에디터픽</span></Link>
+    <Link href="/recommendations" aria-current={active === "recommendations" ? "page" : undefined} className={mobileNavButton(active === "recommendations")}><Sparkles size={19} /><span>쇼핑베스트</span></Link>
     <Link href="/departures" aria-current={active === "departures" ? "page" : undefined} className={mobileNavButton(active === "departures")}><PlaneTakeoff size={19} /><span>출국안내</span></Link>
   </div>;
 }
