@@ -1,6 +1,5 @@
 import { ArrowUpRight, Clock3, ShoppingBag, Star } from "lucide-react";
 import { AppNav } from "@/components/AppNav";
-import { ContentSectionTabs } from "@/components/ContentSectionTabs";
 import { TossProductImage } from "@/components/TossProductImage";
 import { getTossThumbnailUrl, parseTossProductIds } from "@/lib/tossProductImages";
 import type { ReactNode } from "react";
@@ -22,7 +21,6 @@ export function TossShoppingPage({ result, fashion = false, categoryName, childr
     <section className={styles.shell}>
       <AppNav active="recommendations" showAuth={false} />
       <header className={styles.hero}>
-        <ContentSectionTabs active="recommendations" />
         <div className={styles.heading}>
           <div>
             <p className={styles.eyebrow}>{fashion ? "FASHION PICKS" : "SHOPPING PICKS"}</p>

@@ -118,11 +118,6 @@
 .author-badge > span:last-child { overflow-wrap: anywhere; }
 
 .site-content.site-content [class~="bg-[#e57632]"], .site-content.site-content [class~="bg-[#0284c7]"], .site-content.site-content [class~="bg-[#65a30d]"], .site-content.site-content [class~="bg-[#5ca1e6]"], .site-content.site-content [class~="bg-[#0878a8]"] { background-color: var(--accent) !important; color: var(--on-accent) !important; }
-.section-tabs { display: flex; flex-wrap: wrap; gap: 8px 23px; margin-bottom: 25px; border-bottom: 1px solid var(--line); }
-.section-tabs a { display: inline-flex; align-items: center; gap: 6px; padding: 10px 0; min-height: 44px; color: var(--muted); border-bottom: 2px solid transparent; font-size: 13px; }
-.section-tabs a[aria-current="page"] { color: var(--foreground); border-bottom-color: var(--accent); font-weight: 700; }
-.section-tabs a:hover { color: var(--foreground); }
-@media(max-width:767px) { .section-tabs { gap: 0 18px; margin-bottom: 20px; } .section-tabs a { font-size: 12px; } .section-tabs svg { display: none; } }
 /* Form surfaces must follow the active palette even on legacy focus utilities. */
 .site-content.site-content :is(input,select,textarea):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="hidden"]) { background-color: var(--surface) !important; color: var(--foreground) !important; border-color: var(--line); }
 

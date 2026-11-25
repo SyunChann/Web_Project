@@ -1,7 +1,6 @@
 import { BarChart3, CalendarDays, Gamepad2, Globe2, Radio } from "lucide-react";
 import type { ReactNode } from "react";
 import { AppNav } from "@/components/AppNav";
-import { ContentSectionTabs } from "@/components/ContentSectionTabs";
 import { LckMonthCalendar } from "@/components/lck/LckMonthCalendar";
 import type { EsportsSeasonEvent } from "@/data/lck";
 import { getLolEsportsSchedule } from "@/lib/naverLckSchedule";
@@ -21,7 +20,6 @@ export default async function LckCalendarPage() {
       <section className="mx-auto w-full max-w-6xl">
         <AppNav active="reviews" showAuth={false} />
         <header className="py-8 sm:py-10">
-          <ContentSectionTabs active="lol" />
           <p className="flex items-center gap-2 text-sm font-black tracking-wide text-[#e32732]"><Radio size={16} /> LCK SCHEDULE</p>
           <div className="mt-3 flex flex-wrap items-end justify-between gap-5">
             <div>

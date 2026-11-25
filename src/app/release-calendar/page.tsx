@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { CalendarDays } from "lucide-react";
 import { AppNav } from "@/components/AppNav";
-import { ContentSectionTabs } from "@/components/ContentSectionTabs";
 import { AniListQuarterCalendar } from "@/components/watchlist/AniListQuarterCalendar";
 import { getAniListQuarterReleases, getCurrentAniListQuarter, type AniListQuarter } from "@/data/anilist";
 
@@ -35,8 +34,7 @@ export default async function ReleaseCalendarPage({ searchParams }: ReleaseCalen
       <section className="mx-auto w-full max-w-6xl">
         <AppNav active="watchlist" />
         <header className="py-10">
-          <ContentSectionTabs active="calendar" />
-          <p className="mt-6 flex items-center gap-2 text-sm font-bold text-[#2f7f7a]"><CalendarDays size={16} /> ANIME RELEASE CALENDAR</p>
+          <p className="flex items-center gap-2 text-sm font-bold text-[#2f7f7a]"><CalendarDays size={16} /> ANIME RELEASE CALENDAR</p>
           <h1 className="mt-3 text-3xl font-black tracking-tight text-[#17202a] sm:text-4xl">애니 신작 캘린더</h1>
           <p className="mt-4 text-[#52616b]">분기별 애니메이션 신작 공개 일정을 확인하세요. AniList 기준이며 국내 공개일과 다를 수 있습니다.</p>
         </header>

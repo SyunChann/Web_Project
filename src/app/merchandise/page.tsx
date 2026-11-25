@@ -3,7 +3,6 @@ import { MobileFilterDetails } from "@/components/MobileFilterDetails";
 import { Search, Star, X } from "lucide-react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
-import { ContentSectionTabs } from "@/components/ContentSectionTabs";
 import Pagination from "@/components/Pagination";
 import { ThumbnailImage } from "@/components/ThumbnailImage";
 import {
@@ -100,7 +99,6 @@ export default async function MerchandiseReviewsPage({ searchParams }: Merchandi
         <AppNav active="merchandise" />
 
         <header className="py-4 sm:py-10">
-          <ContentSectionTabs active="merchandise" />
           <p className="text-sm font-semibold text-[#a349be]">Merchandise</p>
           <h1 className="mt-2 text-2xl font-bold sm:mt-3 sm:text-4xl">전체 리뷰</h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 sm:mt-4 sm:text-base sm:leading-7 text-[#52616b]">

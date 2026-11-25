@@ -3,7 +3,6 @@ import { MobileFilterDetails } from "@/components/MobileFilterDetails";
 import { ArrowLeft, Bookmark, Search, X } from "lucide-react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
-import { ContentSectionTabs } from "@/components/ContentSectionTabs";
 import { ThumbnailImage } from "@/components/ThumbnailImage";
 import {
   getWatchItemsPage,
@@ -65,7 +64,6 @@ export default async function WatchlistItemsPage({
         <AppNav active="watchlist" />
 
         <header className="py-4 sm:py-10">
-          <ContentSectionTabs active="watchlist" />
           <Link
             href="/watchlist"
             className="hidden"
