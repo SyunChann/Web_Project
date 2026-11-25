@@ -27,7 +27,9 @@ function harness(options = {}) {
   const flags = { ...options }, calls = [], observations = [];
   class Clock extends Date { static now() { return now; } }
   const model = load("src/lib/apiMonitoringModel.ts");
+  const responseModel = load("src/lib/tossResponse.ts", {"@/lib/apiMonitoringModel":model});
   const api = load("src/lib/tossSharelink.ts", {
+    "@/lib/tossResponse":responseModel,
     "@/lib/apiMonitoringModel": model,
     "@/lib/apiMonitoring": { observeApi: async (_, operation) => {
       try { return await operation(); } catch (error) { observations.push(model.failureObservation(error)); throw error; }
@@ -35,6 +37,7 @@ function harness(options = {}) {
   }, { Date: Clock, process: { env: options.unconfigured ? {} : { TOSS_PROXY_BASE_URL: "https://proxy.invalid", TOSS_PROXY_API_KEY: "private-fixture-key" } }, fetch: async (raw, init) => {
     const url = new URL(raw); calls.push(url.pathname);
     if (flags.outage) throw Error("fixture outage");
+    if (flags.businessFailure?.endpoint === url.pathname) return {ok:true,status:200,json:async()=>({resultType:"FAIL",error:{errorCode:flags.businessFailure.code,reason:"private-fixture-key"}})};
     let success;
     if (url.pathname === "/v1/categories") {
       if (flags.nonJsonError) return { ok: false, status: flags.nonJsonError, json: async () => { throw SyntaxError("private-response-marker"); } };
@@ -183,4 +186,10 @@ test("fashion screen keeps ad disclosure, original image blocking, sponsored lin
   assert.ok(empty.includes("현재 이 분류에서 제공되는 인기 상품이 없습니다"));
   assert.ok(empty.includes("다음 순위 갱신"));
   assert.ok(!empty.includes("불러오지 못했습니다"));
+});
+
+test('HTTP 200 business failures survive the complete shopping and link pipeline', async()=>{
+ for(const [endpoint,code,expected] of [['/v1/products/best-selling','SHARELINK_OPENAPI_ACCESS_DENIED','authentication'],['/v1/products/detail','SHARELINK_OPENAPI_QUOTA_EXCEEDED','rate-limit'],['/v1/links','SHARELINK_OPENAPI_QUOTA_EXCEEDED','rate-limit']]){
+  const h=harness({businessFailure:{endpoint,code}});assert.equal((await h.api.getTossSharelinkContent()).status,'error');const error=h.observations.at(-1);assert.equal(error.state,expected);assert.equal(error.httpStatus,200);
+ }
 });

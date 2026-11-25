@@ -2,6 +2,8 @@ import "server-only";
 import { observeApi } from "@/lib/apiMonitoring";
 import { ApiRequestError, httpObservation } from "@/lib/apiMonitoringModel";
 
+import { readTossSuccess, tossOperation, TossResponseError } from "@/lib/tossResponse";
+
 const CACHE_TTL_MS = 60 * 60 * 1000;
 const DISPLAY_PRODUCT_COUNT = 20;
 const BEST_SELLING_CANDIDATE_COUNT = 50;
@@ -123,17 +125,14 @@ async function callProxy<T>(
 
   // 경로가 없을 때 프록시는 JSON 대신 HTML을 보낼 수 있습니다.
   // 본문 파싱보다 HTTP 상태를 먼저 확인해 404/인증 오류를 보존합니다.
-  if (!response.ok) throw new ApiRequestError(httpObservation(response.status).state, response.status);
+  if (!response.ok) throw new TossResponseError(httpObservation(response.status).state, response.status, tossOperation(path));
   let payload: TossApiResult<T> | null;
   try {
     payload = (await response.json()) as TossApiResult<T> | null;
   } catch {
-    throw new ApiRequestError("invalid-response", response.status);
+    throw new TossResponseError("invalid-response", response.status, tossOperation(path), "PROXY_INVALID_JSON");
   }
-  if (!payload || typeof payload !== "object" || payload.resultType !== "SUCCESS" || !payload.success) {
-    throw new ApiRequestError("invalid-response", response.status);
-  }
-  return payload.success;
+  return readTossSuccess<T>(payload, response.status, tossOperation(path));
 }
 
 async function loadProducts(proxyBaseUrl: string, proxyApiKey: string, categoryId?: number) {
@@ -177,6 +176,7 @@ async function loadProducts(proxyBaseUrl: string, proxyApiKey: string, categoryI
     })
     .filter((product) => !product.isSoldOut);
   const availableProducts: TossSharelinkProduct[] = [];
+  let firstLinkError: unknown;
 
   for (
     let startIndex = 0;
@@ -196,6 +196,7 @@ async function loadProducts(proxyBaseUrl: string, proxyApiKey: string, categoryI
           const url = new URL(shareUrl);
           return url.protocol === "https:" && !url.username && !url.password ? { product, shareUrl } : null;
         } catch (error) {
+          firstLinkError ??= error;
           console.error(`토스쇼핑 상품 ${product.tacaItemId} 링크 발급 실패`, error);
           return null;
         }
@@ -212,6 +213,7 @@ async function loadProducts(proxyBaseUrl: string, proxyApiKey: string, categoryI
     }
   }
 
+  if (availableProducts.length === 0 && firstLinkError) throw firstLinkError;
   if (availableProducts.length === 0 && categoryId === undefined) throw new Error("노출 가능한 토스쇼핑 상품이 없습니다.");
   return availableProducts;
 }

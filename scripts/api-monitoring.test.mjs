@@ -138,6 +138,7 @@ test("admin panel renders safe configuration guidance without service key values
   const h = harness();
   const { AdminApiStatus } = h.load("src/components/admin/AdminApiStatus.tsx", {
     "react/jsx-runtime": jsx, "next/link": { default: ({ href, children, ...props }) => React.createElement("a", { href, ...props }, children) },
+    "./TossDiagnostic": { TossDiagnostic: () => null },
     "./AdminApiRefresh": { AdminApiRefresh: () => React.createElement("button", null, "기록 새로고침") },
     "@/lib/apiMonitoring": { getApiHealth: async () => ({ state: "unconfigured", rows: [] }), getApiStatistics: async () => ({ state: "unconfigured", data: null }) },
   });

@@ -6,6 +6,8 @@ import { apiServices, apiStateLabels, apiHealthPresentation, serviceConfigured, 
 import { AdminApiRefresh } from "./AdminApiRefresh";
 import { AdminApiStatistics } from "./AdminApiStatistics";
 
+import { TossDiagnostic } from "./TossDiagnostic";
+
 const tones: Record<string, string> = { green: "bg-[#e4f4f2] text-[#216864]", amber: "bg-[#fff4da] text-[#905512]", red: "bg-[#fde8e7] text-[#a73735]", gray: "bg-[#eef0f3] text-[#52616b]" };
 function time(value?: string | null) {
   return value && Number.isFinite(Date.parse(value)) ? new Intl.DateTimeFormat("ko-KR", { timeZone: "Asia/Seoul", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(value)) : "—";
@@ -32,6 +34,7 @@ export async function AdminApiStatus({ user, now, headingLevel = "h2" }: { user:
             {row?.source_updated_at ? <><dt className="text-[#64748b]">자료 기준</dt><dd className="text-right font-semibold">{time(row.source_updated_at)}</dd></> : null}
           </dl>
           {row?.last_error_state ? <p className="mt-3 rounded-md bg-[#f7f8fa] p-2 text-xs leading-6 text-[#64748b]">최근 문제: {apiStateLabels[row.last_error_state]} · {time(row.last_error_at)}{row.http_status && row.last_error_at === row.checked_at ? ` · HTTP ${row.http_status}` : ""}</p> : null}
+          {id === "toss" ? <TossDiagnostic /> : null}
           <Link href={service.href} className="mt-3 inline-flex min-h-11 items-center text-sm font-bold text-[#304d70]">관련 서비스 보기 ↗</Link>
         </article>;
       })}
