@@ -1,12 +1,12 @@
-import { Suspense, type ReactNode } from "react";
-import { ArrowRight, Bookmark, Library, MapPinned, Plane, PlaneTakeoff, ShoppingCart, Sparkles, Trophy, Utensils, Wine } from "lucide-react";
-import Link from "next/link";
-import { AppNav } from "@/components/AppNav";
-import { ExchangeRateCard, ExchangeRateCardSkeleton } from "@/components/ExchangeRateCard";
-import { StatusToast } from "@/components/StatusToast";
-import { getHomeSummary } from "@/data/homeSummary";
+import { Suspense } from "react";
 import type { Metadata } from "next";
+import { HomeSidebar, HomeAccount, HomeBottomNav } from "@/components/home/HomeNavigation";
+import { HomeRecentEntries } from "@/components/home/HomeRecentEntries";
+import { HomeAirportInfo, HomeEditorPick, HomeExchangeRates, HomeRatesSkeleton } from "@/components/home/HomeQuickInfo";
+import { StatusToast } from "@/components/StatusToast";
+import { getHomeFeed } from "@/data/homeFeed";
 import { homeSearchTitle, siteDescription, siteName, websiteStructuredData } from "@/lib/siteIdentity";
+import styles from "@/components/home/Home.module.css";
 
 export const metadata: Metadata = {
   title: homeSearchTitle,
@@ -15,197 +15,28 @@ export const metadata: Metadata = {
   openGraph: { type: "website", locale: "ko_KR", siteName, title: siteName, description: siteDescription, url: "/", images: [{ url: "/share/home-v3", width: 1200, height: 630, alt: "취향 보관소 — 콘텐츠 · 맛집 · 여행 · 술" }] },
 };
 
-type HomeProps = {
-  searchParams?: Promise<{ status?: string }>;
-};
+type HomeProps = { searchParams?: Promise<{ status?: string }> };
 
 export default async function Home({ searchParams }: HomeProps) {
   const params = await searchParams;
-  const statusMessage = params?.status === "login"
-    ? "\uB85C\uADF8\uC778\uB418\uC5C8\uC2B5\uB2C8\uB2E4."
-    : params?.status === "logout"
-      ? "\uB85C\uADF8\uC544\uC6C3\uB418\uC5C8\uC2B5\uB2C8\uB2E4."
-      : "";
-  return (
-    <main className="min-h-screen px-6 py-8 sm:px-10">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteStructuredData()).replace(/</g, "\\u003c") }} />
-      {statusMessage ? <StatusToast key={statusMessage} message={statusMessage} /> : null}
-      <section className="mx-auto flex w-full max-w-6xl flex-col gap-8 sm:gap-10">
-        <Suspense fallback={<HomeNavFallback />}>
-          <AppNav active="home" />
-        </Suspense>
-
-        <header className="flex flex-col gap-5 pt-2 sm:pt-6 lg:flex-row lg:items-end lg:justify-between lg:gap-8">
-          <div className="max-w-3xl">
-            <p className="text-sm font-bold text-[#be4b49]">{siteName}</p>
-            <h1 className="mt-3 text-3xl font-black leading-tight text-[#17202a] sm:text-5xl">
-              {"\uB0B4 \uAE30\uB85D\uC744 \uD55C\uB208\uC5D0 \uBD05\uB2C8\uB2E4"}
-            </h1>
-            <p className="mt-4 max-w-2xl leading-7 text-[#52616b]">
-              콘텐츠 리뷰와 맛집·여행·술 기록을 한곳에서 확인하세요.
-            </p>
-          </div>
-          <Suspense fallback={<ExchangeRateCardSkeleton />}>
-            <ExchangeRateCard />
-          </Suspense>
-        </header>
-
-        <Suspense fallback={<DashboardSkeleton />}>
-          <HomeDashboard />
-        </Suspense>
-      </section>
-    </main>
-  );
-}
-
-async function HomeDashboard() {
-  const summary = await getHomeSummary();
-
-  return (
-    <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
-      <EditorPickSection />
-      <DashboardSection href="/reviews" icon={<Library size={20} />} label={"\uB9AC\uBDF0"} latest={summary.reviews?.title} latestDate={summary.reviews?.createdAt} tone="red" />
-      <DashboardSection href="/watchlist/items" icon={<Bookmark size={20} />} label={"\uAE30\uB300\uC791"} latest={summary.watchlist?.title} latestDate={summary.watchlist?.createdAt} tone="teal" />
-      <DashboardSection href="/merchandise" icon={<ShoppingCart size={20} />} label={"\uC0C1\uD488"} latest={summary.merchandise?.title} latestDate={summary.merchandise?.createdAt} tone="purple" />
-      <DashboardSection href="/restaurants/items" icon={<Utensils size={20} />} label={"\uAD6D\uB0B4 \uB9DB\uC9D1"} latest={summary.domestic?.title} latestDate={summary.domestic?.createdAt} tone="orange" />
-      <DashboardSection href="/restaurants/items?scope=overseas" icon={<MapPinned size={20} />} label={"\uD574\uC678 \uB9DB\uC9D1"} latest={summary.overseas?.title} latestDate={summary.overseas?.createdAt} tone="blue" />
-      <DashboardSection href="/travel/items" icon={<Plane size={20} />} label={"\uD574\uC678\uC5EC\uD589"} latest={summary.travel?.title} latestDate={summary.travel?.createdAt} tone="green" />
-      <DepartureBoardCard />
-      <DashboardSection href="/drinks" icon={<Wine size={20} />} label="술 취향" latest="마신 술 리뷰 · 궁금한 술" meta="위스키 · 사케 · 전통주 · 맥주" tone="indigo" />
-      <DashboardSection href="/lck-calendar" icon={<Trophy size={20} />} label="LCK" latest="LCK 경기 캘린더" meta="네이버 e스포츠 연동" tone="red" />
-    </section>
-  );
-}
-
-function DepartureBoardCard() {
-  return (
-    <Link
-      href="/departures"
-      className="departure-menu-card group relative flex min-h-44 flex-col overflow-hidden rounded-lg border border-[#8bc9e1] bg-[linear-gradient(135deg,#eaf8fe_0%,#d4eef9_100%)] p-4 text-[#123e58] shadow-sm transition hover:-translate-y-0.5 hover:border-[#38a3cf] hover:shadow-md sm:min-h-48 sm:p-5"
-    >
-      <span className="absolute -right-10 -top-12 h-28 w-28 rounded-full bg-[#38bdf8]/20 blur-2xl" aria-hidden="true" />
-      <div className="relative z-10 flex items-center justify-between gap-3">
-        <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#0878a8] bg-[#0878a8] text-white">
-          <PlaneTakeoff size={20} />
-        </span>
-        <ArrowRight size={18} className="text-[#4b8fac] transition group-hover:translate-x-0.5 group-hover:text-[#05658f]" />
-      </div>
-      <div className="relative z-10 mt-4 flex-1 sm:mt-5">
-        <p className="text-xl font-black tracking-tight text-[#075985] sm:text-2xl">인천공항 출국 안내</p>
-        <p className="mt-3 text-sm font-bold leading-relaxed text-[#173f56] sm:text-base">출국장 혼잡도 · 일본행 항공편</p>
-      </div>
-      <div className="relative z-10 mt-4 flex items-center justify-between gap-3 border-t border-[#9ccfe2] pt-3 text-xs font-bold">
-        <span className="inline-flex min-w-0 items-center gap-1.5 truncate text-[#4c7488]"><i aria-hidden="true" className="departure-live-dot h-1.5 w-1.5 shrink-0 rounded-full bg-[#16a36a]" />인천국제공항공사 공공데이터</span>
-        <span className="shrink-0 text-[#0369a1]">전체 보기</span>
-      </div>
-    </Link>
-  );
-}
-
-function HomeNavFallback() {
-  return <div className="h-12 w-28 animate-pulse rounded-md bg-white shadow-sm" aria-hidden="true" />;
-}
-
-function DashboardSkeleton() {
-  return (
-    <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3" aria-busy="true">
-      <div className="col-span-2 min-h-52 animate-pulse rounded-2xl border border-[#f0d4cf] bg-[#fff7f5] lg:col-span-3" />
-      {Array.from({ length: 8 }, (_, index) => <div key={index} className="min-h-40 animate-pulse rounded-lg border border-[#eee8df] bg-white sm:min-h-44" />)}
-    </section>
-  );
-}
-
-function EditorPickSection() {
-  return (
-    <Link
-      href="/recommendations"
-      className="editor-pick-card group relative col-span-2 min-h-52 overflow-hidden rounded-2xl border border-[#e9b9b2] bg-[linear-gradient(125deg,#fff2ef_0%,#fffaf7_56%,#f6f1ff_100%)] p-5 shadow-[0_12px_35px_rgba(190,75,73,0.12)] transition hover:-translate-y-0.5 hover:border-[#be4b49] hover:shadow-[0_16px_42px_rgba(190,75,73,0.18)] sm:p-7 lg:col-span-3"
-    >
-      <span className="absolute -right-12 -top-16 h-44 w-44 rounded-full bg-[#f6c9c2]/50 blur-2xl transition group-hover:scale-110" aria-hidden="true" />
-      <span className="absolute -bottom-20 right-24 h-40 w-40 rounded-full bg-[#d8cafa]/45 blur-3xl" aria-hidden="true" />
-
-      <div className="relative flex h-full flex-col justify-between gap-8 sm:flex-row sm:items-center">
-        <div className="max-w-2xl">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#be4b49] px-3 py-1.5 text-xs font-black tracking-[0.12em] text-white shadow-sm">
-              <Sparkles size={14} /> FEATURED
-            </span>
-            <span className="text-xs font-black tracking-[0.14em] text-[#8f3735]">EDITOR&apos;S PICK</span>
-          </div>
-          <p className="mt-5 text-2xl font-black tracking-tight text-[#17202a] sm:text-4xl">오늘의 에디터 픽</p>
-          <p className="mt-3 max-w-xl break-keep text-sm font-semibold leading-6 text-[#52616b] sm:text-base sm:leading-7">
-            실제 사용 장면과 선택 기준을 담아, 추천 상품을 하나씩 자세히 소개합니다.
-          </p>
+  const message = params?.status === "login" ? "로그인되었습니다." : params?.status === "logout" ? "로그아웃되었습니다." : "";
+  return <div className={styles.root}>
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteStructuredData()).replace(/</g, "\\u003c") }} />
+    <a href="#home-records" className={styles.skipLink}>최근 기록으로 바로가기</a>
+    {message ? <StatusToast key={message} message={message} /> : null}
+    <div className={styles.shell}><HomeSidebar />
+      <main className={styles.main}>
+        <div className={styles.topbar}><p className={styles.breadcrumb}>취향 보관소 / 모아보기</p><Suspense fallback={<div className={styles.accountPlaceholder} aria-label="계정 확인 중" />}><HomeAccount /></Suspense></div>
+        <header className={styles.intro}><h1>좋아한 것들의 기록.</h1><p>보고, 맛보고, 다녀온 순간을 차곡차곡.</p></header>
+        <div className={styles.content} id="home-records"><Suspense fallback={<HomeFeedSkeleton />}><RecentFeed /></Suspense>
+          <aside className={styles.utilities} aria-label="생활 정보"><Suspense fallback={<HomeRatesSkeleton />}><HomeExchangeRates /></Suspense><HomeAirportInfo /><HomeEditorPick /></aside>
         </div>
-
-        <div className="flex shrink-0 items-center justify-between gap-4 sm:flex-col sm:items-end">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/80 bg-white/85 text-[#be4b49] shadow-sm sm:h-20 sm:w-20">
-            <Sparkles size={30} strokeWidth={1.8} />
-          </span>
-          <span className="inline-flex items-center gap-2 rounded-full bg-[#17202a] px-4 py-2.5 text-sm font-black text-white transition group-hover:bg-[#be4b49]">
-            추천 글 보기 <ArrowRight size={16} className="transition group-hover:translate-x-0.5" />
-          </span>
-        </div>
-      </div>
-    </Link>
-  );
+        <footer className={styles.footer}><span>취향은 기록으로 남습니다.</span><span>콘텐츠 · 맛집 · 여행 · 술</span></footer>
+      </main>
+    </div><HomeBottomNav />
+  </div>;
 }
-
-function DashboardSection({
-  href,
-  icon,
-  label,
-  latest,
-  latestDate,
-  meta,
-  tone,
-}: {
-  href: string;
-  icon: ReactNode;
-  label: string;
-  latest?: string;
-  latestDate?: string;
-  meta?: string;
-  tone: "red" | "teal" | "orange" | "blue" | "green" | "purple" | "indigo";
-}) {
-  const themes = {
-    red: { border: "hover:border-[#be4b49]", icon: "bg-[#fff0ed] text-[#be4b49]", accent: "text-[#be4b49]" },
-    teal: { border: "hover:border-[#2f7f7a]", icon: "bg-[#e8f6f4] text-[#2f7f7a]", accent: "text-[#2f7f7a]" },
-    orange: { border: "hover:border-[#e57632]", icon: "bg-[#fdf2e9] text-[#e57632]", accent: "text-[#c85a17]" },
-    blue: { border: "hover:border-[#0284c7]", icon: "bg-[#e8f5fb] text-[#0284c7]", accent: "text-[#0284c7]" },
-    green: { border: "hover:border-[#65a30d]", icon: "bg-[#f2f8e8] text-[#4d7c0f]", accent: "text-[#4d7c0f]" },
-    purple: { border: "hover:border-[#9249be]", icon: "bg-[#f7edfb] text-[#9249be]", accent: "text-[#9249be]" },
-    indigo: { border: "hover:border-[#304d70]", icon: "bg-[#eaf0f6] text-[#304d70]", accent: "text-[#304d70]" },
-  } as const;
-  const theme = themes[tone];
-
-  return (
-    <Link
-      href={href}
-      className={`group flex min-h-44 flex-col rounded-lg border border-[#ddd6cc] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:min-h-48 sm:p-5 ${theme.border}`}
-    >
-      <div className="flex items-center justify-between gap-3">
-        <span className={`flex h-10 w-10 items-center justify-center rounded-xl ${theme.icon}`}>{icon}</span>
-        <ArrowRight size={18} className="text-[#8a95a1] transition group-hover:translate-x-0.5" />
-      </div>
-      <div className="mt-4 flex-1 sm:mt-5">
-        <p className={`text-xl font-black tracking-tight sm:text-2xl ${theme.accent}`}>{label}</p>
-        <p className="mt-3 line-clamp-2 text-sm font-bold leading-relaxed text-[#17202a] sm:text-base">
-          {latest ?? "\uC0C8 \uAE30\uB85D\uC744 \uAE30\uB2E4\uB9AC\uACE0 \uC788\uC5B4\uC694"}
-        </p>
-        {latestDate ? <p className="mt-2 text-xs font-semibold text-[#8a95a1]">최근 업데이트 · {formatDate(latestDate)}</p> : null}
-      </div>
-      <div className="mt-4 flex items-center justify-between gap-3 border-t border-[#eee8df] pt-3 text-xs font-bold">
-        <span className="truncate text-[#8a95a1]">{meta ?? "최근 콘텐츠"}</span>
-        <span className={`shrink-0 ${theme.accent}`}>전체 보기</span>
-      </div>
-    </Link>
-  );
-}
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("ko-KR", {
-    month: "short",
-    day: "numeric",
-  }).format(new Date(value));
+async function RecentFeed() { const feed = await getHomeFeed(); return <HomeRecentEntries entries={feed.entries} partial={feed.partial} />; }
+function HomeFeedSkeleton() {
+  return <section className={styles.recent} aria-busy="true" aria-label="최근 기록 확인 중"><div className={styles.sectionHeader}><h2>최근 남긴 기록</h2></div><div className={styles.skeletonTabs} />{Array.from({ length: 5 }, (_, index) => <div key={index} className={styles.skeletonRow}><span /><div><i /><i /></div></div>)}</section>;
 }

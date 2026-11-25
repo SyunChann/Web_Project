@@ -1,0 +1,165 @@
+.root {
+  --home-line: #e6e9e4;
+  --home-muted: #687167;
+  --home-soft: #f3f5f1;
+  --home-accent: #34483b;
+  --home-on-accent: #fff;
+  min-height: 100dvh;
+  background: var(--surface);
+  color: var(--foreground);
+}
+:global(html.dark) .root {
+  --home-line: #33414a;
+  --home-muted: #b0bdb4;
+  --home-soft: #26343c;
+  --home-accent: #c5dccb;
+  --home-on-accent: #18291d;
+}
+.root a:focus-visible, .root button:focus-visible, .root summary:focus-visible { outline: 2px solid var(--home-accent); outline-offset: 4px; }
+.skipLink { position: fixed; top: -100px; left: 16px; z-index: 100; padding: 10px 16px; border: 1px solid var(--home-line); background: var(--surface); }
+.skipLink:focus { top: 12px; }
+.shell { max-width: 1440px; margin: 0 auto; display: grid; grid-template-columns: 210px minmax(0, 1fr); }
+.sidebar { position: sticky; top: 0; min-height: 100dvh; max-height: 100dvh; overflow-y: auto; scrollbar-width: thin; display: flex; flex-direction: column; gap: 24px; padding: 31px 20px 22px; border-right: 1px solid var(--home-line); }
+.brand { display: inline-flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; letter-spacing: -.6px; min-height: 36px; flex-shrink: 0; }
+.brand svg { flex-shrink: 0; }
+.menuLinks { display: grid; gap: 3px; }
+.menuLinks a { display: flex; align-items: center; gap: 11px; min-height: 39px; padding: 7px 10px; color: var(--home-muted); border-radius: 5px; font-size: 13px; transition: background-color .15s, color .15s; }
+.menuLinks a:hover { background: var(--home-soft); color: var(--foreground); }
+.menuLinks a[aria-current="page"] { color: var(--foreground); background: var(--home-soft); font-weight: 700; }
+.menuLinks svg { flex-shrink: 0; }
+.information { margin-top: 2px; }
+.information > p { padding: 0 10px; margin-bottom: 10px; color: var(--home-muted); font-size: 11px; }
+.profile { margin-top: auto; border-top: 1px solid var(--home-line); padding: 19px 4px 0; display: flex; align-items: center; gap: 10px; }
+.avatar { width: 32px; height: 32px; display: grid; place-items: center; flex-shrink: 0; border-radius: 50%; background: var(--home-soft); color: var(--home-accent); font-size: 15px; }
+.profileName { min-width: 0; overflow-wrap: anywhere; font-size: 12px; }
+.profileName small { display: block; margin-top: 2px; font-size: 10px; color: var(--home-muted); }
+.profilePlaceholder { margin-top: auto; height: 54px; }
+.mobileHeader, .bottomNav { display: none; }
+.main { min-width: 0; padding: 25px 36px 32px; }
+.topbar { display: flex; min-height: 44px; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 44px; }
+.breadcrumb { color: var(--home-muted); font-size: 12px; }
+.account { display: flex; align-items: center; justify-content: flex-end; gap: 9px; flex-wrap: wrap; }
+.account :global(.theme-toggle) { border-color: transparent; background: transparent; box-shadow: none; width: 38px; height: 38px; }
+.account :global(.theme-toggle):hover { background: var(--home-soft); }
+.primaryButton { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 36px; padding: 7px 12px; border-radius: 5px; font-size: 13px; background: var(--home-accent); color: var(--home-on-accent); }
+.primaryButton:hover { filter: brightness(.94); }
+.account .primaryButton { color: var(--home-on-accent); }
+.loginLink { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 6px; color: var(--home-muted); font-size: 12px; }
+.adminLink { display: inline-flex; align-items: center; min-height: 36px; padding: 6px 8px; color: var(--home-muted); font-size: 12px; }
+.accountPlaceholder { width: 170px; min-height: 38px; }
+.accountMenu { position: relative; font-size: 12px; }
+.accountMenu summary { display: flex; align-items: center; gap: 5px; min-height: 36px; padding: 6px; list-style: none; cursor: pointer; color: var(--home-muted); }
+.accountMenu summary::-webkit-details-marker { display: none; }
+.accountMenu > div { position: absolute; right: 0; top: calc(100% + 8px); min-width: 168px; z-index: 35; border: 1px solid var(--home-line); border-radius: 6px; padding: 5px; background: var(--surface); box-shadow: 0 8px 24px #00000012; }
+.accountMenu > div > a { display: flex; align-items: center; justify-content: space-between; padding: 10px; border-radius: 4px; }
+.accountMenu > div > a:hover { background: var(--home-soft); }
+.accountMenu :global(form > button) { width: 100%; justify-content: flex-start; border: 0; background: transparent; padding: 10px; box-shadow: none; color: var(--home-muted); font-size: 12px; font-weight: 400; }
+.accountMenu :global(form > button):hover { background: var(--home-soft); }
+.intro { margin-bottom: 39px; }
+.intro h1 { font-size: clamp(27px, 2.5vw, 34px); font-weight: 700; line-height: 1.5; letter-spacing: -1.1px; }
+.intro p { margin-top: 9px; font-size: 13px; line-height: 1.8; color: var(--home-muted); }
+.content { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 42px; align-items: start; scroll-margin-top: 20px; }
+.recent { min-width: 0; }
+.sectionHeader { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; min-height: 26px; }
+.sectionHeader h2 { font-size: 16px; font-weight: 700; }
+.textLink { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--home-muted); }
+.textLink:hover { color: var(--foreground); }
+.tabs { display: flex; gap: 24px; border-bottom: 1px solid var(--home-line); }
+.tabs button { min-height: 38px; padding: 0 0 11px; border-bottom: 2px solid transparent; color: var(--home-muted); font-size: 12px; cursor: pointer; }
+.tabs button[aria-selected="true"] { color: var(--foreground); border-color: var(--foreground); font-weight: 700; }
+.entry { border-bottom: 1px solid var(--home-line); }
+.entryLink { display: flex; align-items: center; gap: 16px; padding: 22px 0; min-width: 0; }
+.entryLink:hover h3 { text-decoration: underline; text-underline-offset: 4px; }
+.thumbnail { width: 60px; height: 72px; flex-shrink: 0; overflow: hidden; border-radius: 4px; display: grid; place-items: center; background: var(--home-soft); color: var(--home-muted); }
+.photo { display: block; width: 100%; height: 100%; object-fit: contain; }
+.entryBody { flex: 1; min-width: 0; }
+.entryLabel { font-size: 11px; line-height: 1.7; color: var(--home-muted); }
+.entryBody h3 { margin-top: 3px; font-size: 15px; font-weight: 600; line-height: 1.7; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.entryMeta { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 5px; font-size: 11px; line-height: 1.5; color: var(--home-muted); }
+.rating { display: inline-flex; align-items: center; gap: 4px; }
+.entryArrow { flex-shrink: 0; color: var(--home-muted); opacity: .65; }
+.empty { padding: 44px 0; font-size: 13px; line-height: 1.9; color: var(--home-muted); }
+.feedNotice { margin-top: 14px; font-size: 11px; line-height: 1.8; color: var(--home-muted); }
+.utilities { display: grid; gap: 27px; padding-top: 2px; min-width: 0; }
+.utilitySection { min-width: 0; border-top: 1px solid var(--home-line); padding-top: 18px; }
+.utilitySection h2 { display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 600; line-height: 1.6; margin-bottom: 16px; }
+.utilitySection h2 svg { flex-shrink: 0; }
+.rates { display: grid; gap: 13px; }
+.rates > div { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 3px 8px; }
+.rates dt { font-size: 12px; }
+.rates dd { font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rates dd span { font-size: 10px; color: var(--home-muted); font-weight: 400; }
+.utilityNote { margin-top: 13px; color: var(--home-muted); font-size: 11px; line-height: 1.9; overflow-wrap: anywhere; }
+.utilityLink { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 38px; padding: 7px 0; font-size: 12px; color: var(--home-muted); }
+.utilityLink svg { flex-shrink: 0; }
+.utilityLink:hover { color: var(--foreground); text-decoration: underline; text-underline-offset: 4px; }
+.airportIntro { color: var(--home-muted); font-size: 11px; line-height: 1.8; margin-bottom: 9px; }
+.footer { border-top: 1px solid var(--home-line); margin-top: 34px; padding-top: 19px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 9px; color: var(--home-muted); font-size: 11px; line-height: 1.8; }
+.skeletonTabs { height: 34px; border-bottom: 1px solid var(--home-line); }
+.skeletonRow { display: flex; align-items: center; gap: 16px; padding: 22px 0; border-bottom: 1px solid var(--home-line); }
+.skeletonRow > span { width: 60px; height: 72px; background: var(--home-soft); border-radius: 4px; }
+.skeletonRow > div { flex: 1; display: grid; gap: 12px; }
+.skeletonRow i { display: block; height: 11px; width: 65%; background: var(--home-soft); }
+.skeletonRow i + i { width: 40%; }
+@media (max-width: 1150px) {
+  .shell { grid-template-columns: 185px minmax(0, 1fr); }
+  .sidebar { padding: 27px 13px 22px; gap: 22px; }
+  .main { padding: 25px 26px 30px; }
+  .content { grid-template-columns: minmax(0, 1fr) 180px; gap: 27px; }
+  .brand { font-size: 16px; gap: 8px; }
+  .tabs { gap: 20px; }
+  .entryBody h3 { font-size: 14px; }
+  .rates dd { font-size: 14px; }
+}
+@media (max-width: 767px) {
+  .shell { display: block; }
+  .sidebar { display: none; }
+  .mobileHeader { display: flex; align-items: center; justify-content: space-between; gap: 15px; min-height: 66px; padding: 12px 20px; border-bottom: 1px solid var(--home-line); }
+  .brand { font-size: 17px; }
+  .mobileMenu { position: relative; }
+  .mobileMenu summary { min-height: 44px; display: flex; align-items: center; gap: 7px; padding: 0 4px; list-style: none; cursor: pointer; font-size: 13px; }
+  .mobileMenu summary::-webkit-details-marker { display: none; }
+  .mobileMenuPanel { position: absolute; right: 0; top: calc(100% + 10px); width: min(290px, calc(100vw - 40px)); max-height: 72dvh; overflow-y: auto; z-index: 40; padding: 12px; background: var(--surface); border: 1px solid var(--home-line); border-radius: 6px; box-shadow: 0 8px 24px #00000014; }
+  .mobileMenuPanel .information { margin-top: 20px; }
+  .menuLinks a { min-height: 44px; }
+  .main { padding: 14px 20px calc(90px + env(safe-area-inset-bottom)); }
+  .topbar { justify-content: flex-end; margin-bottom: 23px; }
+  .breadcrumb { display: none; }
+  .account { gap: 6px; }
+  .account :global(.theme-toggle), .primaryButton, .loginLink, .adminLink, .accountMenu summary { min-height: 44px; }
+  .intro { margin-bottom: 29px; }
+  .intro h1 { font-size: 28px; letter-spacing: -.9px; }
+  .intro p { font-size: 12px; margin-top: 7px; }
+  .content { grid-template-columns: minmax(0, 1fr); gap: 31px; }
+  .sectionHeader { margin-bottom: 13px; }
+  .tabs { gap: 27px; }
+  .tabs button { min-height: 44px; padding-bottom: 9px; }
+  .entryLink { padding: 18px 0; gap: 13px; }
+  .thumbnail { width: 51px; height: 63px; }
+  .entryBody h3 { font-size: 14px; line-height: 1.7; }
+  .entryLabel { font-size: 10px; }
+  .entryMeta { font-size: 10px; }
+  .utilities { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 19px; }
+  .utilitySection h2 { font-size: 12px; gap: 6px; }
+  .utilityLink { font-size: 11px; line-height: 1.7; min-height: 44px; }
+  .utilityNote { font-size: 10px; }
+  .rates dt { font-size: 11px; }
+  .rates dd { font-size: 13px; }
+  .footer { margin-top: 29px; font-size: 10px; }
+  .bottomNav { position: fixed; inset: auto 0 0; z-index: 30; display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); padding: 5px 8px max(5px, env(safe-area-inset-bottom)); border-top: 1px solid var(--home-line); background: var(--surface); }
+  .bottomNav a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 52px; color: var(--home-muted); font-size: 10px; }
+  .bottomNav a[aria-current="page"] { color: var(--foreground); font-weight: 700; }
+}
+@media (max-width: 440px) {
+  .mobileHeader { padding-inline: 17px; }
+  .main { padding-inline: 17px; }
+  .intro h1 { font-size: 26px; }
+  .tabs { justify-content: space-between; gap: 10px; }
+  .utilities { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 22px 18px; }
+  .utilitySection:last-child { grid-column: 1 / -1; }
+  .utilitySection:last-child .utilityNote { margin-top: 0; }
+  .utilitySection:last-child h2 { margin-bottom: 8px; }
+  .primaryButton { padding-inline: 10px; }
+  .account :global(.theme-toggle) { width: 35px; }
+}
+@media (prefers-reduced-motion: reduce) { .root *, .root *::before, .root *::after { transition: none; } }
