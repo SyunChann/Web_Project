@@ -58,7 +58,7 @@
 .intro { margin-bottom: 39px; }
 .intro h1 { font-size: clamp(27px, 2.5vw, 34px); font-weight: 700; line-height: 1.5; letter-spacing: -1.1px; }
 .intro p { margin-top: 9px; font-size: 13px; line-height: 1.8; color: var(--home-muted); }
-.content { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 42px; align-items: start; scroll-margin-top: 20px; }
+.content { min-width: 0; scroll-margin-top: 20px; }
 .recent { min-width: 0; }
 .sectionHeader { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; min-height: 26px; }
 .sectionHeader h2 { font-size: 16px; font-weight: 700; }
@@ -80,20 +80,21 @@
 .entryArrow { flex-shrink: 0; color: var(--home-muted); opacity: .65; }
 .empty { padding: 44px 0; font-size: 13px; line-height: 1.9; color: var(--home-muted); }
 .feedNotice { margin-top: 14px; font-size: 11px; line-height: 1.8; color: var(--home-muted); }
-.utilities { display: grid; gap: 27px; padding-top: 2px; min-width: 0; }
-.utilitySection { min-width: 0; border-top: 1px solid var(--home-line); padding-top: 18px; }
-.utilitySection h2 { display: flex; align-items: center; gap: 9px; font-size: 13px; font-weight: 600; line-height: 1.6; margin-bottom: 16px; }
+.utilities { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-bottom: 37px; min-width: 0; }
+.utilitySection { min-width: 0; display: flex; flex-direction: column; padding: 20px; border: 1px solid var(--home-line); border-radius: 7px; background: var(--home-soft); }
+.utilitySection h2 { display: flex; align-items: center; gap: 9px; font-size: 16px; font-weight: 700; line-height: 1.6; margin-bottom: 12px; }
 .utilitySection h2 svg { flex-shrink: 0; }
-.rates { display: grid; gap: 13px; }
-.rates > div { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 3px 8px; }
+.rates { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.rates > div { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
 .rates dt { font-size: 12px; }
-.rates dd { font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rates dd { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .rates dd span { font-size: 10px; color: var(--home-muted); font-weight: 400; }
-.utilityNote { margin-top: 13px; color: var(--home-muted); font-size: 11px; line-height: 1.9; overflow-wrap: anywhere; }
-.utilityLink { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 38px; padding: 7px 0; font-size: 12px; color: var(--home-muted); }
+.utilityNote { margin-top: 10px; color: var(--home-muted); font-size: 11px; line-height: 1.9; overflow-wrap: anywhere; }
+.rateDate { display: inline-block; margin-left: 8px; }
+.utilityLink { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; padding: 10px 0 0; margin-top: auto; font-size: 13px; font-weight: 600; color: var(--home-accent); }
 .utilityLink svg { flex-shrink: 0; }
 .utilityLink:hover { color: var(--foreground); text-decoration: underline; text-underline-offset: 4px; }
-.airportIntro { color: var(--home-muted); font-size: 11px; line-height: 1.8; margin-bottom: 9px; }
+.airportIntro { color: var(--home-muted); font-size: 12px; line-height: 1.8; margin-bottom: 9px; }
 .footer { border-top: 1px solid var(--home-line); margin-top: 34px; padding-top: 19px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 9px; color: var(--home-muted); font-size: 11px; line-height: 1.8; }
 .skeletonTabs { height: 34px; border-bottom: 1px solid var(--home-line); }
 .skeletonRow { display: flex; align-items: center; gap: 16px; padding: 22px 0; border-bottom: 1px solid var(--home-line); }
@@ -105,11 +106,16 @@
   .shell { grid-template-columns: 185px minmax(0, 1fr); }
   .sidebar { padding: 27px 13px 22px; gap: 22px; }
   .main { padding: 25px 26px 30px; }
-  .content { grid-template-columns: minmax(0, 1fr) 180px; gap: 27px; }
+  .utilities { gap: 13px; }
+  .utilitySection { padding: 16px; }
   .brand { font-size: 16px; gap: 8px; }
   .tabs { gap: 20px; }
   .entryBody h3 { font-size: 14px; }
-  .rates dd { font-size: 14px; }
+  .rates dd { font-size: 18px; }
+}
+@media (min-width: 768px) and (max-width: 1000px) {
+  .utilities { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .utilitySection:last-child { grid-column: 1 / -1; }
 }
 @media (max-width: 767px) {
   .shell { display: block; }
@@ -130,7 +136,7 @@
   .intro { margin-bottom: 29px; }
   .intro h1 { font-size: 28px; letter-spacing: -.9px; }
   .intro p { font-size: 12px; margin-top: 7px; }
-  .content { grid-template-columns: minmax(0, 1fr); gap: 31px; }
+
   .sectionHeader { margin-bottom: 13px; }
   .tabs { gap: 27px; }
   .tabs button { min-height: 44px; padding-bottom: 9px; }
@@ -139,12 +145,16 @@
   .entryBody h3 { font-size: 14px; line-height: 1.7; }
   .entryLabel { font-size: 10px; }
   .entryMeta { font-size: 10px; }
-  .utilities { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 19px; }
-  .utilitySection h2 { font-size: 12px; gap: 6px; }
-  .utilityLink { font-size: 11px; line-height: 1.7; min-height: 44px; }
+  .utilities { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; margin-bottom: 29px; }
+  .utilitySection:last-child { grid-column: 1 / -1; }
+  .utilitySection:last-child .rates { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 20px; }
+  .utilitySection:last-child .utilityNote { margin-top: 8px; }
+  .utilitySection:last-child .utilityNote br { display: none; }
+  .utilitySection h2 { font-size: 15px; gap: 7px; }
+  .utilityLink { font-size: 12px; line-height: 1.7; min-height: 44px; }
   .utilityNote { font-size: 10px; }
   .rates dt { font-size: 11px; }
-  .rates dd { font-size: 13px; }
+  .rates dd { font-size: 18px; }
   .footer { margin-top: 29px; font-size: 10px; }
   .bottomNav { position: fixed; inset: auto 0 0; z-index: 30; display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); padding: 5px 8px max(5px, env(safe-area-inset-bottom)); border-top: 1px solid var(--home-line); background: var(--surface); }
   .bottomNav a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 52px; color: var(--home-muted); font-size: 10px; }
@@ -155,9 +165,7 @@
   .main { padding-inline: 17px; }
   .intro h1 { font-size: 26px; }
   .tabs { justify-content: space-between; gap: 10px; }
-  .utilities { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 22px 18px; }
-  .utilitySection:last-child { grid-column: 1 / -1; }
-  .utilitySection:last-child .utilityNote { margin-top: 0; }
+  .utilitySection { padding: 14px; }
   .utilitySection:last-child h2 { margin-bottom: 8px; }
   .primaryButton { padding-inline: 10px; }
   .account :global(.theme-toggle) { width: 35px; }

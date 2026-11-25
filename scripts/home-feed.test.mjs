@@ -16,7 +16,7 @@ function harness(failedTable) {
 }
 test('home feed bounds source reads, preserves cache tags and uses grouped itinerary titles',async()=>{
  const h=harness();const result=await h.model.getHomeFeed();assert.equal(result.partial,false);assert.equal(result.entries.length,6);assert.equal(h.queries.length,5);
- for(const q of h.queries){assert.equal(q.limit,5);assert.ok(!q.fields.includes('*'));assert.ok(!q.fields.includes('summary'));assert.ok(!q.fields.includes('body'));assert.ok(!q.fields.includes('author_id'));}
+ for(const q of h.queries){assert.equal(q.limit,3);assert.ok(!q.fields.includes('*'));assert.ok(!q.fields.includes('summary'));assert.ok(!q.fields.includes('body'));assert.ok(!q.fields.includes('author_id'));}
  assert.equal(result.entries[0].group,'drinks');assert.equal(result.entries[0].rating,null);assert.equal(result.entries.find(x=>x.group==='travel').title,'여행 묶음');assert.equal(result.entries.find(x=>x.id==='reviews:a/b').href,'/reviews/a%2Fb');
  assert.deepEqual(h.caches.flatMap(x=>Array.from(x.options.tags)).sort(),['drinks','merchandise-reviews','restaurants','reviews','travel','watchlist']);assert.ok(h.caches.every(x=>x.options.revalidate===60));
 });

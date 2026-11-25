@@ -28,9 +28,8 @@ export default async function Home({ searchParams }: HomeProps) {
       <main className={styles.main}>
         <div className={styles.topbar}><p className={styles.breadcrumb}>취향 보관소 / 모아보기</p><Suspense fallback={<div className={styles.accountPlaceholder} aria-label="계정 확인 중" />}><HomeAccount /></Suspense></div>
         <header className={styles.intro}><h1>좋아한 것들의 기록.</h1><p>보고, 맛보고, 다녀온 순간을 차곡차곡.</p></header>
-        <div className={styles.content} id="home-records"><Suspense fallback={<HomeFeedSkeleton />}><RecentFeed /></Suspense>
-          <aside className={styles.utilities} aria-label="생활 정보"><Suspense fallback={<HomeRatesSkeleton />}><HomeExchangeRates /></Suspense><HomeAirportInfo /><HomeEditorPick /></aside>
-        </div>
+        <aside className={styles.utilities} aria-label="추천과 생활 정보"><HomeEditorPick /><HomeAirportInfo /><Suspense fallback={<HomeRatesSkeleton />}><HomeExchangeRates /></Suspense></aside>
+        <div className={styles.content} id="home-records"><Suspense fallback={<HomeFeedSkeleton />}><RecentFeed /></Suspense></div>
         <footer className={styles.footer}><span>취향은 기록으로 남습니다.</span><span>콘텐츠 · 맛집 · 여행 · 술</span></footer>
       </main>
     </div><HomeBottomNav />
@@ -38,5 +37,5 @@ export default async function Home({ searchParams }: HomeProps) {
 }
 async function RecentFeed() { const feed = await getHomeFeed(); return <HomeRecentEntries entries={feed.entries} partial={feed.partial} />; }
 function HomeFeedSkeleton() {
-  return <section className={styles.recent} aria-busy="true" aria-label="최근 기록 확인 중"><div className={styles.sectionHeader}><h2>최근 남긴 기록</h2></div><div className={styles.skeletonTabs} />{Array.from({ length: 5 }, (_, index) => <div key={index} className={styles.skeletonRow}><span /><div><i /><i /></div></div>)}</section>;
+  return <section className={styles.recent} aria-busy="true" aria-label="최근 기록 확인 중"><div className={styles.sectionHeader}><h2>최근 남긴 기록</h2></div><div className={styles.skeletonTabs} />{Array.from({ length: 3 }, (_, index) => <div key={index} className={styles.skeletonRow}><span /><div><i /><i /></div></div>)}</section>;
 }

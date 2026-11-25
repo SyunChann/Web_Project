@@ -48,16 +48,16 @@ async function loadSource(source: Source): Promise<HomeEntry[]> {
     // Reuse the existing grouped list so one itinerary does not occupy several rows.
     const result = await getTravelPostsPage({ scope: "overseas", sort: "created-desc", page: 1 });
     if (result.error) throw Error("Home travel unavailable");
-    return result.items.slice(0, 5).map(({ travel }) => ({ id: `travel:${travel.id}`, href: `/travel/${encodeURIComponent(travel.id)}`, title: travel.tripTitle || travel.title, label: "해외여행", group: "travel", image: homeThumbnail(travel.thumbnail), rating: null, detail: "여행 기록", createdAt: travel.createdAt }));
+    return result.items.slice(0, 3).map(({ travel }) => ({ id: `travel:${travel.id}`, href: `/travel/${encodeURIComponent(travel.id)}`, title: travel.tripTitle || travel.title, label: "해외여행", group: "travel", image: homeThumbnail(travel.thumbnail), rating: null, detail: "여행 기록", createdAt: travel.createdAt }));
   }
   const client = createSupabasePublicClient();
   if (!client) throw Error("Home source unavailable");
   const config = settings[source];
-  const { data, error } = await client.from(config.table).select(config.fields).order("created_at", { ascending: false }).order("id").limit(5);
+  const { data, error } = await client.from(config.table).select(config.fields).order("created_at", { ascending: false }).order("id").limit(3);
   if (error || !data) throw Error("Home source unavailable");
   return (data as unknown as Row[]).map((row) => rowEntry(source, row));
 }
-const reads = Object.fromEntries(sources.map((source) => [source, unstable_cache(() => loadSource(source), [`home-feed-v1-${source}`], { revalidate: 60, tags: [settings[source].tag] })])) as Record<Source, () => Promise<HomeEntry[]>>;
+const reads = Object.fromEntries(sources.map((source) => [source, unstable_cache(() => loadSource(source), [`home-feed-v2-${source}`], { revalidate: 60, tags: [settings[source].tag] })])) as Record<Source, () => Promise<HomeEntry[]>>;
 export async function getHomeFeed() {
   const results = await Promise.allSettled(sources.map((source) => reads[source]()));
   const entries = results.flatMap((result) => result.status === "fulfilled" ? result.value : [])

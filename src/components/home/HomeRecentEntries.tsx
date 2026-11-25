@@ -22,7 +22,7 @@ function EntryPhoto({ entry }: { entry: HomeEntry }) {
 export function HomeRecentEntries({ entries, partial = false }: { entries: HomeEntry[]; partial?: boolean }) {
   const [selected, setSelected] = useState<HomeGroup | "all">("all");
   const id = useId();
-  const visible = entries.filter((entry) => selected === "all" || entry.group === selected).slice(0, 5);
+  const visible = entries.filter((entry) => selected === "all" || entry.group === selected).slice(0, 3);
   const current = filters.find((filter) => filter.value === selected)!;
   return <section className={styles.recent} aria-labelledby={`${id}-heading`}>
     <div className={styles.sectionHeader}><h2 id={`${id}-heading`}>최근 남긴 기록</h2><Link prefetch={false} href={current.href} className={styles.textLink}>목록 보기 <ArrowUpRight size={14} aria-hidden="true" /></Link></div>
