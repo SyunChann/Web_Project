@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { ArrowUpRight, ChevronDown, Library, LogIn, Plus } from "lucide-react";
+import { ArrowUpRight, Library, LogIn, Plus } from "lucide-react";
 import { getSupabaseServerSession } from "@/lib/supabase/session";
 import { isAdminUser } from "@/lib/admin";
 import { loginHref } from "@/lib/returnTo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LogoutButton } from "@/components/LogoutButton";
 import styles from "./Home.module.css";
-import { SiteNavigationLinks, SiteMobileMenu, SiteBottomNavigation, SidebarToggle } from "@/components/site/SiteNavigation";
+import { SiteNavigationLinks, SiteMobileMenu, SiteBottomNavigation, SidebarToggle, SiteAccountMenu } from "@/components/site/SiteNavigation";
 import { getMemberProfile } from "@/data/memberProfile";
 import { ProfileAvatar } from "@/components/account/ProfileAvatar";
 
@@ -29,7 +29,7 @@ export async function HomeAccount() {
   const user = await currentUser();
   return <nav className={styles.account} aria-label="계정 메뉴"><ThemeToggle />
     <Link prefetch={false} href={user ? "/new" : loginHref("/new")} className={styles.primaryButton}><Plus size={16} aria-hidden="true" />새 기록</Link>
-    {user ? <><details className={styles.accountMenu}><summary>마이페이지<ChevronDown size={13} aria-hidden="true" /></summary><div><Link prefetch={false} href="/account">프로필·계정 설정<ArrowUpRight size={14} aria-hidden="true" /></Link><Link prefetch={false} href="/ai-office">AI Office<ArrowUpRight size={14} aria-hidden="true" /></Link><LogoutButton /></div></details>{isAdminUser(user) ? <Link prefetch={false} href="/admin" className={styles.adminLink}>관리자</Link> : null}</>
+    {user ? <><SiteAccountMenu><Link prefetch={false} href="/account">프로필·계정 설정<ArrowUpRight size={14} aria-hidden="true" /></Link>{isAdminUser(user) ? <Link prefetch={false} href="/admin" className={styles.mobileAdminItem}>관리자<ArrowUpRight size={14} aria-hidden="true" /></Link> : null}<Link prefetch={false} href="/ai-office">AI Office<ArrowUpRight size={14} aria-hidden="true" /></Link><LogoutButton /></SiteAccountMenu>{isAdminUser(user) ? <Link prefetch={false} href="/admin" className={styles.adminLink}>관리자</Link> : null}</>
       : <Link prefetch={false} href="/login" className={styles.loginLink}><LogIn size={16} aria-hidden="true" /><span>로그인</span></Link>}
   </nav>;
 }

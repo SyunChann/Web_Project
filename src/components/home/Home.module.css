@@ -262,3 +262,88 @@
 .bottomGroup > div { position: absolute; left: 0; bottom: calc(100% + 10px); width: 174px; padding: 7px; border: 1px solid var(--home-line); border-radius: 6px; background: var(--surface); box-shadow: 0 8px 24px #00000016; }
 .bottomGroup > div a { min-height: 44px; padding: 10px; align-items: flex-start; font-size: 13px; }
 .bottomGroup > div a:hover { background: var(--home-soft); }
+/* Compact mobile overview; desktop cards keep their full summaries. */
+.utilityTitleLink { display: flex; align-items: center; gap: 8px; width: 100%; min-width: 0; }
+.utilityTitleLink > span { flex: 1; min-width: 0; }
+.utilityTitleLink > svg { flex-shrink: 0; }
+.utilityTitleLink:hover > span { text-decoration: underline; text-underline-offset: 4px; }
+.utilityTitleArrow, .mobileNote { display: none; }
+.accountMenu > div > .mobileAdminItem { display: none; }
+.bottomLabel { display: inline-flex; align-items: center; gap: 3px; }
+.menuChevron { flex-shrink: 0; transition: transform .15s; }
+.mobileMenu[open] > summary .menuChevron, .bottomGroup[open] > summary .menuChevron { transform: rotate(180deg); }
+@media (max-width: 767px) {
+  .mobileHeader { position: sticky; top: 0; z-index: 45; min-height: 58px; padding-block: 7px; background: var(--surface); }
+  .mobileMenuPanel { width: min(360px,calc(100vw - 24px)); padding: 10px; max-height: min(72dvh,calc(100dvh - 125px)); }
+  .mobileMenuPanel .menuLinks { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 3px; }
+  .mobileMenuPanel .menuLinks a { gap: 7px; font-size: 12px; padding-inline: 9px; }
+  .mobileMenuPanel .information { margin-top: 14px; padding-top: 11px; border-top: 1px solid var(--home-line); }
+  .main { padding-top: 7px; }
+  .topbar { margin-bottom: 13px; }
+  .account { gap: 5px; }
+  .account > .adminLink { display: none; }
+  .accountMenu > div > .mobileAdminItem { display: flex; }
+  .intro { margin-bottom: 16px; }
+  .intro p { margin-top: 3px; }
+  .utilities { gap: 10px; margin-bottom: 22px; }
+  .utilities .airportCard, .utilities .ratesCard { grid-column: auto; }
+  .airportCard { order: 1; }
+  .ratesCard { order: 2; }
+  .shoppingCard { order: 3; grid-column: 1 / -1; }
+  .utilitySection { padding: 10px 12px; }
+  .utilitySection h2 { margin-bottom: 4px; font-size: 14px; }
+  .utilityTitleLink { min-height: 44px; gap: 6px; }
+  .utilityTitleArrow { display: block; }
+  .utilitySection > .utilityLink { display: none; }
+  .utilitySection > .utilityNote { margin-top: 7px; font-size: 10px; line-height: 1.5; }
+  .utilities .ratesCard .rates { grid-template-columns: minmax(0,1fr); gap: 8px; }
+  .rates > div { gap: 1px; }
+  .rates > div + div { border-top: 1px solid var(--home-line); padding-top: 8px; }
+  .rates dt { font-size: 10px; }
+  .rates dd { font-size: 18px; line-height: 1.4; }
+  .rates .rateMovement { margin-top: 0; }
+  .rates .rateMovement > span { font-size: 11px; gap: 2px; }
+  .rateMovement small { display: none; }
+  .desktopNote { display: none; }
+  .mobileNote { display: inline; }
+  .airportSummary { margin-top: 0; gap: 8px; }
+  .airportSummary > div { align-items: center; min-height: 51px; }
+  .airportSummary > div + div { padding-top: 8px; }
+  .airportSummary dt { min-width: 0; font-size: 12px; }
+  .airportSummary dt small { margin-top: 2px; font-size: 10px; }
+  .airportSummary .waitValue { font-size: 23px; }
+  .congestionBadge { font-size: 10px; margin-top: 2px; padding: 1px 5px; }
+  .productPreview { margin-top: 0; gap: 0; }
+  .productPreview li:nth-child(n+2) { display: none; }
+  .productPreview a { min-height: 44px; align-items: center; gap: 8px; }
+  .productPreview a > div { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 10px; }
+  .productPreview h3 { font-size: 12px; line-height: 1.6; }
+  .productPreview p { margin-top: 0; font-size: 14px; white-space: nowrap; }
+  .productRank { font-size: 11px; }
+  .shoppingFallback { gap: 4px 14px; }
+  .shoppingFallback a { min-height: 44px; display: inline-flex; align-items: center; }
+  .entryLink { padding-block: 13px; gap: 11px; }
+  .thumbnail { width: 44px; height: 56px; }
+  .entryLabel, .entryMeta { font-size: 11px; }
+  .entryBody h3 { font-size: 14px; line-height: 1.6; }
+  .recordsGrid { gap: 24px; }
+  .exploreIntro { min-height: 37px; padding-top: 3px; }
+  .sectionHeader { margin-bottom: 8px; }
+  .sectionHeader .textLink { min-height: 44px; }
+  .quickSkeleton { min-height: 115px; }
+  .shoppingCard .quickSkeleton { min-height: 44px; grid-template-columns: 1fr 1fr; }
+  .bottomNav { padding-top: 4px; }
+  .bottomGroup > div { position: fixed; inset: auto 12px calc(72px + env(safe-area-inset-bottom)); width: auto; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 3px; padding: 8px; }
+  .bottomGroup > div a { justify-content: center; align-items: flex-start; min-height: 48px; padding: 10px 12px; border-radius: 4px; }
+  .bottomGroup > div a[aria-current="page"] { background: var(--home-soft); }
+}
+@media (max-width: 360px) {
+  .utilityTitleLink > svg:first-child { display: none; }
+  .utilitySection { padding-inline: 10px; }
+  .utilitySection h2 { font-size: 13px; }
+  .rates dd { font-size: 17px; }
+  .productPreview a > div { gap: 7px; }
+  .productPreview p { font-size: 13px; }
+}
+
+@media (max-width:767px) { .utilities .ratesCard .rateNote br { display: block; } }

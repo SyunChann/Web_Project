@@ -123,3 +123,5 @@
 
 .site-content input[type="file"]::file-selector-button { min-height: 44px; margin-right: 10px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface-muted); color: var(--foreground); cursor: pointer; font: inherit; }
 .site-content.site-content [class~="text-[var(--on-accent)]"] { color: var(--on-accent) !important; }
+
+@media (max-width:767px) { html { scroll-padding-top: 70px; scroll-padding-bottom: calc(80px + env(safe-area-inset-bottom)); } .site-content [id] { scroll-margin-top: 70px; scroll-margin-bottom: calc(80px + env(safe-area-inset-bottom)); } }
