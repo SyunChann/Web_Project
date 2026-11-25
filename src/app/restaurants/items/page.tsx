@@ -3,7 +3,6 @@ import { MobileFilterDetails } from "@/components/MobileFilterDetails";
 import { MapPinned, Search, Star, X } from "lucide-react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
-import { RestaurantScopeTabs } from "@/components/RestaurantScopeTabs";
 import { ThumbnailImage } from "@/components/ThumbnailImage";
 import Pagination from "@/components/Pagination";
 import {
@@ -82,7 +81,6 @@ export default async function RestaurantsReviewsPage({
         <AppNav active={isOverseas ? "overseas-restaurants-map" : "domestic-restaurants-map"} />
 
         <header className="py-4 sm:py-10">
-          <RestaurantScopeTabs active={activeScope} />
           <p className={`text-sm font-semibold ${accentText}`}>
             {isOverseas ? "Overseas Restaurant" : "Restaurant"}
           </p>
@@ -94,15 +92,13 @@ export default async function RestaurantsReviewsPage({
               ? "지도에 등록된 해외 맛집리뷰를 목록으로 확인합니다."
               : "맛집의 기록을 한곳에서 확인할 수 있습니다."}
           </p>
-          {isOverseas ? (
-            <Link
-              href="/restaurants/map"
-               className="hidden"
-            >
-              <MapPinned size={17} />
-              지도로 보기
-            </Link>
-          ) : null}
+          <Link
+            href={isOverseas ? "/restaurants/map/overseas" : "/restaurants/map/domestic"}
+            className="mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[var(--muted)] hover:text-[var(--accent)]"
+          >
+            <MapPinned size={16} aria-hidden="true" />
+            지도로 보기
+          </Link>
         </header>
 
         <section className="mb-4 rounded-lg border border-[#ddd6cc] bg-white p-3 shadow-sm sm:mb-8 sm:p-4">

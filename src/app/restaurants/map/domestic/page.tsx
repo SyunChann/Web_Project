@@ -3,7 +3,6 @@ import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
 import { DomesticRestaurantsMapView } from "@/components/restaurants/domestic/DomesticRestaurantsMapView";
 import { getRestaurantsReviews } from "@/data/restaurants";
-import { RestaurantScopeTabs } from "@/components/RestaurantScopeTabs";
 
 export const metadata = {
   title: "국내 맛집리뷰 지도 | 취향보관소",
@@ -36,12 +35,11 @@ export default async function RestaurantsMapPage() {
         <AppNav active="domestic-restaurants-map" />
 
         <header className="py-10">
-          <RestaurantScopeTabs active="domestic" view="map" />
           <div className="hidden">
             <MapPinned size={16} />
             국내 맛집리뷰 지도
           </div>
-          <div className="mt-5 flex flex-wrap items-end justify-between gap-4">
+          <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="text-sm font-black uppercase text-[#e57632]">
                 Restaurant Map
@@ -63,7 +61,7 @@ export default async function RestaurantsMapPage() {
                 국내 맛집 작성
               </Link>
               <Link
-                href="/restaurants/items?scope=restaurant"
+                href="/restaurants/items"
                 className="inline-flex items-center gap-2 rounded-md border border-[#fdddba] bg-white px-4 py-2 text-sm font-bold text-[#075985] shadow-sm transition hover:border-[#e57632] hover:text-[#e57632]"
               >
                 목록으로 보기

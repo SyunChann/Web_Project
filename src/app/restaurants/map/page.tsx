@@ -1,7 +1,6 @@
 import { ArrowRight, MapPinned, Plus } from "lucide-react";
 import Link from "next/link";
 import { AppNav } from "@/components/AppNav";
-import { RestaurantScopeTabs } from "@/components/RestaurantScopeTabs";
 import { OverseasRestaurantsMapView } from "@/components/restaurants/overseas/OverseasRestaurantsMapView";
 import { getRestaurantsReviews } from "@/data/restaurants";
 
@@ -36,7 +35,6 @@ export default async function RestaurantsMapPage() {
         <AppNav active="overseas-restaurants-map" />
 
         <header className="py-10">
-          <RestaurantScopeTabs active="overseas" view="map" />
           <div className="hidden">
             <MapPinned size={16} />
             해외 맛집리뷰 지도

@@ -18,7 +18,7 @@ export const informationNavigation = [
 ] as const;
 export function siteSection(path: string, scope = '') {
   if(path==='/')return 'home';
-  if(path.startsWith('/restaurants'))return scope==='overseas'||path.includes('/overseas')?'overseas':'restaurants';
+  if(path.startsWith('/restaurants'))return scope==='overseas'||path==='/restaurants/map'||path.includes('/overseas')?'overseas':'restaurants';
   return path.split('/')[1] || 'home';
 }
 export function siteSectionLabel(path:string,scope='') {
